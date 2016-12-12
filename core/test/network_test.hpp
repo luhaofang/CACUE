@@ -44,7 +44,6 @@ network* create_alexnet()
 
 void test_network()
 {
-	
 
 	network net;
 	for (int i = 1; i <= 2;i++)

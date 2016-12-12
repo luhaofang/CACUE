@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 template<typename DTYPE>
-void cacu_saxpby_opm(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
+void cacu_saxpby_omp(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
 {
 	#pragma omp parallel for
 	for (int i = 0; i < length; ++i)
@@ -41,7 +41,7 @@ void cacu_saxpby_opm(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
 }
 
 template<typename DTYPE>
-void cacu_caxpby_opm(DTYPE *x, DTYPE *a, DTYPE *y, DTYPE *b, int length)
+void cacu_caxpby_omp(DTYPE *x, DTYPE *a, DTYPE *y, DTYPE *b, int length)
 {
 	#pragma omp parallel for
 	for (int i = 0; i < length; ++i)
@@ -51,7 +51,7 @@ void cacu_caxpby_opm(DTYPE *x, DTYPE *a, DTYPE *y, DTYPE *b, int length)
 }
 
 template<typename DTYPE>
-void cacu_sgemv_opm(DTYPE *x, int x_height, DTYPE *y, int x_width, DTYPE *z)
+void cacu_sgemv_omp(DTYPE *x, int x_height, DTYPE *y, int x_width, DTYPE *z)
 {
 	#pragma omp parallel for
 	for (int i = 0; i < x_height; ++i)
@@ -62,13 +62,24 @@ void cacu_sgemv_opm(DTYPE *x, int x_height, DTYPE *y, int x_width, DTYPE *z)
 }
 
 template<typename DTYPE>
-void cacu_transpose_opm(DTYPE *x, int x_width, int x_height)
+void cacu_sgemm_omp(TRANSPOSE transx, TRANSPOSE transy, DTYPE *x, int x_height, int x_width, DTYPE *y, int y_width, DTYPE *z)
 {
-	#pragma omp parallel for
-	for (int i = 0; i < x_width; ++i)
-	{
-		for (int j = 0; j < x_height; ++j)
-			z[i] += x[i*x_height + j] * y[j];
+
+}
+
+template<typename DTYPE>
+void cacu_transpose_omp(DTYPE *x, int width, int height)
+{
+		
+}
+
+template<typename DTYPE>
+void cacu_copy_omp(DTYPE *x, int x_length, DTYPE *y)
+{
+#pragma omp parallel for
+	for (int i = 0; i < x_length; ++i)
+	{	
+		y[i] = x[i];
 	}
 }
 

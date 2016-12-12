@@ -53,7 +53,8 @@ namespace mycnn{
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			cacu_relu(s_blob_->s_data(), s_blob_->count());
+			if (test == o_blob_->phrase())
+				cacu_relu(s_blob_->s_data(), s_blob_->count());
 			echo();
 			return;
 		}

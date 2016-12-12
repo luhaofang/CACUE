@@ -37,7 +37,7 @@ void cacu_saxpy(DTYPE *x, DTYPE a, DTYPE *y,int length)
 {
 
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_saxpby_opm(x, a, y, length);
+	cacu_saxpby_omp(x, a, y, length);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpy_oblas(x, a, y, length);
 #elif __PARALLELTYPE__ == __GPU__
@@ -50,7 +50,7 @@ void cacu_caxpy(DTYPE *x, DTYPE *a, DTYPE *y, int length)
 {
 
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_saxpby_opm(x, a, y, length);
+	cacu_saxpby_omp(x, a, y, length);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_caxpy_oblas(x, a, y,length);
 #elif __PARALLELTYPE__ == __GPU__
@@ -63,7 +63,7 @@ void cacu_saxpby(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
 {
 
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_saxpby_opm(x, a, y, b, length);
+	cacu_saxpby_omp(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpby_oblas(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __GPU__
@@ -77,7 +77,7 @@ void cacu_caxpby(DTYPE *x, DTYPE *a, DTYPE *y, DTYPE *b, int length)
 {
 
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_caxpby_opm(x, a, y, b, length);
+	cacu_caxpby_omp(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_caxpby_oblas(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __GPU__
@@ -91,7 +91,7 @@ void cacu_sgemv(TRANSPOSE trans,DTYPE *x, int x_height, DTYPE *y, int x_width, D
 {
 	
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_sgemv_opm(x, x_height, y, x_width, z);
+	cacu_sgemv_omp(x, x_height, y, x_width, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (trans == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemv_oblas(transx, x, x_height, y, x_width, z);

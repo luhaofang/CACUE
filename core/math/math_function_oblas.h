@@ -73,3 +73,9 @@ void cacu_transpose_oblas(DTYPE *x, int x_width, int x_height)
 {
 
 }
+
+template<typename DTYPE>
+void cacu_copy_oblas(DTYPE *x, int x_width, int x_height)
+{
+	cblas_scopy(x_width, x, 1, y, 1);
+}

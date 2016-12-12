@@ -90,5 +90,4 @@ namespace mycnn {
 		return ret;
 	}
 
-}
-;
+};
