@@ -27,34 +27,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "utils\utils.h"
-#include "utils\log.h"
-#include "utils\configs.h"
+#include "utils/utils.h"
+#include "utils/log.h"
+#include "utils/configs.h"
 
-#include "tools\args.h"
+#include "tools/args.h"
 
-#include "core\framework\blob_base.h"
-#include "core\framework\bin_blob.h"
-#include "core\framework\blob.h"
-#include "core\framework\blobs.h"
-#include "core\framework\weight.h"
-#include "core\graph\edge_base.h"
-#include "core\graph\node_base.h"
-#include "core\graph\graph_base.h"
+#include "core/framework/blob_base.h"
+#include "core/framework/bin_blob.h"
+#include "core/framework/blob.h"
+#include "core/framework/blobs.h"
+#include "core/framework/weight.h"
+#include "core/graph/edge_base.h"
+#include "core/graph/node_base.h"
+#include "core/graph/graph_base.h"
 
-#include "utils\cacu_allocator.h"
+#include "utils/cacu_allocator.h"
 
-#include "core\math\matrix.h"
-#include "core\math\cube.h"
+#include "core/math/matrix.h"
+#include "core/math/cube.h"
 
-#include "core\ops\operators.h"
+#include "core/ops/operators.h"
 
-#include "core\solvers\solvers.h"
+#include "core/solvers/solvers.h"
 
-#include "core\framework\layer_base.h"
-#include "core\framework\layer.h"
-#include "core\framework\layer_block.h"
-#include "core\framework\network.h"
-#include "core\framework\layer_creator.h"
+#include "core/framework/layer_base.h"
+#include "core/framework/layer.h"
+#include "core/framework/layer_block.h"
+#include "core/framework/network.h"
+#include "core/framework/layer_creator.h"
 
 

@@ -38,6 +38,7 @@ namespace mycnn{
 		weight(chars_t name,int num,int channel,int width,int height,phrase_type phrase = test)
 			: blob(num, channel, width, height,1,phrase){
 			_name = name;
+			_update_lr = 1.0;
 		};
 
 		inline chars_t name(){ return _name; }

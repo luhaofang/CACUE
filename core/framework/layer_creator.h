@@ -30,28 +30,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	layer_block* conv_layer_maxpooling(blob* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = relu)
+	layer_block* conv_layer_maxpooling(blob* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = CACU_RELU)
 	{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad);
-		l->op(convolution,data)->op(activation_op);
+		l->op(CACU_CONVOLUTION,data)->op(activation_op);
 		layer *ml = new layer(output_channel, 3, 2);
-		ml->op(max_pooling, (blob*)l->get_oblob());
+		ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 		clock_t end = clock();
-		LOG_INFO("%d\n", end - start);
+		LOG_INFO("time cost :%d\n", (end - start) / 1000);
 		*lb << l << ml;
 		return lb;
 	}
 
-	layer_block* conv_layer_nopooling(blob* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = relu)
+	layer_block* conv_layer_nopooling(blob* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
 	{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad);
-		l->op(convolution, data)->op(activation_op);
+		l->op(CACU_CONVOLUTION, data)->op(activation_op);
 		clock_t end = clock();
-		LOG_INFO("%d\n", end - start);
+		LOG_INFO("time cost :%d\n", (end - start) / 1000);
 		*lb << l;
 		return lb;
 	}

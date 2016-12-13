@@ -69,7 +69,7 @@ namespace mycnn{
 			_data.resize(_length, DTYPE(0));
 		}
 
-		int calculate_size(){ return _length*sizeof(DTYPE) };
+		int calculate_size(){ return _length*sizeof(DTYPE) ;};
 
 		DTYPE* s_data;
 

@@ -37,13 +37,13 @@ namespace mycnn{
 
 	enum op_name
 	{
-		inner_product, 
-		convolution, 
-		sum_elemwise,
-		relu,
-		batch_normalize,
-		max_pooling,
-		average_pooling
+		CACU_INNERPRODUCT,
+		CACU_CONVOLUTION,
+		CACU_SUM_ELEMWISE,
+		CACU_RELU,
+		CACU_BATCH_NORMALIZE,
+		CACU_MAX_POOLING,
+		CACU_AVERAGE_POOLING
 	};
 
 	class operator_factory
@@ -55,37 +55,37 @@ namespace mycnn{
 
 			switch (op_name_)
 			{
-			case inner_product:
+			case CACU_INNERPRODUCT:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new inner_product_op((blob*&)(*blob_)[0], args_);
 				break;
 
-			case convolution:
+			case CACU_CONVOLUTION:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new convolution_op((blob*&)(*blob_)[0], args_);
 				break;
 
-			case sum_elemwise:
+			case CACU_SUM_ELEMWISE:
 				CHECK_GE_OP(blob_->size(), 2);
 				return new sum_elemwise_op(blob_, args_);
 				break;
 
-			case relu:
+			case CACU_RELU:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new relu_op((blob*&)(*blob_)[0], args_);
 				break;
 
-			case batch_normalize:
+			case CACU_BATCH_NORMALIZE:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new batch_normal_op((blob*&)(*blob_)[0], args_);
 				break;
 
-			case max_pooling:
+			case CACU_MAX_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new max_pooling_op((blob*&)(*blob_)[0], args_);
 				break;
 
-			case average_pooling:
+			case CACU_AVERAGE_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new average_pooling_op((blob*&)(*blob_)[0], args_);
 				break;
@@ -95,6 +95,7 @@ namespace mycnn{
 				return NULL;
 				break;
 			}
+			return NULL;
 		}
 	};
 

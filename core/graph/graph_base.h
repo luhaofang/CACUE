@@ -36,7 +36,7 @@ namespace mycnn{
 
 		graph_base(){}
 
-		~graph_base(){
+		virtual ~graph_base(){
 		
 			for (unsigned int i = 0; i < _nodes.size(); ++i)
 				delete _nodes[i];

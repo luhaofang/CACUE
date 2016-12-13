@@ -45,8 +45,6 @@ namespace mycnn{
 
 	public:
 
-		node_base(){}
-
 		node_base(operator_base *&op){
 
 			for (unsigned int i = 0; i < op->in_datas()->size(); ++i)
@@ -61,7 +59,7 @@ namespace mycnn{
 			_op = op;
 		}
 
-		~node_base(){
+		virtual ~node_base(){
 			for (unsigned int i = 0; i < s_edges.size(); ++i){
 				delete s_edges[i];
 			}

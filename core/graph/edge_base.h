@@ -34,15 +34,11 @@ namespace mycnn{
 
 	public:
 
-		edge_base(){
-
-		}
-
 		edge_base(blob_base *&s_data_){
 			s_data = s_data_;
 		}
 
-		~edge_base(){			
+		virtual ~edge_base(){
 			s_data = NULL;
 		}
 

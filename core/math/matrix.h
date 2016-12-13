@@ -43,6 +43,7 @@ namespace mycnn{
 			s_data = &_data[0];
 			_width = width;
 			_height = height;
+			_length = width * height;
 		}
 
 		~matrix(){ 
@@ -63,7 +64,7 @@ namespace mycnn{
 			_data.resize(width*height, DTYPE(0));
 		}
 
-		int calculate_size(){ return _width*_height*sizeof(DTYPE) };
+		int calculate_size(){ return _width*_height*sizeof(DTYPE) ;};
 
 		DTYPE* s_data;
 
@@ -73,5 +74,7 @@ namespace mycnn{
 
 		int _width;
 		int _height;
+
+		int _length;
 	};
 }

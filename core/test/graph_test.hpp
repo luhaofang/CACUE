@@ -24,7 +24,4 @@ void test_graph()
 
 	printf("%d", net.length());
 
-	char x;
-
-	scanf_s(&x);
 }

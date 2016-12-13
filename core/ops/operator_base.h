@@ -39,17 +39,19 @@ namespace mycnn{
 		operator_base(blob_base *&data, args *&args_){
 			
 			s_blob = data;
-			_args = args_;		
+			s_blobs = NULL;
+			_args = args_;
 
 		};
 
 		operator_base(blobs *&data, args *&args_){
 
+			s_blob = NULL;
 			s_blobs = data;
 			_args = args_;
 		};
 
-		~operator_base(){
+		virtual ~operator_base(){
 
 			delete _args;			
 		};

@@ -33,7 +33,7 @@ using namespace std;
 
 
 #define CHECK_OP(level, format, ...) \
-	do{fprintf(stderr,"[%s] \"%s\" function %s in line %d :" format "\n",level, __FILE__,__FUNCTION__, __LINE__, ##__VA_ARGS__);}while(0)
+	do{fprintf(stderr,"[%s %s %s:%d]:" format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);}while(0)
 
 #define CHECK_EQ_OP(x,y)					\
 	if (x != y){							\

@@ -45,16 +45,12 @@ namespace mycnn{
 			_kernel_size = kernel_size;
 			_stride = stride;
 			_pad = pad;
+			_output_dim = 0;
 			_phrase = phrase;
 
 		};
 
-		layer_base()
-		{
-
-		};
-
-		~layer_base(){
+		virtual ~layer_base(){
 		
 			
 		};

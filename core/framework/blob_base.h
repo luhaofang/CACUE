@@ -57,7 +57,7 @@ namespace mycnn{
 			_phrase = phrase;
 		}
 
-		~blob_base(){
+		virtual ~blob_base(){
 
 		}		
 		

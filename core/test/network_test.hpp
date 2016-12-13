@@ -15,7 +15,7 @@ layer_block create_block(int i)
 
 	layer *clayer = new layer(i, i, i, i, 1);
 
-	c->op(sum_elemwise, data)->op(inner_product, data);
+	c->op(CACU_INNERPRODUCT,data);
 
 	layer_block cs(i, i, i, i, 1);
 	cs << clayer << clayer << c;
@@ -54,7 +54,5 @@ void test_network()
 
 	printf("%d",net.length());
 
-	char x;
 
-	scanf_s(&x);
 }
