@@ -27,4 +27,46 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "cuda_log.h"
 
+#if __PARALLELTYPE__ == __GPU__
+
+#include <cuda_runtime.h>
+
+cudaError_t res;
+
+template<typename DTYPE>
+inline DTYPE* cuda_malloc(int length)
+{
+	DTYPE* data_;
+	res = cudaMalloc((void**) (&data_), length * sizeof(DTYPE));
+	//CUDA_CHECK(res);
+	return data_;
+}
+
+template<typename DTYPE>
+inline DTYPE* cuda_malloc_v(int length,DTYPE value)
+{
+	DTYPE* data_;
+	vector<DTYPE> v(length,value);
+	res = cudaMalloc((void**) (&data_), length * sizeof(DTYPE));
+	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
+	//CUDA_CHECK(res);
+	return data_;
+}
+
+template<typename DTYPE>
+inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
+{
+	vector<DTYPE> v(length,value);
+	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
+	//CUDA_CHECK(res);
+}
+
+template<typename DTYPE>
+inline void cuda_free(DTYPE* data_)
+{
+	cudaFree(data_);
+}
+
+#endif

@@ -28,10 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
-
-
-template<typename DTYPE>
-void cacu_saxpby_omp(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
+void cacu_saxpby_omp(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
 	#pragma omp parallel for
 	for (int i = 0; i < length; ++i)
@@ -40,18 +37,7 @@ void cacu_saxpby_omp(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
 	}
 }
 
-template<typename DTYPE>
-void cacu_caxpby_omp(DTYPE *x, DTYPE *a, DTYPE *y, DTYPE *b, int length)
-{
-	#pragma omp parallel for
-	for (int i = 0; i < length; ++i)
-	{
-		x[i] = x[i] * a[i] + y[i] * b[i];
-	}
-}
-
-template<typename DTYPE>
-void cacu_sgemv_omp(DTYPE *x, int x_height, DTYPE *y, int x_width, DTYPE *z)
+void cacu_sgemv_omp(float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
 	#pragma omp parallel for
 	for (int i = 0; i < x_height; ++i)
@@ -61,20 +47,17 @@ void cacu_sgemv_omp(DTYPE *x, int x_height, DTYPE *y, int x_width, DTYPE *z)
 	}
 }
 
-template<typename DTYPE>
-void cacu_sgemm_omp(TRANSPOSE transx, TRANSPOSE transy, DTYPE *x, int x_height, int x_width, DTYPE *y, int y_width, DTYPE *z)
+void cacu_sgemm_omp(TRANSPOSE transx, TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
 {
 
 }
 
-template<typename DTYPE>
-void cacu_transpose_omp(DTYPE *x, int width, int height)
+void cacu_transpose_omp(float_t *x, int width, int height)
 {
 		
 }
 
-template<typename DTYPE>
-void cacu_copy_omp(DTYPE *x, int x_length, DTYPE *y)
+void cacu_copy_omp(float_t *x, int x_length, float_t *y)
 {
 #pragma omp parallel for
 	for (int i = 0; i < x_length; ++i)

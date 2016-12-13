@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 
+#include "../math/cuda/cuda_utils.h"
+
 
 using namespace std;
 
@@ -40,18 +42,34 @@ namespace mycnn{
 
 		blob(int num, int channel, int width, int height, float_t _value=0, phrase_type phrase=test)
 			:blob_base(num, channel, width, height, phrase){
+#if __PARALLELTYPE__ == __GPU__
+			_s_data = cuda_malloc_v<float_t>(num*channel*width*height, _value);
+			CUDA_CHECK(res);
+			if (train == phrase){
+				_s_diff = cuda_malloc<float_t>(num*channel*width*height);
+				CUDA_CHECK(res);
+			}
+#else
 			_data.resize(num*channel*width*height, _value);
 			_s_data = &_data[0];
 			if (train == phrase){
 				_diff.resize(num*channel*width*height);
 				_s_diff = &_diff[0];
-			}			
+			}
+#endif
+
 		}
 
 		~blob(){
+#if __PARALLELTYPE__ == __GPU__
+			cuda_free<float_t>(_s_data);
+			if(train == _phrase)
+				cuda_free<float_t>(_s_diff);
+#else
 			vec_t().swap(_data);
 			if (train == _phrase)
 				vec_t().swap(_diff);
+#endif
 		}
 
 		inline float_t* p_data(int n) {
@@ -68,9 +86,15 @@ namespace mycnn{
 
 		inline virtual const void _RESET_DATA() override
 		{
+#if __PARALLELTYPE__ == __GPU__
+			cuda_setvalue<float_t>(_s_data,(float_t)(0),_num*_cube_length);
+			if(train == _phrase)
+				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_num*_cube_length);
+#else
 			_data.resize(_num*_cube_length, float_t(0));
 			if (train == _phrase)
 				_diff.resize(_num*_cube_length, float_t(0));
+#endif
 		}
 
 		inline virtual const int calculate_size() override{
@@ -80,9 +104,12 @@ namespace mycnn{
 
 	protected:
 
+#if __PARALLELTYPE__ != __GPU__
 		vec_t _data;
 
 		vec_t _diff;
+
+#endif
 
 		float_t *_s_data;
 

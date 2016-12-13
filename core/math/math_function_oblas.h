@@ -30,52 +30,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cblas.h>
 
 
-template<typename DTYPE>
-void cacu_saxpy_oblas(DTYPE *x, DTYPE a, DTYPE *y, int length)
+inline void cacu_saxpy_oblas(float_t *x, float_t a, float_t *y, int length)
 {
 	cblas_saxpy(length, a, x, 1, y, 1);
 }
 
-template<typename DTYPE>
-void cacu_caxpy_oblas(DTYPE *x, DTYPE *a, DTYPE *y, int length)
+inline void cacu_saxpby_oblas(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
-	cblas_caxpy(length, a, x, 1, y, 1);
+	//cblas_saxpby(length, a, x, 1, b, y, 1);
 }
 
-template<typename DTYPE>
-void cacu_saxpby_oblas(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
+inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
-	cblas_saxpby(length, a, x, 1, b, y, 1);
+	cblas_sgemv(CblasRowMajor, trans, x_height, x_width, (float_t)1, x, x_width, y, 1, (float_t)0, z, 1);
 }
 
-template<typename DTYPE>
-void cacu_caxpby_oblas(DTYPE *x, DTYPE *a, DTYPE *y, DTYPE *b, int length)
-{
-	cblas_caxpby(length, a, x, 1, b, y, 1);
-}
-
-template<typename DTYPE>
-void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, DTYPE *x, int x_height, DTYPE *y, int x_width, DTYPE *z)
-{
-	cblas_sgemv(CblasRowMajor, trans, x_height, x_width, (DTYPE)1, x, x_width, y, 1, (DTYPE)0, z, 1);
-}
-
-template<typename DTYPE>
-void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, DTYPE *x, int x_height, int x_width, DTYPE *y, int y_width, DTYPE *z)
+inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
 {
 	int lda = (transx == CblasNoTrans) ? x_width : x_height;
 	int ldb = (transy == CblasNoTrans) ? y_width : x_width;
 	cblas_sgemm(CblasRowMajor, transx, transy, x_height, y_width, x_width, 1, x, lda, y, ldb, 0, z, y_width);
 }
 
-template<typename DTYPE>
-void cacu_transpose_oblas(DTYPE *x, int x_width, int x_height)
+inline void cacu_transpose_oblas(float_t *x, int x_width, int x_height)
 {
 
 }
 
-template<typename DTYPE>
-void cacu_copy_oblas(DTYPE *x, int x_length,DTYPE *y)
+inline void cacu_copy_oblas(float_t *x, int x_length,float_t *y)
 {
 	cblas_scopy(x_length,x,1,y,1);
 }

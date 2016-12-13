@@ -30,10 +30,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "math_function_openmp.h"
 #include "math_function_oblas.h"
 
+#include "cuda/math_functions_cuda.h"
+
 namespace mycnn{
 
-template<typename DTYPE>
-void cacu_saxpy(DTYPE *x, DTYPE a, DTYPE *y,int length)
+
+inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
 {
 
 #if __PARALLELTYPE__ == __OPENMP__
@@ -41,25 +43,11 @@ void cacu_saxpy(DTYPE *x, DTYPE a, DTYPE *y,int length)
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpy_oblas(x, a, y, length);
 #elif __PARALLELTYPE__ == __GPU__
-	LOG_INFO("Haven't finished yet!");
+	cacu_saxpy_gpu(x, a, y, length);
 #endif
 }
 
-template<typename DTYPE>
-void cacu_caxpy(DTYPE *x, DTYPE *a, DTYPE *y, int length)
-{
-
-#if __PARALLELTYPE__ == __OPENMP__
-	cacu_saxpby_omp(x, a, y, length);
-#elif __PARALLELTYPE__ == __OPENBLAS__
-	cacu_caxpy_oblas(x, a, y,length);
-#elif __PARALLELTYPE__ == __GPU__
-	LOG_INFO("Haven't finished yet!");
-#endif
-}
-
-template<typename DTYPE>
-void cacu_saxpby(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
+inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
 
 #if __PARALLELTYPE__ == __OPENMP__
@@ -67,27 +55,13 @@ void cacu_saxpby(DTYPE *x, DTYPE a, DTYPE *y, DTYPE b, int length)
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpby_oblas(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __GPU__
-	LOG_INFO("Haven't finished yet!");
+	cacu_saxpby_gpu(x, a, y, b, length);
 #endif
 
 }
 
-template<typename DTYPE>
-void cacu_caxpby(DTYPE *x, DTYPE *a, DTYPE *y, DTYPE *b, int length)
-{
 
-#if __PARALLELTYPE__ == __OPENMP__
-	cacu_caxpby_omp(x, a, y, b, length);
-#elif __PARALLELTYPE__ == __OPENBLAS__
-	cacu_caxpby_oblas(x, a, y, b, length);
-#elif __PARALLELTYPE__ == __GPU__
-	LOG_INFO("Haven't finished yet!");
-#endif
-
-}
-
-template<typename DTYPE>
-void cacu_sgemv(TRANSPOSE trans,DTYPE *x, int x_height, DTYPE *y, int x_width, DTYPE *z)
+inline void cacu_sgemv(TRANSPOSE trans,float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
 	
 #if __PARALLELTYPE__ == __OPENMP__
@@ -96,22 +70,25 @@ void cacu_sgemv(TRANSPOSE trans,DTYPE *x, int x_height, DTYPE *y, int x_width, D
 	CBLAS_TRANSPOSE transx = (trans == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemv_oblas(transx, x, x_height, y, x_width, z);
 #elif __PARALLELTYPE__ == __GPU__
-	LOG_INFO("Haven't finished yet!");
+	cublasOperation_t transx = (trans == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
+	cacu_sgemv_gpu(transx, x, x_height, y, x_width, z);
 #endif
 }
 
-template<typename DTYPE>
-void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, DTYPE *x, int x_height, int x_width, DTYPE *y, int y_height, DTYPE *z)
+
+inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_height, int x_width, float_t *y, int y_height, float_t *z)
 {
 
 #if __PARALLELTYPE__ == __OPENMP__
-	LOG_INFO("Haven't finished yet!");
+	cacu_sgemm_omp(transx, transy, x, x_height, x_width, y, y_height, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (transx_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	CBLAS_TRANSPOSE transy = (transy_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemm_oblas(transx, transy, x, x_height, x_width, y, y_height, z);
 #elif __PARALLELTYPE__ == __GPU__
-	LOG_INFO("Haven't finished yet!");
+	cublasOperation_t transx = (transx_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
+	cublasOperation_t transy = (transy_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
+	cacu_sgemm_gpu(transx, transy, x, x_height, x_width, y, y_height, z);
 #endif
 }
 

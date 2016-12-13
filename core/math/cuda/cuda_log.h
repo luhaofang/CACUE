@@ -27,4 +27,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <iostream>
+#include <stdio.h>
 
+#include <string.h>
+
+#if __PARALLELTYPE__ == __GPU__
+
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
+
+
+namespace mycnn{
+
+
+#define CUDA_LOG(level, res)   \
+		if(res!=cudaSuccess) \
+			{do{ fprintf(stderr,"[%s %s %s:%d] cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__);}while(0); exit(-1);};
+
+
+#define CUDA_CHECK(res) CUDA_LOG("CUDA",res)
+
+#define CUBLAS_LOG(level,status) \
+		if(status!=CUBLAS_STATUS_SUCCESS) \
+			{do{ fprintf(stderr,"[%s %s %s:%d] cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__);}while(0); exit(-1);};
+
+#define CUBLAS_CHECK(status) CUDA_LOG("CUBLAS",status)
+
+};
+
+
+#endif

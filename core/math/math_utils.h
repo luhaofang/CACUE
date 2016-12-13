@@ -66,14 +66,14 @@ using namespace std;
 		}
 
 
-typedef enum TRANSPOSE{
+typedef enum {
 
 	TRANS,NOTRANS
 
-};
+} TRANSPOSE;
 
-typedef enum SUM{
+typedef enum {
 
 	BYWIDTH, BYHEIGHT
 
-};
+} SUM;

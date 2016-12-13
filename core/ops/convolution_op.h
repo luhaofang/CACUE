@@ -96,7 +96,7 @@ namespace mycnn{
 #else			
 			for (int i = 0; i < s_blob_->num(); ++i){
 				if (_args->at(3) != 0){
-					cacu_padded_data(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
+					cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
 					cacu_img2col(_padded_data->p_data(i), _args->at(1), _args->at(2), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
 				}
 				else
