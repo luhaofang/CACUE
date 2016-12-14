@@ -69,7 +69,7 @@ namespace mycnn{
 			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel, _ARGSEND);
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			blobs_->push_back(blob_);
-			if (out_blob!=NULL)
+			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
 			out_blob = (blob*)(ops[ops.size() - 1])->out_data();
@@ -110,7 +110,7 @@ namespace mycnn{
 
 	private:
 
-		blob_base* out_blob;
+		blob_base* out_blob= NULL;
 
 	};
 

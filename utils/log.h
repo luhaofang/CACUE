@@ -37,7 +37,7 @@ namespace mycnn{
 
 #define LOG(level, format,...)   \
 	if(level == "DEBUG"||level == "FATAL") \
-		do{ fprintf(stderr,"[%s %s %s:%d] " format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);}while(0); \
+		do{ fprintf(stderr,"[%s %s %s:%d] %s " format "\n",level, __TIME__, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);}while(0); \
 		else \
 		do{ fprintf(stderr,"[%s %s %s:%d] " format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);} while (0)
 

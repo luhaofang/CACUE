@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+
 #include "utils/utils.h"
 #include "utils/log.h"
 #include "utils/configs.h"
@@ -56,5 +57,4 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/framework/layer_block.h"
 #include "core/framework/network.h"
 #include "core/framework/layer_creator.h"
-
 

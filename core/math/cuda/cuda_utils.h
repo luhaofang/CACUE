@@ -27,11 +27,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "cuda_log.h"
-
 #if __PARALLELTYPE__ == __GPU__
 
 #include <cuda_runtime.h>
+
+#include "cuda_log.h"
 
 cudaError_t res;
 
@@ -62,6 +62,14 @@ inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
 	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	//CUDA_CHECK(res);
 }
+
+template<typename DTYPE>
+inline void cuda_copy2dev(DTYPE *data_,DTYPE* values, int length)
+{
+	res = cudaMemcpy((void*) (data_), (void*) (values),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
+	//CUDA_CHECK(res);
+}
+
 
 template<typename DTYPE>
 inline void cuda_free(DTYPE* data_)

@@ -43,14 +43,14 @@ namespace mycnn{
 
 #define CUDA_LOG(level, res)   \
 		if(res!=cudaSuccess) \
-			{do{ fprintf(stderr,"[%s %s %s:%d] cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__);}while(0); exit(-1);};
+			{do{ fprintf(stderr,"[%s %s %s:%d] code %d, cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__,res);}while(0); exit(-1);};
 
 
 #define CUDA_CHECK(res) CUDA_LOG("CUDA",res)
 
 #define CUBLAS_LOG(level,status) \
 		if(status!=CUBLAS_STATUS_SUCCESS) \
-			{do{ fprintf(stderr,"[%s %s %s:%d] cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__);}while(0); exit(-1);};
+			{do{ fprintf(stderr,"[%s %s %s:%d] code %d, cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__,status);}while(0); exit(-1);};
 
 #define CUBLAS_CHECK(status) CUDA_LOG("CUBLAS",status)
 

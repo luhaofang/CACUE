@@ -89,7 +89,7 @@ namespace mycnn{
 		inline virtual const int calculate_size() = 0;
 
 		inline virtual const void _RESET_DATA() = 0;
-		
+
 
 	protected:		
 		

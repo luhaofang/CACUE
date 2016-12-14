@@ -143,7 +143,7 @@ namespace mycnn{
 		virtual const void echo()
 		{
 
-			LOG_INFO("%f", _mean->s_data()[0]);
+			//LOG_INFO("%f", _mean->s_data()[0]);
 		}
 
 		inline weight* scale(){ return _scale; }

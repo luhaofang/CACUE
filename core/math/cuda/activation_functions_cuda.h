@@ -27,9 +27,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../core/math/parallel_config.h"
+
+namespace mycnn{
 
 
-#define __PARALLELTYPE__  __GPU__
 
-#define __FFTW__ OFF
+	/**
+	 * for activation use relu functions in cuda
+	 */
+	extern "C" void cacu_relu_gpu(float_t *x, int length);
+
+
+};

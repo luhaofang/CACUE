@@ -89,8 +89,8 @@ namespace mycnn{
 		virtual const void echo()
 		{
 
-			LOG_INFO("%s:%d", "output_channel", (*_args)[0]);
-			LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+			//LOG_INFO("%s:%d", "output_channel", (*_args)[0]);
+			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
 	private:

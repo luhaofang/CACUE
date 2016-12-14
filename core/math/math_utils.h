@@ -31,7 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
-
 #define CHECK_OP(level, format, ...) \
 	do{fprintf(stderr,"[%s %s %s:%d]:" format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);}while(0)
 

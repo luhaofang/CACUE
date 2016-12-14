@@ -26,19 +26,23 @@
  */
 
 #pragma once
-#if __PARALLELTYPE__ == __GPU__
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
+
 
 #include "cuda_log.h"
 #include "cuda_utils.h"
+
+#if __PARALLELTYPE__ == __GPU__
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
+#include <cublas_api.h>
 
 cublasHandle_t handle;
 cublasStatus_t status;
 
 void cacu_saxpy_gpu(float_t *x, float_t a, float_t *y, int length) {
-	CUBLAS_CHECK(cublasCreate(&handle));
+	cublasCreate(&handle);
 	cublasSaxpy_v2(handle, length, &a, x, 1, y, 1);
+	cublasDestroy(handle);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
@@ -51,8 +55,9 @@ void cacu_sgemv_gpu(cublasOperation_t trans, float_t *x, int x_height, float_t *
 {
 	float_t alpha = 1;
 	float_t beta = 0;
-	CUBLAS_CHECK(cublasCreate(&handle));
+	cublasCreate(&handle);
 	cublasSgemv_v2(handle, trans, x_height, x_width,&alpha, x, x_width, y, 1, &beta, z, 1);
+	cublasDestroy(handle);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
@@ -62,15 +67,17 @@ void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, float_t 
 	int ldb = (transy == CUBLAS_OP_N) ? y_width : x_width;
 	float_t alpha = 1;
 	float_t beta = 0;
-	CUBLAS_CHECK(cublasCreate(&handle));
+	cublasCreate(&handle);
 	cublasSgemm_v2(handle, transx, transy, x_height, y_width, x_width, &alpha, x, lda, y, ldb, &beta, z, y_width);
+	cublasDestroy(handle);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void cacu_copy_gpu(float_t *x, int x_length,float_t *y)
 {
-	CUBLAS_CHECK(cublasCreate(&handle));
+	cublasCreate(&handle);
 	cublasScopy_v2(handle, x_length, x, 1, y, 1);
+	cublasDestroy(handle);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 

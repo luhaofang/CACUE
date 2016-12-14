@@ -96,6 +96,27 @@ namespace mycnn{
 #endif
 		}
 
+		inline const void set_data(unsigned int value_)
+		{
+#if __PARALLELTYPE__ == __GPU__
+			cuda_setvalue<unsigned int>(_s_data,value_,_num*_cube_length);
+#else
+			_data.resize(_num*_cube_length, value_);
+#endif
+		}
+
+		inline const void set_diff(float_t value_)
+		{
+
+			if (train == _phrase){
+#if __PARALLELTYPE__ == __GPU__
+				cuda_setvalue<float_t>(_s_diff, value_,_num*_cube_length);
+#else
+				_diff.resize(_num*_cube_length, value_);
+#endif
+			}
+		}
+
 		inline virtual const int calculate_size() override{
 			return test == _phrase ? _length*sizeof(unsigned int) : _length*sizeof(unsigned int) + _length*sizeof(float_t);
 		}

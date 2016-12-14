@@ -32,10 +32,15 @@ network* create_alexnet()
 	network *net = new network();
 
 	layer_block *conv1 = conv_layer_maxpooling(b, 96, 11, 4, 2);
+	LOG_DEBUG("conv1");
 	layer_block *conv2 = conv_layer_maxpooling((blob*)conv1->get_oblob(), 256, 5, 1, 2);
+	LOG_DEBUG("conv2");
 	layer_block *conv3 = conv_layer_nopooling((blob*)conv2->get_oblob(), 384, 3, 1, 1);
+	LOG_DEBUG("conv3");
 	layer_block *conv4 = conv_layer_nopooling((blob*)conv3->get_oblob(), 384, 3, 1, 1);
+	LOG_DEBUG("conv4");
 	layer_block *conv5 = conv_layer_maxpooling((blob*)conv4->get_oblob(), 256, 3, 1, 1);
+	LOG_DEBUG("conv5");
 
 	*net << conv1 << conv2 << conv3 << conv4 << conv5;
 

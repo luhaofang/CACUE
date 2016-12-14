@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "../../tools/random.h"
+#include "../math/cuda/cuda_utils.h"
 
 namespace mycnn{
 
@@ -49,35 +50,40 @@ namespace mycnn{
 
 		~weight(){};
 
-		void set_data(float_t value){
-			for (int i = 0; i < _length; i++)
-				_s_data[i] = value;
-		}
-
 		void set_init_type(param_init_type type, float_t value = 0)
 		{
 			random *r = new random();
+			vec_t w(_length);
 			switch (type)
 			{
 			case mycnn::constant:
 				for (int i = 0; i < _length; i++)
-					_s_data[i] = value;
+					w[i] = value;
 				break;
 			case mycnn::xavier:
 				for (int i = 0; i < _length; i++)
-					_s_data[i] = r->frand(-value, value);
+					w[i] = r->frand(-value, value);
 				break;
 			case mycnn::gaussian:
 				for (int i = 0; i < _length; i++)
-					_s_data[i] = r->gaussrand(value);
+					w[i] = r->gaussrand(value);
 				break;
 			case mycnn::msra:
 				for (int i = 0; i < _length; i++)
-					_s_data[i] = r->gaussrand(value);
+					w[i] = r->gaussrand(value);
 				break;
 			default:
 				break;
-			};
+			}
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(_s_data,&w[0],_length);
+			CUDA_CHECK(res);
+#else
+			for (int i = 0; i < _length; i++)
+				_s_data[i] = w[i];
+#endif
+			delete r;
+			vec_t().swap(w);
 		}
 
 	private:

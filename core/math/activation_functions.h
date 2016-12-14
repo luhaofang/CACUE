@@ -28,13 +28,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
+#include "cuda/activation_functions_cuda.h"
+
 namespace mycnn{
 
 	void cacu_relu(float_t *x, int length)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		cacu_relu_gpu(x,length);
 #else
 		for (int i = 0; i < length; ++i)
 		{

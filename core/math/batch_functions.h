@@ -27,29 +27,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "cuda/batch_functions_cuda.h"
+
+
 namespace mycnn{
 
 
 	template<typename DTYPE>
-	void cacu_sumbysize(SUM SUMTYPE ,DTYPE *x, int length, DTYPE *y, int sum_size)
+	void cacu_sumbysize(SUM SUMTYPE ,DTYPE *x, int length, DTYPE *y, int width)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		cacu_sumbysize_gpu(SUMTYPE,x,length,y,width);
 #else
-		int block_num = length / sum_size;
+		int height = length / width;
 		DTYPE *xp;
 		if (BYWIDTH == SUMTYPE){
-			for (int b = 0; b < block_num; ++b){
-				xp = x + b*sum_size;
-				for (int i = 0; i < sum_size; ++i)
+			for (int b = 0; b < height; ++b){
+				xp = x + b*width;
+				for (int i = 0; i < width; ++i)
 					y[b] += xp[i];
 			}
 		}
 		else if (BYHEIGHT == SUMTYPE){
-			for (int b = 0; b < block_num; ++b){
-				xp = x + b*sum_size;
-				for (int i = 0; i < sum_size; ++i)
+			for (int b = 0; b < height; ++b){
+				xp = x + b*width;
+				for (int i = 0; i < width; ++i)
 					y[i] += xp[i];
 			}
 		}
@@ -61,7 +64,7 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		int block_size = length / size;
 		DTYPE *xp;
@@ -80,7 +83,7 @@ namespace mycnn{
 	void cacu_sxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = x[j] * a;
@@ -91,7 +94,7 @@ namespace mycnn{
 	void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		int block_size = length / size;
 		DTYPE *xp;
@@ -110,7 +113,7 @@ namespace mycnn{
 	void cacu_sdxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = x[j] / a;
@@ -121,7 +124,7 @@ namespace mycnn{
 	void cacu_ssxpy(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		int block_size = length / size;
 		DTYPE *yp,*zp;
@@ -139,7 +142,7 @@ namespace mycnn{
 	void cacu_sqr(DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = x[j] * x[j];
@@ -150,7 +153,7 @@ namespace mycnn{
 	void cacu_root(DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = x[j] * x[j];
@@ -161,7 +164,7 @@ namespace mycnn{
 	void cacu_stdbychannel(DTYPE *x, int length, DTYPE *y, DTYPE epsilon)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_INFO("Haven't finished yet!");
+		LOG_DEBUG("Haven't finished yet!");
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = (float_t)pow(x[j] + epsilon, 0.5);
