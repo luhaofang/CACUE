@@ -54,7 +54,7 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			if (test == o_blob_->phrase())
-				cacu_relu(s_blob_->s_data(), s_blob_->count());
+				cacu_copy(s_blob_->s_data(), s_blob_->count(),o_blob_->s_data());
 			echo();
 			return;
 		}

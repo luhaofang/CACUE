@@ -27,42 +27,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-namespace mycnn{
+
+extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t *y, int width);
+
+extern "C" void cacu_cxsize_gpu(float_t *x, int length, float_t *a, int size,float_t *y);
+
+extern "C" void cacu_sxsize(float_t *x, int length, float_t a, float_t *y);
+
+extern "C" void cacu_cdxsize(float_t *x, int length, float_t *a, int size, float_t *y);
+
+extern "C" void cacu_sdxsize(float_t *x, int length, float_t a, float_t *y);
+
+extern "C" void cacu_ssxpy(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z);
+
+extern "C" void cacu_sqr(float_t *x, int length, float_t *y);
+
+extern "C" void cacu_root(float_t *x, int length, float_t *y);
+
+extern "C" void cacu_stdbychannel(float_t *x, int length, float_t *y, float_t epsilon);
 
 
-	template<typename DTYPE>
-	extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,DTYPE *x, int length, DTYPE *y, int width);
-
-
-	template<typename DTYPE>
-	extern "C" void cacu_cxsize_gpu(DTYPE *x, int length, DTYPE *a, int size,DTYPE *y);
-
-
-	template<typename DTYPE>
-	extern "C" void cacu_sxsize(DTYPE *x, int length, DTYPE a, DTYPE *y);
-
-
-	template<typename DTYPE>
-	extern "C" void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y);
-
-
-	template<typename DTYPE>
-	extern "C" void cacu_sdxsize(DTYPE *x, int length, DTYPE a, DTYPE *y);
-
-
-	template<typename DTYPE>
-	extern "C" void cacu_ssxpy(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z);
-
-
-	template<typename DTYPE>
-	extern "C" void cacu_sqr(DTYPE *x, int length, DTYPE *y);
-
-	template<typename DTYPE>
-	extern "C" void cacu_root(DTYPE *x, int length, DTYPE *y);
-
-
-	template<typename DTYPE>
-	extern "C" void cacu_stdbychannel(DTYPE *x, int length, DTYPE *y, DTYPE epsilon);
-
-
-};

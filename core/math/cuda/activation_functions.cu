@@ -38,8 +38,6 @@ __global__ void _k_CACU_ACTIVATION_RELU_GPU(float_t *x, int length) {
 
 	int threadid = bid * THREADNUM + tid;
 
-	int data_row, data_col;
-
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
 		x[i] = max((float_t) 0, x[i]);

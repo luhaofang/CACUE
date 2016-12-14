@@ -28,14 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
-namespace mycnn{
+/**
+ * for activation use relu functions in cuda
+ */
+extern "C" void cacu_relu_gpu(float_t *x, int length);
 
 
-
-	/**
-	 * for activation use relu functions in cuda
-	 */
-	extern "C" void cacu_relu_gpu(float_t *x, int length);
-
-
-};

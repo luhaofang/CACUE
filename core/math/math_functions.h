@@ -37,7 +37,6 @@ namespace mycnn{
 
 inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
 {
-
 #if __PARALLELTYPE__ == __OPENMP__
 	cacu_saxpby_omp(x, a, y, length);
 #elif __PARALLELTYPE__ == __OPENBLAS__
@@ -49,7 +48,6 @@ inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
 
 inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
-
 #if __PARALLELTYPE__ == __OPENMP__
 	cacu_saxpby_omp(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __OPENBLAS__
@@ -63,7 +61,6 @@ inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length
 
 inline void cacu_sgemv(TRANSPOSE trans,float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
-	
 #if __PARALLELTYPE__ == __OPENMP__
 	cacu_sgemv_omp(x, x_height, y, x_width, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
@@ -78,7 +75,6 @@ inline void cacu_sgemv(TRANSPOSE trans,float_t *x, int x_height, float_t *y, int
 
 inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_height, int x_width, float_t *y, int y_height, float_t *z)
 {
-
 #if __PARALLELTYPE__ == __OPENMP__
 	cacu_sgemm_omp(transx, transy, x, x_height, x_width, y, y_height, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
@@ -89,6 +85,17 @@ inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_h
 	cublasOperation_t transx = (transx_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
 	cublasOperation_t transy = (transy_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
 	cacu_sgemm_gpu(transx, transy, x, x_height, x_width, y, y_height, z);
+#endif
+}
+
+
+inline void cacu_copy(float_t *x, int length, float_t *y)
+{
+#if __PARALLELTYPE__ == __GPU__
+	cacu_copy_gpu(x, length, y);
+#else
+	for(int i = 0 ; i < length ; ++i)
+		y[i] = x[i];
 #endif
 }
 
