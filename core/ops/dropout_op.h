@@ -39,7 +39,6 @@ namespace mycnn{
 
 			o_blob = data;
 
-			op();
 		};
 
 		~dropout_op(){

@@ -27,7 +27,7 @@ layer_block create_block(int i)
 
 network* create_alexnet()
 {
-	blob *b = cacu_allocator::create_blob(1, 3, 227, 227, 1, train);
+	blob *b = cacu_allocator::create_blob(100, 3, 227, 227, 1, train);
 	
 	network *net = new network();
 

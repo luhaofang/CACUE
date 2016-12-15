@@ -51,7 +51,6 @@ namespace mycnn{
 
 			_std = cacu_allocator::create_blob(data->channel(), 1, 1, 1);
 
-			op();
 		};
 
 		~batch_normal_op(){

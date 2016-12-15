@@ -41,7 +41,6 @@ namespace mycnn{
 
 			o_blob = cacu_allocator::create_blob(data->at(0)->num(), data->at(0)->channel(), data->at(0)->width(), data->at(0)->height());
 
-			op();
 		};
 
 		~sum_elemwise_op(){

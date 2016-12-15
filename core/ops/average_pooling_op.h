@@ -46,7 +46,6 @@ namespace mycnn{
 				output_dim += 1;
 			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim);
 
-			op();
 		};
 
 		~average_pooling_op(){

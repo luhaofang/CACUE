@@ -43,10 +43,10 @@ namespace mycnn{
 		blob(int num, int channel, int width, int height, float_t _value=0, phrase_type phrase=test)
 			:blob_base(num, channel, width, height, phrase){
 #if __PARALLELTYPE__ == __GPU__
-			_s_data = cuda_malloc_v<float_t>(num*channel*width*height, _value);
+			_s_data = cuda_malloc_v<float_t>(num*_cube_length, _value);
 			CUDA_CHECK(res);
 			if (train == phrase){
-				_s_diff = cuda_malloc<float_t>(num*channel*width*height);
+				_s_diff = cuda_malloc<float_t>(num*_cube_length);
 				CUDA_CHECK(res);
 			}
 #else
@@ -135,6 +135,8 @@ namespace mycnn{
 		float_t *_s_data;
 
 		float_t *_s_diff;
+
+		int pitch;
 
 	};
 }

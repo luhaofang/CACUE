@@ -59,7 +59,6 @@ namespace mycnn{
 			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->at(1), output_dim*args_->at(1));
 #endif
 		
-			op();
 		};
 
 		~convolution_op(){

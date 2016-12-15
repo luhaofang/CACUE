@@ -77,6 +77,12 @@ namespace mycnn{
 
 		inline operator_base *&op(int i){ return ops[i]; }
 
+		inline void operate()
+		{
+			for(int i =0 ; i < ops.size() ; ++i)
+				ops[i]->op();
+		}
+
 	protected:
 
 		vector<operator_base*> ops;

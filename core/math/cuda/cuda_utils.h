@@ -29,17 +29,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if __PARALLELTYPE__ == __GPU__
 
-#include <cuda_runtime.h>
+#include <cublas.h>
+#include <cublas_api.h>
 
 #include "cuda_log.h"
 
 cudaError_t res;
+cublasHandle_t handle;
+cublasStatus_t status;
 
 template<typename DTYPE>
 inline DTYPE* cuda_malloc(int length)
 {
 	DTYPE* data_;
-	res = cudaMalloc((void**) (&data_), length * sizeof(DTYPE));
+	//res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
+	status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
 	//CUDA_CHECK(res);
 	return data_;
 }
@@ -49,7 +53,8 @@ inline DTYPE* cuda_malloc_v(int length,DTYPE value)
 {
 	DTYPE* data_;
 	vector<DTYPE> v(length,value);
-	res = cudaMalloc((void**) (&data_), length * sizeof(DTYPE));
+	//res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
+	status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
 	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	//CUDA_CHECK(res);
 	return data_;
@@ -69,7 +74,6 @@ inline void cuda_copy2dev(DTYPE *data_,DTYPE* values, int length)
 	res = cudaMemcpy((void*) (data_), (void*) (values),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	//CUDA_CHECK(res);
 }
-
 
 template<typename DTYPE>
 inline void cuda_free(DTYPE* data_)

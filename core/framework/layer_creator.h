@@ -39,7 +39,7 @@ namespace mycnn{
 		layer *ml = new layer(output_channel, 3, 2);
 		ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start) / 1000);
+		LOG_INFO("time cost :%d", (end - start));
 		*lb << l << ml;
 		return lb;
 	}
@@ -51,7 +51,7 @@ namespace mycnn{
 		layer *l = new layer(output_channel, kernel_size, stride, pad);
 		l->op(CACU_CONVOLUTION, data)->op(activation_op);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start) / 1000);
+		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;
 		return lb;
 	}

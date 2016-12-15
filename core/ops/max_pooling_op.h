@@ -47,7 +47,6 @@ namespace mycnn{
 
 			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim);
 
-			op();
 		};
 
 		~max_pooling_op(){

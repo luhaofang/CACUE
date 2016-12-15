@@ -42,7 +42,6 @@ namespace mycnn{
 			_w = new weight("w", args_->at(0), data->channel(), data->width(), data->height(), data->phrase());
 			_bias = new weight("bias", args_->at(0), 1, 1, 1, data->phrase());
 
-			op();
 		};
 
 		~inner_product_op(){

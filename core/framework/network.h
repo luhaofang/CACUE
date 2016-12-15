@@ -72,6 +72,12 @@ namespace mycnn{
 
 		inline int length(){ return _layers.size(); };
 
+		inline void predict(){
+			for(int i =0 ; i < _layers.size();++i)
+				_layers[i]->operate();
+
+		}
+
 	private:
 
 		vector<layer_base*> _layers;

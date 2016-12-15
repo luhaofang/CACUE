@@ -32,12 +32,7 @@
 #include "cuda_utils.h"
 
 #if __PARALLELTYPE__ == __GPU__
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
-#include <cublas_api.h>
 
-cublasHandle_t handle;
-cublasStatus_t status;
 
 void cacu_saxpy_gpu(float_t *x, float_t a, float_t *y, int length) {
 	cublasCreate(&handle);

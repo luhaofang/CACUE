@@ -39,7 +39,6 @@ namespace mycnn{
 
 			o_blob = data;
 
-			op();
 		};
 
 		~relu_op(){
