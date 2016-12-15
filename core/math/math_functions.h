@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "cuda/cuda_utils.h"
+
 #include "math_function_openmp.h"
 #include "math_function_oblas.h"
 
@@ -96,6 +98,25 @@ inline void cacu_copy(float_t *x, int length, float_t *y)
 #else
 	for(int i = 0 ; i < length ; ++i)
 		y[i] = x[i];
+#endif
+}
+
+inline void rand_vector(float_t *vector_, int length, float_t ratio_)
+{
+#if __PARALLELTYPE__ == __GPU__
+	vec_t v_(length);
+	for(int i = 0; i < length ; ++i)
+	{
+		if(rand() >= ratio_)
+			v_[i] = 1;
+	}
+	cuda_copy2dev(vector_, &v_[0], length);
+#else
+	for(int i = 0; i < length ; ++i)
+	{
+		if(rand() >= ratio_)
+			vector_[i] = 1;
+	}
 #endif
 }
 

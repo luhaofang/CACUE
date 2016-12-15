@@ -51,7 +51,7 @@ namespace mycnn{
 
 		~max_pooling_op(){
 			delete (blob *)o_blob;
-			delete (bin_blob *)_index;
+			delete _index;
 		};
 
 		virtual const void check() override{

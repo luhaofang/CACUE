@@ -51,7 +51,7 @@ namespace mycnn{
 
 
 		int caculate_data_space(){
-
+			return 0;
 		}
 
 		layer* op(op_name op_) {
@@ -62,6 +62,7 @@ namespace mycnn{
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
 			out_blob = (blob*)(ops[ops.size() - 1])->out_data();
+			_output_dim = out_blob->width();
 			return this;
 		}
 
@@ -73,6 +74,7 @@ namespace mycnn{
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
 			out_blob = (blob*)(ops[ops.size() - 1])->out_data();
+			_output_dim = out_blob->width();
 			return this;
 		}
 
@@ -82,6 +84,7 @@ namespace mycnn{
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
 			out_blob = (blob*)(ops[ops.size() - 1])->out_data();
+			_output_dim = out_blob->width();
 			return this;
 		}
 

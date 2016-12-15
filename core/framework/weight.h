@@ -52,7 +52,7 @@ namespace mycnn{
 
 		void set_init_type(param_init_type type, float_t value = 0)
 		{
-			random *r = new random();
+			rand_t *r = new rand_t();
 			vec_t w(_length);
 			switch (type)
 			{

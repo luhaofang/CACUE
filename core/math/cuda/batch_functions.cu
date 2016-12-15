@@ -78,16 +78,18 @@ extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t 
 
 extern "C" void cacu_cxsize_gpu(float_t *x, int length, float_t *a, int size,float_t *y);
 
-extern "C" void cacu_sxsize(float_t *x, int length, float_t a, float_t *y);
+extern "C" void cacu_sxsize_gpu(float_t *x, int length, float_t a, float_t *y);
 
-extern "C" void cacu_cdxsize(float_t *x, int length, float_t *a, int size, float_t *y);
+extern "C" void cacu_cdxsize_gpu(float_t *x, int length, float_t *a, int size, float_t *y);
 
-extern "C" void cacu_sdxsize(float_t *x, int length, float_t a, float_t *y);
+extern "C" void cacu_sdxsize_gpu(float_t *x, int length, float_t a, float_t *y);
 
-extern "C" void cacu_ssxpy(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z);
+extern "C" void cacu_ssxpy_gpu(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z);
 
-extern "C" void cacu_sqr(float_t *x, int length, float_t *y);
+extern "C" void cacu_sqr_gpu(float_t *x, int length, float_t *y);
 
-extern "C" void cacu_root(float_t *x, int length, float_t *y);
+extern "C" void cacu_root_gpu(float_t *x, int length, float_t *y);
 
-extern "C" void cacu_stdbychannel(float_t *x, int length, float_t *y, float_t epsilon);
+extern "C" void cacu_stdbychannel_gpu(float_t *x, int length, float_t *y, float_t epsilon);
+
+extern "C" void cacu_ssx_gpu(float_t *x, int length, float_t *y, float_t epsilon);

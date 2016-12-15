@@ -115,7 +115,7 @@ namespace mycnn{
 	void cacu_padded_data(DTYPE *x,int channel, int input_dim, int pad, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_padded_data_gpu(x,channel,input_dim,pad,y);
 #else
 		DTYPE *xp, *yp;
 		int output_dim = input_dim + 2 * pad;
@@ -140,7 +140,7 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_img2col_gpu(x,kernel_size,stride,input_dim,channel,output_dim,y);
 #else
 		int block_size = input_dim*input_dim;
 		int kernel_length = kernel_size*kernel_size;
@@ -167,7 +167,4 @@ namespace mycnn{
 			}
 #endif
 	}
-
-
-
 };

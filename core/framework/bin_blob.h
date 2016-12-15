@@ -42,17 +42,17 @@ namespace mycnn{
 		bin_blob(int num, int channel, int width, int height, unsigned int _value = 0, phrase_type phrase = test)
 			:blob_base(num, channel, width, height, phrase){
 #if __PARALLELTYPE__ == __GPU__
-			_s_data = cuda_malloc_v<unsigned int>(num*channel*width*height, _value);
+			_s_data = cuda_malloc_v<unsigned int>(_length, _value);
 			CUDA_CHECK(res);
 			if (train == phrase){
-				_s_diff = cuda_malloc<float_t>(num*channel*width*height);
+				_s_diff = cuda_malloc<float_t>(_length);
 				CUDA_CHECK(res);
 			}
 #else
-			_data.resize(num*channel*width*height, _value);
+			_data.resize(_length, _value);
 			_s_data = &_data[0];
 			if (train == phrase){
-				_diff.resize(num*channel*width*height);
+				_diff.resize(_length);
 				_s_diff = &_diff[0];
 			}
 #endif
@@ -86,22 +86,22 @@ namespace mycnn{
 		inline virtual const void _RESET_DATA() override
 		{
 #if __PARALLELTYPE__ == __GPU__
-			cuda_setvalue<unsigned int>(_s_data,(unsigned int)(0),_num*_cube_length);
+			cuda_setvalue<unsigned int>(_s_data,(unsigned int)(0),_length);
 			if(train == _phrase)
-				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_num*_cube_length);
+				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_length);
 #else
-			_data.resize(_num*_cube_length, 0);
+			_data.resize(_length, 0);
 			if (train == _phrase)
-				_diff.resize(_num*_cube_length, float_t(0));
+				_diff.resize(_length, float_t(0));
 #endif
 		}
 
 		inline const void set_data(unsigned int value_)
 		{
 #if __PARALLELTYPE__ == __GPU__
-			cuda_setvalue<unsigned int>(_s_data,value_,_num*_cube_length);
+			cuda_setvalue<unsigned int>(_s_data,value_,_length);
 #else
-			_data.resize(_num*_cube_length, value_);
+			_data.resize(_length, value_);
 #endif
 		}
 
@@ -110,9 +110,9 @@ namespace mycnn{
 
 			if (train == _phrase){
 #if __PARALLELTYPE__ == __GPU__
-				cuda_setvalue<float_t>(_s_diff, value_,_num*_cube_length);
+				cuda_setvalue<float_t>(_s_diff, value_,_length);
 #else
-				_diff.resize(_num*_cube_length, value_);
+				_diff.resize(_length, value_);
 #endif
 			}
 		}

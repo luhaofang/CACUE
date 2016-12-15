@@ -35,6 +35,7 @@ namespace mycnn{
 
 		layer_block(int output_channel = 0, int kernel_size = 0, int stride = 0, int pad = 0, int input_dim = 0, int channel = 0, phrase_type phrase = train)
 		{
+			_output_dim = 0;
 			_channel = channel;
 			_input_dim = input_dim;
 			_output_channel = channel;
@@ -49,24 +50,28 @@ namespace mycnn{
 		layer_block& operator <<(layer_block* const &layer_block_) {
 			for (int i = 0; i < layer_block_->length(); ++i)
 				_layers.push_back(layer_block_->layer_bases(i));
+			_output_dim = pop_layer()->_output_dim;
 			return *this;
 		}
 
 		layer_block& operator <<(layer_block &layer_block_) {
 			for (int i = 0; i < layer_block_.length(); ++i)
 				_layers.push_back(layer_block_.layer_bases(i));
+			_output_dim = pop_layer()->_output_dim;
 			return *this;
 		}
 
 		layer_block& operator <<(layer_base* const &layer_) {
 
 			_layers.push_back(layer_);
+			_output_dim = layer_->_output_dim;
 			return *this;
 		}
 
 		layer_block& operator <<(layer_base &layer_) {
 
 			_layers.push_back(&layer_);
+			_output_dim = layer_._output_dim;
 			return *this;
 		}
 
@@ -79,6 +84,8 @@ namespace mycnn{
 	
 		template<class LAYERTYPE>
 		inline LAYERTYPE *&layers(int i){ return (LAYERTYPE*&)_layers[i]; };
+
+		inline layer_base *&pop_layer(){ return _layers[ length() - 1]; };
 
 		inline layer_base *&layer_bases(int i){ return _layers[i]; };
 

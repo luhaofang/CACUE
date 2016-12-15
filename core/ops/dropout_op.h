@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "../../tools/random.h"
+
 namespace mycnn{
 
 	class dropout_op : public operator_base
@@ -37,12 +39,18 @@ namespace mycnn{
 		dropout_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
 			check();
 
-			o_blob = data;
+			int input_dim = data->width();
+			int channel = data->channel();
+			int num = data->num();
+
+			o_blob = cacu_allocator::create_blob(num, channel, input_dim, input_dim);
+			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim);
 
 		};
 
 		~dropout_op(){
-
+			delete (blob*)o_blob;
+			delete _rand_vect;
 		};
 
 		virtual const void check() override{
@@ -54,6 +62,11 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			if (test == o_blob_->phrase())
 				cacu_copy(s_blob_->s_data(), s_blob_->count(),o_blob_->s_data());
+			else
+			{
+				rand_vector(_rand_vect->s_data(),_rand_vect->count(),_ratio);
+				cacu_ssx(_rand_vect->s_data(), o_blob_->count(), o_blob_->s_data());
+			}
 			echo();
 			return;
 		}
@@ -75,8 +88,16 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
+		void set_ratio(float_t ratio_)
+		{
+			_ratio = ratio_;
+		}
+
 	private:
 
+		float_t _ratio;
+
+		blob *_rand_vect;
 
 	};
 };

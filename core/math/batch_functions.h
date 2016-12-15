@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cuda/batch_functions_cuda.h"
 
+#include <math.h>
+
 
 namespace mycnn{
 
@@ -156,7 +158,7 @@ namespace mycnn{
 		LOG_DEBUG("Haven't finished yet!");
 #else
 		for (int j = 0; j < length; ++j)
-			y[j] = x[j] * x[j];
+			y[j] = sqrtf((float_t)x[j]);
 #endif
 	}
 
@@ -170,4 +172,16 @@ namespace mycnn{
 			y[j] = (float_t)pow(x[j] + epsilon, 0.5);
 #endif
 	}
+
+	template<typename DTYPE>
+	inline void cacu_ssx(DTYPE *x, int length, DTYPE *y)
+	{
+#if __PARALLELTYPE__ == __GPU__
+		cacu_ssx_gpu(x, length, y);
+#else
+		for(int i = 0 ; i < length ; ++i)
+			y[i] *= x[i];
+#endif
+	}
+
 };

@@ -41,22 +41,26 @@ cublasStatus_t status;
 template<typename DTYPE>
 inline DTYPE* cuda_malloc(int length)
 {
+	cublasInit();
 	DTYPE* data_;
-	//res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
-	status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
+	res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
+	//status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
 	//CUDA_CHECK(res);
+	cublasShutdown();
 	return data_;
 }
 
 template<typename DTYPE>
 inline DTYPE* cuda_malloc_v(int length,DTYPE value)
 {
+	cublasInit();
 	DTYPE* data_;
 	vector<DTYPE> v(length,value);
-	//res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
-	status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
+	res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
+	//status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
 	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	//CUDA_CHECK(res);
+	cublasShutdown();
 	return data_;
 }
 

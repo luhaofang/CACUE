@@ -33,16 +33,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn {
 
-	class random {
+	class rand_t {
 
 	public:
 
-		random() {
+		rand_t() {
 
 			srand((unsigned int)time(NULL));
 		}
 
-		~random() {
+		~rand_t() {
 		}
 
 		float_t gaussrand(float_t std) {
