@@ -66,7 +66,7 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_cxsize_gpu(x, length, a, size,y);
 #else
 		int block_size = length / size;
 		DTYPE *xp;
@@ -85,7 +85,7 @@ namespace mycnn{
 	void cacu_sxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_sxsize_gpu(x, length, a, y);
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = x[j] * a;
@@ -96,7 +96,7 @@ namespace mycnn{
 	void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_cdxsize_gpu(x, length, a, size, y);
 #else
 		int block_size = length / size;
 		DTYPE *xp;
@@ -115,7 +115,7 @@ namespace mycnn{
 	void cacu_sdxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_sdxsize_gpu(x,length,a,y);
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = x[j] / a;
@@ -144,7 +144,7 @@ namespace mycnn{
 	void cacu_sqr(DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_sqr_gpu(x,length,y);
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = x[j] * x[j];
@@ -155,7 +155,7 @@ namespace mycnn{
 	void cacu_root(DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_root_gpu(x,length,y);
 #else
 		for (int j = 0; j < length; ++j)
 			y[j] = sqrtf((float_t)x[j]);
@@ -166,7 +166,7 @@ namespace mycnn{
 	void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std, DTYPE epsilon)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_stdbychannel_gpu(varience,length,std,epsilon);
 #else
 		for (int j = 0; j < length; ++j)
 			std[j] = (float_t)pow(varience[j] + epsilon, 0.5);

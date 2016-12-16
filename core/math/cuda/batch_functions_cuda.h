@@ -27,23 +27,71 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-
+/**
+ * @cacu_sumbysize_gpu
+ * sum by size:
+ * accumulate the value by width or height , width is the matrix array's width dim which stored in row -major format.
+ * sum by width y is (length/ width) height dim, sum by height y is width dim.
+ */
 extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t *y, int width);
 
+/**
+ * @cacu_cxsize_gpu
+ * math y[i] = a[j]*x[i] :
+ * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
+ */
 extern "C" void cacu_cxsize_gpu(float_t *x, int length, float_t *a, int size,float_t *y);
 
+/**
+ * @cacu_sxsize_gpu
+ * math y[i] = a*x[i] :
+ * x is a length dim array list, a is the corresponding scalar.
+ */
 extern "C" void cacu_sxsize_gpu(float_t *x, int length, float_t a, float_t *y);
 
+/**
+ * @cacu_cdxsize_gpu
+ * math y[i] = x[i] / a[j] :
+ * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
+ */
 extern "C" void cacu_cdxsize_gpu(float_t *x, int length, float_t *a, int size, float_t *y);
 
+/**
+ * @cacu_sdxsize_gpu
+ * math y[i] = x[i] / a :
+ * x is a length dim array list, a is the corresponding denominator.
+ */
 extern "C" void cacu_sdxsize_gpu(float_t *x, int length, float_t a, float_t *y);
 
+/**
+ * @cacu_ssxpy_gpu
+ * math z[i] = a * x[j] + b * y[i] :
+ * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).
+ * a & b are corresponding scalars for x, y
+ */
 extern "C" void cacu_ssxpy_gpu(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z);
 
+/**
+ * @cacu_sqr_gpu
+ * math y[i] = x[i]^2 :
+ */
 extern "C" void cacu_sqr_gpu(float_t *x, int length, float_t *y);
 
+/**
+ * @cacu_root_gpu
+ * math y[i] = sqrt(x[i]) :
+ */
 extern "C" void cacu_root_gpu(float_t *x, int length, float_t *y);
 
-extern "C" void cacu_stdbychannel_gpu(float_t *x, int length, float_t *y, float_t epsilon);
+/**
+ * @cacu_root_gpu
+ * math std[i] = sqrt(varience[i] + epsilon) :
+ */
+extern "C" void cacu_stdbychannel_gpu(float_t *varience, int length, float_t *std, float_t epsilon);
 
+/**
+ * @cacu_root_gpu
+ * math y[i] *= x[i] :
+ * scale by element wise.
+ */
 extern "C" void cacu_ssx_gpu(float_t *x, int length, float_t *y);

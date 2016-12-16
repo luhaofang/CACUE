@@ -28,24 +28,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *input_dim: width of input data
- *output_dim: width of output data
+/**
+ * @cacu_max_pooling_gpu
+ * channel: channel of input data
+ * kernel_size: pooling window size
+ * input_dim: width of input data
+ * output_dim: width of output data
  */
 extern "C" void cacu_max_pooling_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index);
 
-/*
-*channel: channel of input data
-*kernel_size: pooling window size
-*input_dim: width of input data
-*output_dim: width of output data
-*/
+/**
+ * @cacu_average_pooling_gpu
+ * channel: channel of input data
+ * kernel_size: pooling window size
+ * input_dim: width of input data
+ * output_dim: width of output data
+ */
 extern "C" void cacu_average_pooling_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
 
+/**
+ * @cacu_padded_data_gpu
+ * pad data.
+ * y is input_dim + 2 * pad dim wise
+ */
 extern "C" void cacu_padded_data_gpu(float_t *x,int channel, int input_dim, int pad, float_t *y);
 
+/**
+ * @cacu_img2col_gpu
+ * img2col
+ */
 extern "C" void cacu_img2col_gpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
 
 

@@ -41,8 +41,11 @@ network* create_alexnet()
 	LOG_DEBUG("conv4");
 	layer_block *conv5 = conv_layer_maxpooling((blob*)conv4->get_oblob(), 256, 3, 1, 1);
 	LOG_DEBUG("conv5");
-
-	*net << conv1 << conv2 << conv3 << conv4 << conv5;
+	layer_block *fc6 = fc_layer((blob*)conv5->get_oblob(),4096);
+	LOG_DEBUG("fc6");
+	layer_block *fc7 = fc_layer((blob*)fc6->get_oblob(),4096);
+	LOG_DEBUG("fc7");
+	*net << conv1 << conv2 << conv3 << conv4 << conv5 << fc6 << fc7;
 
 	return net;
 }

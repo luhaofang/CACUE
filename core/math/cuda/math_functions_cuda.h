@@ -49,7 +49,7 @@ void cacu_sgemv_gpu(cublasOperation_t trans, float_t *x, int x_height, float_t *
 {
 	float_t alpha = 1;
 	float_t beta = 0;
-	status = cublasSgemv_v2(handle, trans, x_height, x_width,&alpha, x, x_width, y, 1, &beta, z, 1);
+	status = cublasSgemv_v2(handle, trans, x_height, x_width,&alpha, x, x_height, y, 1, &beta, z, 1);
 	CUBLAS_CHECK(status);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }

@@ -72,12 +72,63 @@ extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
+__global__ void _k_CACU_CXSIZE_GPU(float_t *x, int length, float_t *a, int size,float_t *y) {
 
-extern "C" void cacu_cxsize_gpu(float_t *x, int length, float_t *a, int size,float_t *y);
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
 
-extern "C" void cacu_sxsize_gpu(float_t *x, int length, float_t a, float_t *y);
+	int threadid = bid * THREADNUM + tid;
 
-extern "C" void cacu_cdxsize_gpu(float_t *x, int length, float_t *a, int size, float_t *y);
+	int block_size = length / size;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = x[i]*a[i / block_size];
+	}
+}
+
+extern "C" void cacu_cxsize_gpu(float_t *x, int length, float_t *a, int size,float_t *y)
+{
+	_k_CACU_CXSIZE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_SXSIZE_GPU(float_t *x, int length, float_t a,float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = x[i]*a;
+	}
+}
+
+extern "C" void cacu_sxsize_gpu(float_t *x, int length, float_t a, float_t *y)
+{
+	_k_CACU_SXSIZE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_CDXSIZE_GPU(float_t *x, int length, float_t *a, int size ,float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	int block_size = length / size;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = x[i]/a[i / block_size];
+	}
+}
+
+extern "C" void cacu_cdxsize_gpu(float_t *x, int length, float_t *a, int size, float_t *y)
+{
+	_k_CACU_CDXSIZE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
 
 extern "C" void cacu_sdxsize_gpu(float_t *x, int length, float_t a, float_t *y);
 
@@ -102,10 +153,75 @@ extern "C" void cacu_ssxpy_gpu(float_t *x, float_t a, int size, float_t *y, floa
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-extern "C" void cacu_sqr_gpu(float_t *x, int length, float_t *y);
+__global__ void _k_CACU_SQR_GPU(float_t *x, int length, float_t *y) {
 
-extern "C" void cacu_root_gpu(float_t *x, int length, float_t *y);
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
 
-extern "C" void cacu_stdbychannel_gpu(float_t *x, int length, float_t *y, float_t epsilon);
+	int threadid = bid * THREADNUM + tid;
 
-extern "C" void cacu_ssx_gpu(float_t *x, int length, float_t *y, float_t epsilon);
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = x[i] * x[i];
+	}
+}
+
+extern "C" void cacu_sqr_gpu(float_t *x, int length, float_t *y)
+{
+	_k_CACU_SQR_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_ROOT_GPU(float_t *x, int length, float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = sqrt(x[i]);
+	}
+}
+
+extern "C" void cacu_root_gpu(float_t *x, int length, float_t *y)
+{
+	_k_CACU_ROOT_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_STDBYCHANNEL_GPU(float_t *varience, int length, float_t *std, float_t epsilon) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		std[i] = sqrt(varience[i] + epsilon);
+	}
+}
+
+extern "C" void cacu_stdbychannel_gpu(float_t *varience, int length, float_t *std, float_t epsilon)
+{
+	_k_CACU_STDBYCHANNEL_GPU<<<BLOCKNUM, THREADNUM, 0>>>(varience, length, std, epsilon);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
+__global__ void _k_CACU_SSX_GPU(float_t *x, int length, float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] *= x[i];
+	}
+}
+
+extern "C" void cacu_ssx_gpu(float_t *x, int length, float_t *y)
+{
+	_k_CACU_SSX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
