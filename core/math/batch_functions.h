@@ -126,7 +126,7 @@ namespace mycnn{
 	void cacu_ssxpy(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z)
 	{
 #if __PARALLELTYPE__ == __GPU__
-		LOG_DEBUG("Haven't finished yet!");
+		cacu_ssxpy_gpu(x, a, size, y, b, length, z);
 #else
 		int block_size = length / size;
 		DTYPE *yp,*zp;
@@ -163,13 +163,13 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_stdbychannel(DTYPE *x, int length, DTYPE *y, DTYPE epsilon)
+	void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std, DTYPE epsilon)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		LOG_DEBUG("Haven't finished yet!");
 #else
 		for (int j = 0; j < length; ++j)
-			y[j] = (float_t)pow(x[j] + epsilon, 0.5);
+			std[j] = (float_t)pow(varience[j] + epsilon, 0.5);
 #endif
 	}
 

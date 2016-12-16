@@ -29,9 +29,6 @@
 #include "../math_utils.h"
 
 
-#define BLOCKNUM 128
-#define THREADNUM 32
-
 __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width, float_t *y) {
 
 	int tid = threadIdx.x;
@@ -84,7 +81,26 @@ extern "C" void cacu_cdxsize_gpu(float_t *x, int length, float_t *a, int size, f
 
 extern "C" void cacu_sdxsize_gpu(float_t *x, int length, float_t a, float_t *y);
 
-extern "C" void cacu_ssxpy_gpu(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z);
+__global__ void _k_CACU_SSXPY_GPU(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	int block_size = length / size;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		z[i] = b*y[i] + a*x[i / block_size];
+	}
+}
+
+
+extern "C" void cacu_ssxpy_gpu(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z)
+{
+	_k_CACU_SSXPY_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a, size, y, b, length, z);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
 
 extern "C" void cacu_sqr_gpu(float_t *x, int length, float_t *y);
 

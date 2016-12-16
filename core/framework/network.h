@@ -35,9 +35,17 @@ namespace mycnn{
 
 		network(){
 		
+#if  __PARALLELTYPE__ == __GPU__
+			cublasCreate(&handle);
+#endif
+
 		};
 
 		~network(){
+
+#if  __PARALLELTYPE__ == __GPU__
+			cublasDestroy(handle);
+#endif
 
 		};
 

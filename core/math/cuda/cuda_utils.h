@@ -34,33 +34,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cuda_log.h"
 
+
 cudaError_t res;
 cublasHandle_t handle;
 cublasStatus_t status;
 
 template<typename DTYPE>
-inline DTYPE* cuda_malloc(int length)
+inline DTYPE* cuda_malloc(int num,int length)
 {
-	cublasInit();
 	DTYPE* data_;
-	res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
-	//status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
-	//CUDA_CHECK(res);
-	cublasShutdown();
+	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
+	CUDA_CHECK(res);
 	return data_;
 }
 
 template<typename DTYPE>
-inline DTYPE* cuda_malloc_v(int length,DTYPE value)
+inline DTYPE* cuda_malloc_v(int num,int length,DTYPE value)
 {
-	cublasInit();
 	DTYPE* data_;
-	vector<DTYPE> v(length,value);
-	res = cudaMalloc((void**) (&data_), length * sizeof(float_t));
-	//status = cublasAlloc(length,sizeof(DTYPE),(void**)data_);
-	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
-	//CUDA_CHECK(res);
-	cublasShutdown();
+	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
+	vector<float_t> d(num * length,value);
+	res = cudaMemcpy((void*) (data_), (void*) (&d[0]), num * length * sizeof(DTYPE), cudaMemcpyHostToDevice);
+	vector<float_t>().swap(d);
+	CUDA_CHECK(res);
 	return data_;
 }
 
@@ -69,14 +65,21 @@ inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
 {
 	vector<DTYPE> v(length,value);
 	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
-	//CUDA_CHECK(res);
+	CUDA_CHECK(res);
 }
 
 template<typename DTYPE>
-inline void cuda_copy2dev(DTYPE *data_,DTYPE* values, int length)
+inline void cuda_copy2dev(DTYPE *d_data_,DTYPE* s_values, int length)
 {
-	res = cudaMemcpy((void*) (data_), (void*) (values),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
-	//CUDA_CHECK(res);
+	res = cudaMemcpy((void*) (d_data_), (void*) (s_values),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
+	CUDA_CHECK(res);
+}
+
+template<typename DTYPE>
+inline void cuda_copy2host(DTYPE *d_data_,DTYPE* s_values, int length)
+{
+	res = cudaMemcpy((void*) (d_data_), (void*) (s_values),	length * sizeof(DTYPE), cudaMemcpyDeviceToHost);
+	CUDA_CHECK(res);
 }
 
 template<typename DTYPE>

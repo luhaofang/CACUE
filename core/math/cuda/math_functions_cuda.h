@@ -35,9 +35,8 @@
 
 
 void cacu_saxpy_gpu(float_t *x, float_t a, float_t *y, int length) {
-	cublasCreate(&handle);
-	cublasSaxpy_v2(handle, length, &a, x, 1, y, 1);
-	cublasDestroy(handle);
+	status = cublasSaxpy_v2(handle, length, &a, x, 1, y, 1);
+	CUBLAS_CHECK(status);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
@@ -50,29 +49,27 @@ void cacu_sgemv_gpu(cublasOperation_t trans, float_t *x, int x_height, float_t *
 {
 	float_t alpha = 1;
 	float_t beta = 0;
-	cublasCreate(&handle);
-	cublasSgemv_v2(handle, trans, x_height, x_width,&alpha, x, x_width, y, 1, &beta, z, 1);
-	cublasDestroy(handle);
+	status = cublasSgemv_v2(handle, trans, x_height, x_width,&alpha, x, x_width, y, 1, &beta, z, 1);
+	CUBLAS_CHECK(status);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
 {
-	int lda = (transx == CUBLAS_OP_N) ? x_width : x_height;
-	int ldb = (transy == CUBLAS_OP_N) ? y_width : x_width;
+	int m = x_height,n = y_width,k = x_width;
+	int lda = (transx == CUBLAS_OP_N) ? m : k;
+	int ldb = (transy == CUBLAS_OP_N) ? k : n;
 	float_t alpha = 1;
 	float_t beta = 0;
-	cublasCreate(&handle);
-	cublasSgemm_v2(handle, transx, transy, x_height, y_width, x_width, &alpha, x, lda, y, ldb, &beta, z, y_width);
-	cublasDestroy(handle);
+	status = cublasSgemm_v2(handle, transx, transy, m, n, k, &alpha, x, lda, y, ldb, &beta, z, m);
+	CUBLAS_CHECK(status);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void cacu_copy_gpu(float_t *x, int x_length,float_t *y)
 {
-	cublasCreate(&handle);
-	cublasScopy_v2(handle, x_length, x, 1, y, 1);
-	cublasDestroy(handle);
+	status = cublasScopy_v2(handle, x_length, x, 1, y, 1);
+	CUBLAS_CHECK(status);
 	CUDA_CHECK(cudaDeviceSynchronize());
 }
 

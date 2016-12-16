@@ -42,10 +42,10 @@ namespace mycnn{
 		bin_blob(int num, int channel, int width, int height, unsigned int _value = 0, phrase_type phrase = test)
 			:blob_base(num, channel, width, height, phrase){
 #if __PARALLELTYPE__ == __GPU__
-			_s_data = cuda_malloc_v<unsigned int>(_length, _value);
+			_s_data = cuda_malloc_v<unsigned int>(_num,_cube_length, _value);
 			CUDA_CHECK(res);
 			if (train == phrase){
-				_s_diff = cuda_malloc<float_t>(_length);
+				_s_diff = cuda_malloc<float_t>(_num,_cube_length);
 				CUDA_CHECK(res);
 			}
 #else

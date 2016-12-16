@@ -41,6 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace mycnn{
 
 
+#define BLOCKNUM 512
+#define THREADNUM 32
+
 #define CUDA_LOG(level, res)   \
 		if(res!=cudaSuccess) \
 			{do{ fprintf(stderr,"[%s %s %s:%d] code %d, cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__,res);}while(0); exit(-1);};

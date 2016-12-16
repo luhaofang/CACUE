@@ -68,7 +68,6 @@ namespace mycnn {
 
 	typedef vector<float_t*> vec_f;
 
-
 	//string split
 	vector<string> split(string str, string pattern) {
 		vector<string> ret;

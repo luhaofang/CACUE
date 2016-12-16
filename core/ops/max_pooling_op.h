@@ -61,7 +61,8 @@ namespace mycnn{
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			cacu_max_pooling(s_blob_->s_data(), _args->at(1), _args->at(2), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->s_data(), _index->s_data());
+			for(int i = 0 ; i < s_blob_->num(); ++i)
+				cacu_max_pooling(s_blob_->p_data(i), _args->at(1), _args->at(2), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), _index->p_data(i));
 			echo();
 			return;
 		}

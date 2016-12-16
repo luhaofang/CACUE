@@ -27,10 +27,6 @@
 
 #include "cuda_log.h"
 
-
-#define BLOCKNUM 128
-#define THREADNUM 32
-
 __global__ void _k_CACU_ACTIVATION_RELU_GPU(float_t *x, int length) {
 
 	int tid = threadIdx.x;

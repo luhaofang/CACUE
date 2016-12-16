@@ -51,22 +51,26 @@ namespace mycnn{
 
 			_std = cacu_allocator::create_blob(data->channel(), 1, 1, 1);
 
+			_dim_sum = cacu_allocator::create_blob(data->num(), data->channel(), 1, 1);
+
 		};
 
 		~batch_normal_op(){
 
 			delete (blob *)o_blob;
 
-			delete (blob *)_mean;
-			delete (blob *)_var;
+			delete _mean;
+			delete _var;
 
-			delete (blob *)_history_mean;
-			delete (blob *)_history_var;
+			delete _history_mean;
+			delete _history_var;
 
-			delete (blob *)_std;
+			delete _std;
 
 			delete _scale;
 			delete _shift;
+
+			delete _dim_sum;
 		};
 
 		virtual const void check() override{
@@ -82,16 +86,15 @@ namespace mycnn{
 
 			if (!use_global_stats)
 			{
-				vec_t dim_sum(s_blob_->num() * s_blob_->channel());
-
-				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(), &dim_sum[0], s_blob_->width()*s_blob_->height());
-				cacu_sumbysize(BYHEIGHT, &dim_sum[0], s_blob_->channel()*s_blob_->num(), _mean->s_data(), s_blob_->channel());
+				_dim_sum->_RESET_DATA();
+				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(), _dim_sum->s_data(), s_blob_->width()*s_blob_->height());
+				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(), _mean->s_data(), s_blob_->channel());
 				cacu_sxsize(_mean->s_data(), _mean->count(), ((float_t)1.0 / m), _mean->s_data());
-
+				_dim_sum->_RESET_DATA();
 				//for saving space here we use o_data for container calculate x^2
 				cacu_sqr(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
-				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), &dim_sum[0], o_blob_->width()*o_blob_->height());
-				cacu_sumbysize(BYHEIGHT, &dim_sum[0], o_blob_->channel()*o_blob_->num(), _var->s_data(), o_blob_->channel());
+				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), _dim_sum->s_data(), o_blob_->width()*o_blob_->height());
+				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(), _var->s_data(), o_blob_->channel());
 				cacu_sxsize(_var->s_data(), _var->count(), ((float_t)1.0 / m), _var->s_data());
 
 				cacu_saxpby(_mean->s_data(), (float_t)-1.0, _var->s_data(), (float_t)1.0, _mean->count());
@@ -170,6 +173,8 @@ namespace mycnn{
 		blob *_history_mean;
 
 		blob *_history_var;
+
+		blob *_dim_sum;
 
 	};
 };
