@@ -52,7 +52,16 @@ namespace mycnn{
 			_bias->set_init_type(constant);
 
 #if __FFTW__ == ON
-			_fft_conv = new fft_conv();
+			//stride equal to 1
+			if(args_->at(2)==1){
+				_fft_conv = new fft_conv(args_->at(1),input_dim);
+			}
+			//if stride is not equal to 1, cancel fft convolution
+			else {
+				if (args_->at(3) != 0)
+					_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->at(3), input_dim + 2 * args_->at(3));
+				_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->at(1), output_dim*args_->at(1));
+			}
 #else
 			if (args_->at(3) != 0)
 				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->at(3), input_dim + 2 * args_->at(3));
@@ -68,7 +77,17 @@ namespace mycnn{
 			delete _bias;
 
 #if __FFTW__ == ON
-			delete _fft_conv;
+			//stride equal to 1
+			if(_args->at(2)==1)
+			{
+				delete _fft_conv;
+			}
+			//if stride is not equal to 1, cancel fft convolution
+			else{
+				if (_args->at(3) != 0)
+					delete _padded_data;
+				delete _col_data;
+			}
 #else
 			if (_args->at(3) != 0)
 				delete _padded_data;
@@ -91,7 +110,27 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;				
 
 #if __FFTW__ == ON
-			_fft_conv->cacu_fft_convolution();
+			//stride equal to 1
+			if(_args->at(2)==1){
+				//num
+				for (int n = 0; n < s_blob_->num(); ++n){
+
+				}
+			}
+			//if stride is not equal to 1, cancel fft convolution
+			else
+			{
+				for (int i = 0; i < s_blob_->num(); ++i){
+					if (_args->at(3) != 0){
+						cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
+						cacu_img2col(_padded_data->p_data(i), _args->at(1), _args->at(2), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+					}
+					else
+						cacu_img2col(s_blob_->p_data(i), _args->at(1), _args->at(2), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+					cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
+					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+				}
+			}
 #else			
 			for (int i = 0; i < s_blob_->num(); ++i){
 				if (_args->at(3) != 0){
@@ -109,6 +148,9 @@ namespace mycnn{
 		}
 
 		virtual const void grad(const solver_base *&solver_base) override{
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+
 
 		}
 
@@ -134,10 +176,10 @@ namespace mycnn{
 
 #if __FFTW__ == ON
 		fft_conv *_fft_conv;
-#else
+#endif
 		blob *_padded_data;
 
 		blob *_col_data;
-#endif
+
 	};
 };

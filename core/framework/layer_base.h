@@ -79,7 +79,7 @@ namespace mycnn{
 
 		inline void operate()
 		{
-			for(int i =0 ; i < ops.size() ; ++i)
+			for(unsigned int i =0 ; i < ops.size() ; ++i)
 				ops[i]->op();
 		}
 

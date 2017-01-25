@@ -25,38 +25,32 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
 
-#include <fftw3.h>
+#include "fft_conv.h"
 
-namespace mycnn{
-
-	class fft_conv{
-
-	public :
-
-		fft_conv(){};
-
-		~fft_conv(){};
-
-		void cacu_fft_convolution()
-		{
-
-#if __PARALLELTYPE__ == __GPU__
-			LOG_INFO("Haven't finished yet!");
-#else
-
-#if __FFTW__ == ON
-			LOG_INFO("Haven't finished yet!");
-#endif
-
-#endif
-		}
+using namespace mycnn;
 
 
+int main(void) {
 
+	int kernel_size = 5;
+	int img_size = 56;
 
+	fft_conv *fft = new fft_conv(kernel_size,img_size);
 
-	};
-
-};
+	float_t *img = new float_t[img_size*img_size];
+	float_t *kernel = new float_t[kernel_size*kernel_size];
+	float_t *res = new float_t[img_size*img_size];
+	for(int i =0;  i < img_size*img_size ;i++)
+		img[i] = i/img_size;
+	for(int i = 0 ; i < kernel_size*kernel_size;i++)
+		kernel[i] = i/kernel_size;
+	for(int i  = 0; i < img_size*img_size ; i ++)
+		res[i] = 0;
+	clock_t start = clock();
+	fft->cacu_fft_convolution(img,kernel,res);
+	clock_t end = clock();
+	printf("%d\n",end - start);
+	//for(int i = 0 ; i < kernel_size*kernel_size; i ++)
+	//	printf("%f,",res[i]);
+}

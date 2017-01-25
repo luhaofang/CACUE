@@ -51,7 +51,7 @@ namespace mycnn{
 		~operation()
 		{
 			delete o_data;
-			vector<weight<DTYPE>*>().swap(_weights);
+			//vector<weight<DTYPE>*>().swap(_weights);
 			_args->clear();
 		}
 
@@ -63,9 +63,9 @@ namespace mycnn{
 
 		}
 
-		void set_weight(weight<DTYPE> *&weight_){
-			_weights.push_back(weight_);
-		}
+//		void set_weight(weight<DTYPE> *&weight_){
+//			_weights.push_back(weight_);
+//		}
 
 		
 
@@ -73,7 +73,7 @@ namespace mycnn{
 
 	protected:
 
-		vector<weight<DTYPE>*> _weights;
+		//vector<weight<DTYPE>*> _weights;
 
 		blobs<DTYPE> *s_data;
 

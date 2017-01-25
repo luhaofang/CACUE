@@ -81,16 +81,19 @@ namespace mycnn{
 		inline int length(){ return _layers.size(); };
 
 		inline void predict(){
-			for(int i =0 ; i < _layers.size();++i)
+			for(unsigned int i =0 ; i < _layers.size();++i){
+				clock_t start = clock();
 				_layers[i]->operate();
-
+				clock_t end = clock();
+				LOG_INFO("time cost:%d",end - start);
+			}
 		}
 
 	private:
 
 		vector<layer_base*> _layers;
 
-		blobs* _input_data;
+		//blobs* _input_data;
 	};
 
 };

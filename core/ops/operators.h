@@ -36,7 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../math/activation_functions.h"
 #include "../math/batch_functions.h"
 #include "../math/pooling_functions.h"
-#include "../math/fft_conv.h"
+
+#include "../math/fft_conv/fft_conv.h"
 
 #include "operator_base.h"
 
