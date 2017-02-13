@@ -24,7 +24,7 @@ void test_math()
 		clock_t start = clock();
 		net->predict();
 		clock_t end = clock();
-		LOG_INFO("time costs:%d",end - start);
+		//LOG_INFO("time costs:%d",end - start);
 	}
 
 }

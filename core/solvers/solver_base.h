@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+
 namespace mycnn{
 
 	class solver_base
@@ -36,14 +37,31 @@ namespace mycnn{
 
 		solver_base(){
 
-		};
 
-		~solver_base(){
 
 		};
+
+		virtual ~solver_base(){
+
+
+		};
+
+
+		virtual const void update_w(blob* g, weight* w) = 0;
+
+		virtual const void crop_grad(blob* g) = 0;
+
+
+	protected:
+
+
+
+
 
 
 	private:
+
+
 
 	};
 }

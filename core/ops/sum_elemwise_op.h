@@ -39,17 +39,17 @@ namespace mycnn{
 			operator_base(data, args){
 			check();
 
-			o_blob = cacu_allocator::create_blob(data->at(0)->num(), data->at(0)->channel(), data->at(0)->width(), data->at(0)->height());
-
+			blob_base *_blob = data->at(0);
+			o_blob = cacu_allocator::create_blob(_blob->num(), _blob->channel(), _blob->width(), _blob->height());
 		};
 
 		~sum_elemwise_op(){
 			delete (blob *)o_blob;
-
-
 		};
 
 		virtual const void check() override{
+
+			CHECK_GT_OP(((blob*)s_blobs)->num(),0);
 			return;
 		}
 
@@ -58,26 +58,36 @@ namespace mycnn{
 
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
 				blob *s_blob_ = (blob*)(*s_blobs)[j];
-				CHECK_EQ_OP(s_blob_->count(), o_blob->count());
+				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
 				cacu_saxpby(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), (float_t)1, o_blob_->count());
 			}
 			echo();
 			return;
 		}
 
-		virtual const void grad(const solver_base *&solver_base) override{
+		virtual const void grad() override{
+			blob *o_blob_ = (blob*)o_blob;
+
+			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
+				blob *s_blob_ = (blob*)(*s_blobs)[j];
+				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
+				//cacu_saxpby(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), (float_t)1, o_blob_->count());
+				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
+			}
+			echo();
+			return;
 
 		}
 
-		virtual const void load(std::ifstream& is){
+		virtual const void load(std::ifstream& is) override{
 
 		}
 
-		virtual const void save(std::ostream& os){
+		virtual const void save(std::ostream& os) override{
 
 		}
 
-		virtual const void echo()
+		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}

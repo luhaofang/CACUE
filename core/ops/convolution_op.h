@@ -42,30 +42,30 @@ namespace mycnn{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-			int output_dim = (input_dim + 2 * args_->at(3) - args_->at(1)) / args_->at(2) + 1;
-			o_blob = cacu_allocator::create_blob(num, args_->at(0), output_dim, output_dim);
+			int output_dim = (input_dim + 2 * args_->pad() - args_->kernel_size()) / args_->stride() + 1;
+			o_blob = cacu_allocator::create_blob(num, args_->output_channel(), output_dim, output_dim);
 
-			_w = new weight("w", args_->at(0), data->channel(), args_->at(1), args_->at(1), data->phrase());
-			_bias = new weight("bias", args_->at(0), 1, 1, 1, data->phrase());
+			_w = new weight("w", args_->output_channel(), data->channel(), args_->kernel_size(), args_->kernel_size(), data->phrase());
+			_bias = new weight("bias", args_->output_channel(), 1, 1, 1, data->phrase());
 
 			_w->set_init_type(gaussian, 0.001f);
 			_bias->set_init_type(constant);
 
 #if __FFTW__ == ON
 			//stride equal to 1
-			if(args_->at(2)==1){
-				_fft_conv = new fft_conv(args_->at(1),input_dim);
+			if(args_->stride()==1){
+				_fft_conv = new fft_conv(args_->kernel_size(),input_dim);
 			}
 			//if stride is not equal to 1, cancel fft convolution
 			else {
-				if (args_->at(3) != 0)
-					_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->at(3), input_dim + 2 * args_->at(3));
-				_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->at(1), output_dim*args_->at(1));
+				if (args_->pad() != 0)
+					_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->pad(), input_dim + 2 * args_->pad());
+				_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->kernel_size(), output_dim*args_->kernel_size());
 			}
 #else
-			if (args_->at(3) != 0)
-				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->at(3), input_dim + 2 * args_->at(3));
-			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->at(1), output_dim*args_->at(1));
+			if (args_->pad() != 0)
+				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->pad(), input_dim + 2 * args_->pad());
+			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->kernel_size(), output_dim*args_->kernel_size());
 #endif
 		
 		};
@@ -78,18 +78,18 @@ namespace mycnn{
 
 #if __FFTW__ == ON
 			//stride equal to 1
-			if(_args->at(2)==1)
+			if(_args->stride()==1)
 			{
 				delete _fft_conv;
 			}
 			//if stride is not equal to 1, cancel fft convolution
 			else{
-				if (_args->at(3) != 0)
+				if (_args->pad() != 0)
 					delete _padded_data;
 				delete _col_data;
 			}
 #else
-			if (_args->at(3) != 0)
+			if (_args->pad() != 0)
 				delete _padded_data;
 			delete _col_data;
 #endif
@@ -97,11 +97,11 @@ namespace mycnn{
 
 		virtual const void check() override{
 			//output_channel > 0
-			CHECK_GT_OP(_args->at(0), 0);
+			CHECK_GT_OP(_args->output_channel(), 0);
 			//kernel_size > 0
-			CHECK_GT_OP(_args->at(1), 0);
+			CHECK_GT_OP(_args->kernel_size(), 0);
 			//stride > 0
-			CHECK_GT_OP(_args->at(2), 0);
+			CHECK_GT_OP(_args->stride(), 0);
 			return;
 		}
 
@@ -111,7 +111,7 @@ namespace mycnn{
 
 #if __FFTW__ == ON
 			//stride equal to 1
-			if(_args->at(2)==1){
+			if(_args->stride()==1){
 				//num
 				for (int n = 0; n < s_blob_->num(); ++n){
 
@@ -121,24 +121,24 @@ namespace mycnn{
 			else
 			{
 				for (int i = 0; i < s_blob_->num(); ++i){
-					if (_args->at(3) != 0){
-						cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
-						cacu_img2col(_padded_data->p_data(i), _args->at(1), _args->at(2), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+					if (_args->pad() != 0){
+						cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->pad(), _padded_data->p_data(i));
+						cacu_img2col(_padded_data->p_data(i), _args->kernel_size(), _args->stride(), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
 					}
 					else
-						cacu_img2col(s_blob_->p_data(i), _args->at(1), _args->at(2), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+						cacu_img2col(s_blob_->p_data(i),_args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
 					cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
 					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 			}
 #else			
 			for (int i = 0; i < s_blob_->num(); ++i){
-				if (_args->at(3) != 0){
+				if (_args->pad() != 0){
 					cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
-					cacu_img2col(_padded_data->p_data(i), _args->at(1), _args->at(2), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+					cacu_img2col(_padded_data->p_data(i), _args->kernel_size(), _args->stride(), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
 				}
 				else
-					cacu_img2col(s_blob_->p_data(i), _args->at(1), _args->at(2), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+					cacu_img2col(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
 				cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
 				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
@@ -147,22 +147,32 @@ namespace mycnn{
 			return;
 		}
 
-		virtual const void grad(const solver_base *&solver_base) override{
+		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
+			for (int i = 0; i < s_blob_->num(); ++i){
+				if (_args->at(3) != 0){
+					cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
+					cacu_img2col(_padded_data->p_data(i), _args->kernel_size(), _args->stride(), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+				}
+				else
+					cacu_img2col(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+				cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
+				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+			}
 
 		}
 
-		virtual const void load(std::ifstream& is){
+		virtual const void load(std::ifstream& is) override{
 
 		}
 
-		virtual const void save(std::ostream& os){
+		virtual const void save(std::ostream& os) override{
 
 		}
 
-		virtual const void echo()
+		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}

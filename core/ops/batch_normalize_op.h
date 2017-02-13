@@ -53,6 +53,7 @@ namespace mycnn{
 
 			_dim_sum = cacu_allocator::create_blob(data->num(), data->channel(), 1, 1);
 
+
 		};
 
 		~batch_normal_op(){
@@ -87,13 +88,13 @@ namespace mycnn{
 			if (!use_global_stats)
 			{
 				_dim_sum->_RESET_DATA();
-				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(), _dim_sum->s_data(), s_blob_->width()*s_blob_->height());
+				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(), _dim_sum->s_data(), s_blob_->length());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(), _mean->s_data(), s_blob_->channel());
 				cacu_sxsize(_mean->s_data(), _mean->count(), ((float_t)1.0 / m), _mean->s_data());
 				_dim_sum->_RESET_DATA();
 				//for saving space here we use o_data for container calculate x^2
 				cacu_sqr(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
-				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), _dim_sum->s_data(), o_blob_->width()*o_blob_->height());
+				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), _dim_sum->s_data(), o_blob_->length());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(), _var->s_data(), o_blob_->channel());
 				cacu_sxsize(_var->s_data(), _var->count(), ((float_t)1.0 / m), _var->s_data());
 
@@ -130,22 +131,22 @@ namespace mycnn{
 			return;
 		}
 
-		virtual const void grad(const solver_base *&solver_base) override{
+		virtual const void grad() override{
 
 		}
 
-		virtual const void load(std::ifstream& is){
+		virtual const void load(std::ifstream& is) override {
 
 		}
 
-		virtual const void save(std::ostream& os){
+		virtual const void save(std::ostream& os) override {
 
 		}
 
-		virtual const void echo()
+		virtual const void echo() override
 		{
 
-			//LOG_INFO("%f", _mean->s_data()[0]);
+			LOG_INFO("%f", _mean->s_data()[0]);
 		}
 
 		inline weight* scale(){ return _scale; }

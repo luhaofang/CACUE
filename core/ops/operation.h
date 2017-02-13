@@ -40,13 +40,10 @@ namespace mycnn{
 		{
 			
 			s_data = data;
+			o_data = NULL;
 			_args = args_;
 		}
 
-		operation()
-		{
-			
-		}
 
 		~operation()
 		{

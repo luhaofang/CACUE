@@ -42,7 +42,7 @@ namespace mycnn{
 		};
 
 		~relu_op(){
-			
+
 		};
 
 		virtual const void check() override{
@@ -57,19 +57,23 @@ namespace mycnn{
 			return;
 		}
 
-		virtual const void grad(const solver_base *&solver_base) override{
+		virtual const void grad() override{
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+			cacu_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), s_blob_->count());
+			echo();
+			return;
+		}
+
+		virtual const void load(std::ifstream& is) override{
 
 		}
 
-		virtual const void load(std::ifstream& is){
+		virtual const void save(std::ostream& os) override{
 
 		}
 
-		virtual const void save(std::ostream& os){
-
-		}
-
-		virtual const void echo()
+		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}

@@ -26,3 +26,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #pragma once
+
+namespace mycnn{
+
+	class solver : public solver_base
+	{
+
+	public:
+
+		solver(){
+
+
+		};
+
+		~solver(){
+
+
+		};
+
+
+		virtual const void update_w(blob* g, weight* w) override
+		{
+
+		}
+
+		virtual const void crop_grad(blob* g) override
+		{
+
+		}
+
+
+	protected:
+
+
+	private:
+
+
+
+	};
+}

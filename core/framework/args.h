@@ -34,25 +34,31 @@ using namespace std;
 
 namespace mycnn{
 
-#define _ARGSEND 0XFFFFFFFF
 
-	class args : public CACU_ARGS{
+	class args : public args_base{
 
 	public:
 
-		args(int arg1, ...){
-			va_list arg_ptr;
-			va_start(arg_ptr, arg1);
-			while (arg1 != _ARGSEND){
-				this->push_back(arg1);
-				arg1 = va_arg(arg_ptr, int);
-			};
-			va_end(arg_ptr);
+		args(int _output_channel, int _kernel_size, int _stride, int _pad, int _input_dim, int _channel)
+			:args_base(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel, _ARGSEND){
+
 		}
 
 		~args(){
-			
+
 		}
+
+		inline int output_channel()	{return this->at(0);}
+
+		inline int kernel_size(){return this->at(1);}
+
+		inline int stride(){return this->at(2);}
+
+		inline int pad(){return this->at(3);}
+
+		inline int input_dim(){return this->at(4);}
+
+		inline int channel(){return this->at(5);}
 
 
 	private:

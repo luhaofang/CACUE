@@ -43,7 +43,9 @@ namespace mycnn{
 		CACU_RELU,
 		CACU_BATCH_NORMALIZE,
 		CACU_MAX_POOLING,
-		CACU_AVERAGE_POOLING
+		CACU_AVERAGE_POOLING,
+		CACU_DROPOUT,
+		CACU_LEAKY_RELU
 	};
 
 	class operator_factory
@@ -88,6 +90,14 @@ namespace mycnn{
 			case CACU_AVERAGE_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new average_pooling_op((blob*&)(*blob_)[0], args_);
+				break;
+			case CACU_DROPOUT:
+				CHECK_EQ_OP(blob_->size(), 1);
+				return new dropout_op((blob*&)(*blob_)[0], args_);
+				break;
+			case CACU_LEAKY_RELU:
+				CHECK_EQ_OP(blob_->size(), 1);
+				return new leaky_relu_op((blob*&)(*blob_)[0], args_);
 				break;
 
 			default:

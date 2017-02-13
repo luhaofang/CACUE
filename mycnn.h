@@ -27,13 +27,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-
+#include "utils/data_defination.h"
 #include "utils/utils.h"
 #include "utils/log.h"
 #include "utils/configs.h"
 
-#include "tools/args.h"
+#include "tools/args_base.h"
 
+#include "core/framework/args.h"
 #include "core/framework/blob_base.h"
 #include "core/framework/bin_blob.h"
 #include "core/framework/blob.h"
@@ -50,11 +51,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "core/ops/operators.h"
 
-#include "core/solvers/solvers.h"
-
 #include "core/framework/layer_base.h"
 #include "core/framework/layer.h"
 #include "core/framework/layer_block.h"
 #include "core/framework/network.h"
 #include "core/framework/layer_creator.h"
+
+#include "core/solvers/solvers.h"
 

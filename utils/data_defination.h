@@ -28,24 +28,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
+#include <ostream>
+#include <vector>
+#include <map>
+#include <stdlib.h>
+#include <math.h>
+#include <algorithm>
+#include <random>
+#include <fstream>
+#include <sstream>
+#include <time.h>
+#include <string>
 
-#include "../math/math_utils.h"
+using namespace std;
 
-#include "../math/math_functions.h"
-#include "../math/activation_functions.h"
-#include "../math/batch_functions.h"
-#include "../math/pooling_functions.h"
+namespace mycnn {
 
-//#include "../math/fft_conv/fft_conv.h"
+	enum param_init_type {
+		constant, xavier, gaussian, msra
+	};
 
-#include "operator_base.h"
+	enum phrase_type {
+		test, train
+	};
 
-#include "inner_product_op.h"
-#include "convolution_op.h"
-#include "sum_elemwise_op.h"
-#include "relu_op.h"
-#include "batch_normalize_op.h"
-#include "average_pooling_op.h"
-#include "max_pooling_op.h"
-#include "dropout_op.h"
-#include "leaky_relu_op.h"
+	enum run_mode {
+		cpu, gpu
+	};
+
+	typedef float float_t;
+
+	typedef string chars_t;
+
+	typedef vector<int> CACU_ARGS;
+
+	typedef vector<float_t> vec_t;
+
+	typedef vector<unsigned int> vec_i;
+
+	typedef vector<float_t*> vec_f;
+
+}

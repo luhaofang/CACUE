@@ -47,6 +47,51 @@ namespace mycnn{
 
 	}
 
+	void cacu_relu_grad(float_t *x, float_t *g, int length)
+	{
+
+#if __PARALLELTYPE__ == __GPU__
+		cacu_relu_grad_gpu(x,g,length);
+#else
+		for (int i = 0; i < length; ++i)
+		{
+			if (x[i] < 0)
+				g[i] = 0;
+		}
+#endif
+
+	}
+
+	void cacu_leaky_relu(float_t *x, float_t a, int length)
+	{
+
+	#if __PARALLELTYPE__ == __GPU__
+		cacu_leaky_relu_gpu(x, a, length);
+#else
+		for (int i = 0; i < length; ++i)
+		{
+			if (x[i] < 0)
+				x[i] *= a;
+		}
+#endif
+
+	}
+
+	void cacu_leaky_relu_grad(float_t *x,float_t *g, float_t a, int length)
+	{
+
+	#if __PARALLELTYPE__ == __GPU__
+		cacu_leaky_relu_grad_gpu(x, g, a, length);
+#else
+		for (int i = 0; i < length; ++i)
+		{
+			if (x[i] < 0)
+				g[i] *= a;
+		}
+#endif
+
+	}
+
 	
 
 };

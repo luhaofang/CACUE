@@ -27,5 +27,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+
 #include "solver_base.h"
 #include "sgd.h"

@@ -56,7 +56,7 @@ namespace mycnn{
 
 		layer* op(op_name op_) {
 
-			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel, _ARGSEND);
+			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
@@ -67,7 +67,7 @@ namespace mycnn{
 		}
 
 		layer* op(op_name op_, blob *blob_) {
-			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel, _ARGSEND);
+			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			blobs_->push_back(blob_);
 			if (out_blob != NULL)
@@ -79,7 +79,7 @@ namespace mycnn{
 		}
 
 		layer* op(op_name op_, blobs *blobs_) {
-			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel, _ARGSEND);
+			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));

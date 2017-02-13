@@ -36,7 +36,7 @@ namespace mycnn{
 		network(){
 		
 #if  __PARALLELTYPE__ == __GPU__
-			cublasCreate(&handle);
+			cublasCreate_v2(&handle);
 #endif
 
 		};
@@ -44,7 +44,7 @@ namespace mycnn{
 		~network(){
 
 #if  __PARALLELTYPE__ == __GPU__
-			cublasDestroy(handle);
+			cublasDestroy_v2(handle);
 #endif
 
 		};
@@ -85,7 +85,7 @@ namespace mycnn{
 				clock_t start = clock();
 				_layers[i]->operate();
 				clock_t end = clock();
-				LOG_INFO("time cost:%d",end - start);
+				LOG_INFO("%d time cost:%d", i ,end - start);
 			}
 		}
 

@@ -71,31 +71,39 @@ namespace mycnn{
 			return;
 		}
 
-		virtual const void grad(const solver_base *&solver_base) override{
+		virtual const void grad() override{
+
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+			if (test == o_blob_->phrase())
+				cacu_copy(o_blob_->s_diff(), s_blob_->count(),s_blob_->s_diff());
+			else
+			{
+				//one of the dropout's implementation
+				cacu_ssx(_rand_vect->s_data(), s_blob_->count(), s_blob_->s_diff());
+				//ratio's scale implementation
+				cacu_sxsize(o_blob_->s_diff(),o_blob_->count(),_ratio,s_blob_->s_diff());
+			}
+			echo();
+			return;
+		}
+
+		virtual const void load(std::ifstream& is) override{
 
 		}
 
-		virtual const void load(std::ifstream& is){
+		virtual const void save(std::ostream& os) override{
 
 		}
 
-		virtual const void save(std::ostream& os){
-
-		}
-
-		virtual const void echo()
+		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		void set_ratio(float_t ratio_)
-		{
-			_ratio = ratio_;
-		}
+		float_t _ratio = 0.5;
 
 	private:
-
-		float_t _ratio;
 
 		blob *_rand_vect;
 

@@ -37,10 +37,10 @@ namespace mycnn{
 		inner_product_op(blob *&data, args *&args_) : operator_base((blob_base*&)data, args_){
 			check();
 
-			o_blob = cacu_allocator::create_blob(data->num(), args_->at(0), 1, 1);
+			o_blob = cacu_allocator::create_blob(data->num(), args_->output_channel(), 1, 1);
 
-			_w = new weight("w", args_->at(0), data->channel(), data->width(), data->height(), data->phrase());
-			_bias = new weight("bias", args_->at(0), 1, 1, 1, data->phrase());
+			_w = new weight("w", args_->output_channel(), data->channel(), data->width(), data->height(), data->phrase());
+			_bias = new weight("bias", args_->output_channel(), 1, 1, 1, data->phrase());
 
 		};
 
@@ -54,7 +54,7 @@ namespace mycnn{
 
 		virtual const void check() override{
 			//output_channel > 0
-			CHECK_GT_OP(_args->at(0), 0);
+			CHECK_GT_OP(_args->output_channel(), 0);
 			return;
 		}
 
@@ -66,26 +66,36 @@ namespace mycnn{
 				//inner_product
 				cacu_sgemv(NOTRANS,_w->s_data(),_w->num(),s_blob_->p_data(i),s_blob_->length(),o_blob_->p_data(i));
 				//elemwise_sum
-				cacu_saxpby(o_blob_->p_data(i), (float_t)1, _bias->s_data(), (float_t)1, _args->at(0));
+				cacu_saxpby(o_blob_->p_data(i), (float_t)1, _bias->s_data(), (float_t)1, _args->output_channel());
 			}
 
 			echo();
 			return;
 		}
 
-		virtual const void grad(const solver_base *&solver_base) override{
+		virtual const void grad() override{
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
 
+			for(int i = 0; i < o_blob_->num(); ++i){
+				//gradient propagation
+				cacu_sgemm(NOTRANS,NOTRANS,o_blob_->p_diff(i),1,_args->output_channel(),_w->s_diff(),_w->length(),s_blob_->p_diff(i));
+			}
+			//weights gradient
+			cacu_sgemm(TRANS,NOTRANS,o_blob_->s_diff(),_args->at(0),o_blob_->length(),s_blob_->s_data(),s_blob_->length(),_w->s_diff());
+
+			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),_bias->s_diff(),_bias->count());
 		}
 
-		virtual const void load(std::ifstream& is){
+		virtual const void load(std::ifstream& is) override{
 		
 		}
 
-		virtual const void save(std::ostream& os){
+		virtual const void save(std::ostream& os) override{
 		
 		}
 
-		virtual const void echo()
+		virtual const void echo() override
 		{
 
 			//LOG_INFO("%s:%d", "output_channel", (*_args)[0]);

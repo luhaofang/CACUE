@@ -28,10 +28,14 @@ layer_block create_block(int i)
 network* create_alexnet()
 {
 	blob *b = cacu_allocator::create_blob(1, 3, 227, 227, 1, train);
+	weight *_b = new weight("test",1, 3, 227, 227,train);
+	_b->set_init_type(msra,1);
+
+	//LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);
 	
 	network *net = new network();
 
-	layer_block *conv1 = conv_layer_maxpooling(b, 96, 11, 4, 2);
+	layer_block *conv1 = conv_layer_maxpooling(_b, 96, 11, 4, 2);
 	LOG_DEBUG("conv1");
 	layer_block *conv2 = conv_layer_maxpooling((blob*)conv1->get_oblob(), 256, 5, 1, 2);
 	LOG_DEBUG("conv2");

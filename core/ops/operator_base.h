@@ -40,6 +40,7 @@ namespace mycnn{
 			
 			s_blob = data;
 			s_blobs = NULL;
+			o_blob = NULL;
 			_args = args_;
 
 		};
@@ -48,6 +49,7 @@ namespace mycnn{
 
 			s_blob = NULL;
 			s_blobs = data;
+			o_blob = NULL;
 			_args = args_;
 		};
 
@@ -60,7 +62,7 @@ namespace mycnn{
 
 		virtual const void check() = 0;
 
-		virtual const void grad(const solver_base *&solver_base) = 0;
+		virtual const void grad() = 0;
 
 		virtual const void load(std::ifstream &is) = 0;
 

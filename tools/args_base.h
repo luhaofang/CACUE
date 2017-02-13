@@ -25,32 +25,37 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#pragma once
 
-#include "fft_conv.h"
+#include <vector>
+#include <stdarg.h>
 
-using namespace mycnn;
+using namespace std;
+
+namespace mycnn{
+
+#define _ARGSEND 0XFFFFFFFF
+
+	class args_base : public CACU_ARGS{
+
+	public:
+
+		args_base(int arg1, ...){
+			va_list arg_ptr;
+			va_start(arg_ptr, arg1);
+			while (arg1 != _ARGSEND){
+				this->push_back(arg1);
+				arg1 = va_arg(arg_ptr, int);
+			};
+			va_end(arg_ptr);
+		}
+
+		~args_base(){
+			
+		}
 
 
-int main(void) {
+	private:
 
-	int kernel_size = 5;
-	int img_size = 56;
-
-	fft_conv *fft = new fft_conv(kernel_size,img_size);
-
-	float_t *img = new float_t[img_size*img_size];
-	float_t *kernel = new float_t[kernel_size*kernel_size];
-	float_t *res = new float_t[img_size*img_size];
-	for(int i =0;  i < img_size*img_size ;i++)
-		img[i] = i/img_size;
-	for(int i = 0 ; i < kernel_size*kernel_size;i++)
-		kernel[i] = i/kernel_size;
-	for(int i  = 0; i < img_size*img_size ; i ++)
-		res[i] = 0;
-	clock_t start = clock();
-	fft->cacu_fft_convolution(img,kernel,res);
-	clock_t end = clock();
-	printf("%d\n",end - start);
-	//for(int i = 0 ; i < kernel_size*kernel_size; i ++)
-	//	printf("%f,",res[i]);
+	};
 }

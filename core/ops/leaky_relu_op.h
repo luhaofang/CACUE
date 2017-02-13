@@ -27,25 +27,61 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+namespace mycnn{
+
+	class leaky_relu_op : public operator_base
+	{
+
+	public:
+
+		leaky_relu_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
+			check();
+
+			o_blob = data;
+
+		};
+
+		~leaky_relu_op(){
+
+		};
+
+		virtual const void check() override{
+			return;
+		}
+
+		virtual const void op() override {
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+			cacu_leaky_relu(s_blob_->s_data(), a, s_blob_->count());
+			echo();
+			return;
+		}
+
+		virtual const void grad() override{
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+			cacu_leaky_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), a, s_blob_->count());
+			echo();
+			return;
+		}
+
+		virtual const void load(std::ifstream& is) override{
+
+		}
+
+		virtual const void save(std::ostream& os) override{
+
+		}
+
+		virtual const void echo() override
+		{
+			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		float_t a = 0.01;
+
+	private:
 
 
-#include "../math/math_utils.h"
-
-#include "../math/math_functions.h"
-#include "../math/activation_functions.h"
-#include "../math/batch_functions.h"
-#include "../math/pooling_functions.h"
-
-//#include "../math/fft_conv/fft_conv.h"
-
-#include "operator_base.h"
-
-#include "inner_product_op.h"
-#include "convolution_op.h"
-#include "sum_elemwise_op.h"
-#include "relu_op.h"
-#include "batch_normalize_op.h"
-#include "average_pooling_op.h"
-#include "max_pooling_op.h"
-#include "dropout_op.h"
-#include "leaky_relu_op.h"
+	};
+};

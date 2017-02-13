@@ -33,4 +33,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 extern "C" void cacu_relu_gpu(float_t *x, int length);
 
+/**
+ * gradient for activation use relu functions in cuda
+ */
+extern "C" void cacu_relu_grad_gpu(float_t *x, float_t *g, int length);
 
+/**
+ * for activation use leaky_relu functions in cuda
+ */
+extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length);
+
+/**
+ * gradient for activation use leaky_relu functions in cuda
+ */
+extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int length);

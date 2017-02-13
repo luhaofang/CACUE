@@ -41,8 +41,8 @@ namespace mycnn{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-			int output_dim = (input_dim - args_->at(1)) / args_->at(2) + 1;
-			if ((input_dim - args_->at(1)) % args_->at(2) != 0)
+			int output_dim = (input_dim - args_->kernel_size()) / args_->stride() + 1;
+			if ((input_dim - args_->kernel_size()) % args_->stride() != 0)
 				output_dim += 1;
 			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim);
 
@@ -60,24 +60,24 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_average_pooling(s_blob_->p_data(i), _args->at(1), _args->at(2), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i));
+				cacu_average_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i));
 			echo();
 			return;
 		}
 
-		virtual const void grad(const solver_base *&solver_base) override{
+		virtual const void grad() override{
 
 		}
 
-		virtual const void load(std::ifstream& is){
+		virtual const void load(std::ifstream& is) override{
 
 		}
 
-		virtual const void save(std::ostream& os){
+		virtual const void save(std::ostream& os) override{
 
 		}
 
-		virtual const void echo()
+		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}

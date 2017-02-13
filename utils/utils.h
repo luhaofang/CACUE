@@ -28,45 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
-#include <ostream>
-#include <vector>
-#include <map>
-#include <stdlib.h>
-#include <math.h>
-#include <algorithm>
-#include <random>
-#include <fstream>
-#include <sstream>
-#include <time.h>
+
 #include <string>
 
 using namespace std;
 
 namespace mycnn {
-
-	enum param_init_type {
-		constant, xavier, gaussian, msra
-	};
-
-	enum phrase_type {
-		test, train
-	};
-
-	enum run_mode {
-		cpu, gpu
-	};
-
-	typedef float float_t;
-
-	typedef string chars_t;
-
-	typedef vector<int> CACU_ARGS;
-
-	typedef vector<float_t> vec_t;
-
-	typedef vector<unsigned int> vec_i;
-
-	typedef vector<float_t*> vec_f;
 
 	//string split
 	vector<string> split(string str, string pattern) {
