@@ -152,16 +152,19 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 
 			for (int i = 0; i < s_blob_->num(); ++i){
-				if (_args->at(3) != 0){
-					cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
-					cacu_img2col(_padded_data->p_data(i), _args->kernel_size(), _args->stride(), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
-				}
-				else
-					cacu_img2col(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
-				cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
-				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+
+				//gradient propagation
+				cacu_sgemm(TRANS,NOTRANS,o_blob_->p_diff(i),_args->output_channel(),o_blob_->width()*o_blob_->height(),_w->s_diff(),_w->length(),_padded_data->p_diff(i));
+
+				//weights gradient
+				cacu_sgemm(NOTRANS,NOTRANS,o_blob_->p_diff(i),_args->output_channel(),o_blob_->width()*o_blob_->height(),_padded_data->p_data(i),_w->length(),_w->s_diff());
+
+				//bias gradient
+				cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),_bias->s_diff(),_bias->count());
 			}
 
+			//col2img
+			//unpadded
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -176,6 +179,10 @@ namespace mycnn{
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
+
+		inline void set_weight_init_type(param_init_type _type,float_t value = 0.0){_w->set_init_type(gaussian, value);}
+
+		inline void set_bias_init_type(param_init_type _type,float_t value = 0.0){_bias->set_init_type(constant, value);}
 
 	private:
 

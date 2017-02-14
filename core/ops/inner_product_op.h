@@ -77,13 +77,13 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
-			for(int i = 0; i < o_blob_->num(); ++i){
-				//gradient propagation
-				cacu_sgemm(NOTRANS,NOTRANS,o_blob_->p_diff(i),1,_args->output_channel(),_w->s_diff(),_w->length(),s_blob_->p_diff(i));
-			}
-			//weights gradient
-			cacu_sgemm(TRANS,NOTRANS,o_blob_->s_diff(),_args->at(0),o_blob_->length(),s_blob_->s_data(),s_blob_->length(),_w->s_diff());
+			//gradient propagation
+			cacu_sgemm(NOTRANS,NOTRANS,o_blob_->s_diff(),o_blob_->num(),_args->output_channel(),_w->s_diff(),_w->length(),s_blob_->s_diff());
 
+			//weights gradient
+			cacu_sgemm(TRANS,NOTRANS,o_blob_->s_diff(),o_blob_->num(), _args->output_channel(), s_blob_->s_data(),s_blob_->length(),_w->s_diff());
+
+			//bias gradient
 			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),_bias->s_diff(),_bias->count());
 		}
 

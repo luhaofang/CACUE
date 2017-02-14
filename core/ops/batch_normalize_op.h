@@ -127,7 +127,7 @@ namespace mycnn{
 				}
 			}
 
-			echo();
+			//echo();
 			return;
 		}
 

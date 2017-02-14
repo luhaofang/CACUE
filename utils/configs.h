@@ -30,6 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../core/math/parallel_config.h"
 
 
-#define __PARALLELTYPE__  __OPENBLAS__
+#define __PARALLELTYPE__  __GPU__
 
 #define __FFTW__ OFF

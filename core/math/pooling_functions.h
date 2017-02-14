@@ -84,7 +84,7 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		cacu_max_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
+		//cacu_max_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 #else
 		int block_size = output_dim*output_dim;
 		float_t *xp, *yp, xd;
@@ -163,7 +163,7 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		cacu_average_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
+		//cacu_average_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
 #else
 		int block_size = output_dim*output_dim;
 		float_t *xp, *yp;
