@@ -308,5 +308,122 @@ extern "C" void cacu_img2col_gpu(float_t *x, int kernel_size, int stride, int in
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
+__global__ void _k_CACU_UNPADDED_DATA_GPU(float_t *x,int channel,int input_dim,int pad,float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	int input_dim_ = input_dim - 2 * pad;
+
+	int length = input_dim_ * input_dim_ * channel;
+
+	int cout_length = input_dim_ * input_dim_;
+
+	int cin_length = input_dim * input_dim;
+
+	int col,row;
+
+	int in_start , c;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		row = ((i % cout_length) / input_dim_);
+		col = i % input_dim_;
+		c = i / cout_length;
+
+		in_start = ((row + pad) * input_dim + (col + pad)) + c * cin_length;
+		y[i] = x[in_start];
+	}
+}
+
+extern "C" void cacu_unpadded_data_gpu(float_t *x,int channel, int input_dim, int pad, float_t *y){
+
+	_k_CACU_UNPADDED_DATA_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, channel, input_dim, pad, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
+__global__ void _k_CACU_COL2IMG_GPU(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+{
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	//the set in the input feature map
+	int startset_i, startset_j;
+	//the set in the output feature map
+	int outset_si, outset_sj, outset_i, outset_j;
+	//the count for stride in feature map
+	int count_i, count_j;
+
+	int k_index, outset_index;
+
+	int block_size = kernel_size * kernel_size * channel;
+
+	int length = input_dim * input_dim * channel;
+
+	int channel_length = input_dim * input_dim;
+
+	int c;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] = 0.0;
+		//row
+		startset_i = (i % channel_length) / input_dim;
+		//col
+		startset_j = (i % channel_length) % input_dim;
+		//channel
+		c = i / channel_length;
+
+		outset_si = startset_i / stride;
+		outset_sj = startset_j / stride;
+
+		if (outset_si >= output_dim)
+			outset_si = output_dim - 1;
+		if (outset_sj >= output_dim)
+			outset_sj = output_dim - 1;
+
+		count_i = 0;
+		count_j = 0;
+
+		while (outset_si - (count_i + 1) >= 0
+				&& ((outset_si - (count_i + 1)) * stride) + kernel_size
+						>= startset_i + 1) {
+			count_i++;
+		}
+		while (outset_sj - (count_j + 1) >= 0
+				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
+						>= startset_j + 1) {
+			count_j++;
+		}
+
+		//stride
+		for (int mi = 0; mi <= count_i; mi++)
+			for (int mj = 0; mj <= count_j; mj++) {
+				outset_i = outset_si - mi;
+				outset_j = outset_sj - mj;
+
+				k_index = ((startset_i - outset_i * stride) * kernel_size
+						+ (startset_j - outset_j * stride))
+						+ c * kernel_size * kernel_size;
+				outset_index = (outset_i * output_dim + outset_j) * block_size;
+
+				y[i] += x[outset_index + k_index];
+
+			}
+	}
+}
+
+extern "C" void cacu_col2img_gpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+{
+
+	_k_CACU_COL2IMG_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
 
 

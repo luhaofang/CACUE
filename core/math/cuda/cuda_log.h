@@ -44,18 +44,43 @@ namespace mycnn{
 #define BLOCKNUM 512
 #define THREADNUM 32
 
-#define CUDA_LOG(level, res)   \
+//cublas log utilities
+#define CUDA_CHECK(res)   \
 		if(res!=cudaSuccess) \
-			{do{ fprintf(stderr,"[%s %s %s:%d] code %d, cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__,res);}while(0); exit(-1);};
-
-
-#define CUDA_CHECK(res) CUDA_LOG("CUDA",res)
+			{do{ fprintf(stderr,"[%s][%s %s:%d] code %d, cuda operation falled!\n","CUDA", __TIME__, __FILE__, __LINE__,res);}while(0); exit(-1);};
 
 #define CUBLAS_LOG(level,status) \
 		if(status!=CUBLAS_STATUS_SUCCESS) \
-			{do{ fprintf(stderr,"[%s %s %s:%d] code %d, cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__,status);}while(0); exit(-1);};
+			{do{ fprintf(stderr,"[%s][%s %s:%d] code %d, cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__,status);}while(0); exit(-1);};
 
-#define CUBLAS_CHECK(status) CUDA_LOG("CUBLAS",status)
+#define CUBLAS_CHECK(status) CUBLAS_LOG("CUBLAS",status)
+
+
+//cuda log utilities
+#define CUDA_LOG(level, format,...)   \
+	if(level == "DEBUG") \
+		do{ fprintf(stderr,"[%s][%s %s:%d] %s " format "\n",level, __TIME__, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);}while(0); \
+		else \
+		do{ fprintf(stderr,"[%s][%s %s:%d] " format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);} while (0)
+
+#define CUDA_DEBUG(format,...) CUDA_LOG("DEBUG",p,format,##__VA_ARGS__)
+#define CUDA_INFO(format,...) CUDA_LOG("DEBUG",p,format,##__VA_ARGS__)
+
+
+#define CUDA_PRINT(d_data_,length)  \
+	float *s_values; \
+	s_values = (float*)malloc(length * sizeof(float));\
+	cudaError_t res;\
+	res = cudaMemcpy((void*) (s_values), (void*) (d_data_),	length * sizeof(float), cudaMemcpyDeviceToHost);\
+	CUDA_CHECK(res);\
+	printf("[CUDA][%s %s:%d]:" , __TIME__, __FILE__, __LINE__); \
+	for(int i=0; i < length ; ++i)\
+		printf("%f,",s_values[i]);\
+	printf("\n");\
+	free(s_values);
+
+
+
 
 };
 

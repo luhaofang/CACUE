@@ -80,5 +80,18 @@ extern "C" void cacu_padded_data_gpu(float_t *x,int channel, int input_dim, int 
 extern "C" void cacu_img2col_gpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
 
 
+/**
+ * @cacu_unpadded_data_gpu
+ * unpadded data.
+ * y is input_dim - 2 * pad dim wise
+ */
+extern "C" void cacu_unpadded_data_gpu(float_t *x,int channel, int input_dim, int pad, float_t *y);
+
+/**
+ * @cacu_img2col_gpu
+ * col2img
+ */
+extern "C" void cacu_col2img_gpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
+
 
 

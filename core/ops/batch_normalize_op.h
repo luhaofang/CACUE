@@ -129,7 +129,7 @@ namespace mycnn{
 				}
 			}
 
-			//echo();
+			echo();
 			return;
 		}
 
@@ -147,8 +147,8 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-
-			LOG_INFO("%f", _mean->s_data()[0]);
+			CUDA_PRINT(_mean->s_data(),1);
+			//LOG_INFO("%f", _mean->s_data()[0]);
 		}
 
 		inline weight* scale(){ return _scale; }

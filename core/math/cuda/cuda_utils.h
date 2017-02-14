@@ -88,4 +88,5 @@ inline void cuda_free(DTYPE* data_)
 	cudaFree(data_);
 }
 
+
 #endif

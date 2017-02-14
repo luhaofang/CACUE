@@ -247,4 +247,67 @@ namespace mycnn{
 			}
 #endif
 	}
+
+	template<typename DTYPE>
+	void cacu_unpadded_data(DTYPE *x,int channel, int input_dim, int pad, DTYPE *y)
+	{
+#if __PARALLELTYPE__ == __GPU__
+		cacu_unpadded_data_gpu(x,channel,input_dim,pad,y);
+#else
+		DTYPE *xp, *yp;
+		int output_dim = input_dim - 2 * pad;
+		int in_csize = input_dim*input_dim;
+		int out_csize = output_dim*output_dim;
+		for (int c = 0; c < channel; ++c){
+
+			yp = y + c*out_csize;
+			xp = x + c*in_csize;
+			for (int i = 0; i < output_dim; ++i)
+				for (int j = 0; j < output_dim; ++j)
+				{
+					yp[i * output_dim + j] = xp[(i + pad)*input_dim + (j + pad)];
+				}
+		}
+#endif
+	}
+
+	void cacu_col2img(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __GPU__
+		cacu_col2img_gpu(x,kernel_size,stride,input_dim,channel,output_dim,y);
+#else
+
+		float_t *sdp, *snp;
+		int sd_out, sn_out;
+
+		int block_size = kernel_size * kernel_size * channel;
+		int k_size = kernel_size * kernel_size;
+		int length = output_dim * output_dim * channel * kernel_size * kernel_size;
+		int out_dim = output_dim * output_dim;
+		int border = input_dim - output_dim;
+		int in_dim = input_dim * input_dim;
+
+		for (int num = 0; num < data.size(); num++) {
+
+			sdp = x;
+			snp = y;
+
+			//for output_dim's location
+			for (int index = 0; index < out_dim; index++) {
+				sd_out = index * block_size;
+				sn_out = ((index / output_dim) * input_dim + (index % output_dim))
+						* stride;
+				for (int ki = 0; ki < kernel_size; ki++)
+					for (int kj = 0; kj < kernel_size; kj++) {
+						for (int c = 0; c < channel; c++) {
+							*(snp + sn_out + (ki * input_dim + kj) + c * in_dim) +=
+									*(sdp + sd_out + c * k_size + ki * kernel_size
+											+ kj);
+						}
+					}
+			}
+		}
+#endif
+	}
 };
