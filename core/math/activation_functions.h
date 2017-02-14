@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	void cacu_relu(float_t *x, int length)
+	inline void cacu_relu(float_t *x, int length)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -47,7 +47,7 @@ namespace mycnn{
 
 	}
 
-	void cacu_relu_grad(float_t *x, float_t *g, int length)
+	inline void cacu_relu_grad(float_t *x, float_t *g, int length)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -62,7 +62,7 @@ namespace mycnn{
 
 	}
 
-	void cacu_leaky_relu(float_t *x, float_t a, int length)
+	inline void cacu_leaky_relu(float_t *x, float_t a, int length)
 	{
 
 	#if __PARALLELTYPE__ == __GPU__
@@ -77,7 +77,7 @@ namespace mycnn{
 
 	}
 
-	void cacu_leaky_relu_grad(float_t *x,float_t *g, float_t a, int length)
+	inline void cacu_leaky_relu_grad(float_t *x,float_t *g, float_t a, int length)
 	{
 
 	#if __PARALLELTYPE__ == __GPU__

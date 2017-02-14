@@ -36,7 +36,7 @@ namespace mycnn{
 
 
 	template<typename DTYPE>
-	void cacu_sumbysize(SUM SUMTYPE ,DTYPE *x, int length, DTYPE *y, int width)
+	inline void cacu_sumbysize(SUM SUMTYPE ,DTYPE *x, int length, DTYPE *y, int width)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -62,7 +62,7 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_cxsize(DTYPE *x, int length, DTYPE *a, int size,DTYPE *y)
+	inline void cacu_cxsize(DTYPE *x, int length, DTYPE *a, int size,DTYPE *y)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -82,7 +82,7 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_sxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
+	inline void cacu_sxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_sxsize_gpu(x, length, a, y);
@@ -93,7 +93,7 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y)
+	inline void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_cdxsize_gpu(x, length, a, size, y);
@@ -112,7 +112,7 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_sdxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
+	inline void cacu_sdxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_sdxsize_gpu(x,length,a,y);
@@ -123,7 +123,7 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_ssxpy(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z)
+	inline void cacu_ssxpy(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_ssxpy_gpu(x, a, size, y, b, length, z);
@@ -141,7 +141,7 @@ namespace mycnn{
 
 
 	template<typename DTYPE>
-	void cacu_sqr(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_sqr(DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_sqr_gpu(x,length,y);
@@ -152,7 +152,7 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_root(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_root(DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_root_gpu(x,length,y);
@@ -163,7 +163,7 @@ namespace mycnn{
 	}
 
 	template<typename DTYPE>
-	void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std, DTYPE epsilon)
+	inline void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std, DTYPE epsilon)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_stdbychannel_gpu(varience,length,std,epsilon);

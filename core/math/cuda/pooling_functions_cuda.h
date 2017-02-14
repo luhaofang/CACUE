@@ -38,6 +38,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" void cacu_max_pooling_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index);
 
 /**
+ * @cacu_max_pooling_gpu
+ * channel: channel of input data
+ * kernel_size: pooling window size
+ * input_dim: width of input data
+ * output_dim: width of output data
+ */
+extern "C" void cacu_max_pooling_grad_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index);
+
+
+/**
  * @cacu_average_pooling_gpu
  * channel: channel of input data
  * kernel_size: pooling window size
@@ -45,6 +55,16 @@ extern "C" void cacu_max_pooling_gpu(float_t *x, int kernel_size, int stride, in
  * output_dim: width of output data
  */
 extern "C" void cacu_average_pooling_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
+
+/**
+ * @cacu_average_pooling_gpu
+ * channel: channel of input data
+ * kernel_size: pooling window size
+ * input_dim: width of input data
+ * output_dim: width of output data
+ */
+extern "C" void cacu_average_pooling_grad_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
+
 
 /**
  * @cacu_padded_data_gpu

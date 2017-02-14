@@ -34,13 +34,11 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width,
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
-	int threadid = bid * THREADNUM + tid;
-
 	float_t *start;
 
-	for (int i = threadid; i < heigth; i += BLOCKNUM * THREADNUM) {
+	for (int i = bid; i < heigth; i += BLOCKNUM) {
 		start = x + i * width;
-		for(int j = 0 ;  j < width; ++j)
+		for(int j = tid ;  j < width; j += THREADNUM)
 			y[i] += start[j];
 	}
 }
@@ -50,13 +48,11 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
-	int threadid = bid * THREADNUM + tid;
-
 	float_t *start;
 
-	for (int i = threadid; i < width; i += BLOCKNUM * THREADNUM) {
+	for (int i = bid; i < width; i += BLOCKNUM) {
 		start = x + i;
-		for(int j = 0 ;  j < height; ++j)
+		for(int j = tid ;j < height; j += THREADNUM)
 			y[i] += start[j*width];
 	}
 }

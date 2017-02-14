@@ -85,7 +85,7 @@ namespace mycnn{
 				clock_t start = clock();
 				_layers[i]->operate();
 				clock_t end = clock();
-				//LOG_INFO("%d time cost:%d", i ,end - start);
+				LOG_INFO("%d time cost:%d", i ,end - start);
 			}
 		}
 

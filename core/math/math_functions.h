@@ -40,7 +40,7 @@ namespace mycnn{
 inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
 {
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_saxpby_omp(x, a, y, length);
+	//cacu_saxpby_omp(x, a, y, length);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpy_oblas(x, a, y, length);
 #elif __PARALLELTYPE__ == __GPU__

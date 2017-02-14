@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
-void cacu_saxpby_omp(float_t *x, float_t a, float_t *y, float_t b, int length)
+inline void cacu_saxpby_omp(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
 	#pragma omp parallel for
 	for (int i = 0; i < length; ++i)
@@ -37,7 +37,7 @@ void cacu_saxpby_omp(float_t *x, float_t a, float_t *y, float_t b, int length)
 	}
 }
 
-void cacu_sgemv_omp(float_t *x, int x_height, float_t *y, int x_width, float_t *z)
+inline void cacu_sgemv_omp(float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
 	#pragma omp parallel for
 	for (int i = 0; i < x_height; ++i)
@@ -47,17 +47,17 @@ void cacu_sgemv_omp(float_t *x, int x_height, float_t *y, int x_width, float_t *
 	}
 }
 
-void cacu_sgemm_omp(TRANSPOSE transx, TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
+inline void cacu_sgemm_omp(TRANSPOSE transx, TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
 {
 
 }
 
-void cacu_transpose_omp(float_t *x, int width, int height)
+inline void cacu_transpose_omp(float_t *x, int width, int height)
 {
 		
 }
 
-void cacu_copy_omp(float_t *x, int x_length, float_t *y)
+inline void cacu_copy_omp(float_t *x, int x_length, float_t *y)
 {
 #pragma omp parallel for
 	for (int i = 0; i < x_length; ++i)
