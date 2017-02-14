@@ -36,10 +36,19 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width,
 
 	float_t *start;
 
+	__shared__ float_t shared_data[THREADNUM];
+
 	for (int i = bid; i < heigth; i += BLOCKNUM) {
 		start = x + i * width;
 		for(int j = tid ;  j < width; j += THREADNUM)
-			y[i] += start[j];
+			shared_data[tid] += start[j];
+		__syncthreads();
+
+		if(tid == 0){
+			for(int j = 0; j < THREADNUM ; ++j)
+				shared_data[0] += shared_data[j];
+			y[i] = shared_data[0];
+		}
 	}
 }
 
@@ -50,10 +59,20 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width
 
 	float_t *start;
 
+	__shared__ float_t shared_data[THREADNUM];
+
 	for (int i = bid; i < width; i += BLOCKNUM) {
+
 		start = x + i;
 		for(int j = tid ;j < height; j += THREADNUM)
-			y[i] += start[j*width];
+			shared_data[tid] += start[j*width];
+		__syncthreads();
+
+		if(tid == 0){
+			for(int j = 0; j < THREADNUM ; ++j)
+				shared_data[0] += shared_data[j];
+			y[i] = shared_data[0];
+		}
 	}
 }
 
