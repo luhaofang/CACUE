@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * kernel_size: pooling window size
  * input_dim: width of input data
  * output_dim: width of output data
+ * index: the array of the maximum set
  */
 extern "C" void cacu_max_pooling_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index);
 
@@ -43,6 +44,7 @@ extern "C" void cacu_max_pooling_gpu(float_t *x, int kernel_size, int stride, in
  * kernel_size: pooling window size
  * input_dim: width of input data
  * output_dim: width of output data
+ * index: the array of the maximum set
  */
 extern "C" void cacu_max_pooling_grad_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index);
 
@@ -65,7 +67,6 @@ extern "C" void cacu_average_pooling_gpu(float_t *x, int kernel_size, int stride
  */
 extern "C" void cacu_average_pooling_grad_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
 
-
 /**
  * @cacu_padded_data_gpu
  * pad data.
@@ -78,7 +79,6 @@ extern "C" void cacu_padded_data_gpu(float_t *x,int channel, int input_dim, int 
  * img2col
  */
 extern "C" void cacu_img2col_gpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
-
 
 /**
  * @cacu_unpadded_data_gpu

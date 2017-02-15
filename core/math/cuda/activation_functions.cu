@@ -41,6 +41,9 @@ __global__ void _k_CACU_ACTIVATION_RELU_GPU(float_t *x, int length) {
 	}
 }
 
+/**
+ * for activation use relu functions in cuda
+ */
 extern "C" void cacu_relu_gpu(float_t *x, int length) {
 
 	_k_CACU_ACTIVATION_RELU_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length);
@@ -65,6 +68,9 @@ __global__ void _k_CACU_ACTIVATION_RELU_GRAD_GPU(float_t *x, float_t *g, int len
 	}
 }
 
+/**
+ * gradient for activation use relu functions in cuda
+ */
 extern "C" void cacu_relu_grad_gpu(float_t *x,float_t *g, int length) {
 
 	_k_CACU_ACTIVATION_RELU_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length);
@@ -89,6 +95,9 @@ __global__ void _k_CACU_ACTIVATION_LEAKY_RELU_GPU(float_t *x,float_t a, int leng
 
 }
 
+/**
+ * for activation use leaky_relu functions in cuda
+ */
 extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length) {
 
 	_k_CACU_ACTIVATION_LEAKY_RELU_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a, length);
@@ -112,6 +121,9 @@ __global__ void _k_CACU_ACTIVATION_LEAKY_RELU_GRAD_GPU(float_t *x, float_t *g, f
 
 }
 
+/**
+ * gradient for activation use leaky_relu functions in cuda
+ */
 extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int length) {
 
 	_k_CACU_ACTIVATION_LEAKY_RELU_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, a, length);
@@ -119,3 +131,53 @@ extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
+
+__global__ void _k_CACU_ACTIVATION_SOFTMAX_GPU(float_t *x, int length) {
+
+	int tid = threadIdx.x;
+
+	__shared__ float_t sum[THREADNUM], max_data[THREADNUM];
+
+	if (tid == 0) {
+		max_data[0] = x[0];
+		for (int i = 1; i < length; i++)
+			max_data[0] = max(max_data[0], x[i]);
+	}
+
+	max_data[tid] = max_data[0];
+
+	__syncthreads();
+
+	for (int i = tid; i < length; i += THREADNUM) {
+		x[i] = exp(x[i] - max_data[tid]);
+	}
+
+	__syncthreads();
+
+	if (tid == 0) {
+		sum[0] = 0;
+		for (int i = 0; i < length; i++)
+			sum[0] += x[i];
+	}
+
+	sum[tid] = sum[0];
+
+	__syncthreads();
+
+	for (int i = tid; i < length; i += THREADNUM) {
+		x[i] /= sum[tid];
+	}
+
+}
+
+/**
+ * for activation use softmax functions in cuda
+ */
+extern "C" void cacu_softmax_gpu(float_t *x, int length) {
+
+	_k_CACU_ACTIVATION_SOFTMAX_GPU<<<1, THREADNUM, 0>>>(x, length);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+
+}
+

@@ -32,6 +32,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
+	/**
+	 * @cacu_relu
+	 * math x[i] = max(0,x[i]) :
+	 * for activation use relu functions.
+	 */
 	inline void cacu_relu(float_t *x, int length)
 	{
 
@@ -40,13 +45,17 @@ namespace mycnn{
 #else
 		for (int i = 0; i < length; ++i)
 		{
-			if (x[i] < 0)
-				x[i] = 0;
+			x[i] = max(x[i],0);
 		}
 #endif
 
 	}
 
+	/**
+	 * @cacu_relu_grad
+	 * math if(x[i]<0)?g[i] = g[i]:g[i] = 0;
+	 * gradient for activation use relu functions.
+	 */
 	inline void cacu_relu_grad(float_t *x, float_t *g, int length)
 	{
 
@@ -62,6 +71,11 @@ namespace mycnn{
 
 	}
 
+	/**
+	 * @cacu_leaky_relu
+	 * math if(x[i]<0)?x[i] = x[i]:x[i] *= a;
+	 * for activation use leaky_relu functions.
+	 */
 	inline void cacu_leaky_relu(float_t *x, float_t a, int length)
 	{
 
@@ -77,6 +91,11 @@ namespace mycnn{
 
 	}
 
+	/**
+	 * @cacu_leaky_relu_grad
+	 * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
+	 * gradient for activation use leaky_relu functions.
+	 */
 	inline void cacu_leaky_relu_grad(float_t *x,float_t *g, float_t a, int length)
 	{
 
@@ -92,6 +111,32 @@ namespace mycnn{
 
 	}
 
-	
+	/**
+	 * @cacu_softmax
+	 * math softmax;
+	 * for activation use softmax functions.
+	 */
+	inline void cacu_softmax(float_t *x,float_t *g, int length)
+	{
+
+	#if __PARALLELTYPE__ == __GPU__
+		cacu_softmax_gpu(x, length);
+#else
+		float_t max_ = x[0];
+		float_t sum_= 0 ;
+		for (int i = 1; i < length; ++i)
+			max_ = max(x[i], max_);
+		for (int i = 0; i < length; ++i)
+		{
+			x[i] = exp(x[i] - max_);
+			sum += x[i];
+		}
+		for (int i = 0; i < length; ++i)
+		{
+			x[i] = (x[i] / sum);
+		}
+#endif
+
+	}
 
 };

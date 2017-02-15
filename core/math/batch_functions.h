@@ -35,6 +35,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace mycnn{
 
 
+	/**
+	 * @cacu_sumbysize
+	 * sum by size:
+	 * accumulate the value by width or height , width is the matrix array's width dim which stored in row -major format.
+	 * sum by width y is (length/ width) height dim, sum by height y is width dim.
+	 */
 	template<typename DTYPE>
 	inline void cacu_sumbysize(SUM SUMTYPE ,DTYPE *x, int length, DTYPE *y, int width)
 	{
@@ -61,6 +67,11 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_cxsize
+	 * math y[i] = a[j]*x[i] :
+	 * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
+	 */
 	template<typename DTYPE>
 	inline void cacu_cxsize(DTYPE *x, int length, DTYPE *a, int size,DTYPE *y)
 	{
@@ -81,6 +92,11 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_sxsize
+	 * math y[i] = a*x[i] :
+	 * x is a length dim array list, a is the corresponding scalar.
+	 */
 	template<typename DTYPE>
 	inline void cacu_sxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
@@ -92,6 +108,11 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_cdxsize
+	 * math y[i] = x[i] / a[j] :
+	 * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
+	 */
 	template<typename DTYPE>
 	inline void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y)
 	{
@@ -111,6 +132,11 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_sdxsize
+	 * math y[i] = x[i] / a :
+	 * x is a length dim array list, a is the corresponding denominator.
+	 */
 	template<typename DTYPE>
 	inline void cacu_sdxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
 	{
@@ -122,6 +148,12 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_ssxpy
+	 * math z[i] = a * x[j] + b * y[i] :
+	 * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).
+	 * a & b are corresponding scalars for x, y
+	 */
 	template<typename DTYPE>
 	inline void cacu_ssxpy(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z)
 	{
@@ -139,7 +171,10 @@ namespace mycnn{
 #endif
 	}
 
-
+	/**
+	 * @cacu_sqr
+	 * math y[i] = x[i]^2 :
+	 */
 	template<typename DTYPE>
 	inline void cacu_sqr(DTYPE *x, int length, DTYPE *y)
 	{
@@ -151,6 +186,10 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_root
+	 * math y[i] = sqrt(x[i]) :
+	 */
 	template<typename DTYPE>
 	inline void cacu_root(DTYPE *x, int length, DTYPE *y)
 	{
@@ -162,6 +201,10 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_stdbychannel
+	 * math std[i] = sqrt(varience[i] + epsilon) :
+	 */
 	template<typename DTYPE>
 	inline void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std, DTYPE epsilon)
 	{
@@ -173,6 +216,11 @@ namespace mycnn{
 #endif
 	}
 
+	/**
+	 * @cacu_ssx
+	 * math y[i] *= x[i] :
+	 * scale by element wise.
+	 */
 	template<typename DTYPE>
 	inline void cacu_ssx(DTYPE *x, int length, DTYPE *y)
 	{

@@ -36,7 +36,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-
+/**
+ * @cacu_saxpy
+ * math y = a*x + y:
+ * length: the input data's size
+ */
 inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
 {
 #if __PARALLELTYPE__ == __OPENMP__
@@ -48,6 +52,11 @@ inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
 #endif
 }
 
+/**
+ * @cacu_saxpby
+ * math y = a*x + b*y:
+ * length: the input data's size
+ */
 inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
 #if __PARALLELTYPE__ == __OPENMP__
@@ -60,25 +69,34 @@ inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length
 
 }
 
-
-inline void cacu_sgemv(TRANSPOSE trans,float_t *x, int x_height, float_t *y, int x_width, float_t *z)
+/**
+ * @cacu_sgemv
+ * math z = X*y:
+ * trans_: whether x is needed to transpose
+ */
+inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
 #if __PARALLELTYPE__ == __OPENMP__
 	cacu_sgemv_omp(x, x_height, y, x_width, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
-	CBLAS_TRANSPOSE transx = (trans == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
+	CBLAS_TRANSPOSE transx = (trans_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemv_oblas(transx, x, x_height, y, x_width, z);
 #elif __PARALLELTYPE__ == __GPU__
-	cublasOperation_t transx = (trans == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
+	cublasOperation_t transx = (trans_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
 	cacu_sgemv_gpu(transx, x, x_height, y, x_width, z);
 #endif
 }
 
-
+/**
+ * @cacu_sgemm
+ * math z = X*Y:
+ * transx_: whether x is need to transpose
+ * transy_: whether y is need to transpose
+ */
 inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_height, int x_width, float_t *y, int y_height, float_t *z)
 {
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_sgemm_omp(transx, transy, x, x_height, x_width, y, y_height, z);
+	cacu_sgemm_omp(transx_, transy_, x, x_height, x_width, y, y_height, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (transx_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	CBLAS_TRANSPOSE transy = (transy_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
@@ -90,7 +108,11 @@ inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_h
 #endif
 }
 
-
+/**
+ * @cacu_copy
+ * math y = x:
+ * length: the input data's size
+ */
 inline void cacu_copy(float_t *x, int length, float_t *y)
 {
 #if __PARALLELTYPE__ == __GPU__
@@ -101,6 +123,11 @@ inline void cacu_copy(float_t *x, int length, float_t *y)
 #endif
 }
 
+/**
+ * @rand_vector
+ * math vector_[i] = (rand()>=ratio_)
+ * length: the input data's size
+ */
 inline void rand_vector(float_t *vector_, int length, float_t ratio_)
 {
 #if __PARALLELTYPE__ == __GPU__
@@ -111,6 +138,7 @@ inline void rand_vector(float_t *vector_, int length, float_t ratio_)
 			v_[i] = 1;
 	}
 	cuda_copy2dev(vector_, &v_[0], length);
+	vec_t().swap(v_);
 #else
 	for(int i = 0; i < length ; ++i)
 	{

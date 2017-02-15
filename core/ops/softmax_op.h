@@ -27,30 +27,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+namespace mycnn{
 
-/**
- * for activation use relu functions in cuda
- */
-extern "C" void cacu_relu_gpu(float_t *x, int length);
+	class softmax_op : public operator_base
+	{
 
-/**
- * gradient for activation use relu functions in cuda
- */
-extern "C" void cacu_relu_grad_gpu(float_t *x, float_t *g, int length);
+	public:
 
-/**
- * for activation use leaky_relu functions in cuda
- */
-extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length);
+		softmax_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
+			check();
 
-/**
- * gradient for activation use leaky_relu functions in cuda
- */
-extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int length);
+			o_blob = data;
 
-/**
- * for activation use softmax functions in cuda
- */
-extern "C" void cacu_softmax_gpu(float_t *x, int length);
+		};
+
+		~softmax_op(){
+
+		};
+
+		virtual const void check() override{
+			return;
+		}
+
+		virtual const void op() override {
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+			cacu_softmax(s_blob_->s_data(), s_blob_->count());
+			echo();
+			return;
+		}
+
+		virtual const void grad() override{
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+			cacu_softmax_grad(s_blob_->s_data(),o_blob_->s_diff(), s_blob_->count());
+			echo();
+			return;
+		}
+
+		virtual const void load(std::ifstream& is) override{
+
+		}
+
+		virtual const void save(std::ostream& os) override{
+
+		}
+
+		virtual const void echo() override
+		{
+			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+	private:
 
 
+	};
+};

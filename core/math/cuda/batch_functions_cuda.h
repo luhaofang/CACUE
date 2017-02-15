@@ -84,13 +84,13 @@ extern "C" void cacu_sqr_gpu(float_t *x, int length, float_t *y);
 extern "C" void cacu_root_gpu(float_t *x, int length, float_t *y);
 
 /**
- * @cacu_root_gpu
+ * @cacu_stdbychannel_gpu
  * math std[i] = sqrt(varience[i] + epsilon) :
  */
 extern "C" void cacu_stdbychannel_gpu(float_t *varience, int length, float_t *std, float_t epsilon);
 
 /**
- * @cacu_root_gpu
+ * @cacu_ssx_gpu
  * math y[i] *= x[i] :
  * scale by element wise.
  */
