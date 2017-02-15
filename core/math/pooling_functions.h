@@ -84,34 +84,37 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		//cacu_max_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
+		cacu_max_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 #else
-		int block_size = output_dim*output_dim;
-		float_t *xp, *yp, xd;
-		unsigned int *ip;
-		int in_start, out_start;
-		for (int c = 0; c < channel; ++c)
-		{
-			xp = x + c*input_dim*input_dim;
-			yp = y + c*block_size;
-			ip = index + c*block_size;
-			for (int i = 0; i < output_dim; ++i)
-				for (int j = 0; j < output_dim; ++j)
-				{
-					out_start = (i * output_dim + j);
-					in_start = (i * input_dim + j)*stride;
-					for (int ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ki++)
-						for (int kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; kj++)
-						{
-							xd = xp[in_start + ki * input_dim + kj];
-							if (yp[out_start] < xd || (ki == 0 && kj == 0))
-							{
-								yp[out_start] = xd;
-								ip[out_start] = in_start + ki * input_dim + kj;
-							}
-						}
+		float_t *sdp, *snp;
+		int sd_out, si_out;
+		unsigned int _index;
+		float_t *sd_out_cp, *sn_out_cp;
+		unsigned int *sip, *si_out_cp;
+
+		int xi, xj;
+
+		sdp = x;
+		sip = index;
+		snp = y;
+		int cout_length = output_dim * output_dim;
+		int cin_length = input_dim * input_dim;
+
+		for (int i = 0; i < output_dim; i++)
+			for (int j = 0; j < output_dim; j++) {
+				sd_out = (i * output_dim + j);
+				si_out = sd_out;
+				for (int c = 0; c < channel; c++) {
+					si_out_cp = sip + si_out + c * cout_length;
+					sd_out_cp = sdp + sd_out + c * cout_length;
+					_index = *si_out_cp;
+					xi = (i * stride + _index / kernel_size);
+					xj = (j * stride + _index % kernel_size);
+					sn_out_cp = snp + ((xi * input_dim + xj) + c * cin_length);
+					*sn_out_cp += *sd_out_cp;
 				}
-		}
+			}
+
 #endif
 	}
 
@@ -163,34 +166,65 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		//cacu_average_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
+		cacu_average_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
 #else
-		int block_size = output_dim*output_dim;
-		float_t *xp, *yp;
-		int in_start, out_start;
-		int count;
-		for (int c = 0; c < channel; ++c)
-		{
-			xp = x + c*input_dim*input_dim;
-			yp = y + c*block_size;
-			for (int i = 0; i < output_dim; ++i)
-				for (int j = 0; j < output_dim; ++j)
-				{
-					out_start = (i * output_dim + j);
-					in_start = (i * input_dim + j)*stride;
-					count = 0;
-					for (int ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ki++)
-						for (int kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; kj++)
-						{
-							yp[out_start] += xp[in_start + ki * input_dim + kj];
-							count++;
-						}
-					yp[out_start] /= count;
+		float_t *sdp, *snp;
+		int sd_out, sn_out, param_w, param_h;
+		float_t *sd_out_cp, *sn_out_cp;
+		float_t diff_data;
+		int flag = output_dim - 1;
+		int pad = 0;
+		if ((input_dim - kernel_size) % stride != 0)
+			pad = kernel_size - stride;
+
+		int input_dim_ = input_dim + pad;
+		int cin_length = input_dim_ * input_dim_;
+		int cout_length = output_dim * output_dim;
+
+		sdp = x;
+		snp = y;
+
+		for (int i = 0; i < output_dim; i++)
+			for (int j = 0; j < output_dim; j++) {
+				sd_out = (i * output_dim + j);
+				sn_out = (i * input_dim_ + j) * stride;
+				for (int c = 0; c < channel; c++) {
+					sd_out_cp = sdp + sd_out + c * cout_length;
+					//mean
+					if (pad == 0){
+						diff_data = *sd_out_cp / (float_t) (kernel_size * kernel_size);
+						for (int ki = 0; ki < kernel_size; ki++)
+							for (int kj = 0; kj < kernel_size; kj++) {
+								sn_out_cp = snp + sn_out + (ki * input_dim_ + kj) + c * cin_length;
+								*sn_out_cp += diff_data;
+							}
+					}
+					else {
+						param_w = kernel_size, param_h = kernel_size;
+						if (i == flag)
+							param_w = kernel_size - pad;
+
+						if (j == flag)
+							param_h = kernel_size - pad;
+						diff_data = *sd_out_cp / (float_t) (param_w * param_h);
+						for (int ki = 0; ki < param_w; ki++)
+							for (int kj = 0; kj < param_h; kj++) {
+								sn_out_cp = snp + sn_out + (ki * input_dim_ + kj) + c * cin_length;
+								*sn_out_cp += diff_data;
+							}
+					}
+
 				}
-		}
+			}
+
 #endif
 	}
 
+	/*
+	*channel: channel of input data
+	*input_dim: width of input data
+	*pad: pad size of input data
+	*/
 	template<typename DTYPE>
 	void cacu_padded_data(DTYPE *x,int channel, int input_dim, int pad, DTYPE *y)
 	{
@@ -216,6 +250,13 @@ namespace mycnn{
 #endif
 	}
 
+	/*
+	*channel: channel of input data
+	*kernel_size: pooling window size
+	*stride: stride move of the kernel
+	*input_dim: width of input data
+	*output_dim: width of output data
+	*/
 	void cacu_img2col(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 
@@ -248,6 +289,11 @@ namespace mycnn{
 #endif
 	}
 
+	/*
+	*channel: channel of input data
+	*input_dim: width of input data
+	*pad: pad size of input data
+	*/
 	template<typename DTYPE>
 	void cacu_unpadded_data(DTYPE *x,int channel, int input_dim, int pad, DTYPE *y)
 	{
@@ -271,6 +317,14 @@ namespace mycnn{
 #endif
 	}
 
+
+	/*
+	*channel: channel of input data
+	*kernel_size: pooling window size
+	*stride: stride move of the kernel
+	*input_dim: width of input data
+	*output_dim: width of output data
+	*/
 	void cacu_col2img(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 
@@ -288,25 +342,22 @@ namespace mycnn{
 		int border = input_dim - output_dim;
 		int in_dim = input_dim * input_dim;
 
-		for (int num = 0; num < data.size(); num++) {
+		sdp = x;
+		snp = y;
 
-			sdp = x;
-			snp = y;
-
-			//for output_dim's location
-			for (int index = 0; index < out_dim; index++) {
-				sd_out = index * block_size;
-				sn_out = ((index / output_dim) * input_dim + (index % output_dim))
-						* stride;
-				for (int ki = 0; ki < kernel_size; ki++)
-					for (int kj = 0; kj < kernel_size; kj++) {
-						for (int c = 0; c < channel; c++) {
-							*(snp + sn_out + (ki * input_dim + kj) + c * in_dim) +=
-									*(sdp + sd_out + c * k_size + ki * kernel_size
-											+ kj);
-						}
+		//for output_dim's location
+		for (int index = 0; index < out_dim; index++) {
+			sd_out = index * block_size;
+			sn_out = ((index / output_dim) * input_dim + (index % output_dim))
+					* stride;
+			for (int ki = 0; ki < kernel_size; ki++)
+				for (int kj = 0; kj < kernel_size; kj++) {
+					for (int c = 0; c < channel; c++) {
+						*(snp + sn_out + (ki * input_dim + kj) + c * in_dim) +=
+								*(sdp + sd_out + c * k_size + ki * kernel_size
+										+ kj);
 					}
-			}
+				}
 		}
 #endif
 	}

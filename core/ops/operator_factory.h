@@ -61,32 +61,26 @@ namespace mycnn{
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new inner_product_op((blob*&)(*blob_)[0], args_);
 				break;
-
 			case CACU_CONVOLUTION:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new convolution_op((blob*&)(*blob_)[0], args_);
 				break;
-
 			case CACU_SUM_ELEMWISE:
 				CHECK_GE_OP(blob_->size(), 2);
 				return new sum_elemwise_op(blob_, args_);
 				break;
-
 			case CACU_RELU:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new relu_op((blob*&)(*blob_)[0], args_);
 				break;
-
 			case CACU_BATCH_NORMALIZE:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new batch_normal_op((blob*&)(*blob_)[0], args_);
 				break;
-
 			case CACU_MAX_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new max_pooling_op((blob*&)(*blob_)[0], args_);
 				break;
-
 			case CACU_AVERAGE_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new average_pooling_op((blob*&)(*blob_)[0], args_);
@@ -99,7 +93,6 @@ namespace mycnn{
 				CHECK_EQ_OP(blob_->size(), 1);
 				return new leaky_relu_op((blob*&)(*blob_)[0], args_);
 				break;
-
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);
 				return NULL;

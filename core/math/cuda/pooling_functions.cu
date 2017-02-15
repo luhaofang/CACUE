@@ -88,32 +88,64 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(float_t *x, int kernel_size, int st
 	int bid = blockIdx.x;
 
 	int threadid = bid * THREADNUM + tid;
-	int start_in, in ;
-	int c;
-	int data_row, data_col;
+
+	//the set in the input feature map
+	int startset_i, startset_j;
+	//the set in the output feature map
+	int outset_si, outset_sj, outset_i, outset_j;
+	//the count for stride in feature map
+	int count_i, count_j;
+	//the index for the data in kernel
+	int offset_i, offset_j;
+
+	int length = input_dim * input_dim * channel;
+
+	int cin_length = input_dim * input_dim;
 
 	int cout_length = output_dim * output_dim;
-	int output_length = output_dim*output_dim*channel;
 
-	for (int i = threadid; i < output_length; i += BLOCKNUM * THREADNUM) {
+	int c;
 
-		data_row = ((i%cout_length)/output_dim) * stride;
-		data_col = ((i%cout_length)%output_dim) * stride;
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		c = i / cout_length;
+		startset_i = (i % cin_length) / input_dim;
+		startset_j = (i % cin_length) % input_dim;
+		c = i / cin_length;
+		outset_si = startset_i / stride;
+		outset_sj = startset_j / stride;
 
-		start_in = (data_row*input_dim + data_col) + c* cout_length;
+		if (outset_si >= output_dim)
+			outset_si = output_dim - 1;
+		if (outset_sj >= output_dim)
+			outset_sj = output_dim - 1;
 
-		for(int ki = 0 ; ki < kernel_size && data_row + ki < input_dim ; ++ki)
-			for(int kj = 0 ; kj < kernel_size && data_col + kj < input_dim ; ++kj)
-			{
-				in = start_in + ki*kernel_size + kj;
-				if((ki == 0 && kj ==0) || y[i] < x[in])
-				{
-					y[i] = x[in];
-					index[i] = ki * kernel_size + kj;
+		count_i = 0;
+		count_j = 0;
+
+		while (outset_si - (count_i + 1) >= 0
+				&& ((outset_si - (count_i + 1)) * stride) + kernel_size
+						>= startset_i + 1) {
+			count_i++;
+		}
+		while (outset_sj - (count_j + 1) >= 0
+				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
+						>= startset_j + 1) {
+			count_j++;
+		}
+
+		for (int mi = 0; mi <= count_i; mi++)
+			for (int mj = 0; mj <= count_j; mj++) {
+				outset_i = outset_si - mi;
+				outset_j = outset_sj - mj;
+
+				offset_i = startset_i - outset_i * stride;
+				offset_j = startset_j - outset_j * stride;
+				if (index[(outset_i * output_dim + outset_j) + c * cout_length]
+						== (float_t) (offset_i * kernel_size + offset_j)) {
+					y[i] +=	x[(outset_i * output_dim + outset_j) + c * cout_length];
 				}
 			}
+
 	}
 }
 
@@ -141,7 +173,7 @@ __global__ void _k_CACU_AVERAGE_POOLING_GPU(float_t *x, int kernel_size, int str
 	int data_row, data_col;
 
 	int cout_length = output_dim * output_dim;
-	int output_length = output_dim*output_dim*channel;
+	int output_length = output_dim * output_dim * channel;
 
 	float_t sum;
 	int count;
@@ -181,50 +213,91 @@ extern "C" void cacu_average_pooling_gpu(float_t *x, int kernel_size, int stride
 *input_dim: width of input data
 *output_dim: width of output data
 */
-__global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y) {
+__global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel,int pad, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
 	int threadid = bid * THREADNUM + tid;
-	int start_in, in ;
-	int c;
-	int data_row, data_col;
+
+	//the set in the input feature map
+	int startset_i, startset_j;
+	//the set in the output feature map
+	int outset_si, outset_sj, outset_i, outset_j;
+	//the count for stride in feature map
+	int count_i, count_j;
+
+	int length = input_dim * input_dim * channel;
+
+	int cin_length = input_dim * input_dim;
 
 	int cout_length = output_dim * output_dim;
-	int output_length = output_dim*output_dim*channel;
 
-	float_t sum;
-	int count;
+	int pw, ph;
 
-	for (int i = threadid; i < output_length; i += BLOCKNUM * THREADNUM) {
+	int c;
 
-		data_row = ((i%cout_length)/output_dim) * stride;
-		data_col = ((i%cout_length)%output_dim) * stride;
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		c = i / cout_length;
+		startset_i = (i % cin_length) / input_dim;
+		startset_j = (i % cin_length) % input_dim;
 
-		start_in = (data_row*input_dim + data_col) + c* cout_length;
+		c = i / cin_length;
 
-		sum = 0;
-		count = 0;
+		outset_si = startset_i / stride;
+		outset_sj = startset_j / stride;
 
-		for(int ki = 0 ; ki < kernel_size && data_row + ki < input_dim ; ++ki)
-			for(int kj = 0 ; kj < kernel_size && data_col + kj < input_dim ; ++kj)
-			{
-				in = start_in + ki*kernel_size + kj;
-				sum += x[in];
-				count ++;
+		if (outset_si >= output_dim)
+			outset_si = output_dim - 1;
+		if (outset_sj >= output_dim)
+			outset_sj = output_dim - 1;
+
+		count_i = 0;
+		count_j = 0;
+
+		while (outset_si - (count_i + 1) >= 0
+				&& ((outset_si - (count_i + 1)) * stride) + kernel_size
+						>= startset_i + 1) {
+			count_i++;
+		}
+		while (outset_sj - (count_j + 1) >= 0
+				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
+						>= startset_j + 1) {
+			count_j++;
+		}
+
+		//stride
+		for (int mi = 0; mi <= count_i; mi++)
+			for (int mj = 0; mj <= count_j; mj++) {
+				outset_i = outset_si - mi;
+				outset_j = outset_sj - mj;
+
+				pw = kernel_size;
+				ph = kernel_size;
+
+				if (outset_i == output_dim - 1)
+					ph = kernel_size - pad;
+
+				if (outset_j == output_dim - 1)
+					pw = kernel_size - pad;
+
+				y[i] +=	(x[(outset_i * output_dim + outset_j) + c*cout_length] / (float_t) (ph * pw));
 			}
-		y[i] = sum / count;
 	}
 }
 
 extern "C" void cacu_average_pooling_grad_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y){
 
-	_k_CACU_AVERAGE_POOLING_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
+	//added pad space to feature map
+	int pad = 0;
+	if ((input_dim - kernel_size) % stride != 0)
+		pad = kernel_size - stride;
+
+	_k_CACU_AVERAGE_POOLING_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, pad, y);
+
 	CUDA_CHECK(cudaThreadSynchronize());
 }
+
 
 __global__ void _k_CACU_PADDED_DATA_GPU(float_t *x, int channel,int input_dim,int pad,float_t *y) {
 

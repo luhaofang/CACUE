@@ -71,7 +71,10 @@ namespace mycnn{
 
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-
+			for(int i = 0 ; i < o_blob_->num(); ++i)
+				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), _index->p_data(i));
+			echo();
+			return;
 		}
 
 		virtual const void load(std::ifstream& is) override{

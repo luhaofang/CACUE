@@ -37,7 +37,7 @@ inline void cacu_saxpy_oblas(float_t *x, float_t a, float_t *y, int length)
 
 inline void cacu_saxpby_oblas(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
-	//cblas_saxpby(length, a, x, 1, b, y, 1);
+	cblas_saxpby(length, a, x, 1, b, y, 1);
 }
 
 inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width, float_t *z)
