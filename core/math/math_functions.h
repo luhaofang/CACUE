@@ -70,6 +70,23 @@ inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length
 }
 
 /**
+ * @cacu_scalex
+ * math y[i] = a*x[i] :
+ * x is a length dim array list, a is the corresponding scalar.
+ */
+inline void cacu_scalex(float_t *x, int length, float_t a)
+{
+#if __PARALLELTYPE__ == __OPENMP__
+	cacu_scalex_opm(x, a, length);
+#elif __PARALLELTYPE__ == __OPENBLAS__
+	cacu_scalex_oblas(x, a, length);
+#elif __PARALLELTYPE__ == __GPU__
+	cacu_scalex_gpu(x, a, length);
+#endif
+
+}
+
+/**
  * @cacu_sgemv
  * math z = X*y:
  * trans_: whether x is needed to transpose

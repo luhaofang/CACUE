@@ -37,21 +37,28 @@
 inline void cacu_saxpy_gpu(float_t *x, float_t a, float_t *y, int length) {
 	status = cublasSaxpy_v2(handle, length, &a, x, 1, y, 1);
 	CUBLAS_CHECK(status);
-	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 inline void cacu_saxpby_gpu(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
+	status = cublasSscal_v2(handle, length, &a, y, 1);
+	CUBLAS_CHECK(status);
+	status = cublasSaxpy_v2(handle, length, &a, x, 1, y, 1);
+	CUBLAS_CHECK(status);
+}
 
+inline void cacu_scalex_gpu(float_t *x, float_t a, int length)
+{
+	status = cublasSscal_v2(handle, length, &a, x, 1);
+	CUBLAS_CHECK(status);
 }
 
 inline void cacu_sgemv_gpu(cublasOperation_t trans, float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
 	float_t alpha = 1;
 	float_t beta = 0;
-	status = cublasSgemv_v2(handle, trans, x_height, x_width,&alpha, x, x_height, y, 1, &beta, z, 1);
+	status = cublasSgemv_v2(handle, trans, x_height, x_width, &alpha, x, x_height, y, 1, &beta, z, 1);
 	CUBLAS_CHECK(status);
-	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 inline void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
@@ -63,14 +70,12 @@ inline void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, f
 	float_t beta = 0;
 	status = cublasSgemm_v2(handle, transx, transy, m, n, k, &alpha, x, lda, y, ldb, &beta, z, m);
 	CUBLAS_CHECK(status);
-	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 inline void cacu_copy_gpu(float_t *x, int x_length,float_t *y)
 {
 	status = cublasScopy_v2(handle, x_length, x, 1, y, 1);
 	CUBLAS_CHECK(status);
-	CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 

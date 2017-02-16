@@ -40,6 +40,11 @@ inline void cacu_saxpby_oblas(float_t *x, float_t a, float_t *y, float_t b, int 
 	cblas_saxpby(length, a, x, 1, b, y, 1);
 }
 
+inline void cacu_scalex_oblas(float_t *x, float_t a, int length)
+{
+	cblas_sscal(length, a, x, 1);
+}
+
 inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width, float_t *z)
 {
 	cblas_sgemv(CblasRowMajor, trans, x_height, x_width, (float_t)1, x, x_width, y, 1, (float_t)0, z, 1);

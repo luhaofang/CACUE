@@ -36,7 +36,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width,
 
 	float_t *start;
 
-	__shared__ float_t shared_data[THREADNUM];
+	extern __shared__ float_t shared_data[];
 
 	for (int i = bid; i < heigth; i += BLOCKNUM) {
 		start = x + i * width;
@@ -59,7 +59,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width
 
 	float_t *start;
 
-	__shared__ float_t shared_data[THREADNUM];
+	extern __shared__ float_t shared_data[];
 
 	for (int i = bid; i < width; i += BLOCKNUM) {
 
@@ -87,9 +87,9 @@ extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t 
 	int height = length / width;
 
 	if (BYWIDTH == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<height, width, width>>>(x, height,width, y);
 	else if(BYHEIGHT == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<width, height, height>>>(x, height,width, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -110,34 +110,13 @@ __global__ void _k_CACU_CXSIZE_GPU(float_t *x, int length, float_t *a, int size,
 /**
  * @cacu_cxsize_gpu
  * math y[i] = a[j]*x[i] :
- * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
+ * x: length dim array list
+ * a: size dim array list
+ * a[j] is the corresponding scalar, j = i / (length / size).
  */
 extern "C" void cacu_cxsize_gpu(float_t *x, int length, float_t *a, int size,float_t *y)
 {
 	_k_CACU_CXSIZE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-__global__ void _k_CACU_SXSIZE_GPU(float_t *x, int length, float_t a,float_t *y) {
-
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int threadid = bid * THREADNUM + tid;
-
-	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = x[i]*a;
-	}
-}
-
-/**
- * @cacu_sxsize_gpu
- * math y[i] = a*x[i] :
- * x is a length dim array list, a is the corresponding scalar.
- */
-extern "C" void cacu_sxsize_gpu(float_t *x, int length, float_t a, float_t *y)
-{
-	_k_CACU_SXSIZE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -158,7 +137,9 @@ __global__ void _k_CACU_CDXSIZE_GPU(float_t *x, int length, float_t *a, int size
 /**
  * @cacu_cdxsize_gpu
  * math y[i] = x[i] / a[j] :
- * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
+ * x: length dim array list
+ * a: size dim array list
+ * a[j] is the corresponding denominator, j = i / (length / size).
  */
 extern "C" void cacu_cdxsize_gpu(float_t *x, int length, float_t *a, int size, float_t *y)
 {
@@ -169,7 +150,8 @@ extern "C" void cacu_cdxsize_gpu(float_t *x, int length, float_t *a, int size, f
 /**
  * @cacu_sdxsize_gpu
  * math y[i] = x[i] / a :
- * x is a length dim array list, a is the corresponding denominator.
+ * x: length dim array list
+ * a: the corresponding denominator.
  */
 extern "C" void cacu_sdxsize_gpu(float_t *x, int length, float_t a, float_t *y);
 
@@ -190,7 +172,9 @@ __global__ void _k_CACU_SSXPY_GPU(float_t *x, float_t a, int size, float_t *y, f
 /**
  * @cacu_ssxpy_gpu
  * math z[i] = a * x[j] + b * y[i] :
- * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).
+ * y: length dim array list
+ * x: size dim array list
+ * x[j] is the corresponding scalar, j = i / (length / size).
  * a & b are corresponding scalars for x, y
  */
 extern "C" void cacu_ssxpy_gpu(float_t *x, float_t a, int size, float_t *y, float_t b, int length, float_t *z)

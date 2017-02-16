@@ -66,7 +66,7 @@ namespace mycnn{
 				//inner_product
 				cacu_sgemv(NOTRANS,_w->s_data(),_w->num(),s_blob_->p_data(i),s_blob_->length(),o_blob_->p_data(i));
 				//elemwise_sum
-				cacu_saxpby(o_blob_->p_data(i), (float_t)1, _bias->s_data(), (float_t)1, _args->output_channel());
+				cacu_saxpy(o_blob_->p_data(i), (float_t)1, _bias->s_data(), _args->output_channel());
 			}
 
 			echo();

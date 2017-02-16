@@ -59,7 +59,7 @@ namespace mycnn{
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
 				blob *s_blob_ = (blob*)(*s_blobs)[j];
 				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
-				cacu_saxpby(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), (float_t)1, o_blob_->count());
+				cacu_saxpy(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), o_blob_->count());
 			}
 			echo();
 			return;

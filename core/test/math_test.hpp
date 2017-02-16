@@ -20,7 +20,7 @@ void test_math()
 
 	network *net = create_alexnet();
 
-	for(int i = 0 ; i < 100; ++i){
+	for(int i = 0 ; i < 10; ++i){
 		clock_t start = clock();
 		net->predict();
 		clock_t end = clock();

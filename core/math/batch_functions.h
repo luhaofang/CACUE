@@ -93,22 +93,6 @@ namespace mycnn{
 	}
 
 	/**
-	 * @cacu_sxsize
-	 * math y[i] = a*x[i] :
-	 * x is a length dim array list, a is the corresponding scalar.
-	 */
-	template<typename DTYPE>
-	inline void cacu_sxsize(DTYPE *x, int length, DTYPE a, DTYPE *y)
-	{
-#if __PARALLELTYPE__ == __GPU__
-		cacu_sxsize_gpu(x, length, a, y);
-#else
-		for (int j = 0; j < length; ++j)
-			y[j] = x[j] * a;
-#endif
-	}
-
-	/**
 	 * @cacu_cdxsize
 	 * math y[i] = x[i] / a[j] :
 	 * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).

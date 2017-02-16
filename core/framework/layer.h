@@ -67,6 +67,7 @@ namespace mycnn{
 		}
 
 		layer* op(op_name op_, blob *blob_) {
+			refresh_layer_param(blob_);
 			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			blobs_->push_back(blob_);
@@ -79,6 +80,7 @@ namespace mycnn{
 		}
 
 		layer* op(op_name op_, blobs *blobs_) {
+			refresh_layer_param(blobs_->at(0));
 			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
@@ -99,6 +101,8 @@ namespace mycnn{
 			return out_blob;
 		}
 
+
+
 		~layer(){
 		
 
@@ -114,6 +118,12 @@ namespace mycnn{
 	private:
 
 		blob_base* out_blob= NULL;
+
+		inline void refresh_layer_param(blob_base* blob_)
+		{
+			_input_dim = blob_->height();
+			_channel = blob_->channel();
+		}
 
 	};
 

@@ -45,7 +45,8 @@ namespace mycnn{
 #else
 		for (int i = 0; i < length; ++i)
 		{
-			x[i] = max(x[i],0);
+			if (x[i] < 0)
+				x[i] = 0;
 		}
 #endif
 
@@ -129,11 +130,11 @@ namespace mycnn{
 		for (int i = 0; i < length; ++i)
 		{
 			x[i] = exp(x[i] - max_);
-			sum += x[i];
+			sum_ += x[i];
 		}
 		for (int i = 0; i < length; ++i)
 		{
-			x[i] = (x[i] / sum);
+			x[i] = (x[i] / sum_);
 		}
 #endif
 

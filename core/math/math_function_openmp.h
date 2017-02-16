@@ -47,6 +47,15 @@ inline void cacu_sgemv_omp(float_t *x, int x_height, float_t *y, int x_width, fl
 	}
 }
 
+inline void cacu_scalex_omp(float_t *x, float_t a, int length)
+{
+	#pragma omp parallel for
+	for (int i = 0; i < length; ++i)
+	{
+		x[i] = x[i] * a;
+	}
+}
+
 inline void cacu_sgemm_omp(TRANSPOSE transx, TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
 {
 

@@ -87,27 +87,27 @@ namespace mycnn{
 
 			if (!use_global_stats)
 			{
-				//clock_t start = clock();
 				_dim_sum->_RESET_DATA();
+
 				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(), _dim_sum->s_data(), s_blob_->length());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(), _mean->s_data(), s_blob_->channel());
-				cacu_sxsize(_mean->s_data(), _mean->count(), ((float_t)1.0 / m), _mean->s_data());
+
+				cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
 				_dim_sum->_RESET_DATA();
 				//for saving space here we use o_data for container calculate x^2
 				cacu_sqr(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), _dim_sum->s_data(), o_blob_->length());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(), _var->s_data(), o_blob_->channel());
-				cacu_sxsize(_var->s_data(), _var->count(), ((float_t)1.0 / m), _var->s_data());
+				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
-				cacu_saxpby(_mean->s_data(), (float_t)-1.0, _var->s_data(), (float_t)1.0, _mean->count());
+				cacu_saxpy(_mean->s_data(), (float_t)-1.0, _var->s_data(), _mean->count());
 
 				//update history
 				cacu_saxpby(_mean->s_data(), ((float_t)(1) - moving_average_fraction), _history_mean->s_data(), moving_average_fraction, _mean->count());
 				cacu_saxpby(_var->s_data(), ((float_t)(1) - moving_average_fraction)*bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
-				//clock_t end = clock();
-				//LOG_DEBUG("bn time cost:%d",end-start);
+
 				for (int i = 0; i < s_blob_->num(); ++i){
 					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
 					cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
@@ -129,7 +129,7 @@ namespace mycnn{
 				}
 			}
 
-			echo();
+			//echo();
 			return;
 		}
 
@@ -147,8 +147,11 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
+#if __PARALLELTYPE__ == __GPU__
 			CUDA_PRINT(_mean->s_data(),1);
-			//LOG_INFO("%f", _mean->s_data()[0]);
+#else
+			LOG_INFO("%f", _mean->s_data()[0]);
+#endif
 		}
 
 		inline weight* scale(){ return _scale; }

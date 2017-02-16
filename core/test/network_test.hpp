@@ -29,10 +29,12 @@ network* create_alexnet()
 {
 	blob *b = cacu_allocator::create_blob(1, 3, 227, 227, 1, train);
 	weight *_b = new weight("test",1, 3, 227, 227,train);
-	_b->set_init_type(msra,1);
-
-	//LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);
-	
+	_b->set_init_type(gaussian,1);
+#if __PARALLELTYPE__ == __GPU__
+	CUDA_PRINT(_b->s_data(),1);
+#else
+	LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);
+#endif
 	network *net = new network();
 
 	layer_block *conv1 = conv_layer_maxpooling(_b, 96, 11, 4, 2);

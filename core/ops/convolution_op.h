@@ -48,25 +48,9 @@ namespace mycnn{
 			_w = new weight("w", args_->output_channel(), data->channel(), args_->kernel_size(), args_->kernel_size(), data->phrase());
 			_bias = new weight("bias", args_->output_channel(), 1, 1, 1, data->phrase());
 
-			_w->set_init_type(gaussian, 0.001f);
-			_bias->set_init_type(constant);
-
-#if __FFTW__ == ON
-			//stride equal to 1
-			if(args_->stride()==1){
-				_fft_conv = new fft_conv(args_->kernel_size(),input_dim);
-			}
-			//if stride is not equal to 1, cancel fft convolution
-			else {
-				if (args_->pad() != 0)
-					_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->pad(), input_dim + 2 * args_->pad());
-				_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->kernel_size(), output_dim*args_->kernel_size());
-			}
-#else
 			if (args_->pad() != 0)
 				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->pad(), input_dim + 2 * args_->pad());
 			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->kernel_size(), output_dim*args_->kernel_size());
-#endif
 		
 		};
 
@@ -76,23 +60,10 @@ namespace mycnn{
 			delete _w;
 			delete _bias;
 
-#if __FFTW__ == ON
-			//stride equal to 1
-			if(_args->stride()==1)
-			{
-				delete _fft_conv;
-			}
-			//if stride is not equal to 1, cancel fft convolution
-			else{
-				if (_args->pad() != 0)
-					delete _padded_data;
-				delete _col_data;
-			}
-#else
 			if (_args->pad() != 0)
 				delete _padded_data;
 			delete _col_data;
-#endif
+
 		};
 
 		virtual const void check() override{
@@ -109,29 +80,6 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;				
 
-#if __FFTW__ == ON
-			//stride equal to 1
-			if(_args->stride()==1){
-				//num
-				for (int n = 0; n < s_blob_->num(); ++n){
-
-				}
-			}
-			//if stride is not equal to 1, cancel fft convolution
-			else
-			{
-				for (int i = 0; i < s_blob_->num(); ++i){
-					if (_args->pad() != 0){
-						cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->pad(), _padded_data->p_data(i));
-						cacu_img2col(_padded_data->p_data(i), _args->kernel_size(), _args->stride(), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
-					}
-					else
-						cacu_img2col(s_blob_->p_data(i),_args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
-					cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
-					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
-				}
-			}
-#else			
 			for (int i = 0; i < s_blob_->num(); ++i){
 				if (_args->pad() != 0){
 					cacu_padded_data<float_t>(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->at(3), _padded_data->p_data(i));
@@ -142,7 +90,6 @@ namespace mycnn{
 				cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
 				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
-#endif
 			echo();
 			return;
 		}
@@ -186,9 +133,9 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		inline void set_weight_init_type(param_init_type _type,float_t value = 0.0){_w->set_init_type(gaussian, value);}
+		inline void set_weight_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _w, value);}
 
-		inline void set_bias_init_type(param_init_type _type,float_t value = 0.0){_bias->set_init_type(constant, value);}
+		inline void set_bias_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _bias, value);}
 
 	private:
 
@@ -197,9 +144,6 @@ namespace mycnn{
 
 		weight *_bias;
 
-#if __FFTW__ == ON
-		fft_conv *_fft_conv;
-#endif
 		blob *_padded_data;
 
 		blob *_col_data;

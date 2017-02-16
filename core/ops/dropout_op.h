@@ -81,8 +81,9 @@ namespace mycnn{
 			{
 				//one of the dropout's implementation
 				cacu_ssx(_rand_vect->s_data(), s_blob_->count(), s_blob_->s_diff());
+				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 				//ratio's scale implementation
-				cacu_sxsize(o_blob_->s_diff(),o_blob_->count(),_ratio,s_blob_->s_diff());
+				cacu_scalex(s_blob_->s_diff(),o_blob_->count(),_ratio);
 			}
 			echo();
 			return;
