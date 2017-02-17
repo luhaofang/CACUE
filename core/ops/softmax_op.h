@@ -60,7 +60,7 @@ namespace mycnn{
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			cacu_softmax_grad(s_blob_->s_data(),o_blob_->s_diff(), s_blob_->count());
+
 			echo();
 			return;
 		}

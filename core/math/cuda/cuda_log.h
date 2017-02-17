@@ -42,7 +42,7 @@ namespace mycnn{
 
 
 #define BLOCKNUM 512
-#define THREADNUM 32
+#define THREADNUM 64
 
 //cublas log utilities
 #define CUBLAS_LOG(level,status) \

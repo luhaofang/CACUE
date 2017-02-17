@@ -87,9 +87,9 @@ extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t 
 	int height = length / width;
 
 	if (BYWIDTH == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<height, width, width>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<BLOCKNUM, THREADNUM, THREADNUM>>>(x, height,width, y);
 	else if(BYHEIGHT == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<width, height, height>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<BLOCKNUM, THREADNUM, THREADNUM>>>(x, height,width, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 

@@ -117,7 +117,7 @@ namespace mycnn{
 	 * math softmax;
 	 * for activation use softmax functions.
 	 */
-	inline void cacu_softmax(float_t *x,float_t *g, int length)
+	inline void cacu_softmax(float_t *x, int length)
 	{
 
 	#if __PARALLELTYPE__ == __GPU__
