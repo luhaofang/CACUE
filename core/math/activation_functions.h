@@ -80,7 +80,7 @@ namespace mycnn{
 	inline void cacu_leaky_relu(float_t *x, float_t a, int length)
 	{
 
-	#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __GPU__
 		cacu_leaky_relu_gpu(x, a, length);
 #else
 		for (int i = 0; i < length; ++i)
@@ -100,7 +100,7 @@ namespace mycnn{
 	inline void cacu_leaky_relu_grad(float_t *x,float_t *g, float_t a, int length)
 	{
 
-	#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __GPU__
 		cacu_leaky_relu_grad_gpu(x, g, a, length);
 #else
 		for (int i = 0; i < length; ++i)
@@ -120,7 +120,7 @@ namespace mycnn{
 	inline void cacu_softmax(float_t *x, int length)
 	{
 
-	#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __GPU__
 		cacu_softmax_gpu(x, length);
 #else
 		float_t max_ = x[0];
