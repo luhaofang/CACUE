@@ -35,12 +35,11 @@ namespace mycnn{
 
 	public:
 
-		sum_elemwise_op(blobs *&data, args *&args) :
-			operator_base(data, args){
+		sum_elemwise_op(blobs *&data, args *&args) : operator_base(data, args){
 			check();
 
 			blob_base *_blob = data->at(0);
-			o_blob = cacu_allocator::create_blob(_blob->num(), _blob->channel(), _blob->width(), _blob->height());
+			o_blob = cacu_allocator::create_blob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
 		};
 
 		~sum_elemwise_op(){
@@ -71,7 +70,6 @@ namespace mycnn{
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
 				blob *s_blob_ = (blob*)(*s_blobs)[j];
 				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
-				//cacu_saxpby(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), (float_t)1, o_blob_->count());
 				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 			}
 			echo();
@@ -90,6 +88,11 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		virtual const void LOOP_INIT_DATA_() override
+		{
+
 		}
 
 	private:

@@ -35,8 +35,7 @@ namespace mycnn{
 
 	public:
 
-		layer_base(int output_channel, int kernel_size, int stride, int pad, int input_dim, int channel,
-			phrase_type phrase){
+		layer_base(int output_channel, int kernel_size, int stride, int pad, int input_dim, int channel){
 
 			//_output_dim = _output_dim;
 			_channel = channel;
@@ -46,7 +45,6 @@ namespace mycnn{
 			_stride = stride;
 			_pad = pad;
 			_output_dim = 0;
-			_phrase = phrase;
 
 		};
 
@@ -71,8 +69,6 @@ namespace mycnn{
 		//stride size
 		int _stride = 0;
 
-		phrase_type _phrase;
-
 		inline int op_count(){ return ops.size(); }
 
 		inline operator_base *&op(int i){ return ops[i]; }
@@ -80,7 +76,7 @@ namespace mycnn{
 		inline void operate()
 		{
 			for(unsigned int i =0 ; i < ops.size() ; ++i)
-				ops[i]->op();
+				ops[i]->infer();
 		}
 
 	protected:

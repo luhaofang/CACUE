@@ -90,6 +90,55 @@ extern "C" void cacu_root_gpu(float_t *x, int length, float_t *y);
 extern "C" void cacu_stdbychannel_gpu(float_t *varience, int length, float_t *std, float_t epsilon);
 
 /**
+ * @cacu_bn_rou_grad_gpu
+ * calculate the gradient of bn layer's rou
+ * x: input feature
+ * d_x: gradient of ^x
+ * mean: mean of batch
+ * std: standard deviation of batch
+ * length: size of a feature map
+ * d_rou: gradient of batch's variance
+ */
+extern "C" void cacu_bn_rou_grad_gpu(float_t *x, float_t *d_x, float_t *mean, float_t *std, int num, int length, int channel, float_t *d_rou);
+
+/**
+ * @cacu_bn_mu_grad
+ * calculate the gradient of bn layer's mu
+ * x: input feature
+ * d_x: gradient of ^x
+ * mean: mean of batch
+ * std: standard deviation of batch
+ * d_rou: gradient of batch's variance
+ * length: size of a feature map
+ * d_mean: gradient of batch's mean
+ */
+extern "C" void cacu_bn_mu_grad_gpu(float_t *x, float_t *d_x, float_t *mean, float_t *std, float_t *d_rou, int num, int length, int channel,float_t *d_mean);
+
+/**
+ * @cacu_bn_dx_grad_gpu
+ * calculate the gradient of bn layer's dx
+ * x: input feature
+ * d_x: gradient of ^x
+ * mean: mean of batch
+ * std: standard deviation of batch
+ * d_rou: gradient of batch's variance
+ * d_mean: gradient of batch's mean
+ * length: size of a feature map
+ * dx: gradient of x
+ */
+extern "C" void cacu_bn_dx_grad_gpu(float_t *x, float_t *d_x, float_t *mean, float_t *std, float_t *d_rou, float_t *d_mean, int num, int length, int channel,float_t *dx);
+
+/**
+ * @cacu_bn_gamma_grad_gpu
+ * calculate the gradient of bn layer's scale
+ * _x: is ^x
+ * d_y: gradient propagate form top layer
+ * length: size of a feature map
+ * d_gamma: gradient of gamma
+ */
+extern "C" void cacu_bn_gamma_grad_gpu(float_t *_x, float_t *d_y, int num, int length, int channel, float_t *d_gamma);
+
+/**
  * @cacu_ssx_gpu
  * math y[i] *= x[i] :
  * scale by element wise.

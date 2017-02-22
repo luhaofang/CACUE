@@ -39,7 +39,9 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width,
 	extern __shared__ float_t shared_data[];
 
 	for (int i = bid; i < heigth; i += BLOCKNUM) {
+
 		start = x + i * width;
+		shared_data[tid] = 0.0;
 		for(int j = tid ;  j < width; j += THREADNUM)
 			shared_data[tid] += start[j];
 		__syncthreads();
@@ -61,9 +63,11 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width
 
 	extern __shared__ float_t shared_data[];
 
+
 	for (int i = bid; i < width; i += BLOCKNUM) {
 
 		start = x + i;
+		shared_data[tid] = 0.0;
 		for(int j = tid ;j < height; j += THREADNUM)
 			shared_data[tid] += start[j*width];
 		__syncthreads();
@@ -87,9 +91,9 @@ extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t 
 	int height = length / width;
 
 	if (BYWIDTH == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<BLOCKNUM, THREADNUM, THREADNUM>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(float_t)>>>(x, height,width, y);
 	else if(BYHEIGHT == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<BLOCKNUM, THREADNUM, THREADNUM>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(float_t)>>>(x, height,width, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -249,6 +253,199 @@ extern "C" void cacu_stdbychannel_gpu(float_t *varience, int length, float_t *st
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
+__global__ void _k_CACU_BN_ROU_GRAD_GPU(float_t *x, float_t *d_x, float_t *mean, float_t *std, int num, int length, int channel, float_t *d_rou) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	extern __shared__ float_t share_data[];
+
+	int data_row, data_col;
+
+	int cin_length = length / channel;
+
+	int set;
+
+	share_data[tid] = 0;
+
+	for (int i = bid; i < channel; i += BLOCKNUM)
+	{
+		for (int j = tid; j < cin_length * num; j += THREADNUM)
+		{
+			data_row = j / cin_length;
+			data_col = j % cin_length;
+			set = data_row * length + data_col + i*cin_length;
+			share_data[tid] +=
+					(x[set] - mean[i])
+							* d_x[set]
+							* (-0.5	/ (std[i] * std[i] * std[i]));
+		}
+
+		__syncthreads();
+
+		if (tid == 0) {
+			for (int j = 1; j < THREADNUM; j++) {
+				share_data[0] += share_data[j];
+			}
+			d_rou[i] = share_data[0];
+		}
+	}
+}
+
+/**
+ * @cacu_bn_rou_grad_gpu
+ * calculate the gradient of bn layer's rou
+ * x: input feature
+ * d_x: gradient of ^x
+ * mean: mean of batch
+ * std: standard deviation of batch
+ * length: size of a feature map
+ * d_rou: gradient of batch's variance
+ */
+extern "C" void cacu_bn_rou_grad_gpu(float_t *x, float_t *d_x, float_t *mean, float_t *std, int num, int length, int channel, float_t *d_rou)
+{
+
+	_k_CACU_BN_ROU_GRAD_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(float_t)>>>(x, d_x, mean, std, num, length, channel, d_rou);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_BN_MU_GRAD_GPU(float_t *x, float_t *d_x, float_t *mean, float_t *std, float_t *d_rou, int num, int length, int channel,float_t *d_mean) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	extern __shared__ float_t share_data[];
+
+	int data_row, data_col;
+
+	int cin_length = length / channel;
+
+	int set;
+
+	share_data[tid] = 0;
+
+	int m = cin_length * num;
+
+	for (int i = bid; i < channel; i += BLOCKNUM)
+	{
+		for (int j = tid; j < cin_length * num; j += THREADNUM)
+		{
+			set = data_row*length + data_col + i * cin_length;
+			share_data[tid] += ((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (-2.0 * (x[set] - mean[i]))));
+		}
+
+		__syncthreads();
+
+		if (tid == 0) {
+			for (int j = 1; j < THREADNUM; j++) {
+				share_data[0] += share_data[j];
+			}
+			d_mean[i] = share_data[0];
+		}
+	}
+}
+
+/**
+ * @cacu_bn_mu_grad
+ * calculate the gradient of bn layer's mu
+ * x: input feature
+ * d_x: gradient of ^x
+ * mean: mean of batch
+ * std: standard deviation of batch
+ * d_rou: gradient of batch's variance
+ * length: size of a feature map
+ * d_mean: gradient of batch's mean
+ */
+extern "C" void cacu_bn_mu_grad_gpu(float_t *x, float_t *d_x, float_t *mean, float_t *std, float_t *d_rou, int num, int length, int channel,float_t *d_mean)
+{
+	_k_CACU_BN_MU_GRAD_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(float_t)>>>(x, d_x, mean, std, d_rou, num, length ,channel, d_mean);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_BN_DX_GRAD_GPU(float_t *x, float_t *d_x, float_t *mean, float_t *std, float_t *d_rou, float_t *d_mean, int num, int length, int channel,float_t *dx) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	int c;
+
+	int cin_length = length / channel;
+
+	int m = cin_length * num;
+
+	for (int i = threadid; i < num * length; i += BLOCKNUM * THREADNUM) {
+
+		c = (i % length) / cin_length;
+		dx[i] += ((d_x[i]/ std[c]) + d_rou[c] * (2.0 * (x[i] - mean[c]) / m) + (d_mean[c] / m));
+	}
+}
+
+/**
+ * @cacu_bn_dx_grad_gpu
+ * calculate the gradient of bn layer's dx
+ * x: input feature
+ * d_x: gradient of ^x
+ * mean: mean of batch
+ * std: standard deviation of batch
+ * d_rou: gradient of batch's variance
+ * d_mean: gradient of batch's mean
+ * length: size of a feature map
+ * dx: gradient of x
+ */
+extern "C" void cacu_bn_dx_grad_gpu(float_t *x, float_t *d_x, float_t *mean, float_t *std, float_t *d_rou, float_t *d_mean, int num, int length, int channel,float_t *dx)
+{
+	_k_CACU_BN_DX_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, d_x, mean, std, d_rou, d_mean, num, length, channel, dx);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_BN_GAMMA_GRAD_GPU(float_t *_x, float_t *d_y, int num, int length, int channel, float_t *d_gamma) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	extern __shared__ float_t share_data[];
+
+	int data_row, data_col;
+
+	int cin_length = length / channel;
+
+	int set;
+
+	share_data[tid] = 0;
+
+	for (int i = bid; i < channel; i += BLOCKNUM)
+	{
+		for (int j = tid; j < cin_length * num; j += THREADNUM)
+		{
+			set = data_row * length + data_col + i * cin_length;
+			share_data[tid] += (_x[set] * d_y[set]);
+		}
+
+		__syncthreads();
+
+		if (tid == 0) {
+			for (int j = 1; j < THREADNUM; j++) {
+				share_data[0] += share_data[j];
+			}
+			d_gamma[i] = share_data[0];
+		}
+	}
+}
+
+/**
+ * @cacu_bn_gamma_grad_gpu
+ * calculate the gradient of bn layer's scale
+ * _x: is ^x
+ * d_y: gradient propagate form top layer
+ * length: size of a feature map
+ * d_gamma: gradient of gamma
+ */
+extern "C" void cacu_bn_gamma_grad_gpu(float_t *_x, float_t *d_y, int num, int length, int channel, float_t *d_gamma)
+{
+	_k_CACU_BN_GAMMA_GRAD_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(float_t)>>>(_x, d_y, num, length, channel, d_gamma);
+}
 
 __global__ void _k_CACU_SSX_GPU(float_t *x, int length, float_t *y) {
 

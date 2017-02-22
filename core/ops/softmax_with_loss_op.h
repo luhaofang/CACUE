@@ -34,10 +34,10 @@ namespace mycnn{
 
 	public:
 
-		softmax_with_loss_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
+		softmax_with_loss_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-			o_blob = data;
+			o_blob = cacu_allocator::create_blob(data->num(), _args->output_channel(), 1, 1, _phrase);
 
 		};
 
@@ -56,7 +56,6 @@ namespace mycnn{
 			//CE LOSS
 
 			echo();
-			return;
 		}
 
 		virtual const void grad() override{
@@ -65,7 +64,6 @@ namespace mycnn{
 			//CE LOSS BACK PROPGATION
 
 			echo();
-			return;
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -79,6 +77,11 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		virtual const void LOOP_INIT_DATA_() override
+		{
+			o_blob->_RESET_DATA();
 		}
 
 	private:

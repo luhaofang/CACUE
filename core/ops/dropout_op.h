@@ -36,15 +36,15 @@ namespace mycnn{
 
 	public:
 
-		dropout_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
+		dropout_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
 
-			o_blob = cacu_allocator::create_blob(num, channel, input_dim, input_dim);
-			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim);
+			o_blob = cacu_allocator::create_blob(num, channel, input_dim, input_dim, _phrase);
+			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
 
 		};
 
@@ -68,7 +68,6 @@ namespace mycnn{
 				cacu_ssx(_rand_vect->s_data(), o_blob_->count(), o_blob_->s_data());
 			}
 			echo();
-			return;
 		}
 
 		virtual const void grad() override{
@@ -86,7 +85,6 @@ namespace mycnn{
 				cacu_scalex(s_blob_->s_diff(),o_blob_->count(),_ratio);
 			}
 			echo();
-			return;
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -100,6 +98,12 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		virtual const void LOOP_INIT_DATA_() override
+		{
+			o_blob->_RESET_DATA();
+			_rand_vect->_RESET_DATA();
 		}
 
 		float_t _ratio = 0.5;

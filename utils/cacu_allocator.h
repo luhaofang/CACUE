@@ -35,9 +35,14 @@ namespace mycnn{
 
 	public:
 
-		inline static blob* create_blob(int num, int channel, int width, int height, float_t value=0.0, phrase_type phrase=test)
+		inline static blob* create_blob(int num, int channel, int width, int height, float_t value, phrase_type phrase)
 		{
 			return new blob(num, channel, width, height, value, phrase);
+		}
+
+		inline static blob* create_blob(int num, int channel, int width, int height, phrase_type phrase)
+		{
+			return new blob(num, channel, width, height, 0, phrase);
 		}
 
 		inline static blob* create_blob(blob_base *&blob_)
@@ -45,9 +50,14 @@ namespace mycnn{
 			return new blob(blob_->num(), blob_->channel(), blob_->width(), blob_->height(), 0, blob_->phrase());
 		}
 
-		inline static bin_blob* create_bin_blob(int num, int channel, int width, int height, unsigned int value = 0, phrase_type phrase = test)
+		inline static bin_blob* create_bin_blob(int num, int channel, int width, int height, unsigned int value, phrase_type phrase)
 		{
 			return new bin_blob(num, channel, width, height, value, phrase);
+		}
+
+		inline static bin_blob* create_bin_blob(int num, int channel, int width, int height, phrase_type phrase)
+		{
+			return new bin_blob(num, channel, width, height, 0, phrase);
 		}
 
 		inline static bin_blob* create_bin_blob(blob_base *&bin_blob_)

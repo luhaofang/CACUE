@@ -8,7 +8,7 @@ layer_block create_block(int i)
 
 	layer *c = new layer(1, 1, 1, 1);
 
-	blob *data = mycnn::cacu_allocator::create_blob(1, 100, 100, 100, 2);
+	blob *data = mycnn::cacu_allocator::create_blob(1, 100, 100, 100, 2, test);
 
 	blobs *sblobs = mycnn::cacu_allocator::create_blobs();
 	sblobs->push_back(data);

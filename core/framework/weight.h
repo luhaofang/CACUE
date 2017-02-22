@@ -36,17 +36,22 @@ namespace mycnn{
 
 	public:
 
-		weight(chars_t name,int num,int channel,int width,int height,phrase_type phrase = test)
+		weight(chars_t name,int num,int channel,int width,int height,phrase_type phrase)
 			: blob(num, channel, width, height,1,phrase){
 			_name = name;
 			_update_lr = 1.0;
+			_decay_mult = 1.0;
 		};
 
 		inline chars_t name(){ return _name; }
 
-		inline void set_lr(float_t lr){ _update_lr = lr; }
+		inline void set_lr(float_t lr_){ _update_lr = lr_; }
 
-		inline float_t get_lr(float_t lr){ return _update_lr; }
+		inline float_t get_lr(){ return _update_lr; }
+
+		inline void set_decay(float_t decay_mult_){_decay_mult = decay_mult_; }
+
+		inline float_t get_decay(){ return _decay_mult; }
 
 		~weight(){};
 
@@ -62,7 +67,7 @@ namespace mycnn{
 				break;
 			case mycnn::xavier:
 				for (int i = 0; i < _length; i++)
-					w[i] = r->frand(-value, value);
+					w[i] = r->urand(-value, value);
 				break;
 			case mycnn::gaussian:
 				for (int i = 0; i < _length; i++)
@@ -91,6 +96,8 @@ namespace mycnn{
 		chars_t _name;
 
 		float_t _update_lr;
+
+		float_t _decay_mult;
 
 	};
 

@@ -37,10 +37,8 @@ namespace mycnn{
 
 	public:
 
-		layer(int output_channel = 0, int kernel_size = 0, int stride = 0, int pad = 0, int input_dim = 0, int channel = 0,
-			phrase_type phrase = train)
-			:layer_base(output_channel, kernel_size, stride, pad, input_dim, channel,
-			phrase){
+		layer(int output_channel = 0, int kernel_size = 0, int stride = 0, int pad = 0, int input_dim = 0, int channel = 0)
+			:layer_base(output_channel, kernel_size, stride, pad, input_dim, channel){
 
 
 		};
@@ -61,7 +59,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = (blob*)(ops[ops.size() - 1])->out_data();
+			out_blob = (ops[ops.size() - 1])->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
@@ -74,7 +72,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = (blob*)(ops[ops.size() - 1])->out_data();
+			out_blob = (ops[ops.size() - 1])->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
@@ -85,18 +83,18 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = (blob*)(ops[ops.size() - 1])->out_data();
+			out_blob = (ops[ops.size() - 1])->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
 
 		template<class OPTYPE>
-		inline OPTYPE* get_op(int i)
+		inline OPTYPE * get_op(int i)
 		{
-			return (OPTYPE*)ops[i];
+			return (OPTYPE*&)ops[i];
 		}
 
-		inline blob_base* get_oblob()
+		inline blob_base * get_oblob()
 		{
 			return out_blob;
 		}
@@ -110,7 +108,7 @@ namespace mycnn{
 
 	protected:
 
-		inline void add_op(operator_base* const op)
+		inline void add_op(operator_base *op)
 		{
 			ops.push_back(op);
 		}
@@ -119,7 +117,7 @@ namespace mycnn{
 
 		blob_base* out_blob= NULL;
 
-		inline void refresh_layer_param(blob_base* blob_)
+		inline void refresh_layer_param(blob_base *blob_)
 		{
 			_input_dim = blob_->height();
 			_channel = blob_->channel();

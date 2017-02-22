@@ -39,7 +39,7 @@ namespace mycnn{
 
 	public:
 
-		bin_blob(int num, int channel, int width, int height, unsigned int _value = 0, phrase_type phrase = test)
+		bin_blob(int num, int channel, int width, int height, unsigned int _value, phrase_type phrase)
 			:blob_base(num, channel, width, height, phrase){
 #if __PARALLELTYPE__ == __GPU__
 			_s_data = cuda_malloc_v<unsigned int>(_num,_cube_length, _value);
@@ -87,10 +87,21 @@ namespace mycnn{
 		{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_setvalue<unsigned int>(_s_data,(unsigned int)(0),_length);
-			if(train == _phrase)
+			if (train == _phrase)
 				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_length);
 #else
 			_data.resize(_length, 0);
+			if (train == _phrase)
+				_diff.resize(_length, float_t(0));
+#endif
+		}
+
+		inline virtual const void _RESET_DIFF() override
+		{
+#if __PARALLELTYPE__ == __GPU__
+			if (train == _phrase)
+				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_length);
+#else
 			if (train == _phrase)
 				_diff.resize(_length, float_t(0));
 #endif

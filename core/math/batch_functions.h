@@ -201,6 +201,149 @@ namespace mycnn{
 	}
 
 	/**
+	 * @cacu_bn_rou_grad
+	 * calculate the gradient of bn layer's rou
+	 * x: input feature
+	 * d_x: gradient of ^x
+	 * mean: mean of batch
+	 * std: standard deviation of batch
+	 * length: size of a feature map
+	 * d_rou: gradient of batch's variance
+	 */
+	template<typename DTYPE>
+	inline void cacu_bn_rou_grad(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, int num, int length, int channel, DTYPE *d_rou)
+	{
+#if __PARALLELTYPE__ == __GPU__
+		cacu_bn_rou_grad_gpu(x, d_x, mean, std, num, length, channel, d_rou);
+#else
+		int cin_length = length / channel;
+
+		int set;
+
+		for (int n = 0; n < num; n++) {
+			//iteration for channel
+			for (int c = 0; c < channel; c++) {
+				set = n * length + cin_length * c;
+				//iteration for feature map
+				for (int f = 0; f < cin_length; f++) {
+
+					d_rou[c] += (d_x[set + f] * (x[set + f] - mean[c]) * (-0.5 / pow(std[c], 3)));
+				}
+			}
+		}
+#endif
+	}
+
+	/**
+	 * @cacu_bn_mu_grad
+	 * calculate the gradient of bn layer's mu
+	 * x: input feature
+	 * d_x: gradient of ^x
+	 * mean: mean of batch
+	 * std: standard deviation of batch
+	 * d_rou: gradient of batch's variance
+	 * length: size of a feature map
+	 * d_mean: gradient of batch's mean
+	 */
+	template<typename DTYPE>
+	inline void cacu_bn_mu_grad(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, DTYPE *d_rou, int num, int length, int channel,DTYPE *d_mean)
+	{
+#if __PARALLELTYPE__ == __GPU__
+		cacu_bn_mu_grad_gpu(x, d_x, mean, std, d_rou, num, length ,channel, d_mean);
+#else
+		int cin_length = length / channel;
+
+		int set;
+
+		int m = cin_length * num;
+
+		for (int n = 0; n < num; n++) {
+			//iteration for channel
+			for (int c = 0; c < channel; c++) {
+				set = n * length + cin_length * c;
+				//iteration for feature map
+				for (int f = 0; f < cin_length; f++) {
+
+					d_mean[c] += ((d_x[set + f] / (-std[c])) + d_rou[c] * (-2.0 * (x[set + f] - mean[c]) / m));
+				}
+			}
+		}
+#endif
+	}
+
+	/**
+	 * @cacu_bn_dx_grad
+	 * calculate the gradient of bn layer's dx
+	 * x: input feature
+	 * d_x: gradient of ^x
+	 * mean: mean of batch
+	 * std: standard deviation of batch
+	 * d_rou: gradient of batch's variance
+	 * d_mean: gradient of batch's mean
+	 * length: size of a feature map
+	 * dx: gradient of x
+	 */
+	template<typename DTYPE>
+	inline void cacu_bn_dx_grad(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, DTYPE *d_rou, DTYPE *d_mean, int num, int length, int channel,DTYPE *dx)
+	{
+#if __PARALLELTYPE__ == __GPU__
+		cacu_bn_dx_grad_gpu(x, d_x, mean, std, d_rou, d_mean, num, length, channel, dx);
+#else
+		int cin_length = length / channel;
+
+		int set;
+
+		int m = cin_length * num;
+
+		for (int n = 0; n < num; n++) {
+			//iteration for channel
+			for (int c = 0; c < channel; c++) {
+				set = n * length + cin_length * c;
+				//iteration for feature map
+				for (int f = 0; f < cin_length; f++) {
+
+					dx[set + f] += ((d_x[set + f]/ std[c]) + d_rou[c] * (2.0 * (x[set + f] - mean[c]) / m) + (d_mean[c] / m));
+				}
+			}
+		}
+#endif
+	}
+
+	/**
+	 * @cacu_bn_gamma_grad
+	 * calculate the gradient of bn layer's scale
+	 * _x: is ^x
+	 * d_y: gradient propagate form top layer
+	 * length: size of a feature map
+	 * d_gamma: gradient of gamma
+	 */
+	template<typename DTYPE>
+	inline void cacu_bn_gamma_grad(DTYPE *_x, DTYPE *d_y, int num, int length, int channel, DTYPE *d_gamma)
+	{
+#if __PARALLELTYPE__ == __GPU__
+		cacu_bn_gamma_grad_gpu(_x, d_y, num, length, channel, d_gamma);
+#else
+		int cin_length = length / channel;
+
+		int set;
+
+		int m = cin_length * num;
+
+		for (int n = 0; n < num; n++) {
+			//iteration for channel
+			for (int c = 0; c < channel; c++) {
+				set = n * length + cin_length * c;
+				//iteration for feature map
+				for (int f = 0; f < cin_length; f++) {
+
+					d_gamma[c] += (_x[set + f] * d_y[set + f]);
+				}
+			}
+		}
+#endif
+	}
+
+	/**
 	 * @cacu_ssx
 	 * math y[i] *= x[i] :
 	 * scale by element wise.

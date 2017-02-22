@@ -35,22 +35,21 @@ namespace mycnn{
 	public:
 
 		//output_channel, kernel_size, stride, pad, input_dim, channel
-		convolution_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
+		convolution_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 
 			check();
-
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-			int output_dim = (input_dim + 2 * args_->pad() - args_->kernel_size()) / args_->stride() + 1;
-			o_blob = cacu_allocator::create_blob(num, args_->output_channel(), output_dim, output_dim);
+			int output_dim = (input_dim + 2 * _args->pad() - _args->kernel_size()) / _args->stride() + 1;
+			o_blob = cacu_allocator::create_blob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 
-			_w = new weight("w", args_->output_channel(), data->channel(), args_->kernel_size(), args_->kernel_size(), data->phrase());
-			_bias = new weight("bias", args_->output_channel(), 1, 1, 1, data->phrase());
+			_w = new weight("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
+			_bias = new weight("bias", _args->output_channel(), 1, 1, 1, _phrase);
 
-			if (args_->pad() != 0)
-				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * args_->pad(), input_dim + 2 * args_->pad());
-			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * args_->kernel_size(), output_dim*args_->kernel_size());
+			if (_args->pad() != 0)
+				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * _args->pad(), input_dim + 2 * _args->pad(), _phrase);
+			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
 		
 		};
 
@@ -73,7 +72,6 @@ namespace mycnn{
 			CHECK_GT_OP(_args->kernel_size(), 0);
 			//stride > 0
 			CHECK_GT_OP(_args->stride(), 0);
-			return;
 		}
 
 		virtual const void op() override {
@@ -91,7 +89,6 @@ namespace mycnn{
 				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
 			echo();
-			return;
 		}
 
 		virtual const void grad() override{
@@ -131,6 +128,18 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		virtual const void LOOP_INIT_DATA_() override
+		{
+			o_blob->_RESET_DATA();
+
+			_w->_RESET_DIFF();
+			_bias->_RESET_DIFF();
+
+			if (_args->pad() != 0)
+				_padded_data->_RESET_DATA();
+			_col_data->_RESET_DATA();
 		}
 
 		inline void set_weight_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _w, value);}

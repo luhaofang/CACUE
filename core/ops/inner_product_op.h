@@ -34,13 +34,13 @@ namespace mycnn{
 
 	public:
 
-		inner_product_op(blob *&data, args *&args_) : operator_base((blob_base*&)data, args_){
+		inner_product_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-			o_blob = cacu_allocator::create_blob(data->num(), args_->output_channel(), 1, 1);
+			o_blob = cacu_allocator::create_blob(data->num(), _args->output_channel(), 1, 1, _phrase);
 
-			_w = new weight("w", args_->output_channel(), data->channel(), data->width(), data->height(), data->phrase());
-			_bias = new weight("bias", args_->output_channel(), 1, 1, 1, data->phrase());
+			_w = new weight("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
+			_bias = new weight("bias", _args->output_channel(), 1, 1, 1, _phrase);
 
 		};
 
@@ -55,7 +55,6 @@ namespace mycnn{
 		virtual const void check() override{
 			//output_channel > 0
 			CHECK_GT_OP(_args->output_channel(), 0);
-			return;
 		}
 
 		virtual const void op() override {
@@ -70,7 +69,6 @@ namespace mycnn{
 			}
 
 			echo();
-			return;
 		}
 
 		virtual const void grad() override{
@@ -100,6 +98,13 @@ namespace mycnn{
 
 			//LOG_INFO("%s:%d", "output_channel", (*_args)[0]);
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		virtual const void LOOP_INIT_DATA_() override
+		{
+			o_blob->_RESET_DATA();
+			_w->_RESET_DIFF();
+			_bias->_RESET_DIFF();
 		}
 
 	private:

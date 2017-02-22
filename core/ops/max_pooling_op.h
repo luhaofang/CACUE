@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		max_pooling_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
+		max_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
 			int input_dim = data->width();
@@ -43,9 +43,9 @@ namespace mycnn{
 			int output_dim = (input_dim - args_->kernel_size()) / args_->stride() + 1;
 			if ((input_dim - args_->kernel_size()) % args_->stride() != 0)
 				output_dim += 1;			
-			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim);
+			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim, _phrase);
 
-			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim);
+			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
 
 		};
 
@@ -64,7 +64,6 @@ namespace mycnn{
 			for(int i = 0 ; i < s_blob_->num(); ++i)
 				cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), _index->p_data(i));
 			echo();
-			return;
 		}
 
 		virtual const void grad() override{
@@ -74,7 +73,6 @@ namespace mycnn{
 			for(int i = 0 ; i < o_blob_->num(); ++i)
 				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), _index->p_data(i));
 			echo();
-			return;
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -88,6 +86,11 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		virtual const void LOOP_INIT_DATA_() override
+		{
+			o_blob->_RESET_DATA();
 		}
 
 	private:

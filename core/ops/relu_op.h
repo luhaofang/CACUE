@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		relu_op(blob *&data, args *&args_) : operator_base((blob_base *&)data, args_){
+		relu_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
 			o_blob = data;
@@ -54,7 +54,6 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			cacu_relu(s_blob_->s_data(), s_blob_->count());
 			echo();
-			return;
 		}
 
 		virtual const void grad() override{
@@ -62,7 +61,6 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			cacu_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), s_blob_->count());
 			echo();
-			return;
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -76,6 +74,11 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		}
+
+		virtual const void LOOP_INIT_DATA_() override
+		{
+			return;
 		}
 
 	private:

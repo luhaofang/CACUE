@@ -42,6 +42,7 @@ namespace mycnn{
 			s_blobs = NULL;
 			o_blob = NULL;
 			_args = args_;
+			_phrase = data->phrase();
 
 		};
 
@@ -51,6 +52,7 @@ namespace mycnn{
 			s_blobs = data;
 			o_blob = NULL;
 			_args = args_;
+			_phrase = data->at(0)->phrase();
 		};
 
 		virtual ~operator_base(){
@@ -69,6 +71,8 @@ namespace mycnn{
 		virtual const void save(std::ostream &os) = 0;
 
 		virtual const void echo() = 0;
+
+		virtual const void LOOP_INIT_DATA_() = 0;
 
 		inline blob_base *&out_data(){ return o_blob; }
 
@@ -89,7 +93,7 @@ namespace mycnn{
 			case mycnn::xavier:
 				value = sqrt((float_t) 3.0/ (_args->kernel_size() * _args->kernel_size() * _args->channel()));
 				for (int i = 0; i < length_; i++)
-					p_[i] = r_->frand(-value, value);
+					p_[i] = r_->urand(-value, value);
 				break;
 			case mycnn::gaussian:
 				for (int i = 0; i < length_; i++)
@@ -97,7 +101,6 @@ namespace mycnn{
 				break;
 			case mycnn::msra:
 				value = sqrt((float_t) 2.0/ (_args->kernel_size() * _args->kernel_size() * _args->channel()));
-				LOG_DEBUG("%d,%d,%f",_args->kernel_size(),_args->channel(),value);
 				for (int i = 0; i < length_; i++)
 					p_[i] = r_->gaussrand(value);
 				break;
@@ -115,6 +118,14 @@ namespace mycnn{
 			vec_t().swap(p_);
 		}
 
+		inline void infer()
+		{
+			//reset the data's values
+			LOOP_INIT_DATA_();
+			//forward propagation
+			op();
+		}
+
 		
 
 	protected:
@@ -126,6 +137,8 @@ namespace mycnn{
 		blob_base *o_blob;
 
 		args *_args;
+
+		phrase_type _phrase;
 
 	private:
 

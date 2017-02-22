@@ -45,7 +45,9 @@ namespace mycnn{
 		CACU_MAX_POOLING,
 		CACU_AVERAGE_POOLING,
 		CACU_DROPOUT,
-		CACU_LEAKY_RELU
+		CACU_LEAKY_RELU,
+		CACU_SOFTMAX,
+		CACU_SOFTMAX_LOSS
 	};
 
 	class operator_factory
@@ -59,11 +61,11 @@ namespace mycnn{
 			{
 			case CACU_INNERPRODUCT:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new inner_product_op((blob*&)(*blob_)[0], args_);
+				return new inner_product_op(blob_->at(0), args_);
 				break;
 			case CACU_CONVOLUTION:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new convolution_op((blob*&)(*blob_)[0], args_);
+				return new convolution_op(blob_->at(0), args_);
 				break;
 			case CACU_SUM_ELEMWISE:
 				CHECK_GE_OP(blob_->size(), 2);
@@ -71,27 +73,35 @@ namespace mycnn{
 				break;
 			case CACU_RELU:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new relu_op((blob*&)(*blob_)[0], args_);
+				return new relu_op(blob_->at(0), args_);
 				break;
 			case CACU_BATCH_NORMALIZE:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new batch_normal_op((blob*&)(*blob_)[0], args_);
+				return new batch_normal_op(blob_->at(0), args_);
 				break;
 			case CACU_MAX_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new max_pooling_op((blob*&)(*blob_)[0], args_);
+				return new max_pooling_op(blob_->at(0), args_);
 				break;
 			case CACU_AVERAGE_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new average_pooling_op((blob*&)(*blob_)[0], args_);
+				return new average_pooling_op(blob_->at(0), args_);
 				break;
 			case CACU_DROPOUT:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new dropout_op((blob*&)(*blob_)[0], args_);
+				return new dropout_op(blob_->at(0), args_);
 				break;
 			case CACU_LEAKY_RELU:
 				CHECK_EQ_OP(blob_->size(), 1);
-				return new leaky_relu_op((blob*&)(*blob_)[0], args_);
+				return new leaky_relu_op(blob_->at(0), args_);
+				break;
+			case CACU_SOFTMAX:
+				CHECK_EQ_OP(blob_->size(), 1);
+				return new softmax_op(blob_->at(0), args_);
+				break;
+			case CACU_SOFTMAX_LOSS:
+				CHECK_EQ_OP(blob_->size(), 1);
+				return new softmax_with_loss_op(blob_->at(0), args_);
 				break;
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);

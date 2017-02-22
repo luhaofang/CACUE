@@ -33,7 +33,7 @@ namespace mycnn{
 	{
 	public:
 
-		layer_block(int output_channel = 0, int kernel_size = 0, int stride = 0, int pad = 0, int input_dim = 0, int channel = 0, phrase_type phrase = train)
+		layer_block(int output_channel = 0, int kernel_size = 0, int stride = 0, int pad = 0, int input_dim = 0, int channel = 0)
 		{
 			_output_dim = 0;
 			_channel = channel;
@@ -42,7 +42,6 @@ namespace mycnn{
 			_kernel_size = kernel_size;
 			_stride = stride;
 			_pad = pad;
-			_phrase = phrase;
 		};
 
 		~layer_block(){};
@@ -113,7 +112,6 @@ namespace mycnn{
 		//stride size
 		int _stride = 0;
 
-		phrase_type _phrase;
 
 	};
 

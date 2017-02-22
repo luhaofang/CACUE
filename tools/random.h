@@ -55,7 +55,7 @@ namespace mycnn {
 			return u * c * std;
 		}
 
-		float_t frand(float_t min, float_t max) {
+		float_t urand(float_t min, float_t max) {
 
 			float_t pRandomValue = (float_t)(rand() / (float_t)RAND_MAX);
 			pRandomValue = pRandomValue * (max - min) + min;
