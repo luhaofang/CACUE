@@ -90,29 +90,33 @@ namespace mycnn{
 			if (train == _phrase)
 				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_length);
 #else
-			_data.resize(_length, 0);
+			for(int i = 0 ; i < _length ; ++i)
+				_data[i] = 0;
 			if (train == _phrase)
-				_diff.resize(_length, float_t(0));
+				for(int i = 0 ; i < _length ; ++i)
+					_diff[i] = 0.0;
 #endif
 		}
 
-		inline virtual const void _RESET_DIFF() override
+		virtual const void _RESET_DIFF() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)
 				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_length);
 #else
 			if (train == _phrase)
-				_diff.resize(_length, float_t(0));
+				for(int i = 0 ; i < _length ; ++i)
+					_diff[i] = 0.0;
 #endif
 		}
 
-		inline const void set_data(unsigned int value_)
+		const void set_data(unsigned int value_)
 		{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_setvalue<unsigned int>(_s_data,value_,_length);
 #else
-			_data.resize(_length, value_);
+			for(int i = 0 ; i < _length ; ++i)
+				_data[i] = value_;
 #endif
 		}
 
@@ -123,7 +127,8 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 				cuda_setvalue<float_t>(_s_diff, value_,_length);
 #else
-				_diff.resize(_length, value_);
+				for(int i = 0 ; i < _length ; ++i)
+					_diff[i] = value_;
 #endif
 			}
 		}

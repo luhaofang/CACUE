@@ -59,7 +59,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = (ops[ops.size() - 1])->out_data();
+			out_blob = ops.back()->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
@@ -72,7 +72,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = (ops[ops.size() - 1])->out_data();
+			out_blob = ops.back()->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
@@ -83,7 +83,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = (ops[ops.size() - 1])->out_data();
+			out_blob = ops.back()->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}

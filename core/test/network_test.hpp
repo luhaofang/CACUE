@@ -28,7 +28,7 @@ layer_block create_block(int i)
 network* create_alexnet()
 {
 	blob *b = cacu_allocator::create_blob(1, 3, 227, 227, 1, train);
-	weight *_b = new weight("test",1, 3, 227, 227,train);
+	weight *_b = new weight("test",2, 3, 227, 227,train);
 	_b->set_init_type(gaussian,1);
 #if __PARALLELTYPE__ == __GPU__
 	CUDA_PRINT(_b->s_data(),1);
