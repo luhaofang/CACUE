@@ -86,9 +86,9 @@ namespace mycnn{
 		inline virtual const void _RESET_DATA() override
 		{
 #if __PARALLELTYPE__ == __GPU__
-			cuda_setvalue<unsigned int>(_s_data,(unsigned int)(0),_length);
+			cuda_setvalue<unsigned int>(_s_data,(unsigned int)0, _length);
 			if (train == _phrase)
-				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_length);
+				cuda_refresh<float_t>(_s_diff,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
 				_data[i] = 0;
@@ -98,11 +98,11 @@ namespace mycnn{
 #endif
 		}
 
-		virtual const void _RESET_DIFF() override
+		inline virtual const void _RESET_DIFF() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)
-				cuda_setvalue<float_t>(_s_diff,(float_t)(0),_length);
+				cuda_refresh<float_t>(_s_diff,_length);
 #else
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
@@ -110,7 +110,7 @@ namespace mycnn{
 #endif
 		}
 
-		const void set_data(unsigned int value_)
+		inline const void set_data(unsigned int value_)
 		{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_setvalue<unsigned int>(_s_data,value_,_length);

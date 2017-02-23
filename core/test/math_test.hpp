@@ -19,14 +19,13 @@ void test_math()
 
 
 	network *net = create_alexnet();
-
-	for(int i = 0 ; i < 2; ++i){
-		weight *_b = new weight("test",2, 3, 227, 227,train);
-		_b->set_init_type(gaussian,1);
+	weight *_b = new weight("test",2, 3, 227, 227,train);
+	_b->set_init_type(gaussian,1);
+	for(int i = 0 ; i < 100; ++i){
 		clock_t start = clock();
 		net->predict(_b);
 		clock_t end = clock();
-		//LOG_INFO("time costs:%d",end - start);
+		LOG_INFO("time costs:%d",end - start);
 	}
 
 }

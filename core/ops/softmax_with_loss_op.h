@@ -55,7 +55,7 @@ namespace mycnn{
 			cacu_softmax(s_blob_->s_data(), s_blob_->count());
 			//CE LOSS
 
-			echo();
+			//echo();
 		}
 
 		virtual const void grad() override{
@@ -63,7 +63,7 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			//CE LOSS BACK PROPGATION
 
-			echo();
+			//echo();
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -79,7 +79,7 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		virtual const void LOOP_INIT_DATA_() override
+		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blob->_RESET_DATA();
 		}

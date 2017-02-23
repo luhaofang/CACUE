@@ -82,12 +82,11 @@ namespace mycnn{
 		inline void set_inputdata(blob_base *&blob_){  layers(0)->get_head_op()->set_blob(blob_);}
 
 		inline void predict(blob_base *blob_){
-			set_inputdata(blob_);
 			for(unsigned int i =0 ; i < _layers.size();++i){
 				clock_t start = clock();
 				_layers[i]->operate();
 				clock_t end = clock();
-				//LOG_INFO("%d time cost:%d", i ,end - start);
+				LOG_INFO("%d time cost:%d", i ,end - start);
 			}
 		}
 

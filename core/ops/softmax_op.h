@@ -53,14 +53,14 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			cacu_softmax(s_blob_->s_data(), s_blob_->count());
-			echo();
+			//echo();
 		}
 
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
-			echo();
+			//echo();
 
 		}
 
@@ -77,7 +77,7 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		virtual const void LOOP_INIT_DATA_() override
+		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			return;
 		}

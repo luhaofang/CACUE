@@ -55,7 +55,6 @@ inline DTYPE* cuda_malloc_v(int num,int length,DTYPE value)
 	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
 	vector<float_t> d(num * length,value);
 	res = cudaMemcpy((void*) (data_), (void*) (&d[0]), num * length * sizeof(DTYPE), cudaMemcpyHostToDevice);
-	vector<float_t>().swap(d);
 	CUDA_CHECK(res);
 	return data_;
 }
@@ -66,6 +65,14 @@ inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
 	vector<DTYPE> v(length,value);
 	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	CUDA_CHECK(res);
+}
+
+template<typename DTYPE>
+inline void cuda_refresh(DTYPE *data_, int length)
+{
+	float_t a = 0;
+	status = cublasSscal_v2(handle,length, &a, data_, 1);
+	CUBLAS_CHECK(status);
 }
 
 template<typename DTYPE>

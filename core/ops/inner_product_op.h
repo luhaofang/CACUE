@@ -68,7 +68,7 @@ namespace mycnn{
 				cacu_saxpy(o_blob_->p_data(i), (float_t)1, _bias->s_data(), _args->output_channel());
 			}
 
-			echo();
+			//echo();
 		}
 
 		virtual const void grad() override{
@@ -100,7 +100,7 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		virtual const void LOOP_INIT_DATA_() override
+		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blob->_RESET_DATA();
 			_w->_RESET_DIFF();

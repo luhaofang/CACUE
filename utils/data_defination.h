@@ -56,6 +56,10 @@ namespace mycnn {
 		cpu, gpu
 	};
 
+	enum regularize_type {
+			L2, L1
+	};
+
 	typedef float float_t;
 
 	typedef string chars_t;

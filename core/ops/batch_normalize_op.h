@@ -140,7 +140,7 @@ namespace mycnn{
 				}
 			}
 
-			echo();
+			//echo();
 		}
 
 		virtual const void grad() override{
@@ -184,7 +184,7 @@ namespace mycnn{
 #endif
 		}
 
-		virtual const void LOOP_INIT_DATA_() override
+		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blob->_RESET_DATA();
 
@@ -198,7 +198,8 @@ namespace mycnn{
 
 			_dim_sum->_RESET_DATA();
 
-			_x->_RESET_DATA();
+			if(train == _phrase)
+				_x->_RESET_DATA();
 
 		}
 

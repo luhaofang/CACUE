@@ -29,31 +29,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class solver : public solver_base
+	class sdg : public solver_base
 	{
 
 	public:
 
-		solver(){
+		sdg(network *&net_) : solver_base(net_){
 
+			_momentum = 0.9;
 
-		};
-
-		~solver(){
-
+			_velocities = cacu_allocator::create_blobs();
 
 		};
 
+		~sdg(){
 
-		virtual const void update_w(blob* g, weight* w) override
+			delete _velocities;
+
+		};
+
+
+		virtual const void update_weight(blob* g_, weight* w_) override
 		{
 
 		}
 
-		virtual const void crop_grad(blob* g) override
+		virtual const void crop_grad(blob* g_) override
 		{
 
 		}
+
+		inline void set_momentum(float_t momentum_){ _momentum = momentum_ ;}
+
+		inline float_t momentum(){ return _momentum;}
 
 
 	protected:
@@ -61,7 +69,9 @@ namespace mycnn{
 
 	private:
 
+		float_t _momentum;
 
+		blobs* _velocities;
 
 	};
 }

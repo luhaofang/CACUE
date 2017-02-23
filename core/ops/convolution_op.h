@@ -88,7 +88,7 @@ namespace mycnn{
 				cacu_sgemm(NOTRANS, TRANS, _w->s_data(), _w->num(), _w->length(), _col_data->p_data(i), o_blob_->width()*o_blob_->height(), o_blob_->p_data(i));
 				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
-			echo();
+			//echo();
 		}
 
 		virtual const void grad() override{
@@ -130,7 +130,7 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		virtual const void LOOP_INIT_DATA_() override
+		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blob->_RESET_DATA();
 

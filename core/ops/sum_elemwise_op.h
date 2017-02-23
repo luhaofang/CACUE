@@ -60,7 +60,7 @@ namespace mycnn{
 				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
 				cacu_saxpy(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), o_blob_->count());
 			}
-			echo();
+			//echo();
 			return;
 		}
 
@@ -72,7 +72,7 @@ namespace mycnn{
 				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
 				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 			}
-			echo();
+			//echo();
 			return;
 
 		}
@@ -90,7 +90,7 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		virtual const void LOOP_INIT_DATA_() override
+		inline virtual const void LOOP_INIT_DATA_() override
 		{
 
 		}

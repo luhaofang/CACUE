@@ -67,7 +67,7 @@ namespace mycnn{
 				rand_vector(_rand_vect->s_data(),_rand_vect->count(),_ratio);
 				cacu_ssx(_rand_vect->s_data(), o_blob_->count(), o_blob_->s_data());
 			}
-			echo();
+			//echo();
 		}
 
 		virtual const void grad() override{
@@ -84,7 +84,7 @@ namespace mycnn{
 				//ratio's scale implementation
 				cacu_scalex(s_blob_->s_diff(),o_blob_->count(),_ratio);
 			}
-			echo();
+			//echo();
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -100,7 +100,7 @@ namespace mycnn{
 			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
 		}
 
-		virtual const void LOOP_INIT_DATA_() override
+		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blob->_RESET_DATA();
 			_rand_vect->_RESET_DATA();

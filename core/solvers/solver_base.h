@@ -35,9 +35,15 @@ namespace mycnn{
 
 	public:
 
-		solver_base(){
+		solver_base(network *&net_){
 
+			_net = net_;
 
+			_global_lr = 1.0;
+
+			_global_weight_decay = 0.0;
+
+			_regularize = L2;
 
 		};
 
@@ -46,21 +52,33 @@ namespace mycnn{
 
 		};
 
+		inline void set_weight_decay(float_t weight_decay_){ _global_weight_decay = weight_decay_;}
 
-		virtual const void update_w(blob* g, weight* w) = 0;
+		inline void set_lr(float_t lr_){ _global_lr = lr_ ;}
 
-		virtual const void crop_grad(blob* g) = 0;
+		inline float_t weight_decay(){ return _global_weight_decay;}
+
+		inline float_t lr(){ return _global_lr;}
+
+		virtual const void regularize(regularize_type regularize_) = 0;
+
+		virtual const void update_weight(blob* g_, weight* w_) = 0;
+
+		virtual const void crop_grad(blob* g_) = 0;
 
 
 	protected:
 
+		float_t _global_lr;
 
+		float_t _global_weight_decay;
 
-
+		regularize_type _regularize;
 
 
 	private:
 
+		network *_net;
 
 
 	};
