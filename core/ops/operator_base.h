@@ -126,7 +126,14 @@ namespace mycnn{
 			op();
 		}
 
+		inline blob_base * get_blob(){return s_blob;}
+
+		inline void set_blob(blob_base *&blob_){ s_blob = blob_;}
+
+		inline blobs * get_blobs() {return s_blobs;}
 		
+		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
+
 
 	protected:
 

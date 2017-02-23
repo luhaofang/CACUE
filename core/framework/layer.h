@@ -89,9 +89,14 @@ namespace mycnn{
 		}
 
 		template<class OPTYPE>
-		inline OPTYPE * get_op(int i)
+		inline OPTYPE *& get_op(int i)
 		{
 			return (OPTYPE*&)ops[i];
+		}
+
+		inline operator_base * get_head_op()
+		{
+			return ops[0];
 		}
 
 		inline blob_base * get_oblob()

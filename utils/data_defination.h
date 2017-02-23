@@ -68,4 +68,4 @@ namespace mycnn {
 
 	typedef vector<float_t*> vec_f;
 
-}
+};

@@ -80,7 +80,7 @@ namespace mycnn{
 		};
 
 		virtual const void check() override{
-			//trainning for batch_size
+			//training for batch_size
 			if(train == _phrase)
 				CHECK_GT_OP(s_blob->num(),1);
 		}
@@ -101,9 +101,8 @@ namespace mycnn{
 				cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
 				//for saving space here we use o_data for container calculate x^2
 				cacu_sqr(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
-				LOG_DEBUG("%f",_dim_sum->s_data()[0]);
+
 				_dim_sum->_RESET_DATA();
-				LOG_DEBUG("%f",_dim_sum->s_data()[0]);
 				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), _dim_sum->s_data(), o_blob_->length()/o_blob_->channel());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(), _var->s_data(), o_blob_->channel());
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
@@ -141,7 +140,7 @@ namespace mycnn{
 				}
 			}
 
-			//echo();
+			echo();
 		}
 
 		virtual const void grad() override{
@@ -181,7 +180,7 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 			CUDA_PRINT(_mean->s_data(),1);
 #else
-			LOG_INFO("%f", _mean->s_data()[0]);
+			LOG_INFO("%f", (_mean)->s_data()[0]);
 #endif
 		}
 

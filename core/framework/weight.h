@@ -62,19 +62,19 @@ namespace mycnn{
 			switch (type)
 			{
 			case mycnn::constant:
-				for (int i = 0; i < _length; i++)
+				for (int i = 0; i < _length; ++i)
 					w[i] = value;
 				break;
 			case mycnn::xavier:
-				for (int i = 0; i < _length; i++)
+				for (int i = 0; i < _length; ++i)
 					w[i] = r->urand(-value, value);
 				break;
 			case mycnn::gaussian:
-				for (int i = 0; i < _length; i++)
+				for (int i = 0; i < _length; ++i)
 					w[i] = r->gaussrand(value);
 				break;
 			case mycnn::msra:
-				for (int i = 0; i < _length; i++)
+				for (int i = 0; i < _length; ++i)
 					w[i] = r->gaussrand(value);
 				break;
 			default:
@@ -84,7 +84,7 @@ namespace mycnn{
 			cuda_copy2dev(_s_data,&w[0],_length);
 			CUDA_CHECK(res);
 #else
-			for (int i = 0; i < _length; i++)
+			for (int i = 0; i < _length; ++i)
 				_s_data[i] = w[i];
 #endif
 			delete r;

@@ -44,7 +44,7 @@ namespace mycnn{
 		}
 
 		~blobs(){
-			for (unsigned int i = 0; i < size(); i++)
+			for (unsigned int i = 0; i < size(); ++i)
 				(*this)[i] = NULL;
 		}
 
