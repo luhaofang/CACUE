@@ -70,9 +70,8 @@ inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
 template<typename DTYPE>
 inline void cuda_refresh(DTYPE *data_, int length)
 {
-	float_t a = 0;
-	status = cublasSscal_v2(handle,length, &a, data_, 1);
-	CUBLAS_CHECK(status);
+	res = cudaMemset((void*) (data_),0,length);
+	CUDA_CHECK(res);
 }
 
 template<typename DTYPE>

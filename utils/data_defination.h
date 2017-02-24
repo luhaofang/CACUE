@@ -57,7 +57,7 @@ namespace mycnn {
 	};
 
 	enum regularize_type {
-			L2, L1
+		L2, L1
 	};
 
 	typedef float float_t;

@@ -81,7 +81,7 @@ namespace mycnn{
 			return;
 		}
 
-		float_t a = 0.01;
+		float_t a = 0.01f;
 
 	private:
 

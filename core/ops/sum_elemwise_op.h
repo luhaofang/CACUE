@@ -92,7 +92,7 @@ namespace mycnn{
 
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
-
+			o_blob->_RESET_DATA();
 		}
 
 	private:

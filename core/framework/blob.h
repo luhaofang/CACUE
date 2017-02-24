@@ -87,9 +87,9 @@ namespace mycnn{
 		inline virtual const void _RESET_DATA() override
 		{
 #if __PARALLELTYPE__ == __GPU__
-			cuda_refresh<float_t>(_s_data,_length);
+			cuda_refresh(_s_data,_length);
 			if (train == _phrase)
-				cuda_refresh<float_t>(_s_diff,_length);
+				cuda_refresh(_s_diff,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
 				_data[i] = 0.0;
@@ -103,7 +103,7 @@ namespace mycnn{
 		{
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)
-				cuda_refresh<float_t>(_s_diff,_length);
+				cuda_refresh(_s_diff,_length);
 #else
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
@@ -135,7 +135,7 @@ namespace mycnn{
 		}
 
 		inline virtual const int calculate_size() override{
-			return test == _phrase ? _length*sizeof(float_t) : 2 * _length*sizeof(float_t); 
+			return test == _phrase ? _length * sizeof(float_t) : 2 * _length * sizeof(float_t);
 		}
 		
 

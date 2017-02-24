@@ -61,7 +61,7 @@ namespace mycnn{
 #define CUDA_LOG(level, format,...)   \
 	if(level == "DEBUG") \
 		do{ fprintf(stderr,"[CUDA_%s][%s %s:%d] %s " format "\n",level, __TIME__, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);}while(0); \
-		else \
+	else \
 		do{ fprintf(stderr,"[CUDA_%s][%s %s:%d] " format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);} while (0)
 
 #define CUDA_DEBUG(format,...) CUDA_LOG("DEBUG",p,format,##__VA_ARGS__)
@@ -69,19 +69,20 @@ namespace mycnn{
 
 
 #define CUDA_PRINT(d_data_,length)  \
-	float *s_values; \
-	s_values = (float*)malloc(length * sizeof(float));\
-	cudaError_t res;\
-	res = cudaMemcpy((void*) (s_values), (void*) (d_data_),	length * sizeof(float), cudaMemcpyDeviceToHost);\
-	CUDA_CHECK(res);\
-	printf("[CUDA][%s %s:%d]:" , __TIME__, __FILE__, __LINE__); \
-	for(int i=0; i < length ; ++i)\
-		printf("%f,",s_values[i]);\
-	printf("\n");\
-	free(s_values);
+		_CUDA_PRINT_DATA(d_data_,length)
 
 
-
+static void _CUDA_PRINT_DATA(float_t* d_data_,int length)
+{
+	float_t *s_p = (float_t*)malloc(length * sizeof(float_t));
+	cudaError_t res = cudaMemcpy((void*) (s_p), (void*) (d_data_),	length * sizeof(float_t), cudaMemcpyDeviceToHost);
+	CUDA_CHECK(res);
+	printf("[CUDA][%s %s:%d]:" , __TIME__, __FILE__, __LINE__);
+	for(int i=0; i < length ; ++i)
+		printf("%f,",s_p[i]);
+	printf("\n");
+	free(s_p);
+}
 
 };
 

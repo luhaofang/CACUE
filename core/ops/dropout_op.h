@@ -106,7 +106,7 @@ namespace mycnn{
 			_rand_vect->_RESET_DATA();
 		}
 
-		float_t _ratio = 0.5;
+		float_t _ratio = 0.5f;
 
 	private:
 
