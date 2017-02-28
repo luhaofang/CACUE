@@ -37,7 +37,7 @@ namespace mycnn{
 	public:
 
 		operator_base(blob_base *&data, args *&args_){
-			
+
 			s_blob = data;
 			s_blobs = NULL;
 			o_blob = NULL;
@@ -57,7 +57,8 @@ namespace mycnn{
 
 		virtual ~operator_base(){
 
-			delete _args;			
+			delete _args;
+			_weights.clear();
 		};
 
 		virtual const void op() = 0;
@@ -76,7 +77,7 @@ namespace mycnn{
 
 		inline blob_base *&out_data(){ return o_blob; }
 
-		inline blobs *&in_datas(){ return s_blobs; };
+		inline blobs *&in_datas(){ return s_blobs; }
 
 		inline void set_param_init_type(param_init_type type, weight *w_, float_t value = 0.0)
 		{
@@ -118,6 +119,10 @@ namespace mycnn{
 			vec_t().swap(p_);
 		}
 
+		inline int weights_size(){ return _weights.size(); }
+
+		inline weight* get_weight(int i){ return _weights[i]; }
+
 		inline void infer()
 		{
 			//reset the data's values
@@ -147,8 +152,19 @@ namespace mycnn{
 
 		phrase_type _phrase;
 
+		vector<weight*> _weights;
+
+		//create weight push_back to weights container
+		inline weight* create_param(chars_t name,int num,int channel,int width,int height,phrase_type phrase)
+		{
+			weight *w = new weight(name,num,channel,width,height,phrase);
+			_add2op_weights(w);
+			return w;
+		}
+
 	private:
 
+		inline void _add2op_weights(weight *&w){_weights.push_back(w);}
 		
 	};
 }

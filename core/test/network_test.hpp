@@ -66,7 +66,7 @@ void test_network()
 		net << cs;
 	}
 
-	printf("%d",net.length());
+	printf("%d",net.layer_count());
 
 
 }

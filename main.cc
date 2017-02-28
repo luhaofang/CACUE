@@ -6,6 +6,7 @@
 #include "core/test/network_test.hpp"
 #include "core/test/graph_test.hpp"
 #include "core/test/math_test.hpp"
+#include "core/test/sovler_test.hpp"
 
 using namespace mycnn;
 
@@ -16,5 +17,6 @@ int main()
 	//test_op();
 	//test_network();
 	//test_graph();
-	test_math();
+	//test_math();
+	test_sovler();
 }

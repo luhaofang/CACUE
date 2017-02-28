@@ -22,6 +22,6 @@ void test_graph()
 
 	graph->run();
 
-	printf("%d", net.length());
+	printf("%d", net.layer_count());
 
 }

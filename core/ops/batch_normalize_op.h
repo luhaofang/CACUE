@@ -40,8 +40,8 @@ namespace mycnn{
 			check();
 			o_blob = cacu_allocator::create_blob(data->num(), data->channel(), data->width(), data->height(), _phrase);
 
-			_scale = new weight("scale", data->channel(), 1, 1, 1, _phrase);
-			_shift = new weight("shift", data->channel(), 1, 1, 1, _phrase);
+			_scale = create_param("scale", data->channel(), 1, 1, 1, _phrase);
+			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
 
 			_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1, _phrase);
 			_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
@@ -82,7 +82,7 @@ namespace mycnn{
 		virtual const void check() override{
 			//training for batch_size
 			if(train == _phrase)
-				CHECK_GT_OP(s_blob->num(),1);
+				CHECK_GT_OP(s_blob->num(), 1 ,"batch size for training must > 1 vs %d",s_blob->num());
 		}
 
 		virtual const void op() override {
@@ -101,9 +101,8 @@ namespace mycnn{
 				cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
 				//for saving space here we use o_data for container calculate x^2
 				cacu_sqr(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
-				CUDA_PRINT(_dim_sum->s_data(),1);
+
 				_dim_sum->_RESET_DATA();
-				CUDA_PRINT(_dim_sum->s_data(),1);
 				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), _dim_sum->s_data(), o_blob_->length()/o_blob_->channel());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(), _var->s_data(), o_blob_->channel());
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
@@ -140,8 +139,6 @@ namespace mycnn{
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 			}
-
-			//echo();
 		}
 
 		virtual const void grad() override{

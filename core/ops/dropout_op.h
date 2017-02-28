@@ -67,7 +67,6 @@ namespace mycnn{
 				rand_vector(_rand_vect->s_data(),_rand_vect->count(),_ratio);
 				cacu_ssx(_rand_vect->s_data(), o_blob_->count(), o_blob_->s_data());
 			}
-			//echo();
 		}
 
 		virtual const void grad() override{
@@ -84,7 +83,6 @@ namespace mycnn{
 				//ratio's scale implementation
 				cacu_scalex(s_blob_->s_diff(),o_blob_->count(),_ratio);
 			}
-			//echo();
 		}
 
 		virtual const void load(std::ifstream& is) override{

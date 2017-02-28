@@ -29,4 +29,4 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "solver_base.h"
-#include "sgd.h"
+#include "sgd_solver.h"

@@ -83,7 +83,7 @@ namespace mycnn{
 
 		inline float_t* s_diff(){ return _s_diff; }
 
-		inline virtual const void _RESET_DATA() override
+		virtual inline const void _RESET_DATA() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_refresh(_s_data, _length);
@@ -98,7 +98,7 @@ namespace mycnn{
 #endif
 		}
 
-		inline virtual const void _RESET_DIFF() override
+		virtual inline const void _RESET_DIFF() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)

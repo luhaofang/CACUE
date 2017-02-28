@@ -39,8 +39,8 @@ namespace mycnn{
 
 			o_blob = cacu_allocator::create_blob(data->num(), _args->output_channel(), 1, 1, _phrase);
 
-			_w = new weight("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
-			_bias = new weight("bias", _args->output_channel(), 1, 1, 1, _phrase);
+			_w = create_param("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
+			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
 
 		};
 
@@ -54,7 +54,7 @@ namespace mycnn{
 
 		virtual const void check() override{
 			//output_channel > 0
-			CHECK_GT_OP(_args->output_channel(), 0);
+			CHECK_GT_OP(_args->output_channel(), 0,"output_channel must > 0 vs %d",_args->output_channel());
 		}
 
 		virtual const void op() override {
@@ -68,7 +68,6 @@ namespace mycnn{
 				cacu_saxpy(o_blob_->p_data(i), (float_t)1, _bias->s_data(), _args->output_channel());
 			}
 
-			//echo();
 		}
 
 		virtual const void grad() override{

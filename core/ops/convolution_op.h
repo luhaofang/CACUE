@@ -44,8 +44,8 @@ namespace mycnn{
 			int output_dim = (input_dim + 2 * _args->pad() - _args->kernel_size()) / _args->stride() + 1;
 			o_blob = cacu_allocator::create_blob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 
-			_w = new weight("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
-			_bias = new weight("bias", _args->output_channel(), 1, 1, 1, _phrase);
+			_w = create_param("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
+			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
 
 			if (_args->pad() != 0)
 				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * _args->pad(), input_dim + 2 * _args->pad(), _phrase);
@@ -67,11 +67,11 @@ namespace mycnn{
 
 		virtual const void check() override{
 			//output_channel > 0
-			CHECK_GT_OP(_args->output_channel(), 0);
+			CHECK_GT_OP(_args->output_channel(), 0,"output_channel must > 0 vs %d",_args->output_channel());
 			//kernel_size > 0
-			CHECK_GT_OP(_args->kernel_size(), 0);
+			CHECK_GT_OP(_args->kernel_size(), 0,"kernel_size must > 0 vs %d",_args->kernel_size());
 			//stride > 0
-			CHECK_GT_OP(_args->stride(), 0);
+			CHECK_GT_OP(_args->stride(), 0,"stride must > 0 vs %d",_args->stride());
 		}
 
 		virtual const void op() override {

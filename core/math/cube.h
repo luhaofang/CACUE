@@ -54,8 +54,9 @@ namespace mycnn{
 		}
 
 		inline DTYPE* p_data(int z, int x, int y) {
-			CHECK_LT_OP(z*_length + x*_width + y,_length);
-			return s_data + z*_length + x*_width + y;
+			int index = z*_length + x*_width + y;
+			CHECK_LT_OP(index,_length, "index must less than cube length %d vs %d",_length, index);
+			return s_data + index;
 		}
 
 		inline int size(){ return _size; }

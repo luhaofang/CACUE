@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 
-//#include "math_utils.h"
+#include "../math/math_utils.h"
 
 using namespace std;
 
@@ -86,11 +86,19 @@ namespace mycnn{
 
 		inline phrase_type phrase(){ return _phrase; }
 
-		inline virtual const int calculate_size() = 0;
+		virtual inline const int calculate_size() = 0;
 
 		virtual const void _RESET_DATA() = 0;
 
 		virtual const void _RESET_DIFF() = 0;
+
+		inline void _CHECK_SIZE_EQ(blob_base* blob_)
+		{
+			CHECK_EQ_OP(_channel,blob_->_channel,"_channel check do not match! ( %d vs %d )",_channel,blob_->_channel);
+			CHECK_EQ_OP(_num,blob_->_num,"_num check do not match! ( %d vs %d )",_num,blob_->_num);
+			CHECK_EQ_OP(_height,blob_->_height,"_height check do not match! ( %d vs %d )",_height,blob_->_height);
+			CHECK_EQ_OP(_width,blob_->_width,"_width check do not match! ( %d vs %d )",_width,blob_->_width);
+		}
 
 
 	protected:		

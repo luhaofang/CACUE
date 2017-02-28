@@ -29,22 +29,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class sdg : public solver_base
+	class sgd_solver : public solver_base
 	{
 
 	public:
 
-		sdg(network *&net_) : solver_base(net_){
+		sgd_solver(network *&net_) : solver_base(net_){
 
-			_momentum = 0.9;
-
-			_velocities = cacu_allocator::create_blobs();
-
+			_history_v = cacu_allocator::create_blobs();
+			for(int i = 0; i < _net->op_count(); ++i)
+			{
+				operator_base* op_ = _net->get_op(i);
+				for(int j = 0; j < op_->weights_size(); ++j)
+				{
+					blob *history_w = op_->get_weight(j)->copy_create(test);
+					_history_v->push_back(history_w);
+				}
+			}
 		};
 
-		~sdg(){
+		~sgd_solver(){
 
-			delete _velocities;
+			delete _history_v;
 
 		};
 
@@ -54,14 +60,17 @@ namespace mycnn{
 
 		}
 
-		virtual const void crop_grad(blob* g_) override
-		{
-
-		}
 
 		inline void set_momentum(float_t momentum_){ _momentum = momentum_ ;}
 
-		inline float_t momentum(){ return _momentum;}
+		inline float_t momentum(){ return _momentum; }
+
+		void echo()
+		{
+			for(int i = 0; i < _history_v->size() ;++i)
+				LOG_INFO("%d,%d,%d,%d",_history_v->at(i)->num(),_history_v->at(i)->channel(),_history_v->at(i)->height(),_history_v->at(i)->width());
+		}
+
 
 
 	protected:
@@ -69,9 +78,9 @@ namespace mycnn{
 
 	private:
 
-		float_t _momentum;
+		float_t _momentum = 0.9;
 
-		blobs* _velocities;
+		blobs* _history_v;
 
 	};
 }

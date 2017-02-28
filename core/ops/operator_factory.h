@@ -60,47 +60,47 @@ namespace mycnn{
 			switch (op_name_)
 			{
 			case CACU_INNERPRODUCT:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new inner_product_op(blob_->at(0), args_);
 				break;
 			case CACU_CONVOLUTION:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new convolution_op(blob_->at(0), args_);
 				break;
 			case CACU_SUM_ELEMWISE:
-				CHECK_GE_OP(blob_->size(), 2);
+				CHECK_GE_OP(blob_->size(), 2 , "blobs size must >= 2 vs %d",blob_->size());
 				return new sum_elemwise_op(blob_, args_);
 				break;
 			case CACU_RELU:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new relu_op(blob_->at(0), args_);
 				break;
 			case CACU_BATCH_NORMALIZE:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new batch_normal_op(blob_->at(0), args_);
 				break;
 			case CACU_MAX_POOLING:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new max_pooling_op(blob_->at(0), args_);
 				break;
 			case CACU_AVERAGE_POOLING:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new average_pooling_op(blob_->at(0), args_);
 				break;
 			case CACU_DROPOUT:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new dropout_op(blob_->at(0), args_);
 				break;
 			case CACU_LEAKY_RELU:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new leaky_relu_op(blob_->at(0), args_);
 				break;
 			case CACU_SOFTMAX:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new softmax_op(blob_->at(0), args_);
 				break;
 			case CACU_SOFTMAX_LOSS:
-				CHECK_EQ_OP(blob_->size(), 1);
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new softmax_with_loss_op(blob_->at(0), args_);
 				break;
 			default:

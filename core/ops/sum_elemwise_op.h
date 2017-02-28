@@ -48,8 +48,8 @@ namespace mycnn{
 
 		virtual const void check() override{
 
-			CHECK_GT_OP(((blob*)s_blobs)->num(),0);
-			return;
+			CHECK_GE_OP(s_blobs->size(), 2 , "blobs size must >= 2 vs %d",s_blobs->size());
+
 		}
 
 		virtual const void op() override {
@@ -57,11 +57,8 @@ namespace mycnn{
 
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
 				blob *s_blob_ = (blob*)(*s_blobs)[j];
-				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
 				cacu_saxpy(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), o_blob_->count());
 			}
-			//echo();
-			return;
 		}
 
 		virtual const void grad() override{
@@ -69,12 +66,8 @@ namespace mycnn{
 
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
 				blob *s_blob_ = (blob*)(*s_blobs)[j];
-				//CHECK_EQ_OP(s_blob_->count(), o_blob->count());
 				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 			}
-			//echo();
-			return;
-
 		}
 
 		virtual const void load(std::ifstream& is) override{

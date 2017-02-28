@@ -49,27 +49,42 @@ namespace mycnn{
 
 		};
 
+		/*
+		 * Class network unlike layer & layer_block,
+		 * it maintains the abstract layer's operator entity.
+		 *
+		 */
 		network& operator <<(layer_block* const &layer_block_) {
-			for (int i = 0; i < layer_block_->length(); ++i)
+			for (int i = 0; i < layer_block_->length(); ++i){
 				_layers.push_back(layer_block_->layer_bases(i));
+				for(int j = 0; j<layer_block_->layer_bases(i)->op_count();++j)
+					_ops.push_back(layer_block_->layer_bases(i)->op(j));
+			}
 			return *this;
 		}
 
 		network& operator <<(layer_block &layer_block_) {
-			for (int i = 0; i < layer_block_.length(); ++i)
+			for (int i = 0; i < layer_block_.length(); ++i){
 				_layers.push_back(layer_block_.layer_bases(i));
+				for(int j = 0; j<layer_block_.layer_bases(i)->op_count();++j)
+					_ops.push_back(layer_block_.layer_bases(i)->op(j));
+			}
 			return *this;
 		}
 
 		network& operator <<(layer_base* const &layer_) {
 
 			_layers.push_back(layer_);
+			for(int j = 0; j<layer_->op_count();++j)
+				_ops.push_back(layer_->op(j));
 			return *this;
 		}
 
 		network& operator <<(layer_base &layer_) {
 
 			_layers.push_back(&layer_);
+			for(int j = 0; j<layer_.op_count();++j)
+				_ops.push_back(layer_.op(j));
 			return *this;
 		}
 
@@ -77,7 +92,7 @@ namespace mycnn{
 
 		inline layer_base *&layer_bases(int i){ return _layers[i]; }
 
-		inline int length(){ return _layers.size(); }
+		inline int layer_count(){ return _layers.size(); }
 
 		inline void set_inputdata(blob_base *&blob_){  layers(0)->get_head_op()->set_blob(blob_);}
 
@@ -90,9 +105,20 @@ namespace mycnn{
 			}
 		}
 
+		inline operator_base *&get_op(int i)
+		{
+			return _ops[i];
+		}
+
+		inline int op_count(){ return _ops.size(); }
+
+
+
 	private:
 
 		vector<layer_base*> _layers;
+
+		vector<operator_base*> _ops;
 
 		//blobs* _input_data;
 	};

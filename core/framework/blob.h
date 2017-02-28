@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 #include "../math/cuda/cuda_utils.h"
+#include "../math/math_utils.h"
+#include "../math/math_functions.h"
 
 
 using namespace std;
@@ -84,7 +86,7 @@ namespace mycnn{
 
 		inline float_t* s_diff(){ return _s_diff; }
 
-		inline virtual const void _RESET_DATA() override
+		virtual inline const void _RESET_DATA() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_refresh(_s_data,_length);
@@ -99,7 +101,7 @@ namespace mycnn{
 #endif
 		}
 
-		inline virtual const void _RESET_DIFF() override
+		virtual inline const void _RESET_DIFF() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)
@@ -134,10 +136,20 @@ namespace mycnn{
 			}
 		}
 
-		inline virtual const int calculate_size() override{
+		virtual inline const int calculate_size() override{
 			return test == _phrase ? _length * sizeof(float_t) : 2 * _length * sizeof(float_t);
 		}
 		
+
+		inline const void copy_blob(blob* blob_)
+		{
+			cacu_copy(blob_->s_data(),_length, _s_data);
+		}
+
+		inline blob* copy_create(phrase_type phrase_)
+		{
+			return new blob(_num, _channel, _width, _height, 0, phrase_);
+		}
 
 	protected:
 

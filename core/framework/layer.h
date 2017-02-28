@@ -59,7 +59,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = ops.back()->out_data();
+			out_blob = _ops.back()->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
@@ -72,7 +72,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = ops.back()->out_data();
+			out_blob = _ops.back()->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
@@ -83,7 +83,7 @@ namespace mycnn{
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = ops.back()->out_data();
+			out_blob = _ops.back()->out_data();
 			_output_dim = out_blob->width();
 			return this;
 		}
@@ -91,12 +91,12 @@ namespace mycnn{
 		template<class OPTYPE>
 		inline OPTYPE *& get_op(int i)
 		{
-			return (OPTYPE*&)ops[i];
+			return (OPTYPE*&)_ops[i];
 		}
 
 		inline operator_base * get_head_op()
 		{
-			return ops[0];
+			return _ops[0];
 		}
 
 		inline blob_base * get_oblob()
@@ -113,10 +113,7 @@ namespace mycnn{
 
 	protected:
 
-		inline void add_op(operator_base *op)
-		{
-			ops.push_back(op);
-		}
+
 
 	private:
 

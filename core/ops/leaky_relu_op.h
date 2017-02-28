@@ -53,14 +53,12 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			cacu_leaky_relu(s_blob_->s_data(), a, s_blob_->count());
-			//echo();
 		}
 
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			cacu_leaky_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), a, s_blob_->count());
-			//echo();
 		}
 
 		virtual const void load(std::ifstream& is) override{

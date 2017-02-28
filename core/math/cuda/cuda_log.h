@@ -69,20 +69,14 @@ namespace mycnn{
 
 
 #define CUDA_PRINT(d_data_,length)  \
-		_CUDA_PRINT_DATA(d_data_,length)
-
-
-static void _CUDA_PRINT_DATA(float_t* d_data_,int length)
-{
-	float_t *s_p = (float_t*)malloc(length * sizeof(float_t));
-	cudaError_t res = cudaMemcpy((void*) (s_p), (void*) (d_data_),	length * sizeof(float_t), cudaMemcpyDeviceToHost);
-	CUDA_CHECK(res);
-	printf("[CUDA][%s %s:%d]:" , __TIME__, __FILE__, __LINE__);
-	for(int i=0; i < length ; ++i)
-		printf("%f,",s_p[i]);
-	printf("\n");
-	free(s_p);
-}
+		float_t *s_p = (float_t*)malloc(length * sizeof(float_t));\
+		cudaError_t res = cudaMemcpy((void*) (s_p), (void*) (d_data_),	length * sizeof(float_t), cudaMemcpyDeviceToHost);\
+		CUDA_CHECK(res);\
+		printf("[CUDA][%s %s:%d]:" , __TIME__, __FILE__, __LINE__);\
+		for(int i=0; i < length ; ++i)\
+			printf("%f,",s_p[i]);\
+		printf("\n");\
+		free(s_p);
 
 };
 

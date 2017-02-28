@@ -69,19 +69,24 @@ namespace mycnn{
 		//stride size
 		int _stride = 0;
 
-		inline int op_count(){ return ops.size(); }
+		inline int op_count(){ return _ops.size(); }
 
-		inline operator_base *&op(int i){ return ops[i]; }
+		inline operator_base *&op(int i){ return _ops[i]; }
 
 		inline void operate()
 		{
-			for(unsigned int i =0 ; i < ops.size() ; ++i)
-				ops[i]->infer();
+			for(unsigned int i =0 ; i < _ops.size() ; ++i)
+				_ops[i]->infer();
 		}
 
 	protected:
 
-		vector<operator_base*> ops;
+		vector<operator_base*> _ops;
+
+		inline void add_op(operator_base *op)
+		{
+			_ops.push_back(op);
+		}
 
 	private:
 
