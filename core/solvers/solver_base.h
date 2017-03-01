@@ -58,9 +58,11 @@ namespace mycnn{
 
 		};
 
-		virtual const void update_weight(blob* g_, weight* w_) = 0;
+		virtual const void update_weight(weight* w_, int i) = 0;
 
 		void crop_grad(blob* g_){};
+
+		virtual const void train_iter(blob_base *&blob_) = 0;
 
 
 	protected:

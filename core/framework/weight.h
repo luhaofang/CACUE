@@ -47,11 +47,11 @@ namespace mycnn{
 
 		inline void set_lr(float_t lr_){ _update_lr = lr_; }
 
-		inline float_t get_lr(){ return _update_lr; }
+		inline float_t lr(){ return _update_lr; }
 
 		inline void set_decay(float_t decay_mult_){_decay_mult = decay_mult_; }
 
-		inline float_t get_decay(){ return _decay_mult; }
+		inline float_t decay(){ return _decay_mult; }
 
 		~weight(){};
 

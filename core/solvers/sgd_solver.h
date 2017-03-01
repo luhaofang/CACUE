@@ -54,12 +54,41 @@ namespace mycnn{
 
 		};
 
-
-		virtual const void update_weight(blob* g_, weight* w_) override
+		/**
+		 *
+		 * update weight value
+		 * where i is the weight index in _history_v
+		 */
+		virtual const void update_weight(weight* w_, int i) override
 		{
-
+			for (int i = 0; i < w_->num(); ++i)
+			{
+				float_t a = _global_weight_decay * w_->lr() * _global_lr;
+				float_t b = w_->lr() * _global_lr;
+				cacu_saxpby(w_->p_data(i), a, w_->p_diff(i),b,w_->length());
+				cacu_saxpby(((blob*)_history_v->at(i))->p_data(i), _momentum,((blob*)_history_v->at(i))->p_data(i),(float_t)(-1),w_->length());
+				cacu_saxpy(w_->p_data(i),(float_t)1,((blob*)_history_v->at(i))->p_data(i),w_->length());
+			}
 		}
 
+		virtual const void train_iter(blob_base *&blob_) override
+		{
+			_net->predict(blob_);
+
+			for(int i = 0 ; i < _net->op_count();++i)
+			{
+				_net->get_op(i)->grad();
+			}
+
+			for(int i = 0 ; i < _net->op_count();++i)
+			{
+				operator_base* op_ = _net->get_op(i);
+				for(int j = 0; j < op_->weights_size(); ++j)
+				{
+					update_weight(op_->get_weight(j),i);
+				}
+			}
+		}
 
 		inline void set_momentum(float_t momentum_){ _momentum = momentum_ ;}
 
