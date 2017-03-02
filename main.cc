@@ -7,9 +7,9 @@
 #include "core/test/graph_test.hpp"
 #include "core/test/math_test.hpp"
 #include "core/test/sovler_test.hpp"
+#include "core/test/iotools_test.hpp"
 
 using namespace mycnn;
-
 
 int main()
 {
@@ -18,5 +18,7 @@ int main()
 	//test_network();
 	//test_graph();
 	//test_math();
-	test_sovler();
+	//test_sovler();
+	test_iotools();
+
 }

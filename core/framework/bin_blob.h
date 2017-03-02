@@ -91,7 +91,7 @@ namespace mycnn{
 				cuda_refresh(_s_diff,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
-				_data[i] = 0;inline
+				_data[i] = 0;
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
 					_diff[i] = 0.0;

@@ -151,6 +151,7 @@ namespace mycnn{
 			return new blob(_num, _channel, _width, _height, 0, phrase_);
 		}
 
+
 	protected:
 
 #if __PARALLELTYPE__ != __GPU__

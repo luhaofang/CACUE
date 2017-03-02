@@ -55,7 +55,6 @@ namespace mycnn{
 		};
 
 		/**
-		 *
 		 * update weight value
 		 * where i is the weight index in _history_v
 		 */
@@ -63,7 +62,7 @@ namespace mycnn{
 		{
 			for (int i = 0; i < w_->num(); ++i)
 			{
-				float_t a = _global_weight_decay * w_->lr() * _global_lr;
+				float_t a = w_->decay() * _global_weight_decay * w_->lr() * _global_lr;
 				float_t b = w_->lr() * _global_lr;
 				cacu_saxpby(w_->p_data(i), a, w_->p_diff(i),b,w_->length());
 				cacu_saxpby(((blob*)_history_v->at(i))->p_data(i), _momentum,((blob*)_history_v->at(i))->p_data(i),(float_t)(-1),w_->length());
