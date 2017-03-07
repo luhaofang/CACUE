@@ -100,8 +100,8 @@ namespace mycnn{
 				return new softmax_op(blob_->at(0), args_);
 				break;
 			case CACU_SOFTMAX_LOSS:
-				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
-				return new softmax_with_loss_op(blob_->at(0), args_);
+				CHECK_EQ_OP(blob_->size(), 2 , "blobs size must == 2 vs %d",blob_->size());
+				return new softmax_with_loss_op(blob_, args_);
 				break;
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);

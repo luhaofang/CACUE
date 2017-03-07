@@ -17,8 +17,8 @@ int main()
 	//test_op();
 	//test_network();
 	//test_graph();
-	//test_math();
+	test_math();
 	//test_sovler();
-	test_iotools();
+	//test_iotools();
 
 }

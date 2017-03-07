@@ -27,64 +27,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+
+#include "cuda/loss_functions_cuda.h"
+
 namespace mycnn{
 
-	class softmax_op : public operator_base
+	/**
+	 * @cacu_cross_entropy
+	 * math x[i] = max(0,x[i]) :
+	 * for loss use cross entropy functions.
+	 */
+	inline void cacu_cross_entropy(float_t *x, unsigned int *label_, float_t loss_)
 	{
 
-	public:
+#if __PARALLELTYPE__ == __GPU__
+		cacu_cross_entropy_gpu(x,label_,loss_);
+#else
+		loss_ -= log(x[*label_])
+#endif
 
-		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_){
-			check();
-
-			o_blob = data;
-
-		};
-
-		~softmax_op(){
-
-		};
-
-		virtual const void check() override{
-			return;
-		}
-
-		virtual const void op() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_softmax(s_blob_->p_data(i), s_blob_->length());
-			//echo();
-		}
-
-		virtual const void grad() override{
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-
-			//echo();
-
-		}
-
-		virtual const void load(std::ifstream& is) override{
-
-		}
-
-		virtual const void save(std::ostream& os) override{
-
-		}
-
-		virtual const void echo() override
-		{
-			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
-		}
-
-		inline virtual const void LOOP_INIT_DATA_() override
-		{
-			return;
-		}
-
-	private:
+	}
 
 
-	};
+
 };

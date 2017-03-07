@@ -78,5 +78,7 @@ inline void cacu_copy_gpu(float_t *x, int x_length,float_t *y)
 	CUBLAS_CHECK(status);
 }
 
+extern "C" void cacu_isaxb_gpu(float_t *x, int length, float_t a ,unsigned int *index_, float_t b, float_t *y);
+
 
 #endif

@@ -34,10 +34,11 @@ namespace mycnn{
 
 	public:
 
-		softmax_with_loss_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		softmax_with_loss_op(blobs *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-			o_blob = cacu_allocator::create_blob(data->num(), _args->output_channel(), 1, 1, _phrase);
+			blob_base *_blob = data->at(0);
+			o_blob = cacu_allocator::create_blob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
 
 		};
 
@@ -51,18 +52,29 @@ namespace mycnn{
 
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			cacu_softmax(s_blob_->s_data(), s_blob_->count());
-			//CE LOSS
-
-			//echo();
+			blob *s_blob_ = (blob*)s_blobs->at(0);
+			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+			_loss = 0.0;
+			for(int i = 0 ; i < s_blob_->num(); ++i)
+			{
+				cacu_softmax(s_blob_->p_data(i), s_blob_->length());
+				//CE LOSS
+				cacu_cross_entropy(s_blob_->p_data(i),labels_->p_data(i),_loss);
+			}
+			_loss *= normalizer();
+			echo();
 		}
 
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
+			blob *s_blob_ = (blob*)s_blobs->at(0);
+			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 			//CE LOSS BACK PROPGATION
-
+			for (int i = 0 ; i < s_blob_->num() ; ++i)
+			{
+				cacu_isaxb(s_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
+				cacu_scalex(s_blob_->p_diff(i),normalizer(),s_blob_->num());
+			}
 			//echo();
 		}
 
@@ -76,7 +88,7 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+			LOG_INFO("%f", _loss);
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override
@@ -84,8 +96,15 @@ namespace mycnn{
 			o_blob->_RESET_DATA();
 		}
 
+		float_t normalizer()
+		{
+			return _loss_weight * ((float_t)1/s_blob->num());
+		}
+
 	private:
 
+		float_t _loss = 0;
 
+		float_t _loss_weight = 1.0;
 	};
 };

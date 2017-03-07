@@ -35,7 +35,7 @@ namespace mycnn{
 
 	public:
 
-		sum_elemwise_op(blobs *&data, args *&args) : operator_base(data, args){
+		sum_elemwise_op(blobs *&data, args *&args_) : operator_base(data, args_){
 			check();
 
 			blob_base *_blob = data->at(0);

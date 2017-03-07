@@ -166,5 +166,21 @@ inline void rand_vector(float_t *vector_, int length, float_t ratio_)
 }
 
 
+/**
+ * @cacu_isaxdb
+ * y[index] = x[index]*a + b
+ */
+inline void cacu_isaxb(float_t *x, int length, float_t a ,unsigned int *index_, float_t b, float_t *y)
+{
+#if __PARALLELTYPE__ == __GPU__
+	cacu_isaxb_gpu(x,length, a, index_, b, y);
+#else
+	for (int i = 0 ; i < length ; ++i)
+		y[i] = x[i];
+	y[*index_] = a*x[*index_] + b;
+#endif
+}
+
+
 
 };

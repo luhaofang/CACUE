@@ -53,7 +53,6 @@ using namespace cv;
 
 
 using namespace std;
-
 using namespace mycnn;
 
 
@@ -74,14 +73,15 @@ namespace mycnn_tools{
 
 		};
 
-		static void imread(float_t *&p_data,chars_t file_path_)
+		static void imread(float_t *p_data,chars_t file_path_)
 		{
-			Mat src = imread((file_path_), IMREAD_COLOR);
+			/*
+			Mat src = cv::imread(file_path_, IMREAD_COLOR);
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;
 
-			vec_t tmp_(3*height*width);
+			vec_t tmp_(3*c_length);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
@@ -90,6 +90,12 @@ namespace mycnn_tools{
 					tmp_[c_length + index] = ((float_t) src.at<Vec3b>(y, x)[1]);
 					tmp_[2*c_length + index] = ((float_t) src.at<Vec3b>(y, x)[2]);
 				}
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(p_data,&tmp_[0],tmp_.size());
+#else
+			cacu_copy(&tmp_[0],tmp_.size(),p_data);
+#endif
+			*/
 		}
 
 		static inline void mean_center(float_t *p_data, float_t *mean_dim_, int length_)

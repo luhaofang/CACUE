@@ -25,66 +25,33 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
-
-namespace mycnn{
-
-	class softmax_op : public operator_base
-	{
-
-	public:
-
-		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_){
-			check();
-
-			o_blob = data;
-
-		};
-
-		~softmax_op(){
-
-		};
-
-		virtual const void check() override{
-			return;
-		}
-
-		virtual const void op() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_softmax(s_blob_->p_data(i), s_blob_->length());
-			//echo();
-		}
-
-		virtual const void grad() override{
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-
-			//echo();
-
-		}
-
-		virtual const void load(std::ifstream& is) override{
-
-		}
-
-		virtual const void save(std::ostream& os) override{
-
-		}
-
-		virtual const void echo() override
-		{
-			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
-		}
-
-		inline virtual const void LOOP_INIT_DATA_() override
-		{
-			return;
-		}
-
-	private:
+#include "cuda_log.h"
 
 
-	};
-};
+/*
+ *channel: channel of input data
+ *kernel_size: pooling window size
+ *input_dim: width of input data
+ *output_dim: width of output data
+ */
+__global__ void _k_CACU_CROSS_ENTROPY_GPU(float_t *x, unsigned int *label_, float_t loss_) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	if(threadid == 0)
+		loss_ -= log(x[*label_]);
+}
+
+
+extern "C" void cacu_cross_entropy_gpu(float_t *x, unsigned int *label_, float_t loss_){
+
+	_k_CACU_CROSS_ENTROPY_GPU<<<1, 1, 0>>>(x, label_,loss_);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
+
+
