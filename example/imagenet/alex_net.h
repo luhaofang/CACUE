@@ -25,28 +25,42 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
 
 
-#include "cuda/loss_functions_cuda.h"
+#include "mycnn.h"
 
-namespace mycnn{
+#include <time.h>
 
-	/**
-	 * @cacu_cross_entropy
-	 * math x[i] = max(0,x[i]) :
-	 * for loss use cross entropy functions.
-	 */
-	inline void cacu_cross_entropy(float_t *x, unsigned int *label_, float_t loss_)
-	{
+using namespace mycnn;
 
+
+network* create_alexnet()
+{
+	blob *b = cacu_allocator::create_blob(1, 3, 227, 227, 1, train);
+	weight *_b = new weight("test",2, 3, 227, 227,train);
+	_b->set_init_type(gaussian,1);
 #if __PARALLELTYPE__ == __GPU__
-		cacu_cross_entropy_gpu(x,label_,loss_);
+	CUDA_PRINT(_b->s_data(),1);
 #else
-		loss_ -= log(x[*label_]);
+	LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);
 #endif
-	}
+	network *net = new network();
 
+	layer_block *conv1 = conv_layer_maxpooling(_b, 96, 11, 4, 2);
+	LOG_DEBUG("conv1");
+	layer_block *conv2 = conv_layer_maxpooling((blob*)conv1->get_oblob(), 256, 5, 1, 2);
+	LOG_DEBUG("conv2");
+	layer_block *conv3 = conv_layer_nopooling((blob*)conv2->get_oblob(), 384, 3, 1, 1);
+	LOG_DEBUG("conv3");
+	layer_block *conv4 = conv_layer_nopooling((blob*)conv3->get_oblob(), 384, 3, 1, 1);
+	LOG_DEBUG("conv4");
+	layer_block *conv5 = conv_layer_maxpooling((blob*)conv4->get_oblob(), 256, 3, 1, 1);
+	LOG_DEBUG("conv5");
+	layer_block *fc6 = fc_layer((blob*)conv5->get_oblob(),4096);
+	LOG_DEBUG("fc6");
+	layer_block *fc7 = fc_layer((blob*)fc6->get_oblob(),4096);
+	LOG_DEBUG("fc7");
+	*net << conv1 << conv2 << conv3 << conv4 << conv5 << fc6 << fc7;
 
-
-};
+	return net;
+}

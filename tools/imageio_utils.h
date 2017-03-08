@@ -47,13 +47,18 @@ using namespace cv;
 #endif
 
 
-#include "../mycnn.h"
-#include "../core/math/math_functions.h"
+//#include "../mycnn.h"
+//#include "../core/math/math_functions.h"
+
+#include <ostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
 #include "../core/math/cuda/cuda_utils.h"
 
 
 using namespace std;
-using namespace mycnn;
 
 
 namespace mycnn_tools{
@@ -63,17 +68,7 @@ namespace mycnn_tools{
 
 	public:
 
-		imageio_utils(){
-
-
-		};
-
-		~imageio_utils(){
-
-
-		};
-
-		static void imread(float_t *p_data,chars_t file_path_)
+		static void imread(float *p_data,string file_path_)
 		{
 			/*
 			Mat src = cv::imread(file_path_, IMREAD_COLOR);
@@ -86,9 +81,9 @@ namespace mycnn_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					tmp_[index] = ((float_t) src.at<Vec3b>(y, x)[0]);
-					tmp_[c_length + index] = ((float_t) src.at<Vec3b>(y, x)[1]);
-					tmp_[2*c_length + index] = ((float_t) src.at<Vec3b>(y, x)[2]);
+					tmp_[index] = ((float) src.at<Vec3b>(y, x)[0]);
+					tmp_[c_length + index] = ((float) src.at<Vec3b>(y, x)[1]);
+					tmp_[2*c_length + index] = ((float) src.at<Vec3b>(y, x)[2]);
 				}
 #if __PARALLELTYPE__ == __GPU__
 			cuda_copy2dev(p_data,&tmp_[0],tmp_.size());
@@ -98,53 +93,53 @@ namespace mycnn_tools{
 			*/
 		}
 
-		static inline void mean_center(float_t *p_data, float_t *mean_dim_, int length_)
-		{
-			cacu_saxpy(mean_dim_,(float_t)-1,p_data,length_);
-		}
-
-		static void save_mean_file(float_t *p_data, chars_t mean_file_ , int length_)
+		static void save_mean_file(float *p_data, string mean_file_ , int length_)
 		{
 			ofstream os(mean_file_, ios::binary);
-			os.precision(numeric_limits<float_t>::digits10);
+			os.precision(numeric_limits<float>::digits10);
 
 #if __PARALLELTYPE__ == __GPU__
-			vec_t a(length_);
+			vector<float> a(length_);
 			cuda_copy2host(&a[0],p_data,length_);
-			float_t *d_ = &a[0];
+			float *d_ = &a[0];
 			for(int i = 0 ; i < length_; ++i)
 			{
-				os.write((char*)(d_+i), sizeof(float_t));
+				os.write((char*)(d_+i), sizeof(float));
 			}
 #else
 			for(int i = 0 ; i < length_; ++i)
 			{
-				os.write((char*)(p_data+i), sizeof(float_t));
+				os.write((char*)(p_data+i), sizeof(float));
 			}
 #endif
 			os.close();
 		}
 
-		static void load_mean_file(float_t *p_data, chars_t mean_file_)
+		static void load_mean_file(float *p_data, string mean_file_)
 		{
 			ifstream is(mean_file_);
-			is.precision(numeric_limits<float_t>::digits10);
+			is.precision(numeric_limits<float>::digits10);
 
-			vec_t temp_;
-			float_t fp_;
+			vector<float> temp_;
+			float fp_;
 
 			for(int i = 0 ;is.peek()!=EOF ;++i)
 			{
-				is.read(reinterpret_cast<char*>(&fp_), sizeof(float_t));
+				is.read(reinterpret_cast<char*>(&fp_), sizeof(float));
 				temp_.push_back(fp_);
 			}
 			is.close();
 
-			float_t *d_= &temp_[0];
+			float *d_= &temp_[0];
 #if __PARALLELTYPE__ == __GPU__
 			cuda_copy2dev(p_data, d_, temp_.size());
 #else
-			cacu_copy(d_,temp_.size(),p_data);
+
+	#ifdef _WIN32
+			memcpy_s(p_data,&temp_[0],temp_.size()*sizeof(float));
+	#elif linux
+			memcpy(p_data,&temp_[0],temp_.size()*sizeof(float));
+	#endif
 #endif
 		}
 

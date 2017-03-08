@@ -45,6 +45,36 @@ namespace mycnn{
 		return lb;
 	}
 
+	layer_block* conv_layer_avgpooling(blob* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = CACU_RELU)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+		l->op(CACU_CONVOLUTION, data);
+		l->get_op<convolution_op>(0)->set_weight_init_type(msra);
+		layer *al = new layer(output_channel, 3, 2);
+		al->op(CACU_AVERAGE_POOLING, (blob*)l->get_oblob())->op(activation_op);
+		clock_t end = clock();
+		LOG_INFO("time cost :%d", (end - start));
+		*lb << l << al;
+		return lb;
+	}
+
+	layer_block* conv_layer_avgpooling_relu_first(blob* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = CACU_RELU)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+		l->op(CACU_CONVOLUTION, data)->op(activation_op);
+		l->get_op<convolution_op>(0)->set_weight_init_type(msra);
+		layer *al = new layer(output_channel, 3, 2);
+		al->op(CACU_AVERAGE_POOLING, (blob*)l->get_oblob());
+		clock_t end = clock();
+		LOG_INFO("time cost :%d", (end - start));
+		*lb << l << al;
+		return lb;
+	}
+
 	layer_block* conv_layer_nopooling(blob* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
 	{
 		layer_block *lb = new layer_block();

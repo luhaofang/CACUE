@@ -1,0 +1,106 @@
+/*
+Copyright (c) 2016, David lu
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+* Neither the name of the <organization> nor the
+names of its contributors may be used to endorse or promote products
+derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+
+#include <time.h>
+
+#include "../../mycnn.h"
+
+#include "../../tools/imageio_utils.h"
+
+
+using namespace mycnn;
+using namespace mycnn_tools;
+
+
+const int kCIFARImageNBytes = 3072;
+const int kCIFARBatchSize = 10000;
+const int kCIFARDataSize = 1024;
+const int kCIFARDataCount = 50000;
+
+void readdata(chars_t filename, vector<vec_t> &data_blob) {
+	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
+	float_t *snp;
+	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
+		char label_char;
+		data_file.read(&label_char, 1);
+		char buffer[kCIFARImageNBytes];
+		data_file.read(buffer, kCIFARImageNBytes);
+		vec_t datas(kCIFARImageNBytes);
+		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
+			datas[j] = (float_t) ((unsigned char) (buffer[j]));
+			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j
+					+ kCIFARDataSize]));
+			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j
+					+ 2 * kCIFARDataSize]));
+		}
+		LOG_DEBUG("%f",datas[0]);
+		data_blob.push_back(datas);
+	}
+}
+
+vec_t compute_mean(chars_t &filepath, int filecount)
+{
+	vector<vec_t> mean_data;
+	vec_t mean(kCIFARImageNBytes);
+
+	//calculate mean
+	for (int i = 1; i <= filecount; i++) {
+		ostringstream oss;
+		oss << filepath << "data_batch_" << i << ".bin";
+		readdata((oss.str()), mean_data);
+	}
+
+	float_t length = (float_t) mean_data.size();
+
+	for (unsigned int i = 0; i < mean_data.size(); i++) {
+		cacu_saxpy(&mean_data[i][0], 1, &mean[0],kCIFARImageNBytes);
+	}
+
+	cacu_scalex(&mean[0],kCIFARImageNBytes,(float)1.0/length);
+	return mean;
+}
+
+inline void mean_center(float_t *p_data, float_t *mean_dim_, int length_)
+{
+	cacu_saxpy(mean_dim_,(float_t)-1,p_data,length_);
+}
+
+void make_mean(chars_t filepath, chars_t meanfile)
+{
+	vec_t mean = compute_mean(filepath,5);
+	LOG_DEBUG("%f,%f",mean[0],mean[24]);
+	imageio_utils::save_mean_file(&mean[0],meanfile,mean.size());
+}
+
+
+
+
+
+
+
+

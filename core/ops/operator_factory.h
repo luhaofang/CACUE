@@ -52,7 +52,7 @@ namespace mycnn{
 
 	class operator_factory
 	{
-	
+
 	public:	
 
 		static operator_base *create_op(op_name op_name_, blobs *&blob_, args *&args_){
