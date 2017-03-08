@@ -55,7 +55,7 @@ namespace mycnn{
 
 	public:	
 
-		static operator_base *create_op(op_name op_name_, blobs *&blob_, args *&args_){
+		static operator_base* const create_op(op_name op_name_, blobs *&blob_, args *&args_){
 
 			switch (op_name_)
 			{

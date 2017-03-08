@@ -52,11 +52,10 @@ namespace mycnn{
 				CUDA_CHECK(res);
 			}
 #else
-			_data.resize(_length, _value);
-			_s_data = &_data[0];
+			_s_data = (float_t*)malloc(_length * sizeof(float_t));
+			set_data(_value);
 			if (train == phrase){
-				_diff.resize(_length);
-				_s_diff = &_diff[0];
+				_s_diff = (float_t*)malloc(_length * sizeof(float_t));
 			}
 #endif
 
@@ -68,9 +67,9 @@ namespace mycnn{
 			if(train == _phrase)
 				cuda_free<float_t>(_s_diff);
 #else
-			vec_t().swap(_data);
+			free(_s_data);
 			if (train == _phrase)
-				vec_t().swap(_diff);
+				free(_s_diff);
 #endif
 		}
 
@@ -86,7 +85,7 @@ namespace mycnn{
 
 		inline float_t* s_diff(){ return _s_diff; }
 
-		virtual inline const void _RESET_DATA() override
+		inline virtual const void _RESET_DATA() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_refresh(_s_data,_length);
@@ -94,14 +93,14 @@ namespace mycnn{
 				cuda_refresh(_s_diff,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
-				_data[i] = 0.0;
+				_s_data[i] = 0.0;
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
-					_diff[i] = 0.0;
+					_s_diff[i] = 0.0;
 #endif
 		}
 
-		virtual inline const void _RESET_DIFF() override
+		inline virtual const void _RESET_DIFF() override
 		{
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)
@@ -109,7 +108,7 @@ namespace mycnn{
 #else
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
-					_diff[i] = 0.0;
+					_s_diff[i] = 0.0;
 #endif
 		}
 
@@ -119,7 +118,7 @@ namespace mycnn{
 			cuda_setvalue<float_t>(_s_data,value_,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
-				_data[i] = value_;
+				_s_data[i] = value_;
 #endif
 		}
 
@@ -131,7 +130,7 @@ namespace mycnn{
 				cuda_setvalue<float_t>(_s_diff,value_,_length);
 #else
 				for(int i = 0 ; i < _length ; ++i)
-					_diff[i] = value_;
+					_s_diff[i] = value_;
 #endif
 			}
 		}
@@ -158,19 +157,12 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_copy2dev(p_data(i), &data_[0], _cube_length);
 #else
-			cacu_copy(blob_->p_data(i),_cube_length, _&data_[0]);
+			cacu_copy(p_data(i),_cube_length, &data_[0]);
 #endif
 		}
 
 
 	protected:
-
-#if __PARALLELTYPE__ != __GPU__
-		vec_t _data;
-
-		vec_t _diff;
-
-#endif
 
 		float_t *_s_data;
 

@@ -61,7 +61,10 @@ namespace mycnn{
 			for (int b = 0; b < height; ++b){
 				xp = x + b*width;
 				for (int i = 0; i < width; ++i)
+				{
 					y[i] += xp[i];
+					//LOG_DEBUG("%d:%d",b,i);
+				}
 			}
 		}
 #endif

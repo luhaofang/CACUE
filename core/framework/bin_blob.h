@@ -49,11 +49,10 @@ namespace mycnn{
 				CUDA_CHECK(res);
 			}
 #else
-			_data.resize(_length, _value);
-			_s_data = &_data[0];
+			_s_data = (unsigned int*)malloc(_length * sizeof(unsigned int));
+			set_data(_value);
 			if (train == phrase){
-				_diff.resize(_length);
-				_s_diff = &_diff[0];
+				_s_diff = (float_t*)malloc(_length * sizeof(float_t));
 			}
 #endif
 
@@ -65,9 +64,9 @@ namespace mycnn{
 			if(train == _phrase)
 				cuda_free<float_t>(_s_diff);
 #else
-			vec_i().swap(_data);
+			free(_s_data);
 			if (train == _phrase)
-				vec_t().swap(_diff);
+				free(_s_diff);
 #endif
 		}
 
@@ -91,10 +90,10 @@ namespace mycnn{
 				cuda_refresh(_s_diff,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
-				_data[i] = 0;
+				_s_data[i] = 0;
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
-					_diff[i] = 0.0;
+					_s_diff[i] = 0.0;
 #endif
 		}
 
@@ -106,7 +105,7 @@ namespace mycnn{
 #else
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
-					_diff[i] = 0.0;
+					_s_diff[i] = 0.0;
 #endif
 		}
 
@@ -116,7 +115,7 @@ namespace mycnn{
 			cuda_setvalue<unsigned int>(_s_data,value_,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
-				_data[i] = value_;
+				_s_data[i] = value_;
 #endif
 		}
 
@@ -128,7 +127,7 @@ namespace mycnn{
 				cuda_setvalue<float_t>(_s_diff, value_,_length);
 #else
 				for(int i = 0 ; i < _length ; ++i)
-					_diff[i] = value_;
+					_s_diff[i] = value_;
 #endif
 			}
 		}
@@ -150,14 +149,6 @@ namespace mycnn{
 
 
 	protected:
-
-#if __PARALLELTYPE__ != __GPU__
-
-		vec_i _data;
-
-		vec_t _diff;
-
-#endif
 
 		unsigned int *_s_data;
 

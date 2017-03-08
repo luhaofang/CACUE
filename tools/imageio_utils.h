@@ -46,10 +46,6 @@ using namespace cv;
 
 #endif
 
-
-//#include "../mycnn.h"
-//#include "../core/math/math_functions.h"
-
 #include <ostream>
 #include <fstream>
 #include <sstream>

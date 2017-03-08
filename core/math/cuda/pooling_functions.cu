@@ -39,6 +39,7 @@ __global__ void _k_CACU_MAX_POOLING_GPU(float_t *x, int kernel_size, int stride,
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
+
 	int threadid = bid * THREADNUM + tid;
 	int start_in, in ;
 	int c;
@@ -72,7 +73,7 @@ __global__ void _k_CACU_MAX_POOLING_GPU(float_t *x, int kernel_size, int stride,
 
 extern "C" void cacu_max_pooling_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index){
 
-	_k_CACU_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
+	_k_CACU_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, kernel_size*kernel_size*sizeof(float_t)>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 

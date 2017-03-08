@@ -64,8 +64,13 @@ namespace mycnn{
 				//CE LOSS use o_blob[0] to store loss
 				cacu_cross_entropy(s_blob_->p_data(i),labels_->p_data(i),o_blob_->s_data());
 			}
+#if __PARALLELTYPE__ == __GPU__
 			cuda_copy2host(_loss,o_blob_->s_data(),1);
+#else
+			cacu_copy(o_blob_->s_data(),1 ,_loss);
+#endif
 			_loss[0] *= normalizer();
+
 			//echo();
 		}
 
@@ -97,7 +102,8 @@ namespace mycnn{
 
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
-			o_blob->_RESET_DATA();
+			blob *o_blob_ = (blob*)o_blob;
+			o_blob_->_RESET_DATA();
 		}
 
 		float_t normalizer()

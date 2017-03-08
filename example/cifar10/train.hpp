@@ -38,7 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 128;
+	int batch_size = 100;
 
 	int max_iter = 5000;
 
@@ -57,9 +57,10 @@ void train_net()
 	bin_blob *input_label = cacu_allocator::create_bin_blob(batch_size,1,1,1,train);
 
 	int step_index = 0;
-
+	clock_t start,end;
 	for (int i = 0 ; i < max_iter; ++i)
 	{
+		start = clock();
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARDataCount)
@@ -69,9 +70,10 @@ void train_net()
 			step_index += 1;
 		}
 		sgd->train_iter(input_data,input_label);
+		end = clock();
 
-		if(i % 20 == 0){
-			LOG_INFO("iter_%d", i);
+		if(i % 100 == 0){
+			LOG_INFO("iter_%d , %d ms/iter", i, (end-start)/1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
 	}

@@ -155,16 +155,16 @@ namespace mycnn{
 		vector<weight*> _weights;
 
 		//create weight push_back to weights container
-		inline weight* create_param(chars_t name,int num,int channel,int width,int height,phrase_type phrase)
+		inline weight* const create_param(chars_t name,int num,int channel,int width,int height,phrase_type phrase)
 		{
-			weight *w = new weight(name,num,channel,width,height,phrase);
-			_add2op_weights(w);
-			return w;
+			weight* w_ = new weight(name,num,channel,width,height,phrase);
+			_add2op_weights(w_);
+			return w_;
 		}
 
 	private:
 
-		inline void _add2op_weights(weight *&w){_weights.push_back(w);}
-		
+		inline void _add2op_weights(weight *w){_weights.push_back(w);}
+
 	};
 }

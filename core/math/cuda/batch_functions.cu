@@ -107,7 +107,7 @@ __global__ void _k_CACU_CXSIZE_GPU(float_t *x, int length, float_t *a, int size,
 	int block_size = length / size;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = x[i]*a[i / block_size];
+		y[i] = x[i] * a[i / block_size];
 	}
 }
 
