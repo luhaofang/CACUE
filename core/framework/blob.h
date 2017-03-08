@@ -43,7 +43,7 @@ namespace mycnn{
 	public:
 
 		blob(int num, int channel, int width, int height, float_t _value, phrase_type phrase)
-			:blob_base(num, channel, width, height, phrase){
+			:blob_base(num, channel, width, height, phrase, __blob__){
 #if __PARALLELTYPE__ == __GPU__
 			_s_data = cuda_malloc_v<float_t>(_num,_cube_length, _value);
 			CUDA_CHECK(res);
@@ -143,12 +143,23 @@ namespace mycnn{
 
 		inline const void copy_blob(blob* blob_)
 		{
+			CHECK_EQ_OP(blob_->count(),_length,"blob size must be equal! %d vs %d",blob_->count(),_length);
 			cacu_copy(blob_->s_data(),_length, _s_data);
 		}
 
 		inline blob* copy_create(phrase_type phrase_)
 		{
 			return new blob(_num, _channel, _width, _height, 0, phrase_);
+		}
+
+		inline const void copy_data_io(vec_t data_, int i)
+		{
+			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(p_data(i), &data_[0], _cube_length);
+#else
+			cacu_copy(blob_->p_data(i),_cube_length, _&data_[0]);
+#endif
 		}
 
 

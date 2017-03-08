@@ -40,7 +40,7 @@ namespace mycnn{
 	public:
 
 		bin_blob(int num, int channel, int width, int height, unsigned int _value, phrase_type phrase)
-			:blob_base(num, channel, width, height, phrase){
+			:blob_base(num, channel, width, height, phrase, __bin_blob__){
 #if __PARALLELTYPE__ == __GPU__
 			_s_data = cuda_malloc_v<unsigned int>(_num,_cube_length, _value);
 			CUDA_CHECK(res);
@@ -135,6 +135,17 @@ namespace mycnn{
 
 		inline virtual const int calculate_size() override{
 			return test == _phrase ? _length*sizeof(unsigned int) : _length*sizeof(unsigned int) + _length*sizeof(float_t);
+		}
+
+		inline const void copy_data_io(vec_i data_ , int i)
+		{
+			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(p_data(i),&data_[0],_cube_length);
+#else
+			for(int j = 0 ; j < _cube_length ; ++j)
+				p_data(i)[j] = data_[j];
+#endif
 		}
 
 

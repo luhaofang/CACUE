@@ -42,11 +42,15 @@ namespace mycnn{
 	}spatial3D;
 
 
+	enum blob_type{
+		__blob__, __bin_blob__
+	};
+
 	class blob_base{
 
 	public:
 
-		blob_base(int num, int channel, int width, int height, phrase_type phrase){
+		blob_base(int num, int channel, int width, int height, phrase_type phrase , blob_type type){
 			
 			_width = width;
 			_height = height;
@@ -55,6 +59,7 @@ namespace mycnn{
 			_cube_length = channel*width*height;
 			_length = _num*_cube_length;
 			_phrase = phrase;
+			_blob_type = type;
 		}
 
 		virtual ~blob_base(){
@@ -100,6 +105,7 @@ namespace mycnn{
 			CHECK_EQ_OP(_width,blob_->_width,"_width check do not match! ( %d vs %d )",_width,blob_->_width);
 		}
 
+		inline blob_type __blob_type__(){return _blob_type;};
 
 	protected:		
 		
@@ -111,8 +117,13 @@ namespace mycnn{
 		int _length;
 		phrase_type _phrase;
 
-	private:
+		inline void __set_type__(blob_type blob_type_){_blob_type = blob_type_;};
 
+
+
+	private:
 		
+		blob_type _blob_type;
+
 	};
 }

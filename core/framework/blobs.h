@@ -45,7 +45,20 @@ namespace mycnn{
 
 		~blobs(){
 			for (unsigned int i = 0; i < size(); ++i)
-				delete at(0);
+			{
+				switch(at(i)->__blob_type__())
+				{
+					case __blob__:
+						delete (blob*)at(i);
+						break;
+					case __bin_blob__:
+						delete (bin_blob*)at(i);
+						break;
+					default:
+						LOG_FATAL("can't identify the type!");
+						break;
+				}
+			}
 		}
 
 		

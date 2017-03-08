@@ -25,33 +25,54 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cuda_log.h"
+
+#include <time.h>
+
+#include "../../mycnn.h"
+
+#include "../../tools/imageio_utils.h"
+
+#include "./cifar_quick_net.h"
+#include "./data_proc.hpp"
 
 
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *input_dim: width of input data
- *output_dim: width of output data
- */
-__global__ void _k_CACU_CROSS_ENTROPY_GPU(float_t *x, unsigned int *label_, float_t *loss_) {
+void train_net()
+{
+	int batch_size = 128;
 
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
+	int max_iter = 5000;
 
-	int threadid = bid * THREADNUM + tid;
+	network *net = create_cifar_quick_net(batch_size);
 
-	if(threadid == 0)
-		loss_[0] -= log(x[*label_]);
+	sgd_solver *sgd = new sgd_solver(net);
+
+	string datapath = "/home/seal/4T/cacue/cifar10/data/";
+	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
+
+	vector<vec_t> full_data;
+	vector<vec_i> full_label;
+	load_data_bymean(datapath, meanfile, full_data, full_label);
+
+	blob *input_data = cacu_allocator::create_blob(batch_size,3,32,32,train);
+	bin_blob *input_label = cacu_allocator::create_bin_blob(batch_size,1,1,1,train);
+
+	int step_index = 0;
+
+	for (int i = 0 ; i < max_iter; ++i)
+	{
+		for (int j = 0 ; j < batch_size ; ++j)
+		{
+			if (step_index == kCIFARDataCount)
+				step_index = 0;
+			input_data->copy_data_io(full_data[step_index], j);
+			input_label->copy_data_io(full_label[step_index],j);
+			step_index += 1;
+		}
+		sgd->train_iter(input_data,input_label);
+
+		if(i % 20 == 0){
+			LOG_INFO("iter_%d", i);
+			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
+		}
+	}
 }
-
-
-extern "C" void cacu_cross_entropy_gpu(float_t *x, unsigned int *label_, float_t *loss_){
-
-	_k_CACU_CROSS_ENTROPY_GPU<<<1, 1, 0>>>(x, label_,loss_);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-
-
-

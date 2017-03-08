@@ -23,7 +23,7 @@ void test_math()
 	_b->set_init_type(gaussian,1);
 	for(int i = 0 ; i < 10; ++i){
 		clock_t start = clock();
-		net->predict(_b);
+		net->predict();
 		clock_t end = clock();
 		LOG_INFO("time costs:%d",end - start);
 	}

@@ -71,9 +71,9 @@ namespace mycnn{
 
 		}
 
-		virtual const void train_iter(blob_base *&blob_) override
+		virtual const void train_iter(blob_base *blob_,blob_base *label_) override
 		{
-			_net->predict(blob_);
+			_net->predict();
 
 			for(int i = 0 ; i < _net->op_count();++i)
 			{
@@ -85,7 +85,7 @@ namespace mycnn{
 				operator_base* op_ = _net->get_op(i);
 				for(int j = 0; j < op_->weights_size(); ++j)
 				{
-					update_weight(op_->get_weight(j),i);
+					update_weight(op_->get_weight(j),j);
 				}
 			}
 		}

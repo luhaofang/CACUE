@@ -33,12 +33,12 @@ namespace mycnn{
 	{
 	public:
 
-		network(){
+		network(blobs *&datas_){
 		
 #if  __PARALLELTYPE__ == __GPU__
 			cublasCreate_v2(&handle);
 #endif
-
+			_input_blobs = datas_;
 		};
 
 		~network(){
@@ -46,7 +46,7 @@ namespace mycnn{
 #if  __PARALLELTYPE__ == __GPU__
 			cublasDestroy_v2(handle);
 #endif
-
+			delete _input_blobs;
 		};
 
 		/*
@@ -96,12 +96,12 @@ namespace mycnn{
 
 		inline void set_inputdata(blob_base *&blob_){  layers(0)->get_head_op()->set_blob(blob_);}
 
-		inline void predict(blob_base *blob_){
+		inline void predict(){
 			for(unsigned int i =0 ; i < _layers.size();++i){
 				clock_t start = clock();
 				_layers[i]->operate();
 				clock_t end = clock();
-				LOG_INFO("%d time cost:%d", i ,end - start);
+				//LOG_INFO("%d time cost: %d", i ,end - start);
 			}
 		}
 
@@ -112,6 +112,9 @@ namespace mycnn{
 
 		inline int op_count(){ return _ops.size(); }
 
+		inline blobs* input_blobs(){ return _input_blobs; }
+
+		inline blob* output_blob(){return (blob*)_ops[_ops.size()-1]->out_data();}
 
 
 	private:
@@ -120,7 +123,7 @@ namespace mycnn{
 
 		vector<operator_base*> _ops;
 
-		//blobs* _input_data;
+		blobs* _input_blobs;
 	};
 
 };

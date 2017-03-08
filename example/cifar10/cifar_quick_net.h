@@ -27,36 +27,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-#include "../mycnn.h"
+#include "../../mycnn.h"
 
 #include <time.h>
 
 using namespace mycnn;
 
 
-network* create_cifar_quick_net()
+network* create_cifar_quick_net(int batch_size)
 {
-	blob *b = cacu_allocator::create_blob(1, 3, 32, 32, 1, train);
-	weight *_b = new weight("train",128, 3, 32, 32,train);
-	_b->set_init_type(gaussian,1);
-#if __PARALLELTYPE__ == __GPU__
-	CUDA_PRINT(_b->s_data(),1);
-#else
-	LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);
-#endif
-	network *net = new network();
+	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 32, 32, train);
+	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,train);
 
-	layer_block *conv1 = conv_layer_avgpooling(_b, 32, 5, 1, 2);
+	blobs *input_datas_ = cacu_allocator::create_blobs();
+	input_datas_->push_back(blob_);
+	input_datas_->push_back(label_);
+
+	network *net = new network(input_datas_);
+
+	layer_block *conv1 = conv_layer_avgpooling(blob_, 32, 5, 1, 2);
 	LOG_DEBUG("conv1");
 	layer_block *conv2 = conv_layer_avgpooling_relu_first((blob*)conv1->get_oblob(), 32, 5, 1, 2);
 	LOG_DEBUG("conv2");
 	layer_block *conv3 = conv_layer_avgpooling_relu_first((blob*)conv2->get_oblob(), 64, 5, 1, 2);
 	LOG_DEBUG("conv3");
-	layer_block *fc6 = fc_layer((blob*)conv3->get_oblob(),64);
+	layer_block *fc6 = fc_layer((blob*)conv3->get_oblob(), 64);
 	LOG_DEBUG("fc6");
-	layer_block *fc7 = fc_layer((blob*)fc6->get_oblob(),10);
-	LOG_DEBUG("fc7");
-	*net << conv1 << conv2 << conv3 << fc6 << fc7;
+	layer_block *loss_ = loss_layer((blob*)fc6->get_oblob(), label_, 10);
+	*net << conv1 << conv2 << conv3 << fc6 << loss_;
 
 	return net;
 }

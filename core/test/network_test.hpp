@@ -35,7 +35,11 @@ network* create_alexnet()
 #else
 	LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);
 #endif
-	network *net = new network();
+
+	blobs *input_datas_ = cacu_allocator::create_blobs();
+	input_datas_->push_back(_b);
+
+	network *net = new network(input_datas_);
 
 	layer_block *conv1 = conv_layer_maxpooling(_b, 96, 11, 4, 2);
 	LOG_DEBUG("conv1");
@@ -59,14 +63,6 @@ network* create_alexnet()
 void test_network()
 {
 
-	network net;
-	for (int i = 1; i <= 2;i++)
-	{
-		layer_block cs = create_block(i);
-		net << cs;
-	}
-
-	printf("%d",net.layer_count());
 
 
 }

@@ -62,7 +62,7 @@ namespace mycnn{
 
 		void crop_grad(blob* g_){};
 
-		virtual const void train_iter(blob_base *&blob_) = 0;
+		virtual const void train_iter(blob_base *blob_,blob_base *label_) = 0;
 
 
 	protected:

@@ -100,4 +100,16 @@ namespace mycnn{
 		return lb;
 	}
 
+	layer_block* loss_layer(blob* data, bin_blob* label, int output_channel)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel);
+		l->op(CACU_INNERPRODUCT, data)->op(CACU_SOFTMAX_LOSS, label);
+		clock_t end = clock();
+		LOG_INFO("time cost :%d", (end - start));
+		*lb << l;
+		return lb;
+	}
+
 };

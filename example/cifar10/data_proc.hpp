@@ -63,6 +63,64 @@ void readdata(chars_t filename, vector<vec_t> &data_blob) {
 	}
 }
 
+void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
+	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
+	float_t *snp;
+	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
+		char label_char;
+		data_file.read(&label_char, 1);
+		char buffer[kCIFARImageNBytes];
+		data_file.read(buffer, kCIFARImageNBytes);
+		vec_t datas(kCIFARImageNBytes);
+		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
+			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
+			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j
+					+ kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j
+					+ 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+		}
+		LOG_DEBUG("%f",datas[0]);
+		data_blob.push_back(datas);
+	}
+}
+
+void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
+		vector<vec_i> &labels) {
+	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
+	float_t *snp;
+	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
+		char label_char;
+		data_file.read(&label_char, 1);
+		labels.push_back(vec_i(1, (unsigned int)((label_char))));
+		char buffer[kCIFARImageNBytes];
+		data_file.read(buffer, kCIFARImageNBytes);
+		vec_t datas(kCIFARImageNBytes);
+		snp = &datas[0];
+		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
+			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
+			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j
+					+ kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j
+					+ 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+		}
+		data_blob.push_back(datas);
+	}
+}
+
+void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels)
+{
+
+	vec_t mean(kCIFARImageNBytes);
+
+	imageio_utils::load_mean_file(&mean[0], meanfile);
+
+	for (int i = 1; i <= 5; i++) {
+		ostringstream oss;
+		oss << filepath << "data_batch_" << i << ".bin";
+		readdata((oss.str()), data_blob , mean , labels);
+	}
+}
+
 vec_t compute_mean(chars_t &filepath, int filecount)
 {
 	vector<vec_t> mean_data;
@@ -96,10 +154,6 @@ void make_mean(chars_t filepath, chars_t meanfile)
 	LOG_DEBUG("%f,%f",mean[0],mean[24]);
 	imageio_utils::save_mean_file(&mean[0],meanfile,mean.size());
 }
-
-
-
-
 
 
 

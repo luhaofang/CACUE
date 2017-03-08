@@ -75,7 +75,7 @@ inline void cuda_refresh(DTYPE *data_, int length)
 }
 
 template<typename DTYPE>
-inline void cuda_copy2dev(DTYPE *d_data_,DTYPE* s_values, int length)
+inline void cuda_copy2dev(DTYPE *d_data_, DTYPE* s_values, int length)
 {
 	res = cudaMemcpy((void*) (d_data_), (void*) (s_values),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	CUDA_CHECK(res);

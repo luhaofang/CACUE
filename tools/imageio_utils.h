@@ -131,15 +131,10 @@ namespace mycnn_tools{
 			is.close();
 
 			float *d_= &temp_[0];
-#if __PARALLELTYPE__ == __GPU__
-			cuda_copy2dev(p_data, d_, temp_.size());
-#else
-
-	#ifdef _WIN32
+#ifdef _WIN32
 			memcpy_s(p_data,&temp_[0],temp_.size()*sizeof(float));
-	#elif linux
+#elif linux
 			memcpy(p_data,&temp_[0],temp_.size()*sizeof(float));
-	#endif
 #endif
 		}
 
