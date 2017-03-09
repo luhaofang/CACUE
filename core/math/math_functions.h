@@ -106,22 +106,22 @@ inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, in
 
 /**
  * @cacu_sgemm
- * math z = X*Y:
+ * math z = a*X*Y + b*z:
  * transx_: whether x is need to transpose
  * transy_: whether y is need to transpose
  */
-inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_height, int x_width, float_t *y, int y_height, float_t *z)
+inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha, float_t *z, float_t beta)
 {
 #if __PARALLELTYPE__ == __OPENMP__
-	cacu_sgemm_omp(transx_, transy_, x, x_height, x_width, y, y_height, z);
+	cacu_sgemm_omp(transx_, transy_, x, x_height, x_width, y, y_width, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (transx_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	CBLAS_TRANSPOSE transy = (transy_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
-	cacu_sgemm_oblas(transx, transy, x, x_height, x_width, y, y_height, z);
+	cacu_sgemm_oblas(transx, transy, x, x_height, x_width, y, y_width, alpha, z, beta);
 #elif __PARALLELTYPE__ == __GPU__
 	cublasOperation_t transx = (transx_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
 	cublasOperation_t transy = (transy_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
-	cacu_sgemm_gpu(transx, transy, x, x_height, x_width, y, y_height, z);
+	cacu_sgemm_gpu(transx, transy, x, x_height, x_width, y, y_width, alpha, z, beta);
 #endif
 }
 

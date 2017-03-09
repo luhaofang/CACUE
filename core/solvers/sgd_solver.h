@@ -75,7 +75,7 @@ namespace mycnn{
 		{
 			_net->predict();
 
-			for(int i = 0 ; i < _net->op_count();++i)
+			for(int i = _net->op_count() - 1 ; i >= 0; --i)
 			{
 				_net->get_op(i)->grad();
 				//LOG_DEBUG("fuck! %d",i);

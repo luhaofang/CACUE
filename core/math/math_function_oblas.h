@@ -50,12 +50,12 @@ inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, fl
 	cblas_sgemv(CblasRowMajor, trans, x_height, x_width, (float_t)1, x, x_width, y, 1, (float_t)0, z, 1);
 }
 
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t *z)
+inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha,float_t *z,float_t beta)
 {
 	int m = x_height,n = y_width,k = x_width;
 	int lda = (transx == CblasNoTrans) ? m : k;//k : m;
 	int ldb = (transy == CblasNoTrans) ? k : n;//n : k;
-	cblas_sgemm(CblasColMajor, transx, transy, m, n, k, 1, x, lda, y, ldb, 0, z, n);
+	cblas_sgemm(CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
 }
 
 inline void cacu_transpose_oblas(float_t *x, int x_width, int x_height)

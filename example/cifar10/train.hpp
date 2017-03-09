@@ -73,7 +73,7 @@ void train_net()
 		end = clock();
 
 		if(i % 100 == 0){
-			LOG_INFO("iter_%d , %d ms/iter", i, (end-start)/1000);
+			LOG_INFO("iter_%d , %d ms/iter", i, (end - start)/1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
 	}

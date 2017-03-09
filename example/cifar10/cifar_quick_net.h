@@ -54,6 +54,7 @@ network* create_cifar_quick_net(int batch_size)
 	layer_block *fc6 = fc_layer((blob*)conv3->get_oblob(), 64);
 	LOG_DEBUG("fc6");
 	layer_block *loss_ = loss_layer((blob*)fc6->get_oblob(), label_, 10);
+	LOG_DEBUG("loss");
 	*net << conv1 << conv2 << conv3 << fc6 << loss_;
 
 	return net;
