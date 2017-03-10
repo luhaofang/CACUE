@@ -68,6 +68,10 @@ namespace mycnn{
 #define CUDA_INFO(format,...) CUDA_LOG("DEBUG",p,format,##__VA_ARGS__)
 
 
+
+/*
+ * using for cuda debugging ,will be deleted in the release version
+ */
 #define CUDA_PRINT(d_data_,length)  \
 		float_t *s_p = (float_t*)malloc(length * sizeof(float_t));\
 		cudaError_t res = cudaMemcpy((void*) (s_p), (void*) (d_data_),	length * sizeof(float_t), cudaMemcpyDeviceToHost);\

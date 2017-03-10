@@ -36,9 +36,17 @@ namespace mycnn{
 	public:
 
 		solver_base(network *&net_){
-
+			_temp = cacu_allocator::create_blobs();
+			for(int i = 0; i < _net->op_count(); ++i)
+			{
+				operator_base* op_ = _net->get_op(i);
+				for(int j = 0; j < op_->weights_size(); ++j)
+				{
+					blob *history_w = op_->get_weight(j)->copy_create(test);
+					_temp->push_back(history_w);
+				}
+			}
 			_net = net_;
-
 		};
 
 		virtual ~solver_base(){
@@ -50,19 +58,20 @@ namespace mycnn{
 
 		inline void set_lr(float_t lr_){ _global_lr = lr_ ;}
 
+		inline void set_regularize(regularize_type type_){_regularize = type_;}
+
 		inline float_t weight_decay(){ return _global_weight_decay;}
 
 		inline float_t lr(){ return _global_lr;}
 
-		void regularize(regularize_type regularize_,float_t *data_){
-
-		};
+		inline regularize_type regularize(){ return _regularize;}
 
 		virtual const void update_weight(weight* w_, int i) = 0;
 
 		void crop_grad(blob* g_){};
 
 		virtual const void train_iter(blob_base *blob_,blob_base *label_) = 0;
+
 
 
 	protected:
@@ -75,9 +84,33 @@ namespace mycnn{
 
 		network *_net;
 
+		/**
+		 * add regular to gradient
+		 * where i is the index of _w
+		 */
+		void __REGULARIZE__(regularize_type regularize_, weight *w_ , int i)
+		{
+			float_t a = w_->decay() * _global_weight_decay * w_->lr() * _global_lr;
+			float_t b = w_->lr() * _global_lr;
+			blob* temp = (blob*)_temp->at(i);
+			switch(regularize_)
+			{
+			case L1 :
+				rand_vector(temp->s_data(),temp->count(),1);
+				cacu_saxpby(temp->s_data(), a, w_->s_diff(), b, w_->count());
+				break;
+			case L2 :
+				cacu_saxpby(w_->s_data(), a, w_->s_diff(), b, w_->count());
+				break;
+			default:
+				break;
+			}
+		}
+
 
 	private:
 
+		blobs* _temp;
 
 	};
 }
