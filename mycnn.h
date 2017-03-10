@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/graph/graph_base.h"
 
 #include "utils/cacu_allocator.h"
+#include "utils/blob_tools.h"
 
 #include "core/math/matrix.h"
 #include "core/math/cube.h"

@@ -93,7 +93,8 @@ namespace mycnn_tools{
 		{
 			ofstream os(mean_file_, ios::binary);
 			os.precision(numeric_limits<float>::digits10);
-
+			if(!os)
+				LOG_FATAL("file %s cannot be opened!",mean_file_);
 #if __PARALLELTYPE__ == __GPU__
 			vector<float> a(length_);
 			cuda_copy2host(&a[0],p_data,length_);
@@ -115,7 +116,8 @@ namespace mycnn_tools{
 		{
 			ifstream is(mean_file_);
 			is.precision(numeric_limits<float>::digits10);
-
+			if(!is)
+				LOG_FATAL("file %s cannot be opened!",mean_file_);
 			vector<float> temp_;
 			float fp_;
 

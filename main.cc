@@ -16,7 +16,7 @@ using namespace mycnn_tools;
 
 int main()
 {
-	//test_blob();
+	test_blob();
 	//test_op();
 	//test_network();
 	//test_graph();
@@ -26,6 +26,6 @@ int main()
 	//string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	//string meanpath = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
 	//make_mean(datapath,meanpath);
-	train_net();
+	//train_net();
 
 }

@@ -151,7 +151,11 @@ namespace mycnn{
 			return new blob(_num, _channel, _width, _height, 0, phrase_);
 		}
 
-		inline const void copy_data_io(vec_t data_, int i)
+		/*
+		 * copy data into blob, if blob is established in gpu, io op is needed
+		 * where i is the start index in blob
+		 */
+		inline const void copy_data_io(vec_t &data_, int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 #if __PARALLELTYPE__ == __GPU__
@@ -160,6 +164,20 @@ namespace mycnn{
 			cacu_copy(p_data(i),_cube_length, &data_[0]);
 #endif
 		}
+
+		/*
+		 * copy data into blob, if blob is established in gpu, io op is needed
+		 */
+		inline const void copy_data_io(vec_t &data_)
+		{
+			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(s_data(), &data_[0], _length);
+#else
+			cacu_copy(s_data(),_length, &data_[0]);
+#endif
+		}
+
 
 
 	protected:

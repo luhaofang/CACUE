@@ -136,7 +136,7 @@ namespace mycnn{
 			return test == _phrase ? _length*sizeof(unsigned int) : _length*sizeof(unsigned int) + _length*sizeof(float_t);
 		}
 
-		inline const void copy_data_io(vec_i data_ , int i)
+		inline const void copy_data_io(vec_i &data_ , int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 #if __PARALLELTYPE__ == __GPU__
@@ -144,6 +144,17 @@ namespace mycnn{
 #else
 			for(int j = 0 ; j < _cube_length ; ++j)
 				p_data(i)[j] = data_[j];
+#endif
+		}
+
+		inline const void copy_data_io(vec_i &data_)
+		{
+			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(s_data(),&data_[0],_length);
+#else
+			for(int j = 0 ; j < _length ; ++j)
+				s_data()[j] = data_[j];
 #endif
 		}
 
