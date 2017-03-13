@@ -49,7 +49,7 @@ namespace mycnn{
 		};
 
 		~average_pooling_op(){
-			delete (blob *)o_blob;
+
 		};
 
 		virtual const void check() override{

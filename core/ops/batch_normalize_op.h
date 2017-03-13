@@ -60,8 +60,6 @@ namespace mycnn{
 
 		~batch_normal_op(){
 
-			delete (blob *)o_blob;
-
 			delete _mean;
 			delete _var;
 
@@ -69,9 +67,6 @@ namespace mycnn{
 			delete _history_var;
 
 			delete _std;
-
-			delete _scale;
-			delete _shift;
 
 			delete _dim_sum;
 

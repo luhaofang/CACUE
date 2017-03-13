@@ -91,16 +91,16 @@ inline void cacu_scalex(float_t *x, int length, float_t a)
  * math z = X*y:
  * trans_: whether x is needed to transpose
  */
-inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, int x_width, float_t *z)
+inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, int x_width, float_t alpha, float_t *z , float_t beta)
 {
 #if __PARALLELTYPE__ == __OPENMP__
 	cacu_sgemv_omp(x, x_height, y, x_width, z);
 #elif __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (trans_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
-	cacu_sgemv_oblas(transx, x, x_height, y, x_width, z);
+	cacu_sgemv_oblas(transx, x, x_height, y, x_width,alpha, z ,beta);
 #elif __PARALLELTYPE__ == __GPU__
 	cublasOperation_t transx = (trans_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
-	cacu_sgemv_gpu(transx, x, x_height, y, x_width, z);
+	cacu_sgemv_gpu(transx, x, x_height, y, x_width, alpha, z, beta);
 #endif
 }
 
@@ -135,8 +135,7 @@ inline void cacu_copy(float_t *x, int length, float_t *y)
 #if __PARALLELTYPE__ == __GPU__
 	cacu_copy_gpu(x, length, y);
 #else
-	for(int i = 0 ; i < length ; ++i)
-		y[i] = x[i];
+	memcpy(y,x,length*sizeof(float_t));
 #endif
 }
 

@@ -58,7 +58,12 @@ namespace mycnn{
 		virtual ~operator_base(){
 
 			delete _args;
-			_weights.clear();
+			delete o_blob;
+			for(int i = 0 ; i< _weights.size(); ++i)
+			{
+				delete _weights[i];
+				_weights[i] = NULL;
+			}
 		};
 
 		virtual const void op() = 0;
@@ -134,8 +139,6 @@ namespace mycnn{
 		inline blob_base * get_blob(){return s_blob;}
 
 		inline void set_blob(blob_base *&blob_){ s_blob = blob_;}
-
-		inline blobs * get_blobs() {return s_blobs;}
 		
 		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
 
@@ -157,9 +160,8 @@ namespace mycnn{
 		//create weight push_back to weights container
 		inline weight* const create_param(chars_t name,int num,int channel,int width,int height,phrase_type phrase)
 		{
-			weight* w_ = new weight(name,num,channel,width,height,phrase);
-			_add2op_weights(w_);
-			return w_;
+			_add2op_weights(new weight(name,num,channel,width,height,phrase));
+			return _weights.back();
 		}
 
 	private:

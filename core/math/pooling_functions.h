@@ -263,26 +263,27 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_img2col_gpu(x,kernel_size,stride,input_dim,channel,output_dim,y);
 #else
-		int block_size = input_dim*input_dim;
+		int cin_length = input_dim*input_dim;
 		int kernel_length = kernel_size*kernel_size;
+		int block_size = kernel_length * channel;
 		float_t *xp, *yp;
 		int in_start, out_start;
 
 		for (int i = 0; i < output_dim; ++i)
 			for (int j = 0; j < output_dim; ++j)
 			{
-				out_start = (i * output_dim + j)*kernel_length*channel;
-				in_start = (i * input_dim + j)*stride;
+				out_start = (i * output_dim + j) * block_size;
+				in_start = (i * input_dim + j) * stride;
 				
 				for (int c = 0; c < channel; ++c)
 				{
-					yp = y + out_start + c*kernel_length;
-					xp = x + in_start + c*block_size;
+					yp = y + out_start + c * kernel_length;
+					xp = x + in_start + c * cin_length;
 
 					for (int ki = 0; ki < kernel_size; ++ki)
 						for (int kj = 0; kj < kernel_size; ++kj)
 						{
-							yp[ki*kernel_size + kj] = xp[ki * input_dim + kj];
+							yp[ki * kernel_size + kj] = xp[ki * input_dim + kj];
 						}
 				}
 			}

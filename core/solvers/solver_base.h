@@ -35,18 +35,20 @@ namespace mycnn{
 
 	public:
 
-		solver_base(network *&net_){
+		solver_base(network *&net_)
+		{
+			_net = net_;
+
 			_temp = cacu_allocator::create_blobs();
 			for(int i = 0; i < _net->op_count(); ++i)
 			{
 				operator_base* op_ = _net->get_op(i);
 				for(int j = 0; j < op_->weights_size(); ++j)
 				{
-					blob *history_w = op_->get_weight(j)->copy_create(test);
-					_temp->push_back(history_w);
+					blob *temp_w = op_->get_weight(j)->copy_create(test);
+					_temp->push_back(temp_w);
 				}
 			}
-			_net = net_;
 		};
 
 		virtual ~solver_base(){

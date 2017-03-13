@@ -62,75 +62,71 @@ namespace mycnn{
 		}
 
 		~blob(){
-#if __PARALLELTYPE__ == __GPU__
-			cuda_free<float_t>(_s_data);
-			if(train == _phrase)
-				cuda_free<float_t>(_s_diff);
-#else
-			free(_s_data);
-			if (train == _phrase)
-				free(_s_diff);
-#endif
+
 		}
 
 		inline float_t* p_data(int n) {
-			return _s_data + n*_cube_length;
+			return (float_t*)_s_data + n*_cube_length;
 		}
 
 		inline float_t* p_diff(int n) {
-			return _s_diff + n*_cube_length;
+			return (float_t*)_s_diff + n*_cube_length;
 		}
 
-		inline float_t* s_data(){ return _s_data; }
+		inline float_t* s_data(){ return (float_t*)_s_data; }
 
-		inline float_t* s_diff(){ return _s_diff; }
+		inline float_t* s_diff(){ return (float_t*)_s_diff; }
 
 		inline virtual const void _RESET_DATA() override
 		{
+			float_t* s_data_ = (float_t*)_s_data;
+			float_t* s_diff_ = (float_t*)_s_diff;
 #if __PARALLELTYPE__ == __GPU__
-			cuda_refresh(_s_data,_length);
+			cuda_refresh(s_data_,_length);
 			if (train == _phrase)
-				cuda_refresh(_s_diff,_length);
+				cuda_refresh(s_diff_,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
-				_s_data[i] = 0.0;
+				s_data_[i] = 0.0;
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
-					_s_diff[i] = 0.0;
+					s_diff_[i] = 0.0;
 #endif
 		}
 
 		inline virtual const void _RESET_DIFF() override
 		{
+			float_t* s_diff_ = (float_t*)_s_diff;
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)
-				cuda_refresh(_s_diff,_length);
+				cuda_refresh(s_diff_,_length);
 #else
 			if (train == _phrase)
 				for(int i = 0 ; i < _length ; ++i)
-					_s_diff[i] = 0.0;
+					s_diff_[i] = 0.0;
 #endif
 		}
 
 		inline const void set_data(float_t value_)
 		{
+			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __GPU__
 			cuda_setvalue<float_t>(_s_data,value_,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
-				_s_data[i] = value_;
+				s_data_[i] = value_;
 #endif
 		}
 
 		inline const void set_diff(float_t value_)
 		{
-
+			float_t* s_diff_ = (float_t*)_s_diff;
 			if (train == _phrase){
 #if __PARALLELTYPE__ == __GPU__
-				cuda_setvalue<float_t>(_s_diff,value_,_length);
+				cuda_setvalue<float_t>(s_diff_,value_,_length);
 #else
 				for(int i = 0 ; i < _length ; ++i)
-					_s_diff[i] = value_;
+					s_diff_[i] = value_;
 #endif
 			}
 		}
@@ -143,7 +139,7 @@ namespace mycnn{
 		inline const void copy_blob(blob* blob_)
 		{
 			CHECK_EQ_OP(blob_->count(),_length,"blob size must be equal! %d vs %d",blob_->count(),_length);
-			cacu_copy(blob_->s_data(),_length, _s_data);
+			cacu_copy(blob_->s_data(),_length, (float_t*)_s_data);
 		}
 
 		inline blob* copy_create(phrase_type phrase_)
@@ -161,7 +157,7 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_copy2dev(p_data(i), &data_[0], _cube_length);
 #else
-			cacu_copy(p_data(i),_cube_length, &data_[0]);
+			cacu_copy(&data_[0],_cube_length, p_data(i));
 #endif
 		}
 
@@ -174,17 +170,13 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_copy2dev(s_data(), &data_[0], _length);
 #else
-			cacu_copy(s_data(),_length, &data_[0]);
+			cacu_copy(&data_[0],_length, s_data());
 #endif
 		}
 
 
 
 	protected:
-
-		float_t *_s_data;
-
-		float_t *_s_diff;
 
 	};
 }

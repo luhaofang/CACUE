@@ -46,10 +46,6 @@ namespace mycnn{
 
 		~inner_product_op(){
 
-			delete (blob *)o_blob;
-
-			delete _w;
-			delete _bias;
 		};
 
 		virtual const void check() override{
@@ -63,9 +59,9 @@ namespace mycnn{
 
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//inner_product
-				cacu_sgemv(NOTRANS,_w->s_data(),_w->num(),s_blob_->p_data(i),s_blob_->length(),o_blob_->p_data(i));
+				cacu_sgemv(TRANS,_w->s_data(),_w->num(),s_blob_->p_data(i),s_blob_->length(),(float_t)1,o_blob_->p_data(i),(float_t)0);
 				//elemwise_sum
-				cacu_saxpy(o_blob_->p_data(i), (float_t)1, _bias->s_data(), _args->output_channel());
+				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
 
 		}
@@ -75,10 +71,10 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 
 			//gradient propagation
-			cacu_sgemm(TRANS,NOTRANS,o_blob_->s_diff(),o_blob_->num(),o_blob_->length(),_w->s_diff(),_w->length(),1 , s_blob_->s_diff(), 0);
+			cacu_sgemm(TRANS,NOTRANS,_w->s_diff(),_w->length(),o_blob_->length(), o_blob_->s_diff(),o_blob_->num(), 1, s_blob_->s_diff(), 0);
 
 			//weights gradient
-			cacu_sgemm(NOTRANS,TRANS,o_blob_->s_diff(), o_blob_->length(), o_blob_->num(), s_blob_->s_data(), s_blob_->length(),1 ,_w->s_diff(), 0);
+			cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(), 1,_w->s_diff(), 0);
 
 			//bias gradient
 			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),_bias->s_diff(),_bias->count());

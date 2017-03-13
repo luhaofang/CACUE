@@ -83,8 +83,8 @@ def pool2dBackProp(data, dNextLayer, poolSize):
 
 if __name__ == '__main__':
     data = create_conv_data(3, 224, 224)
-    kernel = create_conv_kernel_data(32, 3, 3)
-    bias = create_conv_bias_data(32)
+    kernel = create_conv_kernel_data(3, 3, 3)
+    bias = create_conv_bias_data(3)
     data_ = codecs.open('./feature_map.txt','w')
     for channels in data :
         for i in range(len(channels)):

@@ -50,7 +50,6 @@ namespace mycnn{
 		};
 
 		~max_pooling_op(){
-			delete (blob *)o_blob;
 			delete _index;
 		};
 

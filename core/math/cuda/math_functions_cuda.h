@@ -53,10 +53,10 @@ inline void cacu_scalex_gpu(float_t *x, float_t a, int length)
 	CUBLAS_CHECK(status);
 }
 
-inline void cacu_sgemv_gpu(cublasOperation_t trans, float_t *x, int x_height, float_t *y, int x_width, float_t *z)
+inline void cacu_sgemv_gpu(cublasOperation_t trans, float_t *x, int x_height, float_t *y, int x_width, float_t alpha, float_t *z , float_t beta)
 {
-	float_t alpha = 1;
-	float_t beta = 0;
+	float_t _alpha = alpha;
+	float_t _beta = beta;
 	status = cublasSgemv_v2(handle, trans, x_height, x_width, &alpha, x, x_height, y, 1, &beta, z, 1);
 	CUBLAS_CHECK(status);
 }
@@ -68,7 +68,7 @@ inline void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, f
 	int ldb = (transy == CUBLAS_OP_N) ? k : n;
 	float_t _alpha = alpha;
 	float_t _beta = beta;
-	status = cublasSgemm_v2(handle, transx, transy, m, n, k, &alpha, x, lda, y, ldb, &beta, z, m);
+	status = cublasSgemm_v2(handle, transx, transy, m, n, k, &_alpha, x, lda, y, ldb, &_beta, z, m);
 	CUBLAS_CHECK(status);
 }
 

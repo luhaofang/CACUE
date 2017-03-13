@@ -80,12 +80,13 @@ namespace mycnn{
 			default:
 				break;
 			}
+			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __GPU__
-			cuda_copy2dev(_s_data,&w[0],_length);
+			cuda_copy2dev(s_data_,&w[0],_length);
 			CUDA_CHECK(res);
 #else
 			for (int i = 0; i < _length; ++i)
-				_s_data[i] = w[i];
+				s_data_[i] = w[i];
 #endif
 			delete r;
 			vec_t().swap(w);

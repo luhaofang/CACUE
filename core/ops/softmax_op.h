@@ -52,8 +52,7 @@ namespace mycnn{
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_softmax(s_blob_->p_data(i), s_blob_->length());
+			cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->length());
 			//echo();
 		}
 

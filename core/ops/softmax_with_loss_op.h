@@ -43,8 +43,6 @@ namespace mycnn{
 		};
 
 		~softmax_with_loss_op(){
-
-			delete (blob *)o_blob;
 			free(_loss);
 		};
 
@@ -58,12 +56,10 @@ namespace mycnn{
 			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 			_loss[0] = 0.0;
 
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-			{
-				cacu_softmax(s_blob_->p_data(i), s_blob_->length());
-				//CE LOSS use o_blob[0] to store loss
-				cacu_cross_entropy(s_blob_->p_data(i),labels_->p_data(i),o_blob_->s_data());
-			}
+			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length());
+			//CE LOSS use o_blob[0] to store loss
+			cacu_cross_entropy(s_blob_->s_data(),s_blob_->num(),s_blob_->length(),labels_->s_data(),o_blob_->s_data());
+
 #if __PARALLELTYPE__ == __GPU__
 			cuda_copy2host(_loss,o_blob_->s_data(),1);
 #else

@@ -45,9 +45,9 @@ inline void cacu_scalex_oblas(float_t *x, float_t a, int length)
 	cblas_sscal(length, a, x, 1);
 }
 
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width, float_t *z)
+inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width,float_t alpha,float_t *z,float_t beta)
 {
-	cblas_sgemv(CblasRowMajor, trans, x_height, x_width, (float_t)1, x, x_width, y, 1, (float_t)0, z, 1);
+	cblas_sgemv(CblasColMajor, trans, x_height, x_width, (float_t)alpha, x, x_height, y, 1, (float_t)beta, z, 1);
 }
 
 inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha,float_t *z,float_t beta)
@@ -56,11 +56,6 @@ inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, flo
 	int lda = (transx == CblasNoTrans) ? m : k;//k : m;
 	int ldb = (transy == CblasNoTrans) ? k : n;//n : k;
 	cblas_sgemm(CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
-}
-
-inline void cacu_transpose_oblas(float_t *x, int x_width, int x_height)
-{
-
 }
 
 inline void cacu_copy_oblas(float_t *x, int x_length,float_t *y)

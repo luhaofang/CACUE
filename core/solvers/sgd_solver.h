@@ -35,7 +35,6 @@ namespace mycnn{
 	public:
 
 		sgd_solver(network *&net_) : solver_base(net_){
-
 			_history_v = cacu_allocator::create_blobs();
 			for(int i = 0; i < _net->op_count(); ++i)
 			{
@@ -72,8 +71,8 @@ namespace mycnn{
 
 		virtual const void train_iter(blob_base *blob_,blob_base *label_) override
 		{
-			_net->predict();
 
+			_net->predict();
 			for(int i = _net->op_count() - 1 ; i >= 0; --i)
 			{
 				_net->get_op(i)->grad();

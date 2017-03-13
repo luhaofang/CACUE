@@ -30,6 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 #include "../math/math_utils.h"
+#include "../math/cuda/cuda_utils.h"
+#include "../math/math_functions.h"
 
 using namespace std;
 
@@ -60,10 +62,20 @@ namespace mycnn{
 			_length = _num*_cube_length;
 			_phrase = phrase;
 			_blob_type = type;
+			_s_data = NULL;
+			_s_diff = NULL;
 		}
 
 		virtual ~blob_base(){
-
+#if __PARALLELTYPE__ == __GPU__
+			cuda_free(_s_data);
+			if(train == _phrase)
+				cuda_free(_s_diff);
+#else
+			free(_s_data);
+			if (train == _phrase)
+				free(_s_diff);
+#endif
 		}		
 		
 		inline int index(int c, int x, int y)
@@ -119,7 +131,9 @@ namespace mycnn{
 
 		inline void __set_type__(blob_type blob_type_){_blob_type = blob_type_;};
 
+		void *_s_data;
 
+		void *_s_diff;
 
 	private:
 		

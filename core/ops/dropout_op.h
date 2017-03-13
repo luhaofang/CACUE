@@ -49,7 +49,6 @@ namespace mycnn{
 		};
 
 		~dropout_op(){
-			delete (blob*)o_blob;
 			delete _rand_vect;
 		};
 
