@@ -77,16 +77,15 @@ namespace mycnn{
 		inline blob_base* get_oblob()
 		{
 			if (_layers.size()!=0)
-				return layers<layer>(length() - 1)->get_oblob();
+				return layers(length() - 1)->get_oblob();
 			return NULL;
 		}
 	
-		template<class LAYERTYPE>
-		inline LAYERTYPE *&layers(int i){ return (LAYERTYPE*&)_layers[i]; };
+		inline layer *layers(int i){ return (layer*&)_layers[i]; };
 
-		inline layer_base *&pop_layer(){ return _layers[ length() - 1]; };
+		inline layer_base *pop_layer(){ return _layers[ length() - 1]; };
 
-		inline layer_base *&layer_bases(int i){ return _layers[i]; };
+		inline layer_base *layer_bases(int i){ return _layers[i]; };
 
 		inline int length(){ return _layers.size(); };
 

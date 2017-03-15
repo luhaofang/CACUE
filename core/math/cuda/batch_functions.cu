@@ -88,7 +88,6 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width
 extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t *y, int width){
 
 	int height = length / width;
-	printf("%d,%d,%d",length,width,height);
 
 	if (BYWIDTH == SUMTYPE)
 		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<BLOCKNUM, THREADNUM ,THREADNUM*sizeof(float_t)>>>(x, height,width, y);

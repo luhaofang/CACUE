@@ -36,7 +36,6 @@ namespace mycnn{
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 		l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-		l->get_op<convolution_op>(0)->set_weight_init_type(msra);
 		layer *ml = new layer(output_channel, 3, 2);
 		ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 		clock_t end = clock();
@@ -51,7 +50,6 @@ namespace mycnn{
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 		l->op(CACU_CONVOLUTION, data);
-		l->get_op<convolution_op>(0)->set_weight_init_type(msra);
 		layer *al = new layer(output_channel, 3, 2);
 		al->op(CACU_AVERAGE_POOLING, (blob*)l->get_oblob())->op(activation_op);
 		clock_t end = clock();
@@ -66,7 +64,6 @@ namespace mycnn{
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 		l->op(CACU_CONVOLUTION, data)->op(activation_op);
-		l->get_op<convolution_op>(0)->set_weight_init_type(msra);
 		layer *al = new layer(output_channel, 3, 2);
 		al->op(CACU_AVERAGE_POOLING, (blob*)l->get_oblob());
 		clock_t end = clock();
@@ -81,7 +78,6 @@ namespace mycnn{
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 		l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-		l->get_op<convolution_op>(0)->set_weight_init_type(msra);
 		clock_t end = clock();
 		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;

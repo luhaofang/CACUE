@@ -47,18 +47,25 @@ network* create_alexnet()
 	network *net = new network();
 
 	layer_block *conv1 = conv_layer_maxpooling(_b, 96, 11, 4, 2);
+	conv1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	LOG_DEBUG("conv1");
 	layer_block *conv2 = conv_layer_maxpooling((blob*)conv1->get_oblob(), 256, 5, 1, 2);
+	conv2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	LOG_DEBUG("conv2");
 	layer_block *conv3 = conv_layer_nopooling((blob*)conv2->get_oblob(), 384, 3, 1, 1);
+	conv3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	LOG_DEBUG("conv3");
 	layer_block *conv4 = conv_layer_nopooling((blob*)conv3->get_oblob(), 384, 3, 1, 1);
+	conv4->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	LOG_DEBUG("conv4");
 	layer_block *conv5 = conv_layer_maxpooling((blob*)conv4->get_oblob(), 256, 3, 1, 1);
+	conv5->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	LOG_DEBUG("conv5");
 	layer_block *fc6 = fc_layer((blob*)conv5->get_oblob(),4096);
+	fc6->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	LOG_DEBUG("fc6");
 	layer_block *fc7 = fc_layer((blob*)fc6->get_oblob(),4096);
+	fc7->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	LOG_DEBUG("fc7");
 	*net << conv1 << conv2 << conv3 << conv4 << conv5 << fc6 << fc7;
 

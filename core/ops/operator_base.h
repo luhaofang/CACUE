@@ -84,6 +84,46 @@ namespace mycnn{
 
 		inline blobs *&in_datas(){ return s_blobs; }
 
+		inline int weights_size(){ return _weights.size(); }
+
+		inline weight* get_weight(int i){ return _weights[i]; }
+
+		inline void infer()
+		{
+			//reset the data's values
+			LOOP_INIT_DATA_();
+			//forward propagation
+			op();
+		}
+
+		inline blob_base * get_blob(){return s_blob;}
+
+		inline void set_blob(blob_base *&blob_){ s_blob = blob_;}
+
+		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
+
+
+	protected:
+
+		blobs *s_blobs;
+
+		blob_base *s_blob;
+
+		blob_base *o_blob;
+
+		args *_args;
+
+		phrase_type _phrase;
+
+		vector<weight*> _weights;
+
+		//create weight push_back to weights container
+		inline weight* const create_param(chars_t name,int num,int channel,int width,int height,phrase_type phrase)
+		{
+			_add2op_weights(new weight(name,num,channel,width,height,phrase));
+			return _weights.back();
+		}
+
 		inline void set_param_init_type(param_init_type type, weight *w_, float_t value = 0.0)
 		{
 			rand_t *r_ = new rand_t();
@@ -122,46 +162,6 @@ namespace mycnn{
 #endif
 			delete r_;
 			vec_t().swap(p_);
-		}
-
-		inline int weights_size(){ return _weights.size(); }
-
-		inline weight* get_weight(int i){ return _weights[i]; }
-
-		inline void infer()
-		{
-			//reset the data's values
-			LOOP_INIT_DATA_();
-			//forward propagation
-			op();
-		}
-
-		inline blob_base * get_blob(){return s_blob;}
-
-		inline void set_blob(blob_base *&blob_){ s_blob = blob_;}
-		
-		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
-
-
-	protected:
-
-		blobs *s_blobs;
-
-		blob_base *s_blob;
-
-		blob_base *o_blob;
-
-		args *_args;
-
-		phrase_type _phrase;
-
-		vector<weight*> _weights;
-
-		//create weight push_back to weights container
-		inline weight* const create_param(chars_t name,int num,int channel,int width,int height,phrase_type phrase)
-		{
-			_add2op_weights(new weight(name,num,channel,width,height,phrase));
-			return _weights.back();
 		}
 
 	private:

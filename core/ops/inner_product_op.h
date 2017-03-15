@@ -103,6 +103,11 @@ namespace mycnn{
 			_bias->_RESET_DIFF();
 		}
 
+		inline void set_weight_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _w, value);}
+
+		inline void set_bias_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _bias, value);}
+
+
 	private:
 
 		weight *_w;
