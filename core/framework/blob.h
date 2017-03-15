@@ -45,10 +45,10 @@ namespace mycnn{
 		blob(int num, int channel, int width, int height, float_t _value, phrase_type phrase)
 			:blob_base(num, channel, width, height, phrase, __blob__){
 #if __PARALLELTYPE__ == __GPU__
-			_s_data = cuda_malloc_v<float_t>(_num,_cube_length, _value);
+			_s_data = cuda_malloc_v<float_t>(_num,_cube_length,_value);
 			CUDA_CHECK(res);
 			if (train == phrase){
-				_s_diff = cuda_malloc<float_t>(_num,_cube_length);
+				_s_diff = cuda_malloc_v<float_t>(_num,_cube_length,0);
 				CUDA_CHECK(res);
 			}
 #else
@@ -56,6 +56,7 @@ namespace mycnn{
 			set_data(_value);
 			if (train == phrase){
 				_s_diff = (float_t*)malloc(_length * sizeof(float_t));
+				set_diff(0);
 			}
 #endif
 
@@ -111,7 +112,7 @@ namespace mycnn{
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __GPU__
-			cuda_setvalue<float_t>(_s_data,value_,_length);
+			cuda_setvalue<float_t>(s_data_,value_,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
 				s_data_[i] = value_;
@@ -171,6 +172,19 @@ namespace mycnn{
 			cuda_copy2dev(s_data(), &data_[0], _length);
 #else
 			cacu_copy(&data_[0],_length, s_data());
+#endif
+		}
+
+		/*
+		 * copy data into blob's diff, if blob is established in gpu, io op is needed
+		 */
+		inline const void copy_diff_io(vec_t &data_)
+		{
+			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(s_diff(), &data_[0], _length);
+#else
+			cacu_copy(&data_[0],_length, s_diff());
 #endif
 		}
 

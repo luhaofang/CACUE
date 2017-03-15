@@ -63,7 +63,6 @@ namespace mycnn{
 				for (int i = 0; i < width; ++i)
 				{
 					y[i] += xp[i];
-					//LOG_DEBUG("%d:%d",b,i);
 				}
 			}
 		}

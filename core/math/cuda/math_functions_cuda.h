@@ -35,20 +35,24 @@
 
 
 inline void cacu_saxpy_gpu(float_t *x, float_t a, float_t *y, int length) {
-	status = cublasSaxpy_v2(handle, length, &a, x, 1, y, 1);
+	float_t a_ = a;
+	status = cublasSaxpy_v2(handle, length, &a_, x, 1, y, 1);
 	CUBLAS_CHECK(status);
 }
 
 inline void cacu_saxpby_gpu(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
-	status = cublasSscal_v2(handle, length, &a, y, 1);
+	float_t a_ = a;
+	float_t b_ = b;
+	status = cublasSscal_v2(handle, length, &b_, y, 1);
 	CUBLAS_CHECK(status);
-	status = cublasSaxpy_v2(handle, length, &a, x, 1, y, 1);
+	status = cublasSaxpy_v2(handle, length, &a_, x, 1, y, 1);
 	CUBLAS_CHECK(status);
 }
 
 inline void cacu_scalex_gpu(float_t *x, float_t a, int length)
 {
+	float_t a_ = a;
 	status = cublasSscal_v2(handle, length, &a, x, 1);
 	CUBLAS_CHECK(status);
 }

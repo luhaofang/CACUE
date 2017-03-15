@@ -347,7 +347,7 @@ __global__ void _k_CACU_IMG2COL_GPU(float_t *x, int kernel_size, int stride, int
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
-	int out_start, in_start, in;
+	int out_start, in_start;
 
 	int k_row, k_col, c;
 
@@ -364,14 +364,13 @@ __global__ void _k_CACU_IMG2COL_GPU(float_t *x, int kernel_size, int stride, int
 		for (int i = tid; i < block_size; i += THREADNUM)
 		{
 			k_row = (i % (kernel_length)) / kernel_size;
-			k_col = i % kernel_size;
+			k_col = (i % (kernel_length)) % kernel_size;
 			c = i / kernel_length;
-			in = in_start + (k_row * input_dim + k_col) + c * cin_length;
-			y[out_start + i] = x[in];
+			y[out_start + i] = x[in_start + (k_row * input_dim + k_col) + c * cin_length];
 
 		}
 
-		__syncthreads();
+		//__syncthreads();
 
 	}
 }
@@ -439,19 +438,18 @@ __global__ void _k_CACU_COL2IMG_GPU(float_t *x, int kernel_size, int stride, int
 
 	int length = input_dim * input_dim * channel;
 
-	int channel_length = input_dim * input_dim;
+	int cin_length = input_dim * input_dim;
 
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-
-		y[i] = 0.0;
+		y[i] = 0;
 		//row
-		startset_i = (i % channel_length) / input_dim;
+		startset_i = (i % cin_length) / input_dim;
 		//col
-		startset_j = (i % channel_length) % input_dim;
+		startset_j = (i % cin_length) % input_dim;
 		//channel
-		c = i / channel_length;
+		c = i / cin_length;
 
 		outset_si = startset_i / stride;
 		outset_sj = startset_j / stride;
@@ -466,18 +464,18 @@ __global__ void _k_CACU_COL2IMG_GPU(float_t *x, int kernel_size, int stride, int
 
 		while (outset_si - (count_i + 1) >= 0
 				&& ((outset_si - (count_i + 1)) * stride) + kernel_size
-						>= startset_i + 1) {
+						> startset_i) {
 			count_i++;
 		}
 		while (outset_sj - (count_j + 1) >= 0
 				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
-						>= startset_j + 1) {
+						> startset_j) {
 			count_j++;
 		}
 
 		//stride
-		for (int mi = 0; mi <= count_i; mi++)
-			for (int mj = 0; mj <= count_j; mj++) {
+		for (int mi = 0; mi <= count_i; ++mi)
+			for (int mj = 0; mj <= count_j; ++mj) {
 				outset_i = outset_si - mi;
 				outset_j = outset_sj - mj;
 

@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "parallel_config.h"
 #include "../../tools/random.h"
+#include "sm_60_atomic_functions.h"
 
 using namespace std;
 

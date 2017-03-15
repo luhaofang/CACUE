@@ -98,8 +98,7 @@ namespace mycnn{
 
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
-			blob *o_blob_ = (blob*)o_blob;
-			o_blob_->_RESET_DATA();
+			o_blob->_RESET_DATA();
 			_w->_RESET_DIFF();
 			_bias->_RESET_DIFF();
 		}

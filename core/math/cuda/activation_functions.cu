@@ -161,12 +161,16 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length) {
 
 		__syncthreads();
 
-		if (tid == 0) {
-			sum[0] = 0;
-			for (int i = 0; i < length; i++)
-				sum[0] += xp[i];
+		int acc_length = THREADNUM / 2;
+		sum[0] = 0;
+		while(acc_length > 0){
+			if(tid < acc_length)
+				sum[tid] += sum[tid + acc_length];
+			acc_length /= 2;
+			__syncthreads();
 		}
 
+		//bank conflict
 		sum[tid] = sum[0];
 
 		__syncthreads();

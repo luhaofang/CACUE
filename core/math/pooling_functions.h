@@ -332,33 +332,27 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_col2img_gpu(x,kernel_size,stride,input_dim,channel,output_dim,y);
 #else
-
-		float_t *sdp, *snp;
 		int sd_out, sn_out;
 
 		int block_size = kernel_size * kernel_size * channel;
 		int k_size = kernel_size * kernel_size;
-		int length = output_dim * output_dim * channel * kernel_size * kernel_size;
-		int out_dim = output_dim * output_dim;
-		int border = input_dim - output_dim;
-		int in_dim = input_dim * input_dim;
-
-		sdp = x;
-		snp = y;
+		int cout_length = output_dim * output_dim;
+		int cin_length = input_dim * input_dim;
 
 		//for output_dim's location
-		for (int index = 0; index < out_dim; index++) {
-			sd_out = index * block_size;
-			sn_out = ((index / output_dim) * input_dim + (index % output_dim))
-					* stride;
-			for (int ki = 0; ki < kernel_size; ki++)
-				for (int kj = 0; kj < kernel_size; kj++) {
-					for (int c = 0; c < channel; c++) {
-						*(snp + sn_out + (ki * input_dim + kj) + c * in_dim) +=
-								*(sdp + sd_out + c * k_size + ki * kernel_size
-										+ kj);
+		for (int row = 0; row < output_dim; ++row)
+		{
+			for(int col = 0 ; col < output_dim; ++col)
+			{
+				sd_out = (row * output_dim + col) * block_size;
+				sn_out = (row * input_dim + col) * stride;
+				for (int c = 0; c < channel; ++c) {
+					for (int ki = 0; ki < kernel_size; ++ki)
+						for (int kj = 0; kj < kernel_size; ++kj) {
+							y[sn_out + (ki * input_dim + kj) + c * cin_length] += x[sd_out + c * k_size + ki * kernel_size + kj];
 					}
 				}
+			}
 		}
 #endif
 	}

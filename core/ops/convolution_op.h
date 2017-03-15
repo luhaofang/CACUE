@@ -92,24 +92,22 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 
 			for (int i = 0; i < s_blob_->num(); ++i){
-
 				//gradient propagation
-				cacu_sgemm(NOTRANS,TRANS,_w->s_diff(),_w->length(),_args->output_channel(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),1 ,_col_data->p_diff(i),0);
-
+				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_args->output_channel(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),1 ,_col_data->p_diff(i),0);
 				//weights gradient
-				cacu_sgemm(TRANS,TRANS,_col_data->p_data(i),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff(i),_args->output_channel(),1,_w->s_diff(),1);
+				cacu_sgemm(NOTRANS,NOTRANS,_col_data->p_data(i),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff(i),_args->output_channel(),1,_w->s_diff(),1);
 
 				//bias gradient
-				cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),_bias->s_diff(),_bias->count());
-
+				cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),_bias->s_diff(),o_blob_->width()*o_blob_->height());
 				//col2img
 				//unpadded
-				if(_args->pad()!=0){
+				if(_args->pad() != 0){
 					cacu_col2img(_col_data->p_diff(i),_args->kernel_size(),_args->stride(),_args->input_dim() + 2 * _args->pad(),_args->channel(), o_blob_->width(),_padded_data->p_diff(i));
 					cacu_unpadded_data(_padded_data->p_diff(i),_args->channel(),_args->input_dim() + 2 * _args->pad(),_args->pad(),s_blob_->p_diff(i));
 				}
 				else
 					cacu_col2img(_col_data->p_diff(i),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),s_blob_->p_diff(i));
+
 			}
 		}
 
@@ -128,8 +126,8 @@ namespace mycnn{
 
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
-			blob *o_blob_ = (blob*)o_blob;
-			o_blob_->_RESET_DATA();
+
+			o_blob->_RESET_DATA();
 
 			_w->_RESET_DIFF();
 			_bias->_RESET_DIFF();

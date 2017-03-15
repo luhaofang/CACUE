@@ -53,7 +53,7 @@ inline DTYPE* cuda_malloc_v(int num,int length,DTYPE value)
 {
 	DTYPE* data_;
 	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
-	vector<float_t> d(num * length,value);
+	vector<float_t> d(num * length, value);
 	res = cudaMemcpy((void*) (data_), (void*) (&d[0]), num * length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	CUDA_CHECK(res);
 	return data_;

@@ -51,6 +51,6 @@ extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int 
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_gpu(float_t *x, int length);
+extern "C" void cacu_softmax_gpu(float_t *x, int num , int length);
 
 

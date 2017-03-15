@@ -34,5 +34,6 @@ int main(int argc, char** argv)
 	//make_mean(datapath,meanpath);
 	//train_net();
 	int result =  Catch::Session().run(argc,argv);
+
 }
 

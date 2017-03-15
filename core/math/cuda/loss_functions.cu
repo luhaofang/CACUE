@@ -52,9 +52,15 @@ __global__ void _k_CACU_CROSS_ENTROPY_GPU(float_t *x, int num, int length, unsig
 
 	__syncthreads();
 
-	if (tid == 0)
-		for (int i = 0 ; i < THREADNUM; ++i)
-			loss_[0] -= shared_data[i];
+	int acc_length = THREADNUM / 2;
+	while(acc_length > 0){
+		if(tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+	loss_[0] = shared_data[0];
+
 }
 
 

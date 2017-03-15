@@ -40,9 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-
-#define BLOCKNUM 512
-#define THREADNUM 64
+#define BLOCKNUM 1024
+#define THREADNUM 256
 
 //cublas log utilities
 #define CUBLAS_LOG(level,status) \
@@ -68,19 +67,14 @@ namespace mycnn{
 #define CUDA_INFO(format,...) CUDA_LOG("DEBUG",p,format,##__VA_ARGS__)
 
 
-
+static float_t *CUDA_FP = (float_t*)malloc(sizeof(float_t));
 /*
  * using for cuda debugging ,will be deleted in the release version
  */
 #define CUDA_PRINT(d_data_,length)  \
-		float_t *s_p = (float_t*)malloc(length * sizeof(float_t));\
-		cudaError_t res = cudaMemcpy((void*) (s_p), (void*) (d_data_),	length * sizeof(float_t), cudaMemcpyDeviceToHost);\
-		CUDA_CHECK(res);\
+		cudaMemcpy((void*) (CUDA_FP), (void*) (d_data_+length), sizeof(float_t), cudaMemcpyDeviceToHost);\
 		printf("[CUDA][%s %s:%d]:" , __TIME__, __FILE__, __LINE__);\
-		for(int i=0; i < length ; ++i)\
-			printf("%f,",s_p[i]);\
-		printf("\n");\
-		free(s_p);
+		printf("%f\n",CUDA_FP[0]);\
 
 };
 
