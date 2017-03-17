@@ -66,16 +66,6 @@ namespace mycnn{
 #define CUDA_DEBUG(format,...) CUDA_LOG("DEBUG",p,format,##__VA_ARGS__)
 #define CUDA_INFO(format,...) CUDA_LOG("DEBUG",p,format,##__VA_ARGS__)
 
-
-static float_t *CUDA_FP = (float_t*)malloc(sizeof(float_t));
-/*
- * using for cuda debugging ,will be deleted in the release version
- */
-#define CUDA_PRINT(d_data_,length)  \
-		cudaMemcpy((void*) (CUDA_FP), (void*) (d_data_+length), sizeof(float_t), cudaMemcpyDeviceToHost);\
-		printf("[CUDA][%s %s:%d]:" , __TIME__, __FILE__, __LINE__);\
-		printf("%f\n",CUDA_FP[0]);\
-
 };
 
 

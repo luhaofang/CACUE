@@ -11,10 +11,9 @@
 
 #include "example/cifar10/train.hpp"
 
-#define CATCH_CONFIG_RUNNER
-#include "3rd_party/catch.hpp"
 
-#include "core/test/ops/test_convolution.hpp"
+#include "core/test/test_cases.h"
+
 
 using namespace mycnn;
 using namespace mycnn_tools;
@@ -32,8 +31,8 @@ int main(int argc, char** argv)
 	//string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	//string meanpath = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
 	//make_mean(datapath,meanpath);
-	//train_net();
-	int result =  Catch::Session().run(argc,argv);
+	train_net();
+	//int result =  Catch::Session().run(argc,argv);
 
 }
 

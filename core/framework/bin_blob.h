@@ -107,7 +107,7 @@ namespace mycnn{
 
 		const void set_data(unsigned int value_)
 		{
-			unsigned int* s_data_ = (unsigned int*)s_data_;
+			unsigned int* s_data_ = (unsigned int*)_s_data;
 #if __PARALLELTYPE__ == __GPU__
 			cuda_setvalue<unsigned int>(s_data_, value_,_length);
 #else
@@ -153,6 +153,16 @@ namespace mycnn{
 #endif
 		}
 
+		inline const void copy_data_io(vec_t &data_, int i)
+		{
+			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(p_diff(i),&data_[0],_cube_length);
+#else
+			memcpy(p_diff(i),&data_[0],_cube_length*sizeof(float_t));
+#endif
+		}
+
 		/*
 		 * copy data into blob's diff, if blob is established in gpu, io op is needed
 		 */
@@ -162,7 +172,7 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 			cuda_copy2dev(s_diff(), &data_[0], _length);
 #else
-			cacu_copy(&data_[0],_length, s_diff());
+			memcpy(s_diff(), &data_[0],_length*sizeof(float_t));
 #endif
 		}
 

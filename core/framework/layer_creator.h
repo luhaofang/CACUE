@@ -96,6 +96,18 @@ namespace mycnn{
 		return lb;
 	}
 
+	layer_block* fc_layer_nodropout(blob* data, int output_channel, int kernel_size = 0, int stride = 0, int pad = 0, op_name activation_op = CACU_RELU)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel);
+		l->op(CACU_INNERPRODUCT, data)->op(activation_op);
+		clock_t end = clock();
+		LOG_INFO("time cost :%d", (end - start));
+		*lb << l;
+		return lb;
+	}
+
 	layer_block* loss_layer(blob* data, bin_blob* label, int output_channel)
 	{
 		layer_block *lb = new layer_block();

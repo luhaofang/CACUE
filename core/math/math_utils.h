@@ -78,7 +78,12 @@ typedef enum {
 
 } SUM;
 
-
+inline void cacu_print(float_t *data, int length)
+{
+	for(int i = 0; i < length ;++i)
+		printf("%f,",data[i]);
+	printf("\n");
+}
 
 
 

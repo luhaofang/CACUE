@@ -112,9 +112,9 @@ namespace mycnn{
 
 		inline int op_count(){ return _ops.size(); }
 
-		inline blobs* input_blobs(){ return _input_blobs; }
+		inline blobs *& input_blobs(){ return _input_blobs; }
 
-		inline blob* output_blob(){return (blob*)_ops[_ops.size()-1]->out_data();}
+		inline blob *& output_blob(){return (blob*&)_ops[_ops.size()-1]->out_data();}
 
 
 	private:

@@ -59,9 +59,13 @@ inline void cacu_scalex_gpu(float_t *x, float_t a, int length)
 
 inline void cacu_sgemv_gpu(cublasOperation_t trans, float_t *x, int x_height, float_t *y, int x_width, float_t alpha, float_t *z , float_t beta)
 {
+	int m = x_height,n = x_width;
 	float_t _alpha = alpha;
 	float_t _beta = beta;
-	status = cublasSgemv_v2(handle, trans, x_height, x_width, &alpha, x, x_height, y, 1, &beta, z, 1);
+	if(trans == CUBLAS_OP_N)
+		status = cublasSgemv_v2(handle, trans, m, n, &alpha, x, m, y, 1, &beta, z, 1);
+	else
+		status = cublasSgemv_v2(handle, trans, n, m, &alpha, x, n, y, 1, &beta, z, 1);
 	CUBLAS_CHECK(status);
 }
 

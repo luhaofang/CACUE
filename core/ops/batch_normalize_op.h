@@ -89,17 +89,15 @@ namespace mycnn{
 
 			if (!use_global_stats)
 			{
-				_dim_sum->_RESET_DATA();
-				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(), _dim_sum->s_data(), s_blob_->length()/s_blob_->channel());
-				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(), _mean->s_data(), s_blob_->channel());
+				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, _dim_sum->s_data(),0, s_blob_->length()/s_blob_->channel());
+				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(),1, _mean->s_data(),0, s_blob_->channel());
 
 				cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
 				//for saving space here we use o_data for container calculate x^2
 				cacu_sqr(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 
-				_dim_sum->_RESET_DATA();
-				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), _dim_sum->s_data(), o_blob_->length()/o_blob_->channel());
-				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(), _var->s_data(), o_blob_->channel());
+				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), 1,_dim_sum->s_data(), 0, o_blob_->length()/o_blob_->channel());
+				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(),1, _var->s_data(),0, o_blob_->channel());
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
 				cacu_saxpy(_mean->s_data(), (float_t)-1.0, _var->s_data(), _mean->count());
@@ -155,9 +153,9 @@ namespace mycnn{
 			//gradient of scale
 			cacu_bn_gamma_grad(_x->s_data(), o_blob_->s_diff(),o_blob_->num(),o_blob_->length(),o_blob_->channel(),_scale->s_diff());
 			//gradient of shift
-			_dim_sum->_RESET_DATA();
-			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), _dim_sum->s_data(), o_blob_->length()/o_blob_->channel());
-			cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(), _shift->s_diff(), s_blob_->channel());
+
+			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(),1, _dim_sum->s_data(),0, o_blob_->length()/o_blob_->channel());
+			cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(),1, _shift->s_diff(),0, s_blob_->channel());
 		}
 
 		virtual const void load(std::ifstream& is) override {
@@ -171,7 +169,7 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 #if __PARALLELTYPE__ == __GPU__
-			CUDA_PRINT(_mean->s_data(),1);
+			cuda_print(_mean->s_data(),1);
 #else
 			LOG_INFO("%f", (_mean)->s_data()[0]);
 #endif

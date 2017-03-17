@@ -40,8 +40,8 @@ namespace mycnn{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-			int output_dim = (input_dim - args_->kernel_size()) / args_->stride() + 1;
-			if ((input_dim - args_->kernel_size()) % args_->stride() != 0)
+			int output_dim = (input_dim - _args->kernel_size()) / _args->stride() + 1;
+			if ((input_dim - _args->kernel_size()) % _args->stride() != 0)
 				output_dim += 1;			
 			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim, _phrase);
 
@@ -54,7 +54,8 @@ namespace mycnn{
 		};
 
 		virtual const void check() override{
-			return;
+			//kernel_size > 0
+			CHECK_GT_OP(_args->kernel_size(), 0,"kernel_size must > 0 vs %d",_args->kernel_size());
 		}
 
 		virtual const void op() override {
@@ -88,6 +89,7 @@ namespace mycnn{
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blob->_RESET_DATA();
+			_index->_RESET_DATA();
 		}
 
 	private:

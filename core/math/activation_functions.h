@@ -46,7 +46,7 @@ namespace mycnn{
 		for (int i = 0; i < length; ++i)
 		{
 			if (x[i] < 0)
-				x[i] = 0;
+				x[i] = 0.0;
 		}
 #endif
 
@@ -66,7 +66,7 @@ namespace mycnn{
 		for (int i = 0; i < length; ++i)
 		{
 			if (x[i] < 0)
-				g[i] = 0;
+				g[i] = 0.0;
 		}
 #endif
 
@@ -123,11 +123,12 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_softmax_gpu(x, num, length);
 #else
+		float_t *xp,max_,sum_;
 		for (int n = 0; n < num; ++n)
 		{
-			float_t *xp = x + n * length;
-			float_t max_ = xp[0];
-			float_t sum_= 0 ;
+			xp = x + n * length;
+			max_ = xp[0];
+			sum_ = 0;
 			for (int i = 1; i < length; ++i)
 				max_ = max(xp[i], max_);
 			for (int i = 0; i < length; ++i)

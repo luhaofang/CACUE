@@ -57,7 +57,7 @@ network* create_cifar_quick_net(int batch_size)
 	conv3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.01);
 	conv3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv3");
-	layer_block *fc6 = fc_layer((blob*)conv3->get_oblob(), 64);
+	layer_block *fc6 = fc_layer_nodropout((blob*)conv3->get_oblob(), 64);
 	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.1);
 	fc6->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("fc6");

@@ -126,7 +126,6 @@ namespace mycnn{
 
 		inline void set_param_init_type(param_init_type type, weight *w_, float_t value = 0.0)
 		{
-			rand_t *r_ = new rand_t();
 			vec_t p_(w_->count());
 			int length_ = w_->count();
 			float_t *s_data_ = w_->s_data();
@@ -139,16 +138,16 @@ namespace mycnn{
 			case mycnn::xavier:
 				value = sqrt((float_t) 3.0/ (_args->kernel_size() * _args->kernel_size() * _args->channel()));
 				for (int i = 0; i < length_; i++)
-					p_[i] = r_->urand(-value, value);
+					p_[i] = rand_t::urand(-value, value);
 				break;
 			case mycnn::gaussian:
 				for (int i = 0; i < length_; i++)
-					p_[i] = r_->gaussrand(value);
+					p_[i] = rand_t::gaussrand(value);
 				break;
 			case mycnn::msra:
 				value = sqrt((float_t) 2.0/ (_args->kernel_size() * _args->kernel_size() * _args->channel()));
 				for (int i = 0; i < length_; i++)
-					p_[i] = r_->gaussrand(value);
+					p_[i] = rand_t::gaussrand(value);
 				break;
 			default:
 				break;
@@ -160,7 +159,6 @@ namespace mycnn{
 			for (int i = 0; i < length_; ++i)
 				s_data_[i] = p_[i];
 #endif
-			delete r_;
 			vec_t().swap(p_);
 		}
 

@@ -29,7 +29,7 @@
 #include "../math_utils.h"
 
 
-__global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width, float_t *y) {
+__global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width, float_t alpha, float_t *y ,float_t beta) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -50,11 +50,12 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(float_t *x, int heigth, int width,
 			acc_length /= 2;
 			__syncthreads();
 		}
-		y[i] += shared_data[0];
+		if(tid == 0)
+			y[i] = alpha * shared_data[0] + beta * y[i];
 	}
 }
 
-__global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width, float_t *y) {
+__global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width,float_t alpha, float_t *y, float_t beta) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -64,17 +65,21 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width
 	for (int i = bid; i < width; i += BLOCKNUM) {
 		shared_data[tid] = 0;
 		for(int j = tid ;j < height; j += THREADNUM)
-			shared_data[tid] += x[j * width + i];
+		{
+			shared_data[tid] += x[j*width + i];
+		}
 		__syncthreads();
 
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
+
 			if(tid < acc_length)
 				shared_data[tid] += shared_data[tid + acc_length];
 			acc_length /= 2;
 			__syncthreads();
 		}
-		y[i] += shared_data[0];
+		if(tid == 0)
+			y[i] = alpha * shared_data[0] + beta * y[i];
 	}
 }
 
@@ -85,14 +90,14 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(float_t *x, int height, int width
  * accumulate the value by width or height , width is the matrix array's width dim which stored in row -major format.
  * sum by width y is (length/ width) height dim, sum by height y is width dim.
  */
-extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t *y, int width){
+extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t alpha, float_t *y, float_t beta, int width){
 
 	int height = length / width;
 
 	if (BYWIDTH == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<BLOCKNUM, THREADNUM ,THREADNUM*sizeof(float_t)>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYWIDTH_GPU<<<BLOCKNUM, THREADNUM ,THREADNUM*sizeof(float_t)>>>(x, height,width, alpha, y, beta);
 	else if(BYHEIGHT == SUMTYPE)
-		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<BLOCKNUM, THREADNUM ,THREADNUM*sizeof(float_t)>>>(x, height,width, y);
+		_k_CACU_SUMBYSIZE_BYHEIGHT_GPU<<<BLOCKNUM, THREADNUM ,THREADNUM*sizeof(float_t)>>>(x, height,width, alpha, y, beta);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -288,7 +293,8 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(float_t *x, float_t *d_x, float_t *mean,
 			acc_length /= 2;
 			__syncthreads();
 		}
-		d_rou[i] = shared_data[0];
+		if(tid == 0)
+			d_rou[i] = shared_data[0];
 	}
 }
 
@@ -342,7 +348,8 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(float_t *x, float_t *d_x, float_t *mean, 
 			acc_length /= 2;
 			__syncthreads();
 		}
-		d_mean[i] = shared_data[0];
+		if(tid == 0)
+			d_mean[i] = shared_data[0];
 	}
 }
 
@@ -433,7 +440,8 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(float_t *_x, float_t *d_y, int num, in
 			acc_length /= 2;
 			__syncthreads();
 		}
-		d_gamma[i] = shared_data[0];
+		if(tid == 0)
+			d_gamma[i] = shared_data[0];
 	}
 }
 
@@ -448,6 +456,7 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(float_t *_x, float_t *d_y, int num, in
 extern "C" void cacu_bn_gamma_grad_gpu(float_t *_x, float_t *d_y, int num, int length, int channel, float_t *d_gamma)
 {
 	_k_CACU_BN_GAMMA_GRAD_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(float_t)>>>(_x, d_y, num, length, channel, d_gamma);
+	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 __global__ void _k_CACU_SSX_GPU(float_t *x, int length, float_t *y) {

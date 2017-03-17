@@ -52,13 +52,13 @@ namespace mycnn{
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			cacu_leaky_relu(s_blob_->s_data(), a, s_blob_->count());
+			cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
 		}
 
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			cacu_leaky_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), a, s_blob_->count());
+			cacu_leaky_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), _negative_slope, s_blob_->count());
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -79,7 +79,7 @@ namespace mycnn{
 			return;
 		}
 
-		float_t a = 0.01f;
+		float_t _negative_slope = 0.01f;
 
 	private:
 

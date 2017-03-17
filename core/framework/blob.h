@@ -87,11 +87,9 @@ namespace mycnn{
 			if (train == _phrase)
 				cuda_refresh(s_diff_,_length);
 #else
-			for(int i = 0 ; i < _length ; ++i)
-				s_data_[i] = 0.0;
+			memset(s_data_, 0 ,_length*sizeof(float_t));
 			if (train == _phrase)
-				for(int i = 0 ; i < _length ; ++i)
-					s_diff_[i] = 0.0;
+				memset(s_diff_, 0 ,_length*sizeof(float_t));
 #endif
 		}
 
@@ -100,11 +98,10 @@ namespace mycnn{
 			float_t* s_diff_ = (float_t*)_s_diff;
 #if __PARALLELTYPE__ == __GPU__
 			if (train == _phrase)
-				cuda_refresh(s_diff_,_length);
+				cuda_refresh(s_diff_, _length);
 #else
 			if (train == _phrase)
-				for(int i = 0 ; i < _length ; ++i)
-					s_diff_[i] = 0.0;
+				memset(s_diff_, 0 ,_length*sizeof(float_t));
 #endif
 		}
 
@@ -143,9 +140,9 @@ namespace mycnn{
 			cacu_copy(blob_->s_data(),_length, (float_t*)_s_data);
 		}
 
-		inline blob* copy_create(phrase_type phrase_)
+		inline blob* copy_create(phrase_type phrase_, float_t value_ = 0)
 		{
-			return new blob(_num, _channel, _width, _height, 0, phrase_);
+			return new blob(_num, _channel, _width, _height, value_, phrase_);
 		}
 
 		/*
@@ -172,6 +169,20 @@ namespace mycnn{
 			cuda_copy2dev(s_data(), &data_[0], _length);
 #else
 			cacu_copy(&data_[0],_length, s_data());
+#endif
+		}
+
+		/*
+		 * copy data into blob, if blob is established in gpu, io op is needed
+		 * where i is the start index in blob
+		 */
+		inline const void copy_diff_io(vec_t &data_, int i)
+		{
+			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(p_diff(i), &data_[0], _cube_length);
+#else
+			cacu_copy(&data_[0],_cube_length, p_diff(i));
 #endif
 		}
 

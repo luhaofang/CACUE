@@ -151,18 +151,19 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length) {
 				max_data[0] = max(max_data[0], xp[i]);
 		}
 
-		max_data[tid] = max_data[0];
-
 		__syncthreads();
 
+		//bank conflict
+		max_data[tid] = max_data[0];
+		sum[tid] = 0;
 		for (int i = tid; i < length; i += THREADNUM) {
-			x[i] = exp(xp[i] - max_data[tid]);
+			xp[i] = exp(xp[i] - max_data[tid]);
+			sum[tid] += xp[i];
 		}
 
 		__syncthreads();
 
 		int acc_length = THREADNUM / 2;
-		sum[0] = 0;
 		while(acc_length > 0){
 			if(tid < acc_length)
 				sum[tid] += sum[tid + acc_length];
@@ -178,6 +179,7 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length) {
 		for (int i = tid; i < length; i += THREADNUM) {
 			xp[i] /= sum[tid];
 		}
+
 	}
 
 }

@@ -37,13 +37,13 @@ __global__ void _k_CACU_ISAXB_GPU(float_t *x, int length, float_t a ,unsigned in
 	int threadid = bid * THREADNUM + tid;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-
-		if(*index_ != i)
-			y[i] = x[i];
-		else
-			y[i] = a*x[i] + b;
-
+		y[i] = x[i];
 	}
+
+	__syncthreads();
+
+	if(threadid == 0)
+		y[index_[0]] = a*x[index_[0]] + b;
 }
 
 /**

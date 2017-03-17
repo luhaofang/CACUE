@@ -71,7 +71,7 @@ inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length
 
 /**
  * @cacu_scalex
- * math y[i] = a*x[i] :
+ * math x[i] = a*x[i] :
  * x is a length dim array list, a is the corresponding scalar.
  */
 inline void cacu_scalex(float_t *x, int length, float_t a)

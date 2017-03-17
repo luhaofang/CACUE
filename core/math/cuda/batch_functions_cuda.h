@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * accumulate the value by width or height , width is the matrix array's width dim which stored in row -major format.
  * sum by width y is (length/ width) height dim, sum by height y is width dim.
  */
-extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t *y, int width);
+extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,float_t *x, int length, float_t alpha, float_t *y, float_t beta, int width);
 
 /**
  * @cacu_cxsize_gpu

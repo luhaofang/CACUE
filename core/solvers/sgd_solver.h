@@ -55,38 +55,37 @@ namespace mycnn{
 
 		/**
 		 * update weight value
-		 * where i is the weight index in _history_v
+		 * where weight_index_ is the weight index in _history_v
 		 */
-		virtual const void update_weight(weight* w_, int i) override
+		virtual const void update_weight(weight* w_, int weight_index_) override
 		{
+			//printf("      %s,    %s,    %s,    %s\n","w","grad","new_w","history");
+			//printf("%d:",weight_index_);
+#if __PARALLELTYPE__ == __GPU__
+			//cuda_print(w_->s_data(),1);
+			//cuda_print(w_->s_diff(),1);
+#else
+			printf("(%f,%f,",w_->s_data()[0],w_->s_diff()[0]);
+#endif
+			blob* history_ = (blob*)_history_v->at(weight_index_);
+			float_t learn_rate_ = w_->lr() * _global_lr;
+			//normalization
+			__NORMALIZE__(w_);
 			//add regular
-			__REGULARIZE__(regularize(), w_ ,i);
-
+			__REGULARIZE__(w_ ,weight_index_);
 			//history_v update
-			cacu_saxpby(((blob*)_history_v->at(i))->p_data(i), _momentum,((blob*)_history_v->at(i))->p_data(i),(float_t)(-1),w_->length());
+			cacu_saxpby(w_->s_diff(), learn_rate_, history_->s_data(), _momentum, w_->count());
 			//update to weight
-			cacu_saxpy(w_->p_data(i),(float_t)1,((blob*)_history_v->at(i))->p_data(i),w_->length());
+			cacu_saxpy(history_->s_data(), 1, w_->s_data(), w_->count());
+#if __PARALLELTYPE__ == __GPU__
+			//cuda_print(w_->s_data(),1);
+			//cuda_print(history_->s_data(),1);
+#else
+			printf("%f,%f),",w_->s_data()[0],history_->s_data()[0]);
+			printf("\n");
+#endif
+			//echo();
 
-		}
-
-		virtual const void train_iter(blob_base *blob_,blob_base *label_) override
-		{
-
-			_net->predict();
-			for(int i = _net->op_count() - 1 ; i >= 0; --i)
-			{
-				_net->get_op(i)->grad();
-				//LOG_DEBUG("fuck! %d",i);
-			}
-
-			for(int i = 0 ; i < _net->op_count();++i)
-			{
-				operator_base* op_ = _net->get_op(i);
-				for(int j = 0; j < op_->weights_size(); ++j)
-				{
-					update_weight(op_->get_weight(j),j);
-				}
-			}
 		}
 
 		inline void set_momentum(float_t momentum_){ _momentum = momentum_ ;}
@@ -96,7 +95,8 @@ namespace mycnn{
 		void echo()
 		{
 			for(int i = 0; i < _history_v->size() ;++i)
-				LOG_INFO("%d,%d,%d,%d",_history_v->at(i)->num(),_history_v->at(i)->channel(),_history_v->at(i)->height(),_history_v->at(i)->width());
+				printf("(%f,%f),",((blob*)_history_v->at(i))->s_data()[0],((blob*)_history_v->at(i))->s_diff()[0]);
+			printf("\n");
 		}
 
 

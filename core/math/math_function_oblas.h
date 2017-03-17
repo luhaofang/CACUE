@@ -47,14 +47,18 @@ inline void cacu_scalex_oblas(float_t *x, float_t a, int length)
 
 inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width,float_t alpha,float_t *z,float_t beta)
 {
-	cblas_sgemv(CblasColMajor, trans, x_height, x_width, (float_t)alpha, x, x_height, y, 1, (float_t)beta, z, 1);
+	int m = x_height,n = x_width;
+	if(trans == CblasNoTrans)
+		cblas_sgemv(CblasColMajor, trans, m, n, (float_t)alpha, x, m, y, 1, (float_t)beta, z, 1);
+	else
+		cblas_sgemv(CblasColMajor, trans, n, m, (float_t)alpha, x, n, y, 1, (float_t)beta, z, 1);
 }
 
 inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha,float_t *z,float_t beta)
 {
 	int m = x_height,n = y_width,k = x_width;
-	int lda = (transx == CblasNoTrans) ? m : k;//k : m;
-	int ldb = (transy == CblasNoTrans) ? k : n;//n : k;
+	int lda = (transx == CblasNoTrans) ? m : k;
+	int ldb = (transy == CblasNoTrans) ? k : n;
 	cblas_sgemm(CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
 }
 

@@ -129,11 +129,7 @@ namespace mycnn_tools{
 			is.close();
 
 			float *d_= &temp_[0];
-#ifdef _WIN32
-			memcpy_s(p_data,&temp_[0],temp_.size()*sizeof(float));
-#elif linux
-			memcpy(p_data,&temp_[0],temp_.size()*sizeof(float));
-#endif
+			memcpy(p_data,d_,temp_.size()*sizeof(float));
 		}
 
 	private:

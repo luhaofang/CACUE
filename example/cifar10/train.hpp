@@ -46,6 +46,8 @@ void train_net()
 
 	sgd_solver *sgd = new sgd_solver(net);
 
+	sgd->set_lr(0.001);
+
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
 
@@ -53,8 +55,8 @@ void train_net()
 	vector<vec_i> full_label;
 	load_data_bymean(datapath, meanfile, full_data, full_label);
 
-	blob *input_data = cacu_allocator::create_blob(batch_size,3,32,32,train);
-	bin_blob *input_label = cacu_allocator::create_bin_blob(batch_size,1,1,1,train);
+	blob *input_data = (blob*)net->input_blobs()->at(0);
+	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
 	clock_t start,end;
@@ -65,14 +67,15 @@ void train_net()
 		{
 			if (step_index == kCIFARDataCount)
 				step_index = 0;
+			if(i == 0){
 			input_data->copy_data_io(full_data[step_index], j);
-			input_label->copy_data_io(full_label[step_index],j);
+			input_label->copy_data_io(full_label[step_index],j);}
 			step_index += 1;
 		}
-		sgd->train_iter(input_data,input_label);
+		sgd->train_iter();
 		end = clock();
 
-		if(i % 100 == 0){
+		if(i % 1 == 0){
 			LOG_INFO("iter_%d , %d ms/iter", i, (end - start)/1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}

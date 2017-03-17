@@ -53,7 +53,7 @@ inline DTYPE* cuda_malloc_v(int num,int length,DTYPE value)
 {
 	DTYPE* data_;
 	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
-	vector<float_t> d(num * length, value);
+	vector<DTYPE> d(num * length, value);
 	res = cudaMemcpy((void*) (data_), (void*) (&d[0]), num * length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	CUDA_CHECK(res);
 	return data_;
@@ -70,7 +70,7 @@ inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
 template<typename DTYPE>
 inline void cuda_refresh(DTYPE *data_, int length)
 {
-	res = cudaMemset((void*) (data_),0,length);
+	res = cudaMemset((void*) (data_), (DTYPE)0 ,length * sizeof(DTYPE));
 	CUDA_CHECK(res);
 }
 
@@ -92,6 +92,16 @@ template<typename DTYPE>
 inline void cuda_free(DTYPE* data_)
 {
 	cudaFree(data_);
+}
+
+template<typename DTYPE>
+inline void cuda_print(DTYPE* data_,int length)
+{
+	vector<DTYPE> v(length);
+	cuda_copy2host(&v[0],data_,length);
+	for(int i = 0; i < length ;++i)
+		cout<< v[i] << ",";
+	cout<<endl;
 }
 
 

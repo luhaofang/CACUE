@@ -57,13 +57,11 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
-			for (int i = 0; i < s_blob_->num(); ++i){
-				//inner_product
-				cacu_sgemv(TRANS,_w->s_data(),_w->num(),s_blob_->p_data(i),s_blob_->length(),(float_t)1,o_blob_->p_data(i),(float_t)0);
-				//elemwise_sum
-				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+			for(int i = 0 ; i < s_blob_->num(); ++i)
+			{
+				cacu_sgemv(TRANS,_w->s_data(),_w->num(),s_blob_->p_data(i),_w->length(),1,o_blob_->p_data(i),0);
+				cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data(i),(float_t)1,o_blob_->length(),o_blob_->p_data(i));
 			}
-
 		}
 
 		virtual const void grad() override{
@@ -71,14 +69,13 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 
 			//gradient propagation
-			cacu_sgemm(TRANS,NOTRANS,_w->s_diff(),_w->length(),o_blob_->length(), o_blob_->s_diff(),o_blob_->num(), 1, s_blob_->s_diff(), 0);
-
+			for(int i = 0; i < s_blob_->num(); ++i){
+				cacu_sgemv(NOTRANS, _w->s_data(), s_blob_->length(), o_blob_->p_diff(i),_w->num(),(float_t)1,s_blob_->p_diff(i),(float_t)0);
+			}
 			//weights gradient
-			cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(), 1,_w->s_diff(), 0);
-
+			cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(), (float_t)1,_w->s_diff(), (float_t)0);
 			//bias gradient
-			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),_bias->s_diff(),_bias->count());
-
+			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),0,_bias->count());
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -99,6 +96,7 @@ namespace mycnn{
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blob->_RESET_DATA();
+
 			_w->_RESET_DIFF();
 			_bias->_RESET_DIFF();
 		}

@@ -61,9 +61,9 @@ namespace mycnn{
 			cacu_cross_entropy(s_blob_->s_data(),s_blob_->num(),s_blob_->length(),labels_->s_data(),o_blob_->s_data());
 
 #if __PARALLELTYPE__ == __GPU__
-			cuda_copy2host(_loss,o_blob_->s_data(),1);
+			cuda_copy2host(_loss, o_blob_->s_data(),1);
 #else
-			cacu_copy(o_blob_->s_data(),1 ,_loss);
+			cacu_copy(o_blob_->s_data(), 1 ,_loss);
 #endif
 			_loss[0] *= normalizer();
 
@@ -74,12 +74,15 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blobs->at(0);
 			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+
 			//CE LOSS BACK PROPGATION
 			for (int i = 0 ; i < s_blob_->num() ; ++i)
 			{
 				cacu_isaxb(s_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-				cacu_scalex(s_blob_->p_diff(i),normalizer(),s_blob_->num());
+				//cuda_print(s_blob_->p_diff(i),s_blob_->length());
+				cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
 			}
+			//cuda_print(s_blob_->s_diff(),s_blob_->count());
 			//echo();
 		}
 

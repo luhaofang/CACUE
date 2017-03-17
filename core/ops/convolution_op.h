@@ -58,7 +58,6 @@ namespace mycnn{
 			if (_args->pad() != 0)
 				delete _padded_data;
 			delete _col_data;
-
 		};
 
 		virtual const void check() override{
@@ -81,7 +80,7 @@ namespace mycnn{
 				}
 				else
 					cacu_img2col(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
-				cacu_sgemm(TRANS, NOTRANS, _col_data->p_data(i), o_blob_->width()*o_blob_->height(),_w->length(), _w->s_data(),_w->num(), 1,o_blob_->p_data(i),0);
+				cacu_sgemm(TRANS, NOTRANS, _col_data->p_data(i), o_blob_->width()*o_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,o_blob_->p_data(i),(float_t)0);
 				cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
 			//echo();
@@ -93,12 +92,11 @@ namespace mycnn{
 
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//gradient propagation
-				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_args->output_channel(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),1 ,_col_data->p_diff(i),0);
+				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_args->output_channel(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),(float_t)1 ,_col_data->p_diff(i),(float_t)0);
 				//weights gradient
-				cacu_sgemm(NOTRANS,NOTRANS,_col_data->p_data(i),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff(i),_args->output_channel(),1,_w->s_diff(),1);
-
+				cacu_sgemm(NOTRANS,NOTRANS,_col_data->p_data(i),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff(i),_args->output_channel(),(float_t)1,_w->s_diff(),(float_t)1);
 				//bias gradient
-				cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),_bias->s_diff(),o_blob_->width()*o_blob_->height());
+				cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 				//col2img
 				//unpadded
 				if(_args->pad() != 0){
@@ -109,6 +107,7 @@ namespace mycnn{
 					cacu_col2img(_col_data->p_diff(i),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),s_blob_->p_diff(i));
 
 			}
+
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -126,9 +125,7 @@ namespace mycnn{
 
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
-
 			o_blob->_RESET_DATA();
-
 			_w->_RESET_DIFF();
 			_bias->_RESET_DIFF();
 

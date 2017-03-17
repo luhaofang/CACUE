@@ -53,12 +53,9 @@ void readdata(chars_t filename, vector<vec_t> &data_blob) {
 		vec_t datas(kCIFARImageNBytes);
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
 			datas[j] = (float_t) ((unsigned char) (buffer[j]));
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j
-					+ kCIFARDataSize]));
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j
-					+ 2 * kCIFARDataSize]));
+			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize]));
+			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize]));
 		}
-		LOG_DEBUG("%f",datas[0]);
 		data_blob.push_back(datas);
 	}
 }
@@ -74,12 +71,9 @@ void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 		vec_t datas(kCIFARImageNBytes);
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
 			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j
-					+ kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j
-					+ 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
 		}
-		LOG_DEBUG("%f",datas[0]);
 		data_blob.push_back(datas);
 	}
 }
@@ -98,10 +92,8 @@ void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
 			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j
-					+ kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j
-					+ 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
 		}
 		data_blob.push_back(datas);
 	}

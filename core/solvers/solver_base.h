@@ -68,11 +68,34 @@ namespace mycnn{
 
 		inline regularize_type regularize(){ return _regularize;}
 
-		virtual const void update_weight(weight* w_, int i) = 0;
+		/*
+		 * where weight_index denote the weight's id in sovler's vector
+		 */
+		virtual const void update_weight(weight* w_, int weight_index_) = 0;
 
 		void crop_grad(blob* g_){};
 
-		virtual const void train_iter(blob_base *blob_,blob_base *label_) = 0;
+		inline void train_iter()
+		{
+
+			_net->predict();
+			for(int i = _net->op_count() - 1 ; i >= 0; --i)
+			{
+				_net->get_op(i)->grad();
+			}
+
+			int weight_index_ = 0;
+			//update weights
+			for(int i = 0 ; i < _net->op_count();++i)
+			{
+				operator_base* op_ = _net->get_op(i);
+				for(int j = 0; j < op_->weights_size(); ++j)
+				{
+					update_weight(op_->get_weight(j),weight_index_);
+					weight_index_++;
+				}
+			}
+		}
 
 
 
@@ -90,24 +113,34 @@ namespace mycnn{
 		 * add regular to gradient
 		 * where i is the index of _w
 		 */
-		void __REGULARIZE__(regularize_type regularize_, weight *w_ , int i)
+		void __REGULARIZE__(weight *w_ , int weight_index_)
 		{
-			float_t a = w_->decay() * _global_weight_decay * w_->lr() * _global_lr;
-			float_t b = w_->lr() * _global_lr;
-			blob* temp = (blob*)_temp->at(i);
-			switch(regularize_)
+			float_t weight_decay_ = w_->decay() * _global_weight_decay;
+			blob* temp = (blob*)_temp->at(weight_index_);
+			switch(_regularize)
 			{
 			case L1 :
 				rand_vector(temp->s_data(),temp->count(),1);
-				cacu_saxpby(temp->s_data(), a, w_->s_diff(), b, w_->count());
+				cacu_saxpy(temp->s_data(), weight_decay_, w_->s_diff(), w_->count());
 				break;
 			case L2 :
-				cacu_saxpby(w_->s_data(), a, w_->s_diff(), b, w_->count());
+				cacu_saxpy(w_->s_data(), weight_decay_, w_->s_diff(), w_->count());
 				break;
 			default:
 				break;
 			}
 		}
+
+		/**
+		 * normalize gradient
+		 * where i is the index of _w
+		 */
+		void __NORMALIZE__(weight *w_)
+		{
+			float_t normalizer_ = (float_t)1 / _net->output_blob()->num();
+			cacu_scalex(w_->s_diff(), w_->count(), normalizer_);
+		}
+
 
 
 	private:
