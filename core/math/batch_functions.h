@@ -40,7 +40,7 @@ namespace mycnn{
 	 * sum by size:
 	 * accumulate the value by width or height , width is the matrix array's width dim which stored in row -major format.
 	 * sum by width y is (length/ width) height dim, sum by height y is width dim.
-	 * warning: take seriously this function may create unestimated error when width is large enough
+	 * warning: take seriously this function may create accumulated error when width is large enough
 	 */
 	template<typename DTYPE>
 	inline void cacu_sumbysize(SUM SUMTYPE ,DTYPE *x, int length,float_t alpha, DTYPE *y, float_t beta,int width)
@@ -51,21 +51,23 @@ namespace mycnn{
 #else
 		int height = length / width;
 		int b,i;
+		DTYPE acc;
 		DTYPE *xp;
 		if (BYWIDTH == SUMTYPE){
 			for (b = 0; b < height; ++b){
 				xp = x + b*width;
+				acc = 0;
 				for (i = 0; i < width; ++i)
-					y[b] = alpha * xp[i] + beta * y[b];
+					acc += xp[i];
+				y[b] = ((alpha * acc) + beta * y[b]);
 			}
 		}
 		else if (BYHEIGHT == SUMTYPE){
-			for (b = 0; b < height; ++b){
-				xp = x + b*width;
-				for (i = 0; i < width; ++i)
-				{
-					y[i] += alpha * xp[i] + beta * y[i];
-				}
+			for (b = 0; b < width; ++b){
+				acc = 0;
+				for (i = 0; i < height; ++i)
+					acc += x[i * width + b];
+				y[b] += ((alpha * acc) + beta * y[b]);
 			}
 		}
 #endif

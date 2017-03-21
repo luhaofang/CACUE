@@ -27,7 +27,7 @@ TEST_CASE("inner_product")
 		blob_tools::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/w.txt");
 		blob_tools::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bias.txt");
 
-		for(int i = 0 ; i<100; ++i)
+		for(int i = 0 ; i<10; ++i)
 			op->infer();
 
 		blob *validate_ = cacu_allocator::create_blob(1, 64, 1, 1,test);
@@ -87,7 +87,7 @@ TEST_CASE("inner_product_multidata")
 		blob_tools::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/w.txt");
 		blob_tools::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bias.txt");
 
-		for(int i = 0 ; i<100; ++i)
+		for(int i = 0 ; i<10; ++i)
 			op->infer();
 
 		blob *validate_ = cacu_allocator::create_blob(100, 64, 1, 1,test);
@@ -149,7 +149,7 @@ TEST_CASE("inner_product_grad")
 		blob *output = (blob*)op->out_data();
 		blob_tools::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/grad_bp.txt");
 
-		for(int i = 0 ; i < 100; ++i){
+		for(int i = 0 ; i < 10; ++i){
 			b->_RESET_DIFF();
 			op->get_weight(0)->_RESET_DIFF();
 			op->get_weight(1)->_RESET_DIFF();
@@ -259,7 +259,7 @@ TEST_CASE("inner_product_grad_multidata")
 		for(int i = 0 ; i< 100; ++i)
 			blob_tools::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/grad_bp.txt",i);
 
-		for(int i = 0 ; i < 100; ++i){
+		for(int i = 0 ; i < 1; ++i){
 			b->_RESET_DIFF();
 			op->get_weight(0)->_RESET_DIFF();
 			op->get_weight(1)->_RESET_DIFF();

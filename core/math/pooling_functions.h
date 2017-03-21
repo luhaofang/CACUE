@@ -44,32 +44,35 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_max_pooling_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 #else
-		int block_size = output_dim*output_dim;
-		float_t *xp, *yp, xd;
-		unsigned int *ip;
+		int cout_length = output_dim*output_dim;
+		int cin_length = input_dim*input_dim;
+		float_t *xp, xd;
+		int outset;
 		int in_start, out_start;
-		for (int c = 0; c < channel; ++c)
-		{
-			xp = x + c*input_dim*input_dim;
-			yp = y + c*block_size;
-			ip = index + c*block_size;
-			for (int i = 0; i < output_dim; ++i)
-				for (int j = 0; j < output_dim; ++j)
+
+		for (int i = 0; i < output_dim; ++i)
+			for (int j = 0; j < output_dim; ++j)
+			{
+				for (int c = 0; c < channel; ++c)
 				{
 					out_start = (i * output_dim + j);
-					in_start = (i * input_dim + j)*stride;
-					for (int ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ki++)
-						for (int kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; kj++)
+					in_start = (i * input_dim + j) * stride;
+					xp = x + c*cin_length + in_start;
+					outset = c*cout_length + out_start;
+					y[outset] = xp[0];
+					index[outset] = (unsigned int)(in_start);
+					for (int ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ++ki)
+						for (int kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; ++kj)
 						{
-							xd = xp[in_start + ki * input_dim + kj];
-							if (yp[out_start] < xd || (ki == 0 && kj == 0))
+							xd = xp[ki * input_dim + kj];
+							if (y[outset] < xd)
 							{
-								yp[out_start] = xd;
-								ip[out_start] = in_start + ki * input_dim + kj;
+								y[outset] = xd;
+								index[outset] = (unsigned int)(in_start + ki * input_dim + kj);
 							}
 						}
 				}
-		}
+			}
 #endif
 	}
 
@@ -87,31 +90,20 @@ namespace mycnn{
 		cacu_max_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 #else
 		float_t *sdp, *snp;
-		int sd_out, si_out;
+		int sd_out;
 		unsigned int _index;
-		float_t *sd_out_cp, *sn_out_cp;
-		unsigned int *sip, *si_out_cp;
 
 		int xi, xj;
 
-		sdp = x;
-		sip = index;
-		snp = y;
 		int cout_length = output_dim * output_dim;
 		int cin_length = input_dim * input_dim;
 
-		for (int i = 0; i < output_dim; i++)
-			for (int j = 0; j < output_dim; j++) {
+		for (int i = 0; i < output_dim; ++i)
+			for (int j = 0; j < output_dim; ++j) {
 				sd_out = (i * output_dim + j);
-				si_out = sd_out;
-				for (int c = 0; c < channel; c++) {
-					si_out_cp = sip + si_out + c * cout_length;
-					sd_out_cp = sdp + sd_out + c * cout_length;
-					_index = *si_out_cp;
-					xi = (i * stride + _index / kernel_size);
-					xj = (j * stride + _index % kernel_size);
-					sn_out_cp = snp + ((xi * input_dim + xj) + c * cin_length);
-					*sn_out_cp += *sd_out_cp;
+				for (int c = 0; c < channel; ++c) {
+					_index = index[sd_out + c * cout_length];
+					y[_index + c * cin_length] += x[sd_out + c * cout_length];
 				}
 			}
 
@@ -173,29 +165,26 @@ namespace mycnn{
 		float_t *sd_out_cp, *sn_out_cp;
 		float_t diff_data;
 		int flag = output_dim - 1;
-		int pad = 0;
-		if ((input_dim - kernel_size) % stride != 0)
-			pad = kernel_size - stride;
+		int pad = abs(input_dim - (output_dim - 1) * stride - kernel_size);
 
-		int input_dim_ = input_dim + pad;
-		int cin_length = input_dim_ * input_dim_;
+		int cin_length = input_dim * input_dim;
 		int cout_length = output_dim * output_dim;
 
 		sdp = x;
 		snp = y;
 
-		for (int i = 0; i < output_dim; i++)
-			for (int j = 0; j < output_dim; j++) {
+		for (int i = 0; i < output_dim; ++i)
+			for (int j = 0; j < output_dim; ++j) {
 				sd_out = (i * output_dim + j);
-				sn_out = (i * input_dim_ + j) * stride;
-				for (int c = 0; c < channel; c++) {
+				sn_out = (i * input_dim + j) * stride;
+				for (int c = 0; c < channel; ++c) {
 					sd_out_cp = sdp + sd_out + c * cout_length;
 					//mean
 					if (pad == 0){
 						diff_data = *sd_out_cp / (float_t) (kernel_size * kernel_size);
-						for (int ki = 0; ki < kernel_size; ki++)
-							for (int kj = 0; kj < kernel_size; kj++) {
-								sn_out_cp = snp + sn_out + (ki * input_dim_ + kj) + c * cin_length;
+						for (int ki = 0; ki < kernel_size; ++ki)
+							for (int kj = 0; kj < kernel_size; ++kj) {
+								sn_out_cp = snp + sn_out + (ki * input_dim + kj) + c * cin_length;
 								*sn_out_cp += diff_data;
 							}
 					}
@@ -203,13 +192,12 @@ namespace mycnn{
 						param_w = kernel_size, param_h = kernel_size;
 						if (i == flag)
 							param_w = kernel_size - pad;
-
 						if (j == flag)
 							param_h = kernel_size - pad;
 						diff_data = *sd_out_cp / (float_t) (param_w * param_h);
-						for (int ki = 0; ki < param_w; ki++)
-							for (int kj = 0; kj < param_h; kj++) {
-								sn_out_cp = snp + sn_out + (ki * input_dim_ + kj) + c * cin_length;
+ 						for (int ki = 0; ki < param_w; ++ki)
+							for (int kj = 0; kj < param_h; ++kj) {
+								sn_out_cp = snp + sn_out + (ki * input_dim + kj) + c * cin_length;
 								*sn_out_cp += diff_data;
 							}
 					}
@@ -280,7 +268,7 @@ namespace mycnn{
 					yp = y + out_start + c * kernel_length;
 					xp = x + in_start + c * cin_length;
 
-					for (int ki = 0; ki < kernel_size; ++ki)
+					for (int ki = 0; ki < kernel_size; ki++)
 						for (int kj = 0; kj < kernel_size; ++kj)
 						{
 							yp[ki * kernel_size + kj] = xp[ki * input_dim + kj];
@@ -303,12 +291,12 @@ namespace mycnn{
 #else
 		DTYPE *xp, *yp;
 		int output_dim = input_dim - 2 * pad;
-		int in_csize = input_dim*input_dim;
-		int out_csize = output_dim*output_dim;
+		int cin_length = input_dim*input_dim;
+		int cout_length = output_dim*output_dim;
 		for (int c = 0; c < channel; ++c){
 
-			yp = y + c*out_csize;
-			xp = x + c*in_csize;
+			yp = y + c*cout_length;
+			xp = x + c*cin_length;
 			for (int i = 0; i < output_dim; ++i)
 				for (int j = 0; j < output_dim; ++j)
 				{
@@ -338,6 +326,7 @@ namespace mycnn{
 		int k_size = kernel_size * kernel_size;
 		int cout_length = output_dim * output_dim;
 		int cin_length = input_dim * input_dim;
+		float_t *xp,*yp;
 
 		//for output_dim's location
 		for (int row = 0; row < output_dim; ++row)
@@ -347,9 +336,11 @@ namespace mycnn{
 				sd_out = (row * output_dim + col) * block_size;
 				sn_out = (row * input_dim + col) * stride;
 				for (int c = 0; c < channel; ++c) {
+					xp = x + sd_out + c * k_size;
+					yp = y + sn_out + c * cin_length;
 					for (int ki = 0; ki < kernel_size; ++ki)
 						for (int kj = 0; kj < kernel_size; ++kj) {
-							y[sn_out + (ki * input_dim + kj) + c * cin_length] += x[sd_out + c * k_size + ki * kernel_size + kj];
+							yp[ki * input_dim + kj] += xp[ki * kernel_size + kj];
 					}
 				}
 			}

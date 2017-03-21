@@ -67,7 +67,8 @@ void train_net()
 		{
 			if (step_index == kCIFARDataCount)
 				step_index = 0;
-			if(i == 0){
+			//if(i == 0)
+			{
 			input_data->copy_data_io(full_data[step_index], j);
 			input_label->copy_data_io(full_label[step_index],j);}
 			step_index += 1;

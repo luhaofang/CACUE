@@ -45,7 +45,7 @@ network* create_cifar_quick_net(int batch_size)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1 = conv_layer_avgpooling(blob_, 32, 5, 1, 2);
+	layer_block *conv1 = conv_layer_maxpooling(blob_, 32, 5, 1, 2);
 	conv1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.0001);
 	conv1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv1");

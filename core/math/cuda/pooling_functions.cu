@@ -49,6 +49,8 @@ __global__ void _k_CACU_MAX_POOLING_GPU(float_t *x, int kernel_size, int stride,
 	int cin_length = input_dim * input_dim;
 	int output_length = output_dim*output_dim * channel;
 
+	int widthx;
+
 	for (int i = threadid; i < output_length; i += BLOCKNUM * THREADNUM) {
 
 		data_row = ((i%cout_length)/output_dim) * stride;
@@ -58,14 +60,17 @@ __global__ void _k_CACU_MAX_POOLING_GPU(float_t *x, int kernel_size, int stride,
 
 		start_in = (data_row*input_dim + data_col) + c* cin_length;
 
+		if(data_row == (output_dim - 1)*stride)
+			widthx = abs(input_dim - output_dim * stride);
+
 		for(int ki = 0 ; ki < kernel_size && data_row + ki < input_dim ; ++ki)
 			for(int kj = 0 ; kj < kernel_size && data_col + kj < input_dim ; ++kj)
 			{
-				in = start_in + ki*input_dim + kj;
+				in = start_in + ki * widthx + kj;
 				if((ki == 0 && kj ==0) || y[i] < x[in])
 				{
 					y[i] = x[in];
-					index[i] = ki * kernel_size + kj;
+					index[i] = ki * widthx + kj;
 				}
 			}
 	}
@@ -106,6 +111,8 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(float_t *x, int kernel_size, int st
 
 	int cout_length = output_dim * output_dim;
 
+	int widthx;
+
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
@@ -140,10 +147,13 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(float_t *x, int kernel_size, int st
 				outset_i = outset_si - mi;
 				outset_j = outset_sj - mj;
 
+				if(outset_i == output_dim - 1)
+					widthx = abs(input_dim - output_dim * stride);
+
 				offset_i = startset_i - outset_i * stride;
 				offset_j = startset_j - outset_j * stride;
 				if (index[(outset_i * output_dim + outset_j) + c * cout_length]
-						== (float_t) (offset_i * kernel_size + offset_j)) {
+						== (float_t) (offset_i * widthx + offset_j)) {
 					y[i] +=	x[(outset_i * output_dim + outset_j) + c * cout_length];
 				}
 			}
@@ -294,9 +304,7 @@ __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(float_t *x, int kernel_size, in
 extern "C" void cacu_average_pooling_grad_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y){
 
 	//added pad space to feature map
-	int pad = 0;
-	if ((input_dim - kernel_size) % stride != 0)
-		pad = kernel_size - stride;
+	int pad = abs(input_dim - (output_dim - 1) * stride - kernel_size);
 
 	_k_CACU_AVERAGE_POOLING_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());

@@ -52,12 +52,13 @@ namespace mycnn{
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			cacu_relu(s_blob_->s_data(), s_blob_->count());
+			cacu_relu(o_blob_->s_data(), o_blob_->count());
 		}
 
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
+
 			cacu_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), s_blob_->count());
 		}
 

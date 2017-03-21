@@ -62,7 +62,7 @@ __global__ void _k_CACU_RELU_GRAD_GPU(float_t *x, float_t *g, int length) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		if(x[i] < 0)
+		if(x[i] <= 0)
 			g[i] = 0;
 
 	}
@@ -115,7 +115,7 @@ __global__ void _k_CACU_LEAKY_RELU_GRAD_GPU(float_t *x, float_t *g, float_t a, i
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		if(x[i] < 0)
+		if(x[i] <= 0)
 			g[i] *= a;
 	}
 
@@ -132,18 +132,19 @@ extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int 
 
 }
 
-__global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length) {
+__global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length,float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
 	__shared__ float_t sum[THREADNUM], max_data[THREADNUM];
 
-	float_t *xp;
+	float_t *xp,*yp;
 
 	for (int i = bid; i < num ; i += BLOCKNUM){
 
 		xp = x + i * length;
+		yp = y + i * length;
 
 		if (tid == 0) {
 			max_data[0] = xp[0];
@@ -157,8 +158,8 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length) {
 		max_data[tid] = max_data[0];
 		sum[tid] = 0;
 		for (int i = tid; i < length; i += THREADNUM) {
-			xp[i] = exp(xp[i] - max_data[tid]);
-			sum[tid] += xp[i];
+			yp[i] = exp(xp[i] - max_data[tid]);
+			sum[tid] += yp[i];
 		}
 
 		__syncthreads();
@@ -177,7 +178,7 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length) {
 		__syncthreads();
 
 		for (int i = tid; i < length; i += THREADNUM) {
-			xp[i] /= sum[tid];
+			yp[i] /= sum[tid];
 		}
 
 	}
@@ -187,9 +188,9 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length) {
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_gpu(float_t *x, int num ,int length) {
+extern "C" void cacu_softmax_gpu(float_t *x, int num ,int length,float_t *y) {
 
-	_k_CACU_SOFTMAX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, num, length);
+	_k_CACU_SOFTMAX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, num, length,y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 

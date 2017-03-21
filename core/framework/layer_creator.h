@@ -35,9 +35,9 @@ namespace mycnn{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
-		l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
+		l->op(CACU_CONVOLUTION, data);
 		layer *ml = new layer(output_channel, 3, 2);
-		ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
+		ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob())->op(activation_op);
 		clock_t end = clock();
 		LOG_INFO("time cost :%d", (end - start));
 		*lb << l << ml;
@@ -96,12 +96,12 @@ namespace mycnn{
 		return lb;
 	}
 
-	layer_block* fc_layer_nodropout(blob* data, int output_channel, int kernel_size = 0, int stride = 0, int pad = 0, op_name activation_op = CACU_RELU)
+	layer_block* fc_layer_nodropout(blob* data, int output_channel, int kernel_size = 0, int stride = 0, int pad = 0)
 	{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel);
-		l->op(CACU_INNERPRODUCT, data)->op(activation_op);
+		l->op(CACU_INNERPRODUCT, data);
 		clock_t end = clock();
 		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;

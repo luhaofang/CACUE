@@ -37,7 +37,8 @@ namespace mycnn{
 		softmax_with_loss_op(blobs *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-			o_blob = cacu_allocator::create_blob(1,1,1,1, _phrase);
+			blob_base *_blob = data->at(0);
+			o_blob = cacu_allocator::create_blob(_blob->num(),args_->output_channel(),1,1,train);
 
 			_loss = (float_t*)malloc(sizeof(float_t));
 		};
@@ -56,14 +57,14 @@ namespace mycnn{
 			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 			_loss[0] = 0.0;
 
-			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length());
+			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
 			//CE LOSS use o_blob[0] to store loss
-			cacu_cross_entropy(s_blob_->s_data(),s_blob_->num(),s_blob_->length(),labels_->s_data(),o_blob_->s_data());
+			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 
 #if __PARALLELTYPE__ == __GPU__
-			cuda_copy2host(_loss, o_blob_->s_data(),1);
+			cuda_copy2host(_loss, o_blob_->s_diff(),1);
 #else
-			cacu_copy(o_blob_->s_data(), 1 ,_loss);
+			cacu_copy(o_blob_->s_diff(), 1 ,_loss);
 #endif
 			_loss[0] *= normalizer();
 
@@ -78,7 +79,7 @@ namespace mycnn{
 			//CE LOSS BACK PROPGATION
 			for (int i = 0 ; i < s_blob_->num() ; ++i)
 			{
-				cacu_isaxb(s_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
+				cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
 				//cuda_print(s_blob_->p_diff(i),s_blob_->length());
 				cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
 			}
@@ -106,7 +107,8 @@ namespace mycnn{
 
 		float_t normalizer()
 		{
-			return _loss_weight * ((float_t)1/s_blobs->at(0)->num());
+			blob_base* blob_= s_blobs->at(0);
+			return _loss_weight * ((float_t)1/blob_->num());
 		}
 
 	private:

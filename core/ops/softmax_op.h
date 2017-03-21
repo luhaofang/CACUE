@@ -37,7 +37,7 @@ namespace mycnn{
 		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-			o_blob = data;
+			o_blob = cacu_allocator::create_blob(data->num(),args_->output_channel(),1,1,test);
 
 		};
 
@@ -52,7 +52,7 @@ namespace mycnn{
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->length());
+			cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->length(),o_blob_->s_data());
 			//echo();
 		}
 

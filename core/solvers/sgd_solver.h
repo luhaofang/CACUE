@@ -61,28 +61,29 @@ namespace mycnn{
 		{
 			//printf("      %s,    %s,    %s,    %s\n","w","grad","new_w","history");
 			//printf("%d:",weight_index_);
+			printf("%d:",w_->count());
 #if __PARALLELTYPE__ == __GPU__
 			//cuda_print(w_->s_data(),1);
 			//cuda_print(w_->s_diff(),1);
 #else
-			printf("(%f,%f,",w_->s_data()[0],w_->s_diff()[0]);
+			cout << w_->s_data()[0] << "," << w_->s_diff()[0] << ",";
 #endif
 			blob* history_ = (blob*)_history_v->at(weight_index_);
 			float_t learn_rate_ = w_->lr() * _global_lr;
 			//normalization
-			__NORMALIZE__(w_);
+			//__NORMALIZE__(w_);
 			//add regular
 			__REGULARIZE__(w_ ,weight_index_);
 			//history_v update
 			cacu_saxpby(w_->s_diff(), learn_rate_, history_->s_data(), _momentum, w_->count());
 			//update to weight
-			cacu_saxpy(history_->s_data(), 1, w_->s_data(), w_->count());
+			cacu_saxpy(history_->s_data(), -1, w_->s_data(), w_->count());
 #if __PARALLELTYPE__ == __GPU__
 			//cuda_print(w_->s_data(),1);
 			//cuda_print(history_->s_data(),1);
 #else
-			printf("%f,%f),",w_->s_data()[0],history_->s_data()[0]);
-			printf("\n");
+			cout << history_->s_data()[0] << "," << w_->s_data()[0];
+			cout << endl;
 #endif
 			//echo();
 

@@ -65,7 +65,7 @@ namespace mycnn{
 #else
 		for (int i = 0; i < length; ++i)
 		{
-			if (x[i] < 0)
+			if (x[i] <= 0)
 				g[i] = 0.0;
 		}
 #endif
@@ -117,28 +117,29 @@ namespace mycnn{
 	 * math softmax;
 	 * for activation use softmax functions.
 	 */
-	inline void cacu_softmax(float_t *x, int num, int length)
+	inline void cacu_softmax(float_t *x, int num, int length,float_t *y)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		cacu_softmax_gpu(x, num, length);
+		cacu_softmax_gpu(x, num, length,y);
 #else
-		float_t *xp,max_,sum_;
+		float_t *xp,*yp,max_,sum_;
 		for (int n = 0; n < num; ++n)
 		{
 			xp = x + n * length;
+			yp = y + n * length;
 			max_ = xp[0];
 			sum_ = 0;
 			for (int i = 1; i < length; ++i)
 				max_ = max(xp[i], max_);
 			for (int i = 0; i < length; ++i)
 			{
-				xp[i] = exp(xp[i] - max_);
-				sum_ += xp[i];
+				yp[i] = exp(xp[i] - max_);
+				sum_ += yp[i];
 			}
 			for (int i = 0; i < length; ++i)
 			{
-				xp[i] = (xp[i] / sum_);
+				yp[i] = (yp[i] / sum_);
 			}
 		}
 #endif

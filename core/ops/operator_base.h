@@ -162,9 +162,11 @@ namespace mycnn{
 			vec_t().swap(p_);
 		}
 
+		inline void _add2op_weights(weight *w){_weights.push_back(w);}
+
 	private:
 
-		inline void _add2op_weights(weight *w){_weights.push_back(w);}
+
 
 	};
 }
