@@ -48,29 +48,30 @@ __global__ void _k_CACU_MAX_POOLING_GPU(float_t *x, int kernel_size, int stride,
 	int cout_length = output_dim * output_dim;
 	int cin_length = input_dim * input_dim;
 	int output_length = output_dim*output_dim * channel;
+	int pad = abs(input_dim - (output_dim - 1) * stride - kernel_size);
 
 	int widthx;
 
 	for (int i = threadid; i < output_length; i += BLOCKNUM * THREADNUM) {
 
-		data_row = ((i%cout_length)/output_dim) * stride;
-		data_col = ((i%cout_length)%output_dim) * stride;
+		data_row = ((i%cout_length)/output_dim);
+		data_col = ((i%cout_length)%output_dim);
 
 		c = i / cout_length;
 
-		start_in = (data_row*input_dim + data_col) + c* cin_length;
+		start_in = (data_row * input_dim + data_col) * stride + c * cin_length;
 
-		if(data_row == (output_dim - 1)*stride)
-			widthx = abs(input_dim - output_dim * stride);
+		if(data_col == output_dim - 1)
+			widthx = kernel_size - pad;
 
-		for(int ki = 0 ; ki < kernel_size && data_row + ki < input_dim ; ++ki)
-			for(int kj = 0 ; kj < kernel_size && data_col + kj < input_dim ; ++kj)
+		for(int ki = 0 ; ki < kernel_size && (data_row*stride + ki) < input_dim ; ++ki)
+			for(int kj = 0 ; kj < kernel_size && (data_col*stride + kj) < input_dim ; ++kj)
 			{
-				in = start_in + ki * widthx + kj;
-				if((ki == 0 && kj ==0) || y[i] < x[in])
+				in = start_in + ki * input_dim + kj;
+				if((ki == 0 && kj == 0) || y[i] < x[in])
 				{
 					y[i] = x[in];
-					index[i] = ki * widthx + kj;
+					index[i] = (unsigned int)(ki * widthx + kj);
 				}
 			}
 	}
@@ -79,7 +80,7 @@ __global__ void _k_CACU_MAX_POOLING_GPU(float_t *x, int kernel_size, int stride,
 
 extern "C" void cacu_max_pooling_gpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index){
 
-	_k_CACU_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, kernel_size*kernel_size*sizeof(float_t)>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
+	_k_CACU_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -112,6 +113,8 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(float_t *x, int kernel_size, int st
 	int cout_length = output_dim * output_dim;
 
 	int widthx;
+
+	int pad = abs(input_dim - (output_dim - 1) * stride - kernel_size);
 
 	int c;
 
@@ -147,8 +150,8 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(float_t *x, int kernel_size, int st
 				outset_i = outset_si - mi;
 				outset_j = outset_sj - mj;
 
-				if(outset_i == output_dim - 1)
-					widthx = abs(input_dim - output_dim * stride);
+				if(outset_j == output_dim - 1)
+					widthx = kernel_size - pad;
 
 				offset_i = startset_i - outset_i * stride;
 				offset_j = startset_j - outset_j * stride;

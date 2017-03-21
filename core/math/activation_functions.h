@@ -121,7 +121,7 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __GPU__
-		cacu_softmax_gpu(x, num, length,y);
+		cacu_softmax_gpu(x, num, length, y);
 #else
 		float_t *xp,*yp,max_,sum_;
 		for (int n = 0; n < num; ++n)

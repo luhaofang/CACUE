@@ -63,8 +63,8 @@ namespace mycnn{
 			//printf("%d:",weight_index_);
 			printf("%d:",w_->count());
 #if __PARALLELTYPE__ == __GPU__
-			//cuda_print(w_->s_data(),1);
-			//cuda_print(w_->s_diff(),1);
+			cuda_print(w_->s_data(),1);
+			cuda_print(w_->s_diff(),1);
 #else
 			cout << w_->s_data()[0] << "," << w_->s_diff()[0] << ",";
 #endif
@@ -79,8 +79,8 @@ namespace mycnn{
 			//update to weight
 			cacu_saxpy(history_->s_data(), -1, w_->s_data(), w_->count());
 #if __PARALLELTYPE__ == __GPU__
-			//cuda_print(w_->s_data(),1);
-			//cuda_print(history_->s_data(),1);
+			cuda_print(w_->s_data(),1);
+			cuda_print(history_->s_data(),1);
 #else
 			cout << history_->s_data()[0] << "," << w_->s_data()[0];
 			cout << endl;
