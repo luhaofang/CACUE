@@ -233,7 +233,7 @@ namespace mycnn{
 				//iteration for feature map
 				for (int f = 0; f < cin_length; f++) {
 
-					d_rou[c] += (d_x[set + f] * (x[set + f] - mean[c]) * (-0.5 / pow(std[c], 3)));
+					d_rou[c] += (d_x[set + f] * (x[set + f] - mean[c]) * (-0.5f / pow(std[c], 3)));
 				}
 			}
 		}
@@ -269,8 +269,7 @@ namespace mycnn{
 				set = n * length + cin_length * c;
 				//iteration for feature map
 				for (int f = 0; f < cin_length; f++) {
-
-					d_mean[c] += ((d_x[set + f] / (-std[c])) + d_rou[c] * (-2.0 * (x[set + f] - mean[c]) / m));
+					d_mean[c] += ((d_x[set + f] / (-std[c])) + d_rou[c] * (-2.0f * (x[set + f] - mean[c]) / m));
 				}
 			}
 		}
@@ -308,7 +307,7 @@ namespace mycnn{
 				//iteration for feature map
 				for (int f = 0; f < cin_length; f++) {
 
-					dx[set + f] += ((d_x[set + f]/ std[c]) + d_rou[c] * (2.0 * (x[set + f] - mean[c]) / m) + (d_mean[c] / m));
+					dx[set + f] += ((d_x[set + f]/ std[c]) + d_rou[c] * (2.0f * (x[set + f] - mean[c]) / m) + (d_mean[c] / m));
 				}
 			}
 		}

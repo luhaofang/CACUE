@@ -105,7 +105,7 @@ namespace mycnn{
 #else
 		for (int i = 0; i < length; ++i)
 		{
-			if (x[i] < 0)
+			if (x[i] <= 0)
 				g[i] *= a;
 		}
 #endif

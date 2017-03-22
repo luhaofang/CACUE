@@ -44,7 +44,7 @@ const int kCIFARDataCount = 50000;
 
 void readdata(chars_t filename, vector<vec_t> &data_blob) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-	float_t *snp;
+
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
@@ -52,9 +52,9 @@ void readdata(chars_t filename, vector<vec_t> &data_blob) {
 		data_file.read(buffer, kCIFARImageNBytes);
 		vec_t datas(kCIFARImageNBytes);
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (float_t) ((unsigned char) (buffer[j]));
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize]));
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize]));
+			datas[j] = (mycnn::float_t) ((unsigned char) (buffer[j]));
+			datas[j + kCIFARDataSize] = (mycnn::float_t) ((unsigned char) (buffer[j + kCIFARDataSize]));
+			datas[j + kCIFARDataSize * 2] = (mycnn::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize]));
 		}
 		data_blob.push_back(datas);
 	}
@@ -62,7 +62,7 @@ void readdata(chars_t filename, vector<vec_t> &data_blob) {
 
 void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-	float_t *snp;
+
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
@@ -70,9 +70,9 @@ void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 		data_file.read(buffer, kCIFARImageNBytes);
 		vec_t datas(kCIFARImageNBytes);
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+			datas[j] = (mycnn::float_t) ((unsigned char) (buffer[j])) - mean[j];
+			datas[j + kCIFARDataSize] = (mycnn::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (mycnn::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
 		}
 		data_blob.push_back(datas);
 	}
@@ -81,7 +81,7 @@ void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		vector<vec_i> &labels) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-	float_t *snp;
+	mycnn::float_t *snp;
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
@@ -91,9 +91,9 @@ void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		vec_t datas(kCIFARImageNBytes);
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+			datas[j] = (mycnn::float_t) ((unsigned char) (buffer[j])) - mean[j];
+			datas[j + kCIFARDataSize] = (mycnn::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (mycnn::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
 		}
 		data_blob.push_back(datas);
 	}
@@ -125,7 +125,7 @@ vec_t compute_mean(chars_t &filepath, int filecount)
 		readdata((oss.str()), mean_data);
 	}
 
-	float_t length = (float_t) mean_data.size();
+	mycnn::float_t length = (mycnn::float_t) mean_data.size();
 
 	for (unsigned int i = 0; i < mean_data.size(); i++) {
 		cacu_saxpy(&mean_data[i][0], 1, &mean[0],kCIFARImageNBytes);
@@ -135,9 +135,9 @@ vec_t compute_mean(chars_t &filepath, int filecount)
 	return mean;
 }
 
-inline void mean_center(float_t *p_data, float_t *mean_dim_, int length_)
+inline void mean_center(mycnn::float_t *p_data, mycnn::float_t *mean_dim_, int length_)
 {
-	cacu_saxpy(mean_dim_,(float_t)-1,p_data,length_);
+	cacu_saxpy(mean_dim_,(mycnn::float_t)-1,p_data,length_);
 }
 
 void make_mean(chars_t filepath, chars_t meanfile)

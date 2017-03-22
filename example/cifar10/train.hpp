@@ -46,10 +46,10 @@ void train_net()
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.001);
+	sgd->set_lr(0.001f);
 
-	string datapath = "/home/seal/4T/cacue/cifar10/data/";
-	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
+	string datapath = "E:/mywork/data/cifar-10-batches-bin/";
+	string meanfile = "E:/mywork/data/cifar-10-batches-bin/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;

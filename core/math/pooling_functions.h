@@ -38,7 +38,7 @@ namespace mycnn{
 	 *input_dim: width of input data
 	 *output_dim: width of output data
 	 */
-	void cacu_max_pooling(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
+	inline void cacu_max_pooling(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -83,17 +83,14 @@ namespace mycnn{
 	 *input_dim: width of input data
 	 *output_dim: width of output data
 	 */
-	void cacu_max_pooling_grad(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
+	inline void cacu_max_pooling_grad(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_max_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 #else
-		float_t *sdp, *snp;
 		int sd_out;
 		unsigned int _index;
-
-		int xi, xj;
 
 		int cout_length = output_dim * output_dim;
 		int cin_length = input_dim * input_dim;
@@ -116,7 +113,7 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	void cacu_average_pooling(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
+	inline void cacu_average_pooling(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -154,7 +151,7 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	void cacu_average_pooling_grad(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
+	inline void cacu_average_pooling_grad(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -214,7 +211,7 @@ namespace mycnn{
 	*pad: pad size of input data
 	*/
 	template<typename DTYPE>
-	void cacu_padded_data(DTYPE *x,int channel, int input_dim, int pad, DTYPE *y)
+	inline void cacu_padded_data(DTYPE *x, int channel, int input_dim, int pad, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_padded_data_gpu(x,channel,input_dim,pad,y);
@@ -245,7 +242,7 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	void cacu_img2col(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+	inline void cacu_img2col(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 
 #if __PARALLELTYPE__ == __GPU__
@@ -284,7 +281,7 @@ namespace mycnn{
 	*pad: pad size of input data
 	*/
 	template<typename DTYPE>
-	void cacu_unpadded_data(DTYPE *x,int channel, int input_dim, int pad, DTYPE *y)
+	inline void cacu_unpadded_data(DTYPE *x, int channel, int input_dim, int pad, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_unpadded_data_gpu(x,channel,input_dim,pad,y);
@@ -314,7 +311,7 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	void cacu_col2img(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+	inline void cacu_col2img(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 
 #if __PARALLELTYPE__ == __GPU__

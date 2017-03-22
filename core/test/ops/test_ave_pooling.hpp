@@ -37,7 +37,7 @@ TEST_CASE("average_pooling")
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
-		float_t acc_error = 0.0;
+		mycnn::float_t acc_error = 0.0;
 		for(int i = 0 ; i < test.size(); ++i){
 			acc_error += abs(test[i]);
 		}
@@ -45,7 +45,7 @@ TEST_CASE("average_pooling")
 		LOG_DEBUG("error : %f",acc_error);
 		REQUIRE(acc_error < 0.00001);
 #else
-		float_t acc_error = 0.0;
+		mycnn::float_t acc_error = 0.0;
 		for(int i = 0 ; i < validate_->count(); ++i){
 			acc_error += abs(output->s_data()[i] - validate_->s_data()[i]);
 			//printf("%d:(%f,%f),",i,output->s_data()[i],validate_->s_data()[i]);

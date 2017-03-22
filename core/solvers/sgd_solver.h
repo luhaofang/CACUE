@@ -95,7 +95,7 @@ namespace mycnn{
 
 		void echo()
 		{
-			for(int i = 0; i < _history_v->size() ;++i)
+			for(unsigned int i = 0; i < _history_v->size() ;++i)
 				printf("(%f,%f),",((blob*)_history_v->at(i))->s_data()[0],((blob*)_history_v->at(i))->s_diff()[0]);
 			printf("\n");
 		}
@@ -107,7 +107,7 @@ namespace mycnn{
 
 	private:
 
-		float_t _momentum = 0.9;
+		float_t _momentum = 0.9f;
 
 		blobs* _history_v;
 

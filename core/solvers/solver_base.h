@@ -103,7 +103,7 @@ namespace mycnn{
 
 		float_t _global_lr = 1.0;
 
-		float_t _global_weight_decay = 0.004;
+		float_t _global_weight_decay = 0.004f;
 
 		regularize_type _regularize = L2;
 

@@ -59,7 +59,7 @@ namespace mycnn{
 
 			delete _args;
 			delete o_blob;
-			for(int i = 0 ; i< _weights.size(); ++i)
+			for(unsigned int i = 0 ; i< _weights.size(); ++i)
 			{
 				delete _weights[i];
 				_weights[i] = NULL;
