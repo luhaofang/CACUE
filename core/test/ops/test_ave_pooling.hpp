@@ -16,7 +16,7 @@ TEST_CASE("average_pooling")
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(1, 3, 224, 224, test);
-		blob_tools::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_feature_map.txt");
+		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
@@ -29,7 +29,7 @@ TEST_CASE("average_pooling")
 			op->infer();
 
 		blob *validate_ = cacu_allocator::create_blob(1, 3, 222, 222, test);
-		blob_tools::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_result.txt");
+		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_result.txt");
 
 		blob *output = (blob*)op->out_data();
 

@@ -61,6 +61,12 @@ namespace mycnn{
 			}
 		}
 
+		inline blobs& operator <<(blob_base* blob_base_)
+		{
+			this->push_back(blob_base_);
+			return *this;
+		}
+
 		
 	private:
 

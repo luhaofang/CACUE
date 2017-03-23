@@ -39,13 +39,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/framework/bin_blob.h"
 #include "core/framework/blob.h"
 #include "core/framework/blobs.h"
+#include "core/framework/dy_blob.h"
+#include "core/framework/dy_bin_blob.h"
+
 #include "core/framework/weight.h"
 #include "core/graph/edge_base.h"
 #include "core/graph/node_base.h"
 #include "core/graph/graph_base.h"
 
 #include "utils/cacu_allocator.h"
-#include "utils/blob_tools.h"
+#include "utils/blob_ops.h"
 
 #include "core/math/matrix.h"
 #include "core/math/cube.h"

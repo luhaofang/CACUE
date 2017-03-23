@@ -16,7 +16,7 @@ TEST_CASE("convolution")
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(1, 3, 224, 224,test);
-		blob_tools::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/feature_map.txt");
+		blob_ops::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
@@ -24,14 +24,14 @@ TEST_CASE("convolution")
 		//initial convolution op
 		args *args_ = new args(3,3,3,0,224,3);
 		convolution_op *op = (convolution_op *)operator_factory::create_op(CACU_CONVOLUTION,input,args_);
-		blob_tools::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/kernel.txt");
-		blob_tools::read_data2blob(op->get_weight(1),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/bias.txt");
+		blob_ops::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(1),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/bias.txt");
 
 		for(int i = 0 ; i< 100; ++i)
 			op->infer();
 
 		blob *validate_ = cacu_allocator::create_blob(1, 3, 74, 74,test);
-		blob_tools::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/conv_result.txt");
+		blob_ops::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/conv_result.txt");
 
 		blob *output = (blob*)op->out_data();
 
@@ -75,7 +75,7 @@ TEST_CASE("convolution_multidata")
 #endif
 		blob *b = cacu_allocator::create_blob(100, 3, 224, 224,test);
 		for(int i = 0; i < 100; ++i)
-			blob_tools::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/feature_map.txt",i);
+			blob_ops::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/feature_map.txt",i);
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
@@ -83,15 +83,15 @@ TEST_CASE("convolution_multidata")
 		//initial convolution op
 		args *args_ = new args(3,3,3,0,224,3);
 		convolution_op *op = (convolution_op *)operator_factory::create_op(CACU_CONVOLUTION,input,args_);
-		blob_tools::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/kernel.txt");
-		blob_tools::read_data2blob(op->get_weight(1),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/bias.txt");
+		blob_ops::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(1),"e:/mywork/CACUE/CACUE/src/core/test/python/conv/bias.txt");
 
 		for(int i = 0 ; i< 10; ++i)
 			op->infer();
 
 		blob *validate_ = cacu_allocator::create_blob(100, 3, 74, 74,test);
 		for(int i = 0; i < 100; ++i)
-			blob_tools::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/conv_result.txt",i);
+			blob_ops::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv/conv_result.txt",i);
 
 		blob *output = (blob*)op->out_data();
 
@@ -134,7 +134,7 @@ TEST_CASE("convolution_grad")
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(1, 3, 227, 227,train);
-		blob_tools::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/feature_map.txt");
+		blob_ops::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
@@ -142,10 +142,10 @@ TEST_CASE("convolution_grad")
 		//initial convolution op
 		args *args_ = new args(32,3,1,0,227,3);
 		convolution_op *op = (convolution_op *)operator_factory::create_op(CACU_CONVOLUTION,input,args_);
-		blob_tools::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/kernel.txt");
 
 		blob *output = (blob*)op->out_data();
-		blob_tools::read_diff2blob(output,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/grad_map.txt");
+		blob_ops::read_diff2blob(output,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/grad_map.txt");
 
 		for(int i = 0 ; i < 100; ++i){
 			b->_RESET_DIFF();
@@ -156,12 +156,12 @@ TEST_CASE("convolution_grad")
 		}
 
 		blob *validate_ = cacu_allocator::create_blob(1, 3, 227, 227,test);
-		blob_tools::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/conv_grad_result.txt");
+		blob_ops::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/conv_grad_result.txt");
 
 		blob *validate_k = cacu_allocator::create_blob(32, 3, 3, 3,test);
-		blob_tools::read_data2blob(validate_k,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/fgrad.txt");
+		blob_ops::read_data2blob(validate_k,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/fgrad.txt");
 		blob *validate_b = cacu_allocator::create_blob(32, 1, 1, 1,test);
-		blob_tools::read_data2blob(validate_b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/bgrad.txt");
+		blob_ops::read_data2blob(validate_b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/bgrad.txt");
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_saxpby(b->s_diff(),-1.0,validate_->s_data(),1.0,validate_->count());
@@ -241,7 +241,7 @@ TEST_CASE("convolution_grad_multidata")
 #endif
 		blob *b = cacu_allocator::create_blob(100, 3, 227, 227,train);
 		for(int i = 0 ; i< 100; ++i)
-			blob_tools::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/feature_map.txt",i);
+			blob_ops::read_data2blob(b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/feature_map.txt",i);
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
@@ -249,11 +249,11 @@ TEST_CASE("convolution_grad_multidata")
 		//initial convolution op
 		args *args_ = new args(32,3,1,0,227,3);
 		convolution_op *op = (convolution_op *)operator_factory::create_op(CACU_CONVOLUTION,input,args_);
-		blob_tools::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(0),"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/kernel.txt");
 
 		blob *output = (blob*)op->out_data();
 		for(int i = 0 ; i< 100; ++i)
-			blob_tools::read_diff2blob(output,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/grad_map.txt",i);
+			blob_ops::read_diff2blob(output,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/grad_map.txt",i);
 
 		for(int i = 0 ; i < 10; ++i){
 			b->_RESET_DIFF();
@@ -265,12 +265,12 @@ TEST_CASE("convolution_grad_multidata")
 
 		blob *validate_ = cacu_allocator::create_blob(100, 3, 227, 227,test);
 		for(int i = 0; i < 100; ++i)
-			blob_tools::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/conv_grad_result.txt",i);
+			blob_ops::read_data2blob(validate_,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/conv_grad_result.txt",i);
 
 		blob *validate_k = cacu_allocator::create_blob(32, 3, 3, 3,test);
-		blob_tools::read_data2blob(validate_k,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/fgrad.txt");
+		blob_ops::read_data2blob(validate_k,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/fgrad.txt");
 		blob *validate_b = cacu_allocator::create_blob(32, 1, 1, 1,test);
-		blob_tools::read_data2blob(validate_b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/bgrad.txt");
+		blob_ops::read_data2blob(validate_b,"e:/mywork/CACUE/CACUE/src/core/test/python/conv_grad/bgrad.txt");
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_saxpby(b->s_diff(),-1.0,validate_->s_data(),1.0,validate_->count());

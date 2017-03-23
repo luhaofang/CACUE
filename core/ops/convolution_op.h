@@ -88,8 +88,7 @@ namespace mycnn{
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			//printf("%d_%d:    ",_args->output_channel(),_args->input_dim());
-			//cacu_print(o_blob_->s_diff(),o_blob_->count());
+
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//gradient propagation
 				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),1 ,_col_data->p_diff(i),0);

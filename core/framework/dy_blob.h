@@ -27,41 +27,60 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "operator_factory.h"
+
+#include "../math/cuda/cuda_utils.h"
+#include "../math/math_utils.h"
+#include "../math/math_functions.h"
+
+
+using namespace std;
 
 namespace mycnn{
 
-	/**
-	 * class operation demonstrate an dynamic graphic operation that maintained by
-	 * a node computation unit.
-	 */
-
-	class operation
-	{
+	class dy_blob : public blob{
 
 	public:
 
-		operation(op_name type_,blobs *&data, args *&args_)
-		{
-			_args = args_;
-			_op = operator_factory::create_op(type_, data, args_);
+		dy_blob(int channel, int width, int height, float_t _value, phrase_type phrase)
+			:blob(1, channel, width, height, _value,  phrase){
+
+
 		}
 
-		~operation()
-		{
-			_args->clear();
+		~dy_blob(){
+
 		}
 
-		inline blob_base* out_data(){ return _op->out_data(); }
+		/*
+		 * copy data into blob, if blob is established in gpu, io op is needed
+		 * where i is the start index in blob
+		 */
+		inline const void copy_data_io(vec_t &data_, int i = 0)
+		{
+			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(p_data(i), &data_[0], _cube_length);
+#else
+			cacu_copy(&data_[0],_cube_length, p_data(i));
+#endif
+		}
 
-		inline void forward(){ _op->infer(); }
+		/*
+		 * copy data into blob, if blob is established in gpu, io op is needed
+		 * where i is the start index in blob
+		 */
+		inline const void copy_diff_io(vec_t &data_, int i = 0)
+		{
+			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
+#if __PARALLELTYPE__ == __GPU__
+			cuda_copy2dev(p_diff(i), &data_[0], _cube_length);
+#else
+			cacu_copy(&data_[0],_cube_length, p_diff(i));
+#endif
+		}
 
-		inline void backward(){ _op->grad(); }
 
 	protected:
 
-		operator_base *_op;
-
-		CACU_ARGS *_args;
 	};
-};
+}
