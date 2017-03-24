@@ -27,84 +27,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <vector>
-
-//#include "math_utils.h"
-
-using namespace std;
-
-namespace mycnn{
-
-	class blobs : public vector<blob_base*>{
-
-	public:
-
-		blobs(){
-			
-		}
-
-		~blobs(){
-			for (unsigned int i = 0; i < size(); ++i)
-			{
-				switch(at(i)->__TYPE__())
-				{
-					case __blob__:
-						delete (blob*)at(i);
-						break;
-					case __bin_blob__:
-						delete (bin_blob*)at(i);
-						break;
-					default:
-						LOG_FATAL("can't identify the type!");
-						break;
-				}
-			}
-		}
-
-		inline blobs& operator <<(blob_base* blob_base_)
-		{
-			this->push_back(blob_base_);
-			return *this;
-		}
-
-		template<class BTYPE>
-		inline BTYPE* tget(int i)
-		{
-			switch(at(i)->__TYPE__())
-			{
-			case __blob__:
-				return __BLOB__(i);
-				break;
-			case __bin_blob__:
-				return __BIN_BLOB__(i);
-				break;
-			default:
-				LOG_FATAL("can't identify the type!");
-				break;
-			}
-			return NULL;
-		}
-
-		inline void __REC__()
-		{
-			for(int i = 0 ; i < this->size(); ++i)
-				at(i)->__REC__();
-		}
-		
-	private:
+#include <CL/opencl.h>
 
 
-		blob* __BLOB__(int i)
-		{
-			blob* b_ = (blob*)at(i);
-			return b_;
-		}
+inline void cacu_saxpy_opencl(float_t *x, float_t a, float_t *y, int length)
+{
+	cblas_saxpy(length, a, x, 1, y, 1);
+}
 
-		bin_blob* __BIN_BLOB__(int i)
-		{
-			bin_blob* b_ = (bin_blob*)at(i);
-			return b_;
-		}
+inline void cacu_saxpby_opencl(float_t *x, float_t a, float_t *y, float_t b, int length)
+{
+	cblas_saxpby(length, a, x, 1, b, y, 1);
+}
 
-	};
+inline void cacu_scalex_opencl(float_t *x, float_t a, int length)
+{
+	cblas_sscal(length, a, x, 1);
+}
+
+inline void cacu_sgemv_opencl(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width,float_t alpha,float_t *z,float_t beta)
+{
+	int m = x_height,n = x_width;
+}
+
+inline void cacu_sgemm_opencl(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha,float_t *z,float_t beta)
+{
+
+}
+
+inline void cacu_copy_opencl(float_t *x, int x_length,float_t *y)
+{
+	cblas_scopy(x_length,x,1,y,1);
 }

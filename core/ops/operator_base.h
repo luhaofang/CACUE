@@ -43,7 +43,7 @@ namespace mycnn{
 			o_blob = NULL;
 			_args = args_;
 			_phrase = data->phrase();
-
+			data->__REC__();
 		};
 
 		operator_base(blobs *&data, args *&args_){
@@ -53,6 +53,7 @@ namespace mycnn{
 			o_blob = NULL;
 			_args = args_;
 			_phrase = data->at(0)->phrase();
+			data->__REC__();
 		};
 
 		virtual ~operator_base(){

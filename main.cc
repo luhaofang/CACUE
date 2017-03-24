@@ -11,9 +11,7 @@
 
 #include "example/cifar10/train.hpp"
 
-
 #include "core/test/test_cases.h"
-
 
 using namespace mycnn;
 using namespace mycnn_tools;

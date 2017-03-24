@@ -1,5 +1,6 @@
 #include "../../../mycnn.h"
 #include "../../math/math_functions.h"
+
 #include <time.h>
 
 #define CATCH_CONFIG_MAIN

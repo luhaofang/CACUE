@@ -37,6 +37,7 @@ namespace mycnn{
 		
 #if  __PARALLELTYPE__ == __GPU__
 			cublasCreate_v2(&handle);
+			cuda_initial();
 #endif
 			_input_blobs = datas_;
 		};

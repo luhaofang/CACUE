@@ -44,20 +44,40 @@ using namespace std;
 
 namespace mycnn {
 
+	/**
+	 * definition of weights parameter initialization type.
+	 */
 	enum param_init_type {
 		constant, xavier, gaussian, msra
 	};
 
+	/**
+	 * blob/network running mode.
+	 */
 	enum phrase_type {
 		test, train
 	};
 
-	enum run_mode {
-		cpu, gpu
-	};
-
+	/*
+	 * regularization type for weights update in optimization methods.
+	 *
+	 */
 	enum regularize_type {
 		L2, L1
+	};
+
+	typedef struct{
+			int x;
+			int y;
+			int z;
+	}spatial3D;
+
+	/**
+	 * blob type definition, every blob_base maintains a blob type in order to turn back
+	 * original data maintaining type.
+	 */
+	enum blob_type{
+		__blob__, __bin_blob__
 	};
 
 	typedef float float_t;

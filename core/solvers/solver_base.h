@@ -56,6 +56,26 @@ namespace mycnn{
 
 		};
 
+#if __PARALLELTYPE__ == __GPU__
+
+		/**
+		 * initial state of the gpu device
+		 * if gpu running is need, cacu create initialize the gpu states for predictor
+		 */
+		void initial(int device_id = 0){
+			if(cuda_initial()){
+				if(cudaSetDevice(device_id) == cudaErrorInvalidDevice){
+					LOG_FATAL("Set Device %d occurred error",device_id);
+				}
+				else
+				{
+					cuda_set_device(device_id);
+				}
+			}
+		}
+
+#endif
+
 		inline void set_weight_decay(float_t weight_decay_){ _global_weight_decay = weight_decay_;}
 
 		inline void set_lr(float_t lr_){ _global_lr = lr_ ;}
@@ -137,7 +157,7 @@ namespace mycnn{
 		 */
 		void __NORMALIZE__(weight *w_)
 		{
-			float_t normalizer_ = (float_t)1 / _net->output_blob()->num();
+			float_t normalizer_ = (float_t)1 ;
 			cacu_scalex(w_->s_diff(), w_->count(), normalizer_);
 		}
 

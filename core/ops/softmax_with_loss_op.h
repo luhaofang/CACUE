@@ -80,11 +80,8 @@ namespace mycnn{
 			for (int i = 0 ; i < s_blob_->num() ; ++i)
 			{
 				cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-				//cuda_print(s_blob_->p_diff(i),s_blob_->length());
 				cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
 			}
-			//cuda_print(s_blob_->s_diff(),s_blob_->count());
-			//echo();
 		}
 
 		virtual const void load(std::ifstream& is) override{

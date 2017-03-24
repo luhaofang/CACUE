@@ -39,6 +39,34 @@ cudaError_t res;
 cublasHandle_t handle;
 cublasStatus_t status;
 
+
+bool cuda_initial()
+{
+	int device_count;
+	if(cudaGetDeviceCount(&device_count))
+	{
+		LOG_FATAL("There is no device!");
+		return false;
+	}
+	return true;
+}
+
+void cuda_set_device(int device_id)
+{
+	struct cudaDeviceProp device_prop;
+	if(cudaGetDeviceProperties(&device_prop, device_id) == cudaSuccess){
+		printf("=======================================================\n");
+		printf("device %i: %s\n",device_id,device_prop.name);
+		printf("-------------------------------------------------------\n");
+		printf("   totalGlobalMem   |	%lu \n", device_prop.totalGlobalMem);
+		printf("      warpSize      |   %d \n", device_prop.warpSize);
+		printf(" maxThreadsPerBlock |   %d \n", device_prop.maxThreadsPerBlock);
+		printf("  sharedMemPerBlock |   %lu \n", device_prop.totalConstMem);
+		printf("    totalConstMem   |   %lu \n", device_prop.totalConstMem);
+		printf("=======================================================\n");
+	}
+}
+
 template<typename DTYPE>
 inline DTYPE* cuda_malloc(int num,int length)
 {

@@ -106,8 +106,6 @@ namespace mycnn{
 				cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 
 			}
-
-			//cacu_print(_padded_data->s_diff(),_padded_data->count());
 		}
 
 		virtual const void load(std::ifstream& is) override{

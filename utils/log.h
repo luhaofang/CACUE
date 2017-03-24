@@ -35,16 +35,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace mycnn{
 
 
-#define LOG(level, format,...)   \
+#define LOG(level, format,args...)   \
 	if(level == "DEBUG") \
-		do{ fprintf(stderr,"[%s][%s %s:%d] %s " format "\n",level, __TIME__, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);}while(0); \
+		do{ fprintf(stderr,"[%s][%s %s:%d] %s " format "\n",level, __TIME__, __FILE__, __LINE__, __FUNCTION__, ##args);}while(0); \
 	else\
-		do{ fprintf(stderr,"[%s][%s %s:%d] " format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);} while (0)
+		do{ fprintf(stderr,"[%s][%s %s:%d] " format "\n",level, __TIME__, __FILE__, __LINE__, ##args);} while (0)
 
-#define LOG_DEBUG(format,...) LOG("DEBUG",format,##__VA_ARGS__)
-#define LOG_FATAL(format,...) {LOG("FATAL",format,##__VA_ARGS__); exit(1);}
-#define LOG_CHECK(format,...) LOG("CHECK",format,##__VA_ARGS__)
-#define LOG_INFO(format,...)  LOG("INFO",format,##__VA_ARGS__)
+#define LOG_DEBUG(format,args...) LOG("DEBUG",format,##args)
+#define LOG_WARNING(format,args...) LOG("WARNING",format,##args)
+#define LOG_FATAL(format,args...) {LOG("FATAL",format,##args); exit(0);}
+#define LOG_CHECK(format,args...) LOG("CHECK",format,##args)
+#define LOG_INFO(format,args...)  LOG("INFO",format,##args)
 
 
 

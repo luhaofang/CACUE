@@ -72,10 +72,9 @@ namespace mycnn{
 		virtual const void grad() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			//cacu_print(o_blob_->s_diff(),o_blob_->count());
+
 			for(int i = 0 ; i < s_blob_->num(); ++i)
 				cacu_average_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i));
-			//cacu_print(s_blob_->s_diff(),s_blob_->count());
 		}
 
 		virtual const void load(std::ifstream& is) override {
@@ -87,7 +86,7 @@ namespace mycnn{
 		}
 
 		virtual const void echo() override {
-			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override {

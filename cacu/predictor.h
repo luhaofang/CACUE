@@ -27,84 +27,71 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <vector>
-
-//#include "math_utils.h"
-
-using namespace std;
+#include "../mycnn.h"
 
 namespace mycnn{
-
-	class blobs : public vector<blob_base*>{
-
-	public:
-
-		blobs(){
-			
-		}
-
-		~blobs(){
-			for (unsigned int i = 0; i < size(); ++i)
-			{
-				switch(at(i)->__TYPE__())
-				{
-					case __blob__:
-						delete (blob*)at(i);
-						break;
-					case __bin_blob__:
-						delete (bin_blob*)at(i);
-						break;
-					default:
-						LOG_FATAL("can't identify the type!");
-						break;
-				}
-			}
-		}
-
-		inline blobs& operator <<(blob_base* blob_base_)
-		{
-			this->push_back(blob_base_);
-			return *this;
-		}
-
-		template<class BTYPE>
-		inline BTYPE* tget(int i)
-		{
-			switch(at(i)->__TYPE__())
-			{
-			case __blob__:
-				return __BLOB__(i);
-				break;
-			case __bin_blob__:
-				return __BIN_BLOB__(i);
-				break;
-			default:
-				LOG_FATAL("can't identify the type!");
-				break;
-			}
-			return NULL;
-		}
-
-		inline void __REC__()
-		{
-			for(int i = 0 ; i < this->size(); ++i)
-				at(i)->__REC__();
-		}
-		
-	private:
-
-
-		blob* __BLOB__(int i)
-		{
-			blob* b_ = (blob*)at(i);
-			return b_;
-		}
-
-		bin_blob* __BIN_BLOB__(int i)
-		{
-			bin_blob* b_ = (bin_blob*)at(i);
-			return b_;
-		}
-
+class predictor
+{
+public:
+	predictor(network *&net_){
+		_net = net_;
 	};
-}
+
+	~predictor(){};
+
+#if __PARALLELTYPE__ == __GPU__
+
+	/**
+	 * initial state of the gpu device
+	 * if gpu running is need, cacu create initialize the gpu states for predictor
+	 */
+	void initial(int device_id = 0){
+		if(cuda_initial()){
+			if(cudaSetDevice(device_id) == cudaErrorInvalidDevice){
+				LOG_FATAL("Set Device %d occurred error",device_id);
+			}
+			else
+			{
+				cuda_set_device(device_id);
+			}
+		}
+	}
+
+#endif
+
+	void predict(){
+		_net->predict();
+	}
+
+	network *net_(){
+		return _net;
+	}
+	/**
+	 * output blob of the net's top layer
+	 */
+	blob *output(){
+		return _net->output_blob();
+	}
+
+	/**
+	 * if the network is flexible and fixed for multi-outputs, cacu will present the ends outputs of the network;
+	 */
+	blobs *outputs(){
+		blobs* blobs_ = cacu_allocator::create_blobs();
+		for(int i = 0 ; i < _net->op_count();++i)
+		{
+			operator_base *op = _net->get_op(i);
+			if(op->out_data()->is_output())
+				blobs_->push_back(op->out_data());
+		}
+		return blobs_;
+	}
+
+private:
+
+	network *_net;
+
+
+};
+};
+

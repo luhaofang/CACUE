@@ -27,84 +27,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <vector>
+namespace mycnn_distribute{
 
-//#include "math_utils.h"
+class cacu_device{
 
-using namespace std;
+	public :
 
-namespace mycnn{
+		cacu_device(){};
 
-	class blobs : public vector<blob_base*>{
-
-	public:
-
-		blobs(){
-			
-		}
-
-		~blobs(){
-			for (unsigned int i = 0; i < size(); ++i)
-			{
-				switch(at(i)->__TYPE__())
-				{
-					case __blob__:
-						delete (blob*)at(i);
-						break;
-					case __bin_blob__:
-						delete (bin_blob*)at(i);
-						break;
-					default:
-						LOG_FATAL("can't identify the type!");
-						break;
-				}
-			}
-		}
-
-		inline blobs& operator <<(blob_base* blob_base_)
-		{
-			this->push_back(blob_base_);
-			return *this;
-		}
-
-		template<class BTYPE>
-		inline BTYPE* tget(int i)
-		{
-			switch(at(i)->__TYPE__())
-			{
-			case __blob__:
-				return __BLOB__(i);
-				break;
-			case __bin_blob__:
-				return __BIN_BLOB__(i);
-				break;
-			default:
-				LOG_FATAL("can't identify the type!");
-				break;
-			}
-			return NULL;
-		}
-
-		inline void __REC__()
-		{
-			for(int i = 0 ; i < this->size(); ++i)
-				at(i)->__REC__();
-		}
-		
-	private:
-
-
-		blob* __BLOB__(int i)
-		{
-			blob* b_ = (blob*)at(i);
-			return b_;
-		}
-
-		bin_blob* __BIN_BLOB__(int i)
-		{
-			bin_blob* b_ = (bin_blob*)at(i);
-			return b_;
-		}
+		~cacu_device(){};
 
 	};
-}
+};

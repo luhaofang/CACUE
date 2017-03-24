@@ -5,6 +5,8 @@
 #define CATCH_CONFIG_MAIN
 #include "../../../3rd_party/catch.hpp"
 
+#include "../../../utils/blob_ops.h"
+
 using namespace mycnn;
 
 TEST_CASE("inner_product")

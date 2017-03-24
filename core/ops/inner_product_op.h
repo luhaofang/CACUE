@@ -69,15 +69,13 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
-			//cacu_print(o_blob_->s_diff(),o_blob_->count());
 			//gradient propagation
 			cacu_sgemm(NOTRANS,NOTRANS,_w->s_data(),_w->length(),_w->num(), o_blob_->s_diff(), o_blob_->num(), 1 ,s_blob_->s_diff(), 0);
 			//weights gradient
-			cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(),1,_w->s_diff(),0);
+			cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(),1,_w->s_diff(),1);
 			//bias gradient
-			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),0,_bias->count());
+			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),1,_bias->count());
 
-			//cacu_print(s_blob_->s_diff(),s_blob_->count());
 		}
 
 		virtual const void load(std::ifstream& is) override{

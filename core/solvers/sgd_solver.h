@@ -59,19 +59,17 @@ namespace mycnn{
 		 */
 		virtual const void update_weight(weight* w_, int weight_index_) override
 		{
-			//printf("      %s,    %s,    %s,    %s\n","w","grad","new_w","history");
-			//printf("%d:",weight_index_);
-			printf("%d:",w_->count());
+			//printf("%d:",w_->count());
 #if __PARALLELTYPE__ == __GPU__
-			cuda_print(w_->s_data(),1);
-			cuda_print(w_->s_diff(),1);
+			//cuda_print(w_->s_data(),1);
+			//cuda_print(w_->s_diff(),1);
 #else
 			cout << w_->s_data()[0] << "," << w_->s_diff()[0] << ",";
 #endif
 			blob* history_ = (blob*)_history_v->at(weight_index_);
 			float_t learn_rate_ = w_->lr() * _global_lr;
 			//normalization
-			//__NORMALIZE__(w_);
+			__NORMALIZE__(w_);
 			//add regular
 			__REGULARIZE__(w_ ,weight_index_);
 			//history_v update
@@ -79,14 +77,13 @@ namespace mycnn{
 			//update to weight
 			cacu_saxpy(history_->s_data(), -1, w_->s_data(), w_->count());
 #if __PARALLELTYPE__ == __GPU__
-			cuda_print(w_->s_data(),1);
-			cuda_print(history_->s_data(),1);
+			//cuda_print(w_->s_data(),1);
+			//cuda_print(history_->s_data(),1);
 #else
 			cout << history_->s_data()[0] << "," << w_->s_data()[0];
 			cout << endl;
 #endif
 			//echo();
-
 		}
 
 		inline void set_momentum(float_t momentum_){ _momentum = momentum_ ;}
@@ -95,9 +92,7 @@ namespace mycnn{
 
 		void echo()
 		{
-			for(unsigned int i = 0; i < _history_v->size() ;++i)
-				printf("(%f,%f),",((blob*)_history_v->at(i))->s_data()[0],((blob*)_history_v->at(i))->s_diff()[0]);
-			printf("\n");
+
 		}
 
 

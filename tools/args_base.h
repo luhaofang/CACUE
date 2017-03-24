@@ -34,7 +34,7 @@ using namespace std;
 
 namespace mycnn{
 
-#define _ARGSEND 0XFFFFFFFF
+#define _ARGSEND 0XFF245F12
 
 	class args_base : public CACU_ARGS{
 

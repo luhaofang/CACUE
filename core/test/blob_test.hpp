@@ -1,6 +1,8 @@
 #include "../../mycnn.h"
 #include <time.h>
 
+#include "../../utils/blob_ops.h"
+
 using namespace mycnn;
 
 

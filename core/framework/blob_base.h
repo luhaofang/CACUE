@@ -35,18 +35,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
+#define __BLOBMAXREC__ 0xFFFF
+
 namespace mycnn{
-
-	typedef struct{
-		int x;
-		int y;
-		int z;
-	}spatial3D;
-
-
-	enum blob_type{
-		__blob__, __bin_blob__
-	};
 
 	class blob_base{
 
@@ -64,6 +55,7 @@ namespace mycnn{
 			_blob_type = type;
 			_s_data = NULL;
 			_s_diff = NULL;
+			_REC = 0;
 		}
 
 		virtual ~blob_base(){
@@ -79,6 +71,7 @@ namespace mycnn{
 		}		
 		
 		inline int index(int c, int x, int y)
+
 		{
 			return c*_cube_length + x*_width + y;
 		}
@@ -117,7 +110,16 @@ namespace mycnn{
 			CHECK_EQ_OP(_width,blob_->_width,"_width check do not match! ( %d vs %d )",_width,blob_->_width);
 		}
 
-		inline blob_type __blob_type__(){return _blob_type;};
+		inline blob_type __TYPE__(){return _blob_type;};
+
+		inline bool is_output() {return _REC == 0;}
+
+		inline void __REC__(){
+			if(_REC < __BLOBMAXREC__)
+				_REC += 1;
+			else
+				LOG_WARNING("blob address %X has rec for %d times, but the max rec for cacu is %d",this,_REC,__BLOBMAXREC__);
+		};
 
 	protected:		
 		
@@ -129,7 +131,7 @@ namespace mycnn{
 		int _length;
 		phrase_type _phrase;
 
-		inline void __set_type__(blob_type blob_type_){_blob_type = blob_type_;};
+		inline void __SET_TYPE__(blob_type blob_type_){_blob_type = blob_type_;};
 
 		void *_s_data;
 
@@ -138,6 +140,8 @@ namespace mycnn{
 	private:
 		
 		blob_type _blob_type;
+
+		unsigned _REC;
 
 	};
 }
