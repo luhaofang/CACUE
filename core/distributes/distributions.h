@@ -32,6 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
-#include "hareware/cacu_device.hpp"
+#include "hardware/cacu_device.hpp"
 
 
