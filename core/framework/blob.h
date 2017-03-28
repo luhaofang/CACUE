@@ -43,6 +43,7 @@ namespace mycnn{
 
 		blob(int num, int channel, int width, int height, float_t _value, phrase_type phrase)
 			:blob_base(num, channel, width, height, phrase, __blob__){
+
 #if __PARALLELTYPE__ == __GPU__
 			_s_data = cuda_malloc_v<float_t>(_num,_cube_length,_value);
 			CUDA_CHECK(res);
@@ -58,25 +59,39 @@ namespace mycnn{
 				set_diff(0);
 			}
 #endif
-
 		}
 
 		~blob(){
 
 		}
 
+		/**
+		 * return the piece probe in blob data
+		 */
 		inline float_t* p_data(int n) {
 			return (float_t*)_s_data + n*_cube_length;
 		}
 
+		/**
+		 * return the piece probe in blob diff
+		 */
 		inline float_t* p_diff(int n) {
 			return (float_t*)_s_diff + n*_cube_length;
 		}
 
+		/**
+		 * return the source probe in blob data
+		 */
 		inline float_t* s_data(){ return (float_t*)_s_data; }
 
+		/**
+		 * return the source probe in blob diff
+		 */
 		inline float_t* s_diff(){ return (float_t*)_s_diff; }
 
+		/**
+		 * reset all data (data&diff) in this blob
+		 */
 		inline virtual const void _RESET_DATA() override
 		{
 			float_t* s_data_ = (float_t*)_s_data;
@@ -92,6 +107,9 @@ namespace mycnn{
 #endif
 		}
 
+		/**
+		 * reset diff data (diff) in this blob
+		 */
 		inline virtual const void _RESET_DIFF() override
 		{
 			float_t* s_diff_ = (float_t*)_s_diff;
@@ -104,6 +122,9 @@ namespace mycnn{
 #endif
 		}
 
+		/**
+		 * set input diff data to constant value
+		 */
 		inline const void set_data(float_t value_)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
@@ -115,6 +136,9 @@ namespace mycnn{
 #endif
 		}
 
+		/**
+		 * set input diff data to constant value
+		 */
 		inline const void set_diff(float_t value_)
 		{
 			float_t* s_diff_ = (float_t*)_s_diff;
@@ -132,7 +156,9 @@ namespace mycnn{
 			return test == _phrase ? _length * sizeof(float_t) : 2 * _length * sizeof(float_t);
 		}
 		
-
+		/**
+		 * copy dest blob data to local blob
+		 */
 		inline const void copy_blob(blob* blob_)
 		{
 			CHECK_EQ_OP(blob_->count(),_length,"blob size must be equal! %d vs %d",blob_->count(),_length);
@@ -201,6 +227,50 @@ namespace mycnn{
 #endif
 		}
 
+		/*
+		 * serializa blob data, output data to model file
+		 */
+		void serializa(std::ostream& os)
+		{
+			float_t* s_data_ = (float_t*)_s_data;
+#if __PARALLELTYPE__ == __GPU__
+			os.write((char*)(&_length), sizeof(_length));
+			vec_t _v(_length);
+			cuda_copy2host(&_v[0],(float_t*)_s_data,_length);
+			for (auto w : _v) os.write((char*)(&w), sizeof(w));
+			vec_t().swap(_v);
+#else
+			os.write((char*)(&_length), sizeof(_length));
+			for(int i = 0 ; i < _length; ++i)
+				os.write((char*)(&s_data_[i]), sizeof(s_data_[i]));
+#endif
+		}
+
+		/*
+		 * loads blob data from model file
+		 */
+		void loads(std::ifstream& is)
+		{
+			float_t* s_data_ = (float_t*)_s_data;
+#if __PARALLELTYPE__ == __GPU__
+			vec_t _v(_length);
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_length);
+			for (int i = 0; i < length_; i++){
+				is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
+			}
+			cuda_copy2dev((float_t*)_s_data, &_v[0],length_);
+			vec_t().swap(_v);
+#else
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_length);
+			for (int i = 0; i < length_; i++){
+				is.read(reinterpret_cast<char*>(s_data_ + i), sizeof(float_t));
+			}
+#endif
+		}
 
 
 	protected:

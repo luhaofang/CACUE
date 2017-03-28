@@ -48,6 +48,4 @@ namespace mycnn{
 #define LOG_INFO(format,...)  LOG("INFO",format,##__VA_ARGS__)
 
 
-
-
 };

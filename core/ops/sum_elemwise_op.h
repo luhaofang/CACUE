@@ -71,16 +71,15 @@ namespace mycnn{
 		}
 
 		virtual const void load(std::ifstream& is) override{
-
+			return;
 		}
 
 		virtual const void save(std::ostream& os) override{
-
+			return;
 		}
 
-		virtual const void echo() override
-		{
-			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+		virtual const void echo() override{
+			return;
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

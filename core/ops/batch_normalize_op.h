@@ -159,11 +159,17 @@ namespace mycnn{
 		}
 
 		virtual const void load(std::ifstream& is) override {
-
+			_scale->loads(is);
+			_shift->loads(is);
+			_history_mean->loads(is);
+			_history_var->loads(is);
 		}
 
 		virtual const void save(std::ostream& os) override {
-
+			_scale->serializa(os);
+			_shift->serializa(os);
+			_history_mean->serializa(os);
+			_history_var->serializa(os);
 		}
 
 		virtual const void echo() override

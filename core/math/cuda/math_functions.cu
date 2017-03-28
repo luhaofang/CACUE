@@ -57,3 +57,51 @@ extern "C" void cacu_isaxb_gpu(float_t *x, int length, float_t a ,unsigned int *
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
+
+
+__global__ void _k_ARGMAX_GPU(float_t *x, int length, unsigned int *index_) {
+
+	__shared__ float_t shared_data[THREADNUM];
+
+	__shared__ unsigned int index_data[THREADNUM];
+
+	int tid = threadIdx.x;
+
+	int max_length = THREADNUM;
+	if(THREADNUM > length)
+		max_length = length;
+
+	if(tid < max_length){
+		shared_data[tid] = x[tid];
+		index_data[tid] = tid;
+	}
+
+	for (unsigned int i = tid; i < length; i += THREADNUM) {
+		if(x[i] > shared_data[tid])
+		{
+			shared_data[tid] = x[i];
+			index_data[tid] = i;
+		}
+	}
+
+	__syncthreads();
+
+	if(tid == 0){
+
+		for(int i = 1; i< max_length; ++i)
+		{
+			if(shared_data[0] < shared_data[i]){
+				shared_data[0] = shared_data[i];
+				index_data[0] = index_data[i];
+			}
+		}
+		index_[0] = index_data[0];
+	}
+}
+
+extern "C" void cacu_argmax_gpu(float_t *x,int length, unsigned int *index_)
+{
+	_k_ARGMAX_GPU<<<1, THREADNUM, 0>>>(x, length, index_);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}

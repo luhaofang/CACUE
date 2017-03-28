@@ -117,6 +117,26 @@ namespace mycnn{
 
 		inline blob *& output_blob(){return (blob*&)_ops[_ops.size()-1]->out_data();}
 
+		void load_weights(chars_t modelpath){
+			std::ifstream is(modelpath);
+			is.precision(std::numeric_limits<float_t>::digits10);
+			for(int i = 0; i < op_count(); ++i)	{
+				get_op(i)->load(is);
+			}
+			is.close();
+			LOG_INFO("Initialize model by : %s",modelpath.c_str());
+		}
+
+		void save_weights(chars_t modelpath){
+			std::ofstream os(modelpath, ios::binary);
+			os.precision(std::numeric_limits<float_t>::digits10);
+			for(int i = 0; i < op_count(); ++i)	{
+				get_op(i)->save(os);
+			}
+			os.close();
+			LOG_INFO("optimization is done!");
+			LOG_INFO("The model is save at : %s",modelpath.c_str());
+		}
 
 	private:
 

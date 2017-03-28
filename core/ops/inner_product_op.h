@@ -40,8 +40,10 @@ namespace mycnn{
 			o_blob = cacu_allocator::create_blob(data->num(), _args->output_channel(), 1, 1, _phrase);
 
 			_w = create_param("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
-			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
-			_bias ->set_lr(2);
+			if(_is_use_bias){
+				_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
+				_bias ->set_lr(2);
+			}
 		};
 
 		~inner_product_op(){
@@ -59,10 +61,11 @@ namespace mycnn{
 
 			cacu_sgemm(TRANS, NOTRANS, _w->s_data(),_w->num(), _w->length(),s_blob_->s_data(),s_blob_->num(), 1 ,o_blob_->s_data(),0);
 			//bias added
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-			{
-				cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data(i),(float_t)1,o_blob_->length(),o_blob_->p_data(i));
-			}
+			if(_is_use_bias)
+				for(int i = 0 ; i < s_blob_->num(); ++i)
+				{
+					cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data(i),(float_t)1,o_blob_->length(),o_blob_->p_data(i));
+				}
 		}
 
 		virtual const void grad() override{
@@ -73,24 +76,27 @@ namespace mycnn{
 			cacu_sgemm(NOTRANS,NOTRANS,_w->s_data(),_w->length(),_w->num(), o_blob_->s_diff(), o_blob_->num(), 1 ,s_blob_->s_diff(), 0);
 			//weights gradient
 			cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(),1,_w->s_diff(),1);
-			//bias gradient
-			cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),1,_bias->count());
+			if(_is_use_bias)
+				//bias gradient
+				cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),1,_bias->count());
 
 		}
 
 		virtual const void load(std::ifstream& is) override{
-		
+			_w->loads(is);
+			if(_is_use_bias)
+				_bias->loads(is);
 		}
 
 		virtual const void save(std::ostream& os) override{
-		
+			_w->serializa(os);
+			if(_is_use_bias)
+				_bias->serializa(os);
 		}
 
 		virtual const void echo() override
 		{
-
-			//LOG_INFO("%s:%d", "output_channel", (*_args)[0]);
-			//LOG_INFO("%f", ((blob*)o_blob)->s_data()[0]);
+			return;
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override
@@ -105,8 +111,12 @@ namespace mycnn{
 
 		inline void set_bias_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _bias, value);}
 
+		void is_use_bias(bool switcher_){ _is_use_bias = switcher_;};
 
 	private:
+
+		//inner_product_op use bias switcher
+		bool _is_use_bias = true;
 
 		weight *_w;
 

@@ -56,6 +56,13 @@ namespace mycnn{
 			_s_data = NULL;
 			_s_diff = NULL;
 			_REC = 0;
+			//check the input data dim
+			long c_length_ = channel*width*height;
+			CHECK_LT_OP(c_length_,_MAX_INT_,"BLOB cell length is out of bounds: %ld vs d", c_length_,_MAX_INT_);
+			//check the input data dim
+			long a_length = _num*_cube_length;
+			CHECK_LT_OP(a_length,_MAX_INT_,"BLOB length is out of bounds: %ld vs d", a_length,_MAX_INT_);
+
 		}
 
 		virtual ~blob_base(){

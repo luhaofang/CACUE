@@ -64,7 +64,7 @@ namespace mycnn{
 			//cuda_print(w_->s_data(),1);
 			//cuda_print(w_->s_diff(),1);
 #else
-			cout << w_->s_data()[0] << "," << w_->s_diff()[0] << ",";
+			//cout << w_->s_data()[0] << "," << w_->s_diff()[0] << ",";
 #endif
 			blob* history_ = (blob*)_history_v->at(weight_index_);
 			float_t learn_rate_ = w_->lr() * _global_lr;
@@ -80,8 +80,8 @@ namespace mycnn{
 			//cuda_print(w_->s_data(),1);
 			//cuda_print(history_->s_data(),1);
 #else
-			cout << history_->s_data()[0] << "," << w_->s_data()[0];
-			cout << endl;
+			//cout << history_->s_data()[0] << "," << w_->s_data()[0];
+			//cout << endl;
 #endif
 			//echo();
 		}

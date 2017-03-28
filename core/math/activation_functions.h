@@ -43,7 +43,11 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_relu_gpu(x,length);
 #else
-		for (int i = 0; i < length; ++i)
+		int i;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
 		{
 			if (x[i] < 0)
 				x[i] = 0.0;
@@ -63,7 +67,11 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_relu_grad_gpu(x,g,length);
 #else
-		for (int i = 0; i < length; ++i)
+		int i;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
 		{
 			if (x[i] <= 0)
 				g[i] = 0.0;
@@ -83,7 +91,11 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_leaky_relu_gpu(x, a, length);
 #else
-		for (int i = 0; i < length; ++i)
+		int i;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
 		{
 			if (x[i] < 0)
 				x[i] *= a;
@@ -103,7 +115,11 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_leaky_relu_grad_gpu(x, g, a, length);
 #else
-		for (int i = 0; i < length; ++i)
+		int i;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
 		{
 			if (x[i] <= 0)
 				g[i] *= a;
@@ -124,20 +140,24 @@ namespace mycnn{
 		cacu_softmax_gpu(x, num, length, y);
 #else
 		float_t *xp,*yp,max_,sum_;
-		for (int n = 0; n < num; ++n)
+		int n,i;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(n,i,max_,sum_,xp,yp)
+#endif
+		for (n = 0; n < num; ++n)
 		{
 			xp = x + n * length;
 			yp = y + n * length;
 			max_ = xp[0];
 			sum_ = 0;
-			for (int i = 1; i < length; ++i)
+			for (i = 1; i < length; ++i)
 				max_ = max(xp[i], max_);
-			for (int i = 0; i < length; ++i)
+			for (i = 0; i < length; ++i)
 			{
 				yp[i] = exp(xp[i] - max_);
 				sum_ += yp[i];
 			}
-			for (int i = 0; i < length; ++i)
+			for (i = 0; i < length; ++i)
 			{
 				yp[i] = (yp[i] / sum_);
 			}

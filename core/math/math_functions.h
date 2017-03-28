@@ -43,9 +43,8 @@ namespace mycnn{
  */
 inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
 {
-#if __PARALLELTYPE__ == __OPENMP__
-	//cacu_saxpby_omp(x, a, y, length);
-#elif __PARALLELTYPE__ == __OPENBLAS__
+
+#if __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpy_oblas(x, a, y, length);
 #elif __PARALLELTYPE__ == __GPU__
 	cacu_saxpy_gpu(x, a, y, length);
@@ -59,9 +58,8 @@ inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
  */
 inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length)
 {
-#if __PARALLELTYPE__ == __OPENMP__
-	cacu_saxpby_omp(x, a, y, b, length);
-#elif __PARALLELTYPE__ == __OPENBLAS__
+
+#if __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpby_oblas(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __GPU__
 	cacu_saxpby_gpu(x, a, y, b, length);
@@ -76,9 +74,8 @@ inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length
  */
 inline void cacu_scalex(float_t *x, int length, float_t a)
 {
-#if __PARALLELTYPE__ == __OPENMP__
-	cacu_scalex_opm(x, a, length);
-#elif __PARALLELTYPE__ == __OPENBLAS__
+
+#if __PARALLELTYPE__ == __OPENBLAS__
 	cacu_scalex_oblas(x, a, length);
 #elif __PARALLELTYPE__ == __GPU__
 	cacu_scalex_gpu(x, a, length);
@@ -93,9 +90,8 @@ inline void cacu_scalex(float_t *x, int length, float_t a)
  */
 inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, int x_width, float_t alpha, float_t *z , float_t beta)
 {
-#if __PARALLELTYPE__ == __OPENMP__
-	cacu_sgemv_omp(x, x_height, y, x_width, z);
-#elif __PARALLELTYPE__ == __OPENBLAS__
+
+#if __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (trans_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemv_oblas(transx, x, x_height, y, x_width,alpha, z ,beta);
 #elif __PARALLELTYPE__ == __GPU__
@@ -112,9 +108,8 @@ inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, in
  */
 inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha, float_t *z, float_t beta)
 {
-#if __PARALLELTYPE__ == __OPENMP__
-	cacu_sgemm_omp(transx_, transy_, x, x_height, x_width, y, y_width, z);
-#elif __PARALLELTYPE__ == __OPENBLAS__
+
+#if __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (transx_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	CBLAS_TRANSPOSE transy = (transy_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemm_oblas(transx, transy, x, x_height, x_width, y, y_width, alpha, z, beta);
@@ -180,6 +175,30 @@ inline void cacu_isaxb(float_t *x, int length, float_t a ,unsigned int *index_, 
 #endif
 }
 
+inline unsigned int argmax(float_t *data, int length)
+{
+
+	unsigned int index;
+#if __PARALLELTYPE__ == __GPU__
+	unsigned int *_index = cuda_malloc<unsigned int>(1,1);
+	cacu_argmax_gpu(data,length,_index);
+	cuda_copy2host(&index,_index,1);
+	return index;
+#else
+	float_t max;
+	unsigned int i;
+	max = data[0];
+	index = 0;
+	for (i = 1 ; i < length; ++i)
+	{
+		if(data[i] > max){
+			max = data[i];
+			index = i;
+		}
+	}
+	return index;
+#endif
+}
 
 
 };

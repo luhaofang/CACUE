@@ -117,7 +117,14 @@ namespace mycnn{
 			}
 		}
 
-
+		/**
+		 * change global_lr by rate after several training iterations
+		 *
+		 */
+		void set_lr_iter(float_t lr_rate_)
+		{
+			this->_global_lr *= lr_rate_;
+		}
 
 	protected:
 

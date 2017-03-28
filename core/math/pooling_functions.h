@@ -49,11 +49,14 @@ namespace mycnn{
 		float_t *xp, xd;
 		int outset;
 		int in_start, out_start;
-
-		for (int i = 0; i < output_dim; ++i)
-			for (int j = 0; j < output_dim; ++j)
+		int i,j,c,ki,kj;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,outset,xd,xp)
+#endif
+		for (i = 0; i < output_dim; ++i)
+			for (j = 0; j < output_dim; ++j)
 			{
-				for (int c = 0; c < channel; ++c)
+				for (c = 0; c < channel; ++c)
 				{
 					out_start = (i * output_dim + j);
 					in_start = (i * input_dim + j) * stride;
@@ -61,8 +64,8 @@ namespace mycnn{
 					outset = c*cout_length + out_start;
 					y[outset] = xp[0];
 					index[outset] = (unsigned int)(in_start);
-					for (int ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ++ki)
-						for (int kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; ++kj)
+					for (ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ++ki)
+						for (kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; ++kj)
 						{
 							xd = xp[ki * input_dim + kj];
 							if (y[outset] < xd)
@@ -95,10 +98,15 @@ namespace mycnn{
 		int cout_length = output_dim * output_dim;
 		int cin_length = input_dim * input_dim;
 
-		for (int i = 0; i < output_dim; ++i)
-			for (int j = 0; j < output_dim; ++j) {
+		int i,j,c;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,_index, sd_out)
+#endif
+		for (i = 0; i < output_dim; ++i)
+			for (j = 0; j < output_dim; ++j) {
 				sd_out = (i * output_dim + j);
-				for (int c = 0; c < channel; ++c) {
+				for (c = 0; c < channel; ++c) {
 					_index = index[sd_out + c * cout_length];
 					y[_index + c * cin_length] += x[sd_out + c * cout_length];
 				}
@@ -123,18 +131,24 @@ namespace mycnn{
 		float_t *xp, *yp;
 		int in_start, out_start;
 		int count;
-		for (int c = 0; c < channel; ++c)
+
+		int i,j,c,ki,kj;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,count,xp,yp)
+#endif
+		for (c = 0; c < channel; ++c)
 		{
 			xp = x + c*input_dim*input_dim;
 			yp = y + c*block_size;
-			for (int i = 0; i < output_dim; ++i)
-				for (int j = 0; j < output_dim; ++j)
+			for (i = 0; i < output_dim; ++i)
+				for (j = 0; j < output_dim; ++j)
 				{
 					out_start = (i * output_dim + j);
 					in_start = (i * input_dim + j)*stride;
 					count = 0;
-					for (int ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ki++)
-						for (int kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; kj++)
+					for (ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ki++)
+						for (kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; kj++)
 						{
 							yp[out_start] += xp[in_start + ki * input_dim + kj];
 							count++;
@@ -169,18 +183,22 @@ namespace mycnn{
 
 		sdp = x;
 		snp = y;
+		int i,j,c,ki,kj;
 
-		for (int i = 0; i < output_dim; ++i)
-			for (int j = 0; j < output_dim; ++j) {
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,sdp, snp,diff_data,sd_out_cp,sn_out_cp,param_w,param_h)
+#endif
+		for (i = 0; i < output_dim; ++i)
+			for (j = 0; j < output_dim; ++j) {
 				sd_out = (i * output_dim + j);
 				sn_out = (i * input_dim + j) * stride;
-				for (int c = 0; c < channel; ++c) {
+				for (c = 0; c < channel; ++c) {
 					sd_out_cp = sdp + sd_out + c * cout_length;
 					//mean
 					if (pad == 0){
 						diff_data = *sd_out_cp / (float_t) (kernel_size * kernel_size);
-						for (int ki = 0; ki < kernel_size; ++ki)
-							for (int kj = 0; kj < kernel_size; ++kj) {
+						for (ki = 0; ki < kernel_size; ++ki)
+							for (kj = 0; kj < kernel_size; ++kj) {
 								sn_out_cp = snp + sn_out + (ki * input_dim + kj) + c * cin_length;
 								*sn_out_cp += diff_data;
 							}
@@ -192,8 +210,8 @@ namespace mycnn{
 						if (j == flag)
 							param_h = kernel_size - pad;
 						diff_data = *sd_out_cp / (float_t) (param_w * param_h);
- 						for (int ki = 0; ki < param_w; ++ki)
-							for (int kj = 0; kj < param_h; ++kj) {
+ 						for (ki = 0; ki < param_w; ++ki)
+							for (kj = 0; kj < param_h; ++kj) {
 								sn_out_cp = snp + sn_out + (ki * input_dim + kj) + c * cin_length;
 								*sn_out_cp += diff_data;
 							}
@@ -221,12 +239,17 @@ namespace mycnn{
 		int in_csize = input_dim*input_dim;
 		int out_csize = output_dim*output_dim;
 		int boundary = input_dim + pad;
-		for (int c = 0; c < channel; ++c){
+		int i,j,c;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,yp,xp)
+#endif
+		for (c = 0; c < channel; ++c){
 
 			yp = y + c*out_csize;
 			xp = x + c*in_csize;
-			for (int i = 0; i < output_dim; ++i)
-				for (int j = 0; j < output_dim; ++j)
+			for (i = 0; i < output_dim; ++i)
+				for (j = 0; j < output_dim; ++j)
 				{
 					if (i >= pad && i < boundary && j >= pad && j<boundary)
 						yp[i * output_dim + j] = xp[(i - pad)*input_dim + (j - pad)];
@@ -253,20 +276,24 @@ namespace mycnn{
 		int block_size = kernel_length * channel;
 		float_t *xp, *yp;
 		int in_start, out_start;
+		int i,j,c,ki,kj;
 
-		for (int i = 0; i < output_dim; ++i)
-			for (int j = 0; j < output_dim; ++j)
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
+#endif
+		for (i = 0; i < output_dim; ++i)
+			for (j = 0; j < output_dim; ++j)
 			{
 				out_start = (i * output_dim + j) * block_size;
 				in_start = (i * input_dim + j) * stride;
 				
-				for (int c = 0; c < channel; ++c)
+				for (c = 0; c < channel; ++c)
 				{
 					yp = y + out_start + c * kernel_length;
 					xp = x + in_start + c * cin_length;
 
-					for (int ki = 0; ki < kernel_size; ki++)
-						for (int kj = 0; kj < kernel_size; ++kj)
+					for (ki = 0; ki < kernel_size; ki++)
+						for (kj = 0; kj < kernel_size; ++kj)
 						{
 							yp[ki * kernel_size + kj] = xp[ki * input_dim + kj];
 						}
@@ -290,12 +317,17 @@ namespace mycnn{
 		int output_dim = input_dim - 2 * pad;
 		int cin_length = input_dim*input_dim;
 		int cout_length = output_dim*output_dim;
-		for (int c = 0; c < channel; ++c){
 
+		int i,j,c;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,yp,xp)
+#endif
+		for (c = 0; c < channel; ++c){
 			yp = y + c*cout_length;
 			xp = x + c*cin_length;
-			for (int i = 0; i < output_dim; ++i)
-				for (int j = 0; j < output_dim; ++j)
+			for (i = 0; i < output_dim; ++i)
+				for (j = 0; j < output_dim; ++j)
 				{
 					yp[i * output_dim + j] = xp[(i + pad)*input_dim + (j + pad)];
 				}
@@ -325,18 +357,23 @@ namespace mycnn{
 		int cin_length = input_dim * input_dim;
 		float_t *xp,*yp;
 
+		int row,col,c,ki,kj;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
+#endif
 		//for output_dim's location
-		for (int row = 0; row < output_dim; ++row)
+		for (row = 0; row < output_dim; ++row)
 		{
-			for(int col = 0 ; col < output_dim; ++col)
+			for(col = 0 ; col < output_dim; ++col)
 			{
 				sd_out = (row * output_dim + col) * block_size;
 				sn_out = (row * input_dim + col) * stride;
-				for (int c = 0; c < channel; ++c) {
+				for (c = 0; c < channel; ++c) {
 					xp = x + sd_out + c * k_size;
 					yp = y + sn_out + c * cin_length;
-					for (int ki = 0; ki < kernel_size; ++ki)
-						for (int kj = 0; kj < kernel_size; ++kj) {
+					for (ki = 0; ki < kernel_size; ++ki)
+						for (kj = 0; kj < kernel_size; ++kj) {
 							yp[ki * input_dim + kj] += xp[ki * kernel_size + kj];
 					}
 				}

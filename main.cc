@@ -10,6 +10,7 @@
 #include "core/test/iotools_test.hpp"
 
 #include "example/cifar10/train.hpp"
+//#include "example/cifar10/test.hpp"
 
 #include "core/test/test_cases.h"
 
@@ -30,6 +31,7 @@ int main(int argc, char** argv)
 	//string meanpath = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
 	//make_mean(datapath,meanpath);
 	train_net();
+	//test_net();
 	//int result =  Catch::Session().run(argc,argv);
 
 }

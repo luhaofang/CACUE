@@ -44,7 +44,7 @@ namespace mycnn {
 			vec_t data_;
 			ifstream is(filepath);
 			if(!is)
-				LOG_FATAL("file %s cannot be opened!",filepath);
+				LOG_FATAL("file %s cannot be opened!",filepath.c_str());
 			is.precision(numeric_limits<float_t>::digits10);
 			float_t fp_;
 			for(int i = 0 ;is.peek()!=EOF ;++i)
@@ -62,7 +62,7 @@ namespace mycnn {
 			vec_t data_;
 			ifstream is(filepath);
 			if(!is)
-				LOG_FATAL("file %s cannot be opened!",filepath);
+				LOG_FATAL("file %s cannot be opened!",filepath.c_str());
 			is.precision(numeric_limits<float_t>::digits10);
 			float_t fp_;
 			for(int i = 0 ;is.peek()!=EOF ;++i)
@@ -80,7 +80,7 @@ namespace mycnn {
 			vec_t data_;
 			ifstream is(filepath);
 			if(!is)
-				LOG_FATAL("file %s cannot be opened!",filepath);
+				LOG_FATAL("file %s cannot be opened!",filepath.c_str());
 			is.precision(numeric_limits<float_t>::digits10);
 			float_t fp_;
 			for(int i = 0 ;is.peek()!=EOF ;++i)
@@ -98,7 +98,7 @@ namespace mycnn {
 			vec_t data_;
 			ifstream is(filepath);
 			if(!is)
-				LOG_FATAL("file %s cannot be opened!",filepath);
+				LOG_FATAL("file %s cannot be opened!",filepath.c_str());
 			is.precision(numeric_limits<float_t>::digits10);
 			float_t fp_;
 			for(int i = 0 ;is.peek()!=EOF ;++i)

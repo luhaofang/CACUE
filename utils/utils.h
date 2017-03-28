@@ -54,4 +54,20 @@ namespace mycnn {
 		return ret;
 	}
 
+
+	inline static long timespan(clock_t &start,clock_t &end)
+	{
+#ifdef _WIN32
+		return (end - start);
+#elif linux
+		return (end - start)/1000;
+#endif
+
+	}
+
+
+
+
+
+
 };

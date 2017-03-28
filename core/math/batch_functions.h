@@ -54,6 +54,9 @@ namespace mycnn{
 		DTYPE acc;
 		DTYPE *xp;
 		if (BYWIDTH == SUMTYPE){
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(b,i,acc,xp)
+#endif
 			for (b = 0; b < height; ++b){
 				xp = x + b*width;
 				acc = 0;
@@ -63,6 +66,9 @@ namespace mycnn{
 			}
 		}
 		else if (BYHEIGHT == SUMTYPE){
+#if __OPENMP__ == NO
+			#pragma omp parallel for default(shared) private(b,i,acc,xp)
+#endif
 			for (b = 0; b < width; ++b){
 				acc = 0;
 				for (i = 0; i < height; ++i)
@@ -88,11 +94,15 @@ namespace mycnn{
 		int block_size = length / size;
 		DTYPE *xp;
 		DTYPE *yp;
-		for (int b = 0; b < size; ++b)
+		int b,j;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(b,j,yp,xp)
+#endif
+		for (b = 0; b < size; ++b)
 		{
 			xp = x + b*block_size;
 			yp = y + b*block_size;
-			for (int j = 0; j < block_size; ++j)
+			for (j = 0; j < block_size; ++j)
 				yp[j] = xp[j] * a[b];
 		}
 #endif
@@ -112,11 +122,15 @@ namespace mycnn{
 		int block_size = length / size;
 		DTYPE *xp;
 		DTYPE *yp;
-		for (int b = 0; b < size; ++b)
+		int b,j;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(b,j,yp,xp)
+#endif
+		for (b = 0; b < size; ++b)
 		{
 			xp = x + b*block_size;
 			yp = y + b*block_size;
-			for (int j = 0; j < block_size; ++j)
+			for (j = 0; j < block_size; ++j)
 				yp[j] = xp[j] / a[b];
 		}
 #endif
@@ -133,7 +147,11 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_sdxsize_gpu(x,length,a,y);
 #else
-		for (int j = 0; j < length; ++j)
+		int j;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(j)
+#endif
+		for (j = 0; j < length; ++j)
 			y[j] = x[j] / a;
 #endif
 	}
@@ -152,10 +170,14 @@ namespace mycnn{
 #else
 		int block_size = length / size;
 		DTYPE *yp,*zp;
-		for (int i = 0; i < size; ++i){
+		int i,j;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,yp,zp)
+#endif
+		for (i = 0; i < size; ++i){
 			yp = y + i*block_size;
 			zp = z + i*block_size;
-			for (int j = 0; j < block_size; ++j)
+			for (j = 0; j < block_size; ++j)
 				zp[j] = a*x[i] + b*yp[j];
 		}
 #endif
@@ -171,7 +193,12 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_sqr_gpu(x,length,y);
 #else
-		for (int j = 0; j < length; ++j)
+
+		int j;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(j)
+#endif
+		for (j = 0; j < length; ++j)
 			y[j] = x[j] * x[j];
 #endif
 	}
@@ -186,6 +213,9 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_root_gpu(x,length,y);
 #else
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(b,j,yp,zp)
+#endif
 		for (int j = 0; j < length; ++j)
 			y[j] = sqrtf((float_t)x[j]);
 #endif
@@ -201,7 +231,11 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_stdbychannel_gpu(varience,length,std,epsilon);
 #else
-		for (int j = 0; j < length; ++j)
+		int j;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(j)
+#endif
+		for (j = 0; j < length; ++j)
 			std[j] = (float_t)pow(varience[j] + epsilon, 0.5);
 #endif
 	}
@@ -226,12 +260,17 @@ namespace mycnn{
 
 		int set;
 
-		for (int n = 0; n < num; n++) {
+		int n,c,f;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(n,c,f,set)
+#endif
+		for (n = 0; n < num; n++) {
 			//iteration for channel
-			for (int c = 0; c < channel; c++) {
+			for (c = 0; c < channel; c++) {
 				set = n * length + cin_length * c;
 				//iteration for feature map
-				for (int f = 0; f < cin_length; f++) {
+				for (f = 0; f < cin_length; f++) {
 
 					d_rou[c] += (d_x[set + f] * (x[set + f] - mean[c]) * (-0.5f / pow(std[c], 3)));
 				}
@@ -263,12 +302,17 @@ namespace mycnn{
 
 		int m = cin_length * num;
 
-		for (int n = 0; n < num; n++) {
+		int n,c,f;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(n,c,f,set)
+#endif
+		for (n = 0; n < num; n++) {
 			//iteration for channel
-			for (int c = 0; c < channel; c++) {
+			for (c = 0; c < channel; c++) {
 				set = n * length + cin_length * c;
 				//iteration for feature map
-				for (int f = 0; f < cin_length; f++) {
+				for (f = 0; f < cin_length; f++) {
 					d_mean[c] += ((d_x[set + f] / (-std[c])) + d_rou[c] * (-2.0f * (x[set + f] - mean[c]) / m));
 				}
 			}
@@ -300,12 +344,17 @@ namespace mycnn{
 
 		int m = cin_length * num;
 
-		for (int n = 0; n < num; n++) {
+		int n,c,f;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(n,c,f,set)
+#endif
+		for (n = 0; n < num; n++) {
 			//iteration for channel
-			for (int c = 0; c < channel; c++) {
+			for (c = 0; c < channel; c++) {
 				set = n * length + cin_length * c;
 				//iteration for feature map
-				for (int f = 0; f < cin_length; f++) {
+				for (f = 0; f < cin_length; f++) {
 
 					dx[set + f] += ((d_x[set + f]/ std[c]) + d_rou[c] * (2.0f * (x[set + f] - mean[c]) / m) + (d_mean[c] / m));
 				}
@@ -334,12 +383,17 @@ namespace mycnn{
 
 		int m = cin_length * num;
 
-		for (int n = 0; n < num; n++) {
+		int n,c,f;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(n,c,f,set)
+#endif
+		for (n = 0; n < num; n++) {
 			//iteration for channel
-			for (int c = 0; c < channel; c++) {
+			for (c = 0; c < channel; c++) {
 				set = n * length + cin_length * c;
 				//iteration for feature map
-				for (int f = 0; f < cin_length; f++) {
+				for (f = 0; f < cin_length; f++) {
 
 					d_gamma[c] += (_x[set + f] * d_y[set + f]);
 				}
@@ -359,7 +413,12 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_ssx_gpu(x, length, y);
 #else
-		for(int i = 0 ; i < length ; ++i)
+
+		int i;
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for(i = 0 ; i < length ; ++i)
 			y[i] *= x[i];
 #endif
 	}

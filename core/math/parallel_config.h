@@ -30,10 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ON	1
 #define OFF	0
 
+#define __OPENMP__  NO
+
 #define __OPENBLAS__  0XF
 
-#define __OPENMP__  0XFF
-
 #define __GPU__  0XFFF
-
-

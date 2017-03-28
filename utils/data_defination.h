@@ -39,10 +39,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <time.h>
 #include <string>
+#include <limits.h>
 
 using namespace std;
 
 namespace mycnn {
+
+#define _MAX_INT_ INT_MAX
 
 	/**
 	 * definition of weights parameter initialization type.

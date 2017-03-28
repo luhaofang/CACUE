@@ -65,7 +65,6 @@ namespace mycnn{
 
 			for(int i = 0 ; i < s_blob_->num(); ++i)
 				cacu_average_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i));
-
 		}
 
 
@@ -78,15 +77,15 @@ namespace mycnn{
 		}
 
 		virtual const void load(std::ifstream& is) override {
-
+			return;
 		}
 
 		virtual const void save(std::ostream& os) override {
-
+			return;
 		}
 
 		virtual const void echo() override {
-
+			return;
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override {

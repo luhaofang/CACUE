@@ -36,55 +36,67 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "./data_proc.hpp"
 
 
-void train_net()
+void test_net()
 {
 	int batch_size = 100;
 
 	int max_iter = 5000;
 
-	network *net = create_cifar_quick_net(batch_size,train);
-
-	sgd_solver *sgd = new sgd_solver(net);
-
-	//sgd->initial();
-
-	sgd->set_lr(0.001f);
+	network *net = create_cifar_quick_net(batch_size,test);
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
-	load_data_bymean(datapath, meanfile, full_data, full_label);
+	load_test_data_bymean(datapath, meanfile, full_data, full_label);
+
+	vec_i _full_label;
+	for(int i = 0; i < full_label.size(); ++i)
+		_full_label.push_back(full_label[i][0]);
 
 	blob *input_data = (blob*)net->input_blobs()->at(0);
-	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
+
+	blob *output_data = net->output_blob();
+
+	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+
+	unsigned int max_index;
+	float_t count = 0;
 
 	int step_index = 0;
+
 	clock_t start,end;
+
 	for (int i = 0 ; i < max_iter; ++i)
 	{
 		start = clock();
+
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
-			if (step_index == kCIFARDataCount)
-				step_index = 0;
+			if (step_index == kCIFARBatchSize)
+				break;
 			input_data->copy_data_io(full_data[step_index], j);
-			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
-		sgd->train_iter();
+		net->predict();
+
+		for(int j = 0 ; j < batch_size ; ++j)
+		{
+			max_index = argmax(output_data->p_data(j),output_data->length());
+			if(max_index == _full_label[i * batch_size + j]){
+				count += 1.0;
+			}
+		}
+
 		end = clock();
 
 		if(i % 1 == 0){
-			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),timespan(start,end));
-			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
+			LOG_INFO("iter_%d , %ld ms/iter", i, timespan(start,end));
 		}
-
-		if(i == 4000)
-			sgd->set_lr_iter(0.1f);
-
+		if (step_index == kCIFARBatchSize)
+			break;
 	}
 
-	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
 }

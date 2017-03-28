@@ -120,4 +120,16 @@ namespace mycnn{
 		return lb;
 	}
 
+	layer_block* predict_layer(blob* data, int output_channel)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel);
+		l->op(CACU_INNERPRODUCT, data)->op(CACU_SOFTMAX);
+		clock_t end = clock();
+		LOG_INFO("time cost :%d", (end - start));
+		*lb << l;
+		return lb;
+	}
+
 };

@@ -44,7 +44,8 @@ const int kCIFARDataCount = 50000;
 
 void readdata(chars_t filename, vector<vec_t> &data_blob) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-
+	if(!data_file)
+		LOG_FATAL("file %s cannot be opened!",filename.c_str());
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
@@ -62,7 +63,8 @@ void readdata(chars_t filename, vector<vec_t> &data_blob) {
 
 void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-
+	if(!data_file)
+		LOG_FATAL("file %s cannot be opened!",filename.c_str());
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
@@ -81,6 +83,8 @@ void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		vector<vec_i> &labels) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
+	if(!data_file)
+		LOG_FATAL("file %s cannot be opened!",filename.c_str());
 	mycnn::float_t *snp;
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
@@ -110,6 +114,20 @@ void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob
 		ostringstream oss;
 		oss << filepath << "data_batch_" << i << ".bin";
 		readdata((oss.str()), data_blob , mean , labels);
+	}
+}
+
+void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels)
+{
+
+	vec_t mean(kCIFARImageNBytes);
+
+	imageio_utils::load_mean_file(&mean[0], meanfile);
+
+	{
+		ostringstream oss;
+		oss << filepath << "test_batch.bin";
+		readdata((oss.str()), data_blob , mean, labels);
 	}
 }
 

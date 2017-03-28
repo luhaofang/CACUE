@@ -85,11 +85,11 @@ namespace mycnn{
 		}
 
 		virtual const void load(std::ifstream& is) override{
-
+			return;
 		}
 
 		virtual const void save(std::ostream& os) override{
-
+			return;
 		}
 
 		virtual const void echo() override
