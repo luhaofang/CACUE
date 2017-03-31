@@ -41,7 +41,7 @@ using namespace Gdiplus;
 #include <libpng/png.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <opencv2/opencv.hpp>
+#include "opencv2/opencv.hpp"
 using namespace cv;
 
 #endif
@@ -64,10 +64,9 @@ namespace mycnn_tools{
 
 	public:
 
-		static void imread(float *p_data,string file_path_)
+		static void imread_gpu(float *p_data,string file_path_)
 		{
-			/*
-			Mat src = cv::imread(file_path_, IMREAD_COLOR);
+			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;
@@ -77,16 +76,29 @@ namespace mycnn_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					tmp_[index] = ((float) src.at<Vec3b>(y, x)[0]);
-					tmp_[c_length + index] = ((float) src.at<Vec3b>(y, x)[1]);
-					tmp_[2*c_length + index] = ((float) src.at<Vec3b>(y, x)[2]);
+					tmp_[index] = ((float) src.at<cv::Vec3b>(y, x)[0]);
+					tmp_[c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[1]);
+					tmp_[2*c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[2]);
 				}
-#if __PARALLELTYPE__ == __GPU__
 			cuda_copy2dev(p_data,&tmp_[0],tmp_.size());
-#else
-			cacu_copy(&tmp_[0],tmp_.size(),p_data);
-#endif
-			*/
+			vec_t().swap(tmp_);
+		}
+
+		static void imread(float *p_data,string file_path_)
+		{
+			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
+			unsigned int height = src.rows;
+			unsigned int width = src.cols;
+			unsigned int c_length = height * width;
+
+			unsigned int index;
+			for (unsigned int y = 0; y < height; y++)
+				for (unsigned int x = 0; x < width; x++) {
+					index = y * width + x;
+					p_data[index] = ((float) src.at<cv::Vec3b>(y, x)[0]);
+					p_data[c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[1]);
+					p_data[2*c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[2]);
+				}
 		}
 
 		static void save_mean_file(float *p_data, string mean_file_ , int length_)
@@ -94,21 +106,11 @@ namespace mycnn_tools{
 			ofstream os(mean_file_, ios::binary);
 			os.precision(numeric_limits<float>::digits10);
 			if(!os)
-				LOG_FATAL("file %s cannot be opened!",mean_file_);
-#if __PARALLELTYPE__ == __GPU__
-			vector<float> a(length_);
-			cuda_copy2host(&a[0],p_data,length_);
-			float *d_ = &a[0];
-			for(int i = 0 ; i < length_; ++i)
-			{
-				os.write((char*)(d_+i), sizeof(float));
-			}
-#else
+				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
 			for(int i = 0 ; i < length_; ++i)
 			{
 				os.write((char*)(p_data+i), sizeof(float));
 			}
-#endif
 			os.close();
 		}
 
@@ -117,7 +119,7 @@ namespace mycnn_tools{
 			ifstream is(mean_file_);
 			is.precision(numeric_limits<float>::digits10);
 			if(!is)
-				LOG_FATAL("file %s cannot be opened!",mean_file_);
+				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
 			vector<float> temp_;
 			float fp_;
 
@@ -130,6 +132,26 @@ namespace mycnn_tools{
 
 			float *d_= &temp_[0];
 			memcpy(p_data,d_,temp_.size()*sizeof(float));
+		}
+
+		static void load_mean_file_gpu(float *p_data, string mean_file_)
+		{
+			ifstream is(mean_file_);
+			is.precision(numeric_limits<float>::digits10);
+			if(!is)
+				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
+			vector<float> temp_;
+			float fp_;
+
+			for(int i = 0 ;is.peek()!=EOF ;++i)
+			{
+				is.read(reinterpret_cast<char*>(&fp_), sizeof(float));
+				temp_.push_back(fp_);
+			}
+			is.close();
+
+			float *d_= &temp_[0];
+			cuda_copy2dev(p_data,d_,temp_.size());
 		}
 
 	private:

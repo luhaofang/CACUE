@@ -25,17 +25,69 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
 
-namespace mycnn_distribute{
+#include <time.h>
 
-class cacu_device{
+#include "../../mycnn.h"
 
-	public :
+#include "../../tools/imageio_utils.h"
 
-		cacu_device(){};
 
-		~cacu_device(){};
+using namespace mycnn;
+using namespace mycnn_tools;
 
-	};
-};
+
+const int KIMAGESIZE = 3 * 227 * 227;
+
+
+void readdata(chars_t filename, mycnn::float_t *data_) {
+#if __PARALLELTYPE__ == __GPU__
+	imageio_utils::imread_gpu(data_,filename);
+#else
+	imageio_utils::imread(data_,filename);
+#endif
+}
+
+void readdata(chars_t filename, mycnn::float_t *data_,mycnn::float_t *mean_) {
+#if __PARALLELTYPE__ == __GPU__
+	imageio_utils::imread_gpu(data_,filename);
+#else
+	imageio_utils::imread(data_,filename);
+#endif
+	cacu_saxpy(mean_,(mycnn::float_t)-1,data_,KIMAGESIZE);
+}
+
+vec_t compute_mean(chars_t &filepath, chars_t &filelist)
+{
+	vec_t mean(KIMAGESIZE);
+	vec_t temp(KIMAGESIZE);
+	string file_;
+	ifstream is(filelist);
+	is.precision(numeric_limits<float>::digits10);
+	if(!is)
+		LOG_FATAL("file %s cannot be opened!",filelist.c_str());
+	int count = 0;
+	while( getline(is,file_) )
+	{
+		imageio_utils::imread(&temp[0],filepath + file_);
+		cacu_saxpy_oblas(&temp[0], 1, &mean[0],KIMAGESIZE);
+		count += 1;
+		if(count % 1000 == 0)
+			LOG_INFO("make mean file process : %d",count);
+	}
+	cacu_scalex_oblas(&mean[0],(float)1.0/count,KIMAGESIZE);
+	return mean;
+}
+
+
+void make_mean(chars_t filepath, chars_t filelist, chars_t meanfile)
+{
+	LOG_INFO("start making mean file ... ");
+	vec_t mean = compute_mean(filepath,filelist);
+	LOG_DEBUG("%f,%f",mean[0],mean[24]);
+	imageio_utils::save_mean_file(&mean[0],meanfile,mean.size());
+}
+
+
+
+

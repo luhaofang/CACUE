@@ -27,11 +27,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#define ON	1
-#define OFF	0
+/*
+ * includes all distribution files
+ *
+ */
 
-#define __OPENMP__  NO
+#include "../mycnn.h"
 
-#define __OPENBLAS__  0XF
+#include "hardware/device.hpp"
 
-#define __GPU__  0XFFF
+

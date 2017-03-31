@@ -146,17 +146,13 @@ vec_t compute_mean(chars_t &filepath, int filecount)
 	mycnn::float_t length = (mycnn::float_t) mean_data.size();
 
 	for (unsigned int i = 0; i < mean_data.size(); i++) {
-		cacu_saxpy(&mean_data[i][0], 1, &mean[0],kCIFARImageNBytes);
+		cacu_saxpy_oblas(&mean_data[i][0], 1, &mean[0],kCIFARImageNBytes);
 	}
 
-	cacu_scalex(&mean[0],kCIFARImageNBytes,(float)1.0/length);
+	cacu_scalex_oblas(&mean[0],(float)1.0/length,kCIFARImageNBytes);
 	return mean;
 }
 
-inline void mean_center(mycnn::float_t *p_data, mycnn::float_t *mean_dim_, int length_)
-{
-	cacu_saxpy(mean_dim_,(mycnn::float_t)-1,p_data,length_);
-}
 
 void make_mean(chars_t filepath, chars_t meanfile)
 {

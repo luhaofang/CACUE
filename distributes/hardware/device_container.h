@@ -27,11 +27,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-/*
- * includes all distribution files
- *
- */
+#include "device.hpp"
 
-#include "hardware/cacu_device.hpp"
+namespace mycnn_distribute{
 
+class device_container : public vector<device>{
 
+	public :
+
+		device_container(){};
+
+		~device_container(){};
+
+	};
+};

@@ -55,7 +55,7 @@ namespace mycnn{
 		DTYPE *xp;
 		if (BYWIDTH == SUMTYPE){
 #if __OPENMP__ == NO
-		#pragma omp parallel for default(shared) private(b,i,acc,xp)
+			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < height; ++b){
 				xp = x + b*width;
@@ -67,13 +67,13 @@ namespace mycnn{
 		}
 		else if (BYHEIGHT == SUMTYPE){
 #if __OPENMP__ == NO
-			#pragma omp parallel for default(shared) private(b,i,acc,xp)
+			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < width; ++b){
 				acc = 0;
 				for (i = 0; i < height; ++i)
 					acc += x[i * width + b];
-				y[b] += ((alpha * acc) + beta * y[b]);
+				y[b] = ((alpha * acc) + beta * y[b]);
 			}
 		}
 #endif
@@ -213,8 +213,9 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_root_gpu(x,length,y);
 #else
+		int j;
 #if __OPENMP__ == NO
-		#pragma omp parallel for default(shared) private(b,j,yp,zp)
+		#pragma omp parallel for default(shared) private(j)
 #endif
 		for (int j = 0; j < length; ++j)
 			y[j] = sqrtf((float_t)x[j]);

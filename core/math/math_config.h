@@ -27,9 +27,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../core/math/math_config.h"
+#define ON	1
+#define OFF	0
 
+#define __OPENBLAS__  0XF
 
-#define __PARALLELTYPE__  __GPU__
-
-#define __OPENMP__  OFF
+#define __GPU__  0XFFF

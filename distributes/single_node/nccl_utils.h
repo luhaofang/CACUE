@@ -27,9 +27,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../core/math/math_config.h"
+#include "../../../mycnn.h"
+#include "nccl.h"
+
+namespace multi_gpu{
+
+ncclComm_t comm[cudaGet]
 
 
-#define __PARALLELTYPE__  __GPU__
+public void initial_devices()
+{
 
-#define __OPENMP__  OFF
+}
+
+
+
+public void initial_data_blob(network *net)
+{
+
+}
+
+};

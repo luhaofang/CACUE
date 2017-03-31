@@ -51,20 +51,22 @@ bool cuda_initial()
 	return true;
 }
 
-void cuda_set_device(int device_id)
+void cuda_set_device(int device_id = 0)
 {
 	struct cudaDeviceProp device_prop;
 	if(cudaGetDeviceProperties(&device_prop, device_id) == cudaSuccess){
-		printf("=======================================================\n");
-		printf("device %i: %s\n",device_id,device_prop.name);
-		printf("-------------------------------------------------------\n");
-		printf("   totalGlobalMem   |	%lu \n", device_prop.totalGlobalMem);
-		printf("      warpSize      |   %d \n", device_prop.warpSize);
-		printf(" maxThreadsPerBlock |   %d \n", device_prop.maxThreadsPerBlock);
-		printf("  sharedMemPerBlock |   %lu \n", device_prop.totalConstMem);
-		printf("    totalConstMem   |   %lu \n", device_prop.totalConstMem);
-		printf("=======================================================\n");
+		cout << "=======================================================" << endl;
+		cout << "device " << device_id << ": " << device_prop.name << endl;
+		cout << "-------------------------------------------------------" << endl;
+		cout << "totalGlobalMem      |	" << device_prop.totalGlobalMem << endl;
+		cout << "warpSize            |	" << device_prop.warpSize << endl;
+		cout << "maxThreadsPerBlock  |	" << device_prop.maxThreadsPerBlock << endl;
+		cout << "sharedMemPerBlock   |	" << device_prop.totalConstMem << endl;
+		cout << "totalConstMem       |	" << device_prop.totalConstMem << endl;
+		cout << "=======================================================" << endl;
 	}
+	res = cudaSetDevice(device_id);
+	CUDA_CHECK(res);
 }
 
 template<typename DTYPE>

@@ -171,7 +171,6 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __GPU__
 		cacu_average_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
 #else
-		float_t *sdp, *snp;
 		int sd_out, sn_out, param_w, param_h;
 		float_t *sd_out_cp, *sn_out_cp;
 		float_t diff_data;
@@ -181,25 +180,23 @@ namespace mycnn{
 		int cin_length = input_dim * input_dim;
 		int cout_length = output_dim * output_dim;
 
-		sdp = x;
-		snp = y;
 		int i,j,c,ki,kj;
 
 #if __OPENMP__ == NO
-		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,sdp, snp,diff_data,sd_out_cp,sn_out_cp,param_w,param_h)
+		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,diff_data,sd_out_cp,sn_out_cp,param_w,param_h)
 #endif
 		for (i = 0; i < output_dim; ++i)
 			for (j = 0; j < output_dim; ++j) {
 				sd_out = (i * output_dim + j);
 				sn_out = (i * input_dim + j) * stride;
 				for (c = 0; c < channel; ++c) {
-					sd_out_cp = sdp + sd_out + c * cout_length;
+					sd_out_cp = x + sd_out + c * cout_length;
 					//mean
 					if (pad == 0){
 						diff_data = *sd_out_cp / (float_t) (kernel_size * kernel_size);
 						for (ki = 0; ki < kernel_size; ++ki)
 							for (kj = 0; kj < kernel_size; ++kj) {
-								sn_out_cp = snp + sn_out + (ki * input_dim + kj) + c * cin_length;
+								sn_out_cp = y + sn_out + (ki * input_dim + kj) + c * cin_length;
 								*sn_out_cp += diff_data;
 							}
 					}
@@ -212,7 +209,7 @@ namespace mycnn{
 						diff_data = *sd_out_cp / (float_t) (param_w * param_h);
  						for (ki = 0; ki < param_w; ++ki)
 							for (kj = 0; kj < param_h; ++kj) {
-								sn_out_cp = snp + sn_out + (ki * input_dim + kj) + c * cin_length;
+								sn_out_cp = y + sn_out + (ki * input_dim + kj) + c * cin_length;
 								*sn_out_cp += diff_data;
 							}
 					}

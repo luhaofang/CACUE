@@ -32,75 +32,93 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../tools/imageio_utils.h"
 
-#include "./cifar_quick_net.h"
+#include "./alex_net.h"
 #include "./data_proc.hpp"
 
 
-void test_net()
+void train_net()
 {
 	int batch_size = 100;
 
 	int max_iter = 5000;
 
+
+	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __GPU__
 	cuda_set_device(1);
 #endif
 
-	network *net = create_cifar_quick_net(batch_size,test);
+	network *net = create_cifar_quick_net(batch_size,train);
 
-	string datapath = "/home/seal/4T/cacue/cifar10/data/";
-	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
+	sgd_solver *sgd = new sgd_solver(net);
 
-	vector<vec_t> full_data;
+	sgd->set_lr(0.001f);
+	sgd->set_weight_decay(0.0001f);
+
+	string datapath = "/home/seal/4T/imagenet/227X227_train/";
+	string trainlist = "/home/seal/4T/imagenet/train_list.txt";
+	string meanfile = "/home/seal/4T/imagenet/227X227_mean.binproto";
+
+	vector<string> full_data;
 	vector<vec_i> full_label;
-	load_test_data_bymean(datapath, meanfile, full_data, full_label);
 
-	vec_i _full_label;
-	for(int i = 0; i < full_label.size(); ++i)
-		_full_label.push_back(full_label[i][0]);
+	/**
+	 * load mean data
+	 */
+	blob *mean_ = cacu_allocator::create_blob(1,3,227,227);
+#if __PARALLELTYPE__ == __GPU__
+	imageio_utils::load_mean_file_gpu(mean_->s_data(),meanfile);
+#else
+	imageio_utils::load_mean_file(mean_->s_data(),meanfile);
+#endif
+	/*
+	 * read train list data into local memory
+	 */
+	ifstream is(trainlist);
+	is.precision(numeric_limits<float>::digits10);
+	if(!is)
+		LOG_FATAL("file %s cannot be opened!",trainlist.c_str());
+	string file_;
+	while(getline(is,file_)){
+		vector<string> vec = split(file_);
+		full_data.push_back(vec[0]);
+		full_label.push_back(vec_i(strtoul(vec[1].c_str(), NULL, 10)));
+	}
 
+	int ALL_DATA_SIZE = full_data.size();
+
+	/**
+	 * read data for training
+	 */
 	blob *input_data = (blob*)net->input_blobs()->at(0);
-
-	blob *output_data = net->output_blob();
-
-	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
-
-	unsigned int max_index;
-	float_t count = 0;
+	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
-
 	clock_t start,end;
-
 	for (int i = 0 ; i < max_iter; ++i)
 	{
 		start = clock();
-
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
-			if (step_index == kCIFARBatchSize)
-				break;
-			input_data->copy_data_io(full_data[step_index], j);
+			if (step_index == ALL_DATA_SIZE)
+				step_index = 0;
+			//load image data
+			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
+			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
-		net->predict();
-
-		for(int j = 0 ; j < batch_size ; ++j)
-		{
-			max_index = argmax(output_data->p_data(j),output_data->length());
-			if(max_index == _full_label[i * batch_size + j]){
-				count += 1.0;
-			}
-		}
-
+		sgd->train_iter();
 		end = clock();
 
 		if(i % 1 == 0){
-			LOG_INFO("iter_%d , %ld ms/iter", i, end - start);
+			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),end - start);
+			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
-		if (step_index == kCIFARBatchSize)
-			break;
+
+		if(i == 50000)
+			sgd->set_lr_iter(0.1f);
+
 	}
 
-	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
+	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
 }

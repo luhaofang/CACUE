@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/framework/dy_bin_blob.h"
 #include "core/framework/weight.h"
 
-#include "core/distributes/distributions.h"
+#include "distributes/distributions.h"
 
 #include "utils/cacu_allocator.h"
 #include "utils/blob_ops.h"

@@ -27,9 +27,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../core/math/math_config.h"
+#include <cuda_runtime.h>
+
+namespace mycnn_distribute{
+
+class device {
+
+	public :
+
+		device(int device_id){
+			if(cudaGetDeviceProperties(_properties, device_id) == cudaSuccess)
+				LOG_FATAL("Load device %d error!",device_id);
+		};
+
+		~device(){
+
+			delete _properties;
+		};
 
 
-#define __PARALLELTYPE__  __GPU__
 
-#define __OPENMP__  OFF
+	private :
+
+		cudaDeviceProp *_properties;
+
+	};
+};
