@@ -40,6 +40,8 @@ namespace mycnn{
 
 			blob_base *_blob = data->at(0);
 			o_blob = cacu_allocator::create_blob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
+
+			echo();
 		};
 
 		~sum_elemwise_op(){
@@ -79,7 +81,8 @@ namespace mycnn{
 		}
 
 		virtual const void echo() override{
-			return;
+			LOG_INFO("create sum_elemwise op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blobs->at(0)->channel(),s_blobs->at(0)->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

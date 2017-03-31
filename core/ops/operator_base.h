@@ -137,7 +137,7 @@ namespace mycnn{
 					p_[i] = value;
 				break;
 			case mycnn::xavier:
-				value = sqrt((float_t) 3.0/ (_args->kernel_size() * _args->kernel_size() * _args->channel()));
+				value = sqrt((float_t) 3.0/ (w_->num() * w_->height() * w_->width()));
 				for (int i = 0; i < length_; i++)
 					p_[i] = rand_t::urand(-value, value);
 				break;
@@ -146,7 +146,7 @@ namespace mycnn{
 					p_[i] = rand_t::gaussrand(value);
 				break;
 			case mycnn::msra:
-				value = sqrt((float_t) 2.0/ (_args->kernel_size() * _args->kernel_size() * _args->channel()));
+				value = sqrt((float_t) 2.0/ (w_->num() * w_->height() * w_->width()));
 				for (int i = 0; i < length_; i++)
 					p_[i] = rand_t::gaussrand(value);
 				break;

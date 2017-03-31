@@ -38,9 +38,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 100;
+	int batch_size = 128;
 
-	int max_iter = 5000;
+	int max_iter = 200000;
 
 
 	//set gpu device if training by gpu
@@ -48,7 +48,7 @@ void train_net()
 	cuda_set_device(1);
 #endif
 
-	network *net = create_cifar_quick_net(batch_size,train);
+	network *net = create_alexnet(batch_size,train);
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -65,7 +65,7 @@ void train_net()
 	/**
 	 * load mean data
 	 */
-	blob *mean_ = cacu_allocator::create_blob(1,3,227,227);
+	blob *mean_ = cacu_allocator::create_blob(1,3,227,227,test);
 #if __PARALLELTYPE__ == __GPU__
 	imageio_utils::load_mean_file_gpu(mean_->s_data(),meanfile);
 #else
@@ -80,10 +80,15 @@ void train_net()
 		LOG_FATAL("file %s cannot be opened!",trainlist.c_str());
 	string file_;
 	while(getline(is,file_)){
-		vector<string> vec = split(file_);
-		full_data.push_back(vec[0]);
-		full_label.push_back(vec_i(strtoul(vec[1].c_str(), NULL, 10)));
+		vector<string> vec = split(file_," ");
+		full_data.push_back(datapath + vec[0]);
+		vec_i label(1);
+		label[0] = strtoul(vec[1].c_str(), NULL, 10);
+		full_label.push_back(label);
 	}
+
+	//LOG_DEBUG("%d",full_label.size());
+	//LOG_DEBUG("%d",full_label[0].size());
 
 	int ALL_DATA_SIZE = full_data.size();
 
@@ -120,5 +125,11 @@ void train_net()
 
 	}
 
-	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	net->save_weights("/home/seal/4T/cacue/imagenet/alex_net.model");
+
+	for(int i = 0; i < full_label.size(); ++i)
+	{
+		vec_i().swap(full_label[i]);
+	}
+	vector<string>().swap(full_data);
 }

@@ -64,6 +64,7 @@ namespace mycnn_tools{
 
 	public:
 
+#if __PARALLELTYPE__ == __GPU__
 		static void imread_gpu(float *p_data,string file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
@@ -80,9 +81,11 @@ namespace mycnn_tools{
 					tmp_[c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[1]);
 					tmp_[2*c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[2]);
 				}
+
 			cuda_copy2dev(p_data,&tmp_[0],tmp_.size());
 			vec_t().swap(tmp_);
 		}
+#endif
 
 		static void imread(float *p_data,string file_path_)
 		{
@@ -134,6 +137,7 @@ namespace mycnn_tools{
 			memcpy(p_data,d_,temp_.size()*sizeof(float));
 		}
 
+#if __PARALLELTYPE__ == __GPU__
 		static void load_mean_file_gpu(float *p_data, string mean_file_)
 		{
 			ifstream is(mean_file_);
@@ -151,8 +155,10 @@ namespace mycnn_tools{
 			is.close();
 
 			float *d_= &temp_[0];
+
 			cuda_copy2dev(p_data,d_,temp_.size());
 		}
+#endif
 
 	private:
 

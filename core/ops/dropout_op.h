@@ -46,6 +46,7 @@ namespace mycnn{
 			o_blob = cacu_allocator::create_blob(num, channel, input_dim, input_dim, _phrase);
 			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
 
+			echo();
 		};
 
 		~dropout_op(){
@@ -94,7 +95,8 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-			return;
+			LOG_INFO("create dropout op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

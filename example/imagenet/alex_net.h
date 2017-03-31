@@ -27,58 +27,57 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-#include "mycnn.h"
+#include "../../mycnn.h"
 
 #include <time.h>
 
 using namespace mycnn;
 
 
-network* create_alexnet()
+network* create_alexnet(int batch_size,phrase_type phrase_)
 {
-	blob *b = cacu_allocator::create_blob(1, 3, 227, 227, 1, train);
-	weight *_b = new weight("test",2, 3, 227, 227,train);
-	_b->set_init_type(gaussian,1);
-#if __PARALLELTYPE__ == __GPU__
-	CUDA_PRINT(_b->s_data(),1);
-#else
-	LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);
-#endif
-	network *net = new network();
+	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 227, 227, phrase_);
+	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,phrase_);
 
-	layer_block *conv1 = conv_layer_maxpooling(_b, 96, 11, 4, 2);
+	blobs *input_datas_ = cacu_allocator::create_blobs();
+	input_datas_->push_back(blob_);
+	input_datas_->push_back(label_);
+
+	network *net = new network(input_datas_);
+
+	layer_block *conv1 = conv_layer_maxpooling(blob_, 96, 11, 4, 2);
 	conv1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("conv1");
+
 	layer_block *conv2 = conv_layer_maxpooling((blob*)conv1->get_oblob(), 256, 5, 1, 2);
 	conv2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("conv2");
+
 	layer_block *conv3 = conv_layer_nopooling((blob*)conv2->get_oblob(), 384, 3, 1, 1);
 	conv3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("conv3");
+
 	layer_block *conv4 = conv_layer_nopooling((blob*)conv3->get_oblob(), 384, 3, 1, 1);
 	conv4->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv4->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("conv4");
+
 	layer_block *conv5 = conv_layer_maxpooling((blob*)conv4->get_oblob(), 256, 3, 1, 1);
 	conv5->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv5->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("conv5");
+
 	layer_block *fc6 = fc_layer((blob*)conv5->get_oblob(),4096);
 	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 	fc6->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("fc6");
+
 	layer_block *fc7 = fc_layer((blob*)fc6->get_oblob(),4096);
 	fc7->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 	fc7->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("fc7");
+
 	if(phrase_ == train){
 		layer_block *loss_ = loss_layer((blob*)fc7->get_oblob(), label_, 1000);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-		LOG_DEBUG("loss");
+
 		*net << conv1 << conv2 << conv3 << conv4 << conv5 << fc6 << fc7 << loss_;
 	}
 	else
@@ -86,7 +85,7 @@ network* create_alexnet()
 		layer_block *predict_ = predict_layer((blob*)fc7->get_oblob(), 1000);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.1f);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-		LOG_DEBUG("predict");
+
 		*net << conv1 << conv2 << conv3 << conv4 << conv5 << fc6 << fc7 << predict_;
 	}
 

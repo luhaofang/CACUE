@@ -44,6 +44,7 @@ namespace mycnn{
 				_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
 				_bias ->set_lr(2);
 			}
+			echo();
 		};
 
 		~inner_product_op(){
@@ -96,7 +97,8 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-			return;
+			LOG_INFO("create inner_product op:");
+			LOG_INFO("channel: %d, output_channel: %d",s_blob->channel(),o_blob->channel());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

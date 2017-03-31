@@ -47,7 +47,7 @@ namespace mycnn{
 			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim, _phrase);
 
 			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
-
+			echo();
 		};
 
 		~max_pooling_op(){
@@ -84,9 +84,9 @@ namespace mycnn{
 			return;
 		}
 
-		virtual const void echo() override
-		{
-			return;
+		virtual const void echo() override{
+			LOG_INFO("create max_pooling op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

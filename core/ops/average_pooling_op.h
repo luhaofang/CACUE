@@ -47,6 +47,8 @@ namespace mycnn{
 				output_dim += 1;
 			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim, _phrase);
 
+			echo();
+
 		};
 
 		~average_pooling_op(){
@@ -85,7 +87,8 @@ namespace mycnn{
 		}
 
 		virtual const void echo() override {
-			return;
+			LOG_INFO("create average pooling op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override {

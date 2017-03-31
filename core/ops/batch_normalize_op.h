@@ -56,6 +56,7 @@ namespace mycnn{
 			//save for train
 			if(train == _phrase)
 				_x = cacu_allocator::create_blob(data->num(), data->channel(), data->width(), data->height(), test);
+			echo();
 		};
 
 		~batch_normal_op(){
@@ -179,6 +180,8 @@ namespace mycnn{
 #else
 			LOG_INFO("%f", (_mean)->s_data()[0]);
 #endif
+			LOG_INFO("create batch_normalize op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

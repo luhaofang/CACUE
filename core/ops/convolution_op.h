@@ -53,6 +53,7 @@ namespace mycnn{
 			if (_args->pad() != 0)
 				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * _args->pad(), input_dim + 2 * _args->pad(), _phrase);
 			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
+			echo();
 		};
 
 		~convolution_op(){
@@ -129,7 +130,8 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-			return;
+			LOG_INFO("create convolution op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

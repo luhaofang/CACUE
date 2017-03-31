@@ -39,6 +39,8 @@ namespace mycnn{
 
 			o_blob = data;
 
+			echo();
+
 		};
 
 		~relu_op(){
@@ -71,7 +73,8 @@ namespace mycnn{
 		}
 
 		virtual const void echo() override{
-			return;
+			LOG_INFO("create relu op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

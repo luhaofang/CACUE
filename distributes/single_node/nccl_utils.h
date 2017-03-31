@@ -30,9 +30,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../../mycnn.h"
 #include "nccl.h"
 
+using namespace mycnn;
+
 namespace multi_gpu{
 
-ncclComm_t comm[cudaGet]
+ncclComm_t comm[cudaGet];
 
 
 public void initial_devices()

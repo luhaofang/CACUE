@@ -39,6 +39,7 @@ namespace mycnn{
 
 			o_blob = cacu_allocator::create_blob(data->num(),args_->output_channel(),1,1,test);
 
+			echo();
 		};
 
 		~softmax_op(){
@@ -73,7 +74,8 @@ namespace mycnn{
 		}
 
 		virtual const void echo() override{
-			return;
+			LOG_INFO("create softmax op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override{
