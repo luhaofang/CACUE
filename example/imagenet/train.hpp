@@ -52,8 +52,8 @@ void train_net()
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.001f);
-	sgd->set_weight_decay(0.0001f);
+	sgd->set_lr(0.01f);
+	sgd->set_weight_decay(0.0005f);
 
 	string datapath = "/home/seal/4T/imagenet/227X227_train/";
 	string trainlist = "/home/seal/4T/imagenet/train_list.txt";
