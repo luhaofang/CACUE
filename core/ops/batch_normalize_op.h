@@ -38,7 +38,7 @@ namespace mycnn{
 		batch_normal_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 
 			check();
-			o_blob = cacu_allocator::create_blob(data->num(), data->channel(), data->width(), data->height(), _phrase);
+			o_blob = create_oblob(data->num(), data->channel(), data->width(), data->height(), _phrase);
 
 			_scale = create_param("scale", data->channel(), 1, 1, 1, _phrase);
 			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);

@@ -43,7 +43,7 @@ namespace mycnn{
 			int channel = data->channel();
 			int num = data->num();
 
-			o_blob = cacu_allocator::create_blob(num, channel, input_dim, input_dim, _phrase);
+			o_blob = create_oblob(num, channel, input_dim, input_dim, _phrase);
 			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
 
 			echo();

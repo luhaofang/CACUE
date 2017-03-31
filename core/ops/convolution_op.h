@@ -42,7 +42,7 @@ namespace mycnn{
 			int channel = data->channel();
 			int num = data->num();
 			int output_dim = (input_dim + 2 * _args->pad() - _args->kernel_size()) / _args->stride() + 1;
-			o_blob = cacu_allocator::create_blob(num, _args->output_channel(), output_dim, output_dim, _phrase);
+			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 
 			_w = create_param("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
 			if(_is_use_bias){

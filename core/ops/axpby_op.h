@@ -29,58 +29,46 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class softmax_op : public operator_base
+	class axpby_op : public math_operator_base
 	{
 
 	public:
 
-		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_){
-			check();
+		axpby_op(blobs *&data, math_args *&args_) : math_operator_base(data, args_){
 
-			o_blob = create_oblob(data->num(),args_->output_channel(),1,1,test);
+			o_blob = data->at(1);
 
-			echo();
 		};
 
-		~softmax_op(){
-			delete o_blob;
+		~axpby_op(){
+
 		};
 
 		virtual const void check() override{
-			return;
+			blob_base *x = s_blobs->at(0);
+			blob_base *y = s_blobs->at(1);
+			//blob size check
+			CHECK_GT_OP(x->count(), y->count(),"x length must equal to y %d vs %d",x->count(),y->count());
 		}
 
 		virtual const void op() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->length(),o_blob_->s_data());
-			//echo();
-		}
 
-		virtual const void grad() override{
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
+			blob *x = (blob*)s_blobs->at(0);
+			blob *y = (blob*)s_blobs->at(1);
 
-			//echo();
+			cacu_saxpby(x->s_data(),_args->at(0),y->s_data(),_args->at(1),x->count());
 
 		}
 
-		virtual const void load(std::ifstream& is) override{
-			return;
+
+		virtual const void grad() override {
+			blob *x = (blob*)s_blobs->at(0);
+			blob *y = (blob*)s_blobs->at(1);
+
+			cacu_scalex(x->s_diff(),_args->at(0),x->count());
+			cacu_scalex(y->s_diff(),_args->at(1),y->count());
 		}
 
-		virtual const void save(std::ostream& os) override{
-			return;
-		}
-
-		virtual const void echo() override{
-			LOG_INFO("create softmax op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
-		}
-
-		inline virtual const void LOOP_INIT_DATA_() override{
-			return;
-		}
 
 	private:
 

@@ -38,13 +38,14 @@ namespace mycnn{
 			check();
 
 			blob_base *_blob = data->at(0);
-			o_blob = cacu_allocator::create_blob(_blob->num(),args_->output_channel(),1,1,train);
+			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
 
 			_loss = (float_t*)malloc(sizeof(float_t));
 		};
 
 		~softmax_with_loss_op(){
 			free(_loss);
+			delete o_blob;
 		};
 
 		virtual const void check() override{

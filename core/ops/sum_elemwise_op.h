@@ -39,13 +39,13 @@ namespace mycnn{
 			check();
 
 			blob_base *_blob = data->at(0);
-			o_blob = cacu_allocator::create_blob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
+			o_blob = create_oblob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
 
 			echo();
 		};
 
 		~sum_elemwise_op(){
-
+			delete o_blob;
 		};
 
 		virtual const void check() override{

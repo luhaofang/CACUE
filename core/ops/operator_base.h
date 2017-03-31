@@ -46,6 +46,16 @@ namespace mycnn{
 			data->__REC__();
 		};
 
+		operator_base(blob_base *&data){
+
+			s_blob = data;
+			s_blobs = NULL;
+			o_blob = NULL;
+			_args = NULL;
+			_phrase = data->phrase();
+			data->__REC__();
+		};
+
 		operator_base(blobs *&data, args *&args_){
 
 			s_blob = NULL;
@@ -56,10 +66,21 @@ namespace mycnn{
 			data->__REC__();
 		};
 
+		operator_base(blobs *&data){
+
+			s_blob = NULL;
+			s_blobs = data;
+			o_blob = NULL;
+			_args = NULL;
+			_phrase = data->at(0)->phrase();
+			data->__REC__();
+		};
+
 		virtual ~operator_base(){
 
 			delete _args;
-			delete o_blob;
+			if(_IS_ALLOC_OUTPUT)
+				delete o_blob;
 			for(unsigned int i = 0 ; i< _weights.size(); ++i)
 			{
 				delete _weights[i];
@@ -165,9 +186,14 @@ namespace mycnn{
 
 		inline void _add2op_weights(weight *w){_weights.push_back(w);}
 
+		inline blob_base * create_oblob(int num,int channel, int height, int width, phrase_type phrase_){
+			_IS_ALLOC_OUTPUT = true;
+			return new blob(num, channel,height,width, 0 ,phrase_);
+		}
+
 	private:
 
-
+		bool _IS_ALLOC_OUTPUT = false;
 
 	};
 }

@@ -29,53 +29,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class average_pooling_op : public operator_base
+	class math_operator_base : public operator_base
 	{
 
 	public:
 
-		average_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		math_operator_base(blobs *&data, math_args *&args_) : operator_base(data){
 
-			check();
-
-			int input_dim = data->width();
-			int channel = data->channel();
-			int num = data->num();
-			int output_dim = (input_dim - _args->kernel_size()) / _args->stride() + 1;
-			int pad = abs(input_dim - (output_dim - 1) * _args->stride() - _args->kernel_size());
-			if (pad != 0)
-				output_dim += 1;
-			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
-
-			echo();
+			o_blob = data->at(data->size()-1);
+			_args = args_;
 
 		};
 
-		~average_pooling_op(){
+		math_operator_base(blob_base *&data, math_args *&args_) : operator_base(data){
+
+			o_blob = data;
+			_args = args_;
+		};
+
+		~math_operator_base(){
 
 		};
 
 		virtual const void check() override{
-			//kernel_size > 0
-			CHECK_GT_OP(_args->kernel_size(), 0,"kernel_size must > 0 vs %d",_args->kernel_size());
+			return;
 		}
 
-		virtual const void op() override {
+		inline virtual const void op() override {
 
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_average_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i));
 		}
 
 
-		virtual const void grad() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
+		inline virtual const void grad() override {
 
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_average_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i));
 		}
 
 		virtual const void load(std::ifstream& is) override {
@@ -87,14 +73,17 @@ namespace mycnn{
 		}
 
 		virtual const void echo() override {
-			LOG_INFO("create average pooling op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
+			return;
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override {
 
-			o_blob->_RESET_DATA();
+			//caution: here we DON'T reset every data blob, reset will be done by math_op caller
 		}
+
+	protected:
+
+		math_args *_args;
 
 	private:
 

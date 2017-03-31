@@ -44,7 +44,7 @@ namespace mycnn{
 			int pad = abs(input_dim - (output_dim - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
 				output_dim += 1;
-			o_blob = cacu_allocator::create_blob(num, channel, output_dim, output_dim, _phrase);
+			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
 
 			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
 			echo();

@@ -37,7 +37,7 @@ namespace mycnn{
 		inner_product_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-			o_blob = cacu_allocator::create_blob(data->num(), _args->output_channel(), 1, 1, _phrase);
+			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
 
 			_w = create_param("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
 			if(_is_use_bias){

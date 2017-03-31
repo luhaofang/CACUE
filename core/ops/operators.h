@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../math/math_utils.h"
 
+#include "math_args.h"
+
 #include "../math/math_functions.h"
 #include "../math/activation_functions.h"
 #include "../math/batch_functions.h"
@@ -38,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../math/loss_functions.h"
 
 #include "operator_base.h"
+#include "math_operator_base.h"
 
 #include "inner_product_op.h"
 #include "convolution_op.h"
@@ -50,5 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "leaky_relu_op.h"
 #include "softmax_op.h"
 #include "softmax_with_loss_op.h"
+
+#include "axpby_op.h"
 
 #include "operation.h"

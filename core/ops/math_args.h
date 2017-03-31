@@ -27,63 +27,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <vector>
+#include <stdarg.h>
+
+using namespace std;
+
 namespace mycnn{
 
-	class softmax_op : public operator_base
-	{
+
+	class math_args : public vec_t{
 
 	public:
 
-		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_){
-			check();
-
-			o_blob = create_oblob(data->num(),args_->output_channel(),1,1,test);
-
-			echo();
-		};
-
-		~softmax_op(){
-			delete o_blob;
-		};
-
-		virtual const void check() override{
-			return;
+		math_args(int arg1, ...){
+			va_list arg_ptr;
+			va_start(arg_ptr, arg1);
+			while (arg1 != _ARGSEND){
+				this->push_back(arg1);
+				arg1 = va_arg(arg_ptr, int);
+			};
+			va_end(arg_ptr);
 		}
 
-		virtual const void op() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->length(),o_blob_->s_data());
-			//echo();
-		}
-
-		virtual const void grad() override{
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-
-			//echo();
+		~math_args(){
 
 		}
 
-		virtual const void load(std::ifstream& is) override{
-			return;
-		}
-
-		virtual const void save(std::ostream& os) override{
-			return;
-		}
-
-		virtual const void echo() override{
-			LOG_INFO("create softmax op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
-		}
-
-		inline virtual const void LOOP_INIT_DATA_() override{
-			return;
-		}
 
 	private:
 
-
 	};
-};
+}
