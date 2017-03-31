@@ -65,7 +65,7 @@ namespace mycnn{
 			blob *x = (blob*)s_blobs->at(0);
 			blob *y = (blob*)s_blobs->at(1);
 
-			cacu_scalex(x->s_diff(),_args->at(0),x->count());
+			cacu_saxpy(y->s_diff(),_args->at(0),x->s_diff(),x->count());
 			cacu_scalex(y->s_diff(),_args->at(1),y->count());
 		}
 
