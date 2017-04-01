@@ -33,22 +33,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../tools/imageio_utils.h"
 
 #include "./alex_net.h"
-#include "./data_proc.hpp"
+#include "./data_proc.h"
 
 
 void train_net()
 {
-	int batch_size = 128;
+	int batch_size = 200;
 
 	int max_iter = 200000;
 
 
 	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __GPU__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
 	network *net = create_alexnet(batch_size,train);
+
+	net->load_weights("/home/seal/4T/cacue/imagenet/alexnet.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -100,7 +102,7 @@ void train_net()
 
 	int step_index = 0;
 	clock_t start,end;
-	for (int i = 0 ; i < max_iter; ++i)
+	for (int i = 1 ; i <= max_iter; ++i)
 	{
 		start = clock();
 		for (int j = 0 ; j < batch_size ; ++j)
@@ -120,12 +122,14 @@ void train_net()
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
 
-		if(i == 50000)
+		if(i % 50000 == 0)
 			sgd->set_lr_iter(0.1f);
-
+		if(i % 20000 == 0){
+			ostringstream oss;
+			oss << "/home/seal/4T/cacue/imagenet/alex_net_" << i << ".model";
+			net->save_weights(oss.str());
+		}
 	}
-
-	net->save_weights("/home/seal/4T/cacue/imagenet/alex_net.model");
 
 	for(int i = 0; i < full_label.size(); ++i)
 	{

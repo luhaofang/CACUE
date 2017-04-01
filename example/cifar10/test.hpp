@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../tools/imageio_utils.h"
 
 #include "./cifar_quick_net.h"
-#include "./data_proc.hpp"
+#include "./data_proc.h"
 
 
 void test_net()

@@ -29,33 +29,61 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 #include <stdarg.h>
+#include <pthread.h>
+
+#include <cuda_runtime.h>
 
 using namespace std;
 
 namespace mycnn{
 
-#define _ARGSEND 0XFF245F12
+#define MAX_BUFF_SIZE 10
 
-	class args_base : public CACU_ARGS{
+	class cpu_gpu_asyn {
 
 	public:
 
-		args_base(int arg1, ...){
-			va_list arg_ptr;
-			va_start(arg_ptr, arg1);
-			while (arg1 != _ARGSEND){
-				this->push_back(arg1);
-				arg1 = va_arg(arg_ptr, int);
-			};
-			va_end(arg_ptr);
+		cpu_gpu_asyn(){
+			_buff = vector<buff_item *>(MAX_BUFF_SIZE);
+			//initial buffer source
+			for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+			{
+				buff_item *bi = new buff_item();
+				bi->is_forked = false;
+				bi->s_data = NULL;
+				_buff.push_back(bi);
+			}
+			int thread_count = pthread;
+			_threads.push_back();
+		};
+
+		~cpu_gpu_asyn(){
+
+			delete _buff;
+		};
+
+		void thread_pool()
+		{
+
 		}
 
-		~args_base(){
-			
+		void fork()
+		{
+
 		}
+
 
 
 	private:
+
+		vector<pthread_t> _threads;
+
+		typedef struct buffer_meta{
+			float_t *s_data;
+			bool is_forked;
+		} buff_item;
+
+		vector<buff_item *> _buff;
 
 	};
 }

@@ -27,4 +27,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <vector>
+#include <stdarg.h>
 
+using namespace std;
+
+namespace mycnn{
+
+#define _ARGSEND 0xFF12FACE
+
+	class args_base : public CACU_ARGS{
+
+	public:
+
+		args_base(int arg1, ...){
+			va_list arg_ptr;
+			va_start(arg_ptr, arg1);
+			while (arg1 != _ARGSEND){
+				this->push_back(arg1);
+				arg1 = va_arg(arg_ptr, int);
+			};
+			va_end(arg_ptr);
+		}
+
+		~args_base(){
+			
+		}
+
+
+	private:
+
+	};
+}

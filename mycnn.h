@@ -27,12 +27,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "utils/data_defination.h"
-#include "utils/utils.h"
-#include "utils/log.h"
-#include "utils/configs.h"
+#include "core/utils/data_defination.h"
+#include "core/utils/utils.h"
+#include "core/utils/log.h"
+#include "core/utils/configs.h"
 
-#include "tools/args_base.h"
+#include "core/utils/args_base.h"
 
 #include "core/framework/args.h"
 #include "core/framework/blob_base.h"
@@ -43,10 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/framework/dy_bin_blob.h"
 #include "core/framework/weight.h"
 
-#include "distributes/distributions.h"
-
-#include "utils/cacu_allocator.h"
-#include "utils/blob_ops.h"
+#include "core/utils/cacu_allocator.h"
+#include "core/utils/blob_ops.h"
 
 #include "core/math/matrix.h"
 #include "core/math/cube.h"

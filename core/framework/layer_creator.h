@@ -39,7 +39,6 @@ namespace mycnn{
 		layer *ml = new layer(output_channel, 3, 2);
 		ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob())->op(activation_op);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
 		*lb << l << ml;
 		return lb;
 	}
@@ -53,7 +52,6 @@ namespace mycnn{
 		layer *al = new layer(output_channel, 3, 2);
 		al->op(CACU_AVERAGE_POOLING, (blob*)l->get_oblob())->op(activation_op);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
 		*lb << l << al;
 		return lb;
 	}
@@ -67,7 +65,19 @@ namespace mycnn{
 		layer *al = new layer(output_channel, 3, 2);
 		al->op(CACU_AVERAGE_POOLING, (blob*)l->get_oblob());
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
+		*lb << l << al;
+		return lb;
+	}
+
+	layer_block* conv_layer_maxpooling_relu_first(blob* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = CACU_RELU)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+		l->op(CACU_CONVOLUTION, data)->op(activation_op);
+		layer *al = new layer(output_channel, 2, 2);
+		al->op(CACU_AVERAGE_POOLING, (blob*)l->get_oblob());
+		clock_t end = clock();
 		*lb << l << al;
 		return lb;
 	}
@@ -79,7 +89,6 @@ namespace mycnn{
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 		l->op(CACU_CONVOLUTION, data)->op(activation_op);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;
 		return lb;
 	}
@@ -91,7 +100,6 @@ namespace mycnn{
 		layer *l = new layer(output_channel);
 		l->op(CACU_INNERPRODUCT, data)->op(CACU_DROPOUT)->op(activation_op);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;
 		return lb;
 	}
@@ -103,7 +111,6 @@ namespace mycnn{
 		layer *l = new layer(output_channel);
 		l->op(CACU_INNERPRODUCT, data);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;
 		return lb;
 	}
@@ -115,7 +122,6 @@ namespace mycnn{
 		layer *l = new layer(output_channel);
 		l->op(CACU_INNERPRODUCT, data)->op(CACU_SOFTMAX_LOSS, label);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;
 		return lb;
 	}
@@ -127,7 +133,6 @@ namespace mycnn{
 		layer *l = new layer(output_channel);
 		l->op(CACU_INNERPRODUCT, data)->op(CACU_SOFTMAX);
 		clock_t end = clock();
-		LOG_INFO("time cost :%d", (end - start));
 		*lb << l;
 		return lb;
 	}

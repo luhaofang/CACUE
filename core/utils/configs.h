@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../core/math/math_config.h"
+#include "../math/math_config.h"
 
 
 #define __PARALLELTYPE__  __GPU__

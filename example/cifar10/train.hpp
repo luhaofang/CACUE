@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../tools/imageio_utils.h"
 
 #include "./cifar_quick_net.h"
-#include "./data_proc.hpp"
+#include "./data_proc.h"
 
 
 void train_net()
@@ -43,7 +43,7 @@ void train_net()
 	int max_iter = 5000;
 
 #if __PARALLELTYPE__ == __GPU__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
 	network *net = create_cifar_quick_net(batch_size,train);
@@ -79,7 +79,7 @@ void train_net()
 		end = clock();
 
 		if(i % 1 == 0){
-			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),timespan(start,end));
+			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),end - start);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
 

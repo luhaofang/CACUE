@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../utils/cacu_allocator.h"
+#include "../utils/cacu_allocator.h"
 
 namespace mycnn{
 

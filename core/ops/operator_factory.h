@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "../framework/blob.h"
-#include "../../utils/utils.h"
+#include "../utils/utils.h"
 
 #include "operator_base.h"
 #include "operators.h"
