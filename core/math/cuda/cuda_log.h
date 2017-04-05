@@ -27,14 +27,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <iostream>
 #include <stdio.h>
-
 #include <string.h>
 
 #if __PARALLELTYPE__ == __GPU__
 
 #include <cuda_runtime.h>
+
 #include <cublas_v2.h>
 
 

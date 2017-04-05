@@ -51,7 +51,7 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 	conv1_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_1->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv1_2 = conv_layer_maxpooling_relu_first((blob*)conv1_1->get_oblob(), 128, 3, 1, 1);
+	layer_block *conv1_2 = conv_layer_maxpooling_relu_first((blob*)conv1_1->get_oblob(), 64, 3, 1, 1);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_2->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
@@ -61,7 +61,7 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 	conv2_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_1->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv2_2 = conv_layer_maxpooling_relu_first((blob*)conv2_1->get_oblob(), 256, 3, 1, 1);
+	layer_block *conv2_2 = conv_layer_maxpooling_relu_first((blob*)conv2_1->get_oblob(), 128, 3, 1, 1);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_2->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
@@ -106,7 +106,7 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 	conv5_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_2->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv5_3 = conv_layer_maxpooling_relu_first((blob*)conv5_2->get_oblob(), 256, 3, 1, 1);
+	layer_block *conv5_3 = conv_layer_maxpooling_relu_first((blob*)conv5_2->get_oblob(), 512, 3, 1, 1);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_3->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
@@ -128,7 +128,7 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 		loss_->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-		*net << conv1 << conv2 << conv3 << conv4 << conv5 << fc6 << fc7 << loss_;
+		*net << conv1_1 << conv1_2 << conv2_1 << conv2_2 << conv3_1 << conv3_2 << conv3_3 << conv4_1 << conv4_2 << conv4_3 << conv5_1 << conv5_2 << conv5_3 << fc6 << fc7 << loss_;
 	}
 	else
 	{
@@ -136,7 +136,7 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.1f);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 
-		*net << conv1 << conv2 << conv3 << conv4 << conv5 << fc6 << fc7 << predict_;
+		*net << conv1_1 << conv1_2 << conv2_1 << conv2_2 << conv3_1 << conv3_2 << conv3_3 << conv4_1 << conv4_2 << conv4_3 << conv5_1 << conv5_2 << conv5_3 << fc6 << fc7 << predict_;
 	}
 
 

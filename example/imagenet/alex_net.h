@@ -33,6 +33,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace mycnn;
 
+layer_block* conv_block_maxpooling(blob* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = CACU_RELU)
+{
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	l->op(CACU_CONVOLUTION, data)->op(activation_op);
+	layer *ml = new layer(output_channel, 3, 2);
+	ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
+	clock_t end = clock();
+	*lb << l << ml;
+	return lb;
+}
+
+layer_block* conv_block_nopooling(blob* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = CACU_RELU)
+{
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	l->op(CACU_CONVOLUTION, data)->op(activation_op);
+	clock_t end = clock();
+	*lb << l;
+	return lb;
+}
+
 
 network* create_alexnet(int batch_size,phrase_type phrase_)
 {
@@ -45,27 +69,27 @@ network* create_alexnet(int batch_size,phrase_type phrase_)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1 = conv_layer_maxpooling(blob_, 96, 11, 4, 2);
+	layer_block *conv1 = conv_block_maxpooling(blob_, 96, 11, 4, 2);
 	conv1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.01);
 	conv1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv2 = conv_layer_maxpooling((blob*)conv1->get_oblob(), 256, 5, 1, 2);
+	layer_block *conv2 = conv_block_maxpooling((blob*)conv1->get_oblob(), 256, 5, 1, 2);
 	conv2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.01);
 	conv2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant,0.1);
 	conv2->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv3 = conv_layer_nopooling((blob*)conv2->get_oblob(), 384, 3, 1, 1);
+	layer_block *conv3 = conv_block_nopooling((blob*)conv2->get_oblob(), 384, 3, 1, 1);
 	conv3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.01);
 	conv3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv4 = conv_layer_nopooling((blob*)conv3->get_oblob(), 384, 3, 1, 1);
+	layer_block *conv4 = conv_block_nopooling((blob*)conv3->get_oblob(), 384, 3, 1, 1);
 	conv4->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.01);
 	conv4->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant,0.1);
 	conv4->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv5 = conv_layer_maxpooling((blob*)conv4->get_oblob(), 256, 3, 1, 1);
+	layer_block *conv5 = conv_block_maxpooling((blob*)conv4->get_oblob(), 256, 3, 1, 1);
 	conv5->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.01);
 	conv5->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant,0.1);
 	conv5->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);

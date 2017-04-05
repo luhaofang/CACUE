@@ -31,59 +31,169 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdarg.h>
 #include <pthread.h>
 
-#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
+
+#include "../imageio_utils.h"
 
 using namespace std;
+using namespace mycnn_tools;
 
 namespace mycnn{
 
-#define MAX_BUFF_SIZE 10
+	#define MAX_BUFF_SIZE 10
+
+	typedef enum thread_state {forked, not_forked, terminated} asyn_type;
+
+	typedef struct buffer_meta{
+		float_t *s_data;
+		unsigned int *s_label;
+		asyn_type is_forked;
+	} buff_item;
 
 	class cpu_gpu_asyn {
 
 	public:
 
-		cpu_gpu_asyn(){
+		pthread_mutex_t itermutex=PTHREAD_MUTEX_INITIALIZER;
+
+		cpu_gpu_asyn(int num,int length,int batch_size,int max_iter, vector<string> *&data_blob,vec_i *&data_label, float_t *&mean){
 			_buff = vector<buff_item *>(MAX_BUFF_SIZE);
+			cudaError_t res;
 			//initial buffer source
 			for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
 			{
 				buff_item *bi = new buff_item();
-				bi->is_forked = false;
-				bi->s_data = NULL;
+				bi->is_forked = forked;
+				res = cudaMalloc((void**) (&bi->s_data), num * length * sizeof(float_t));
+				CUDA_CHECK(res);
+				res = cudaMalloc((void**) (&bi->s_label), num * sizeof(unsigned int));
+				CUDA_CHECK(res);
 				_buff.push_back(bi);
 			}
-			int thread_count = pthread;
-			_threads.push_back();
+			_threads = new pthread_t[NUM_THREADS];
+
+			_num = num;
+			_length = length;
+			_batch_size = batch_size;
+			_max_iter = max_iter;
+			_data_blob = data_blob;
+			_data_label = data_label;
+			_mean = mean;
 		};
 
 		~cpu_gpu_asyn(){
 
-			delete _buff;
+			for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+			{
+				cudaFree(_buff[i]->s_data);
+				cudaFree(_buff[i]->s_label);
+			}
+			vector<buff_item *>().swap(_buff);
+			delete _threads;
 		};
 
-		void thread_pool()
+		void initial_threads()
 		{
-
+			int rc,i;
+			for(i = 0 ; i < MAX_BUFF_SIZE; ++i)
+			{
+				rc = pthread_create(&_threads[i], NULL, fork, &i);
+				if (rc)
+				{
+					printf("ERROR; return code is %d\n", rc);
+					exit(-1);
+				}
+			}
 		}
 
-		void fork()
+		void *fork(int max_iter,int thread_id,int batch_size)
 		{
+			buff_item *buff = _buff[thread_id];
+			vector<string> batch_blob(batch_size);
+			vec_i batch_lable(batch_size);
+			while(_iter < max_iter)
+			{
+				if(buff->is_forked == forked)
+				{
+					pthread_mutex_lock(&itermutex);
+					_iter += 1;
+					for(int i = 0 ; i < _batch_size ; ++i)
+					{
+						if(index >= _data_blob->size())
+							index = 0;
+						batch_blob[i] = _data_blob[index];
+						buff->s_label[i] = _data_label[index];
+						index += 1;
+					}
+					pthread_mutex_unlock(&itermutex);
+					for(int i = 0 ; i < _batch_size ; ++i)
+					{
+						imageio_utils::imread_gpu(buff->s_data + i * _length,batch_blob[i]);
+						cacu_saxpy(_mean,(mycnn::float_t)-1,buff->s_data + i * _length, _length);
+					}
+					buff->is_forked = not_forked;
+				}
+				sleep(1000);
+			}
+			buff->is_forked = terminated;
+			return NULL;
+		}
 
+		void get_gpu_data(float_t *data_,bin_blob *label_)
+		{
+			while(true){
+				for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+				{
+					buff_item *buff = _buff[i];
+					if(buff->is_forked == not_forked)
+					{
+						cudaMemcpy(data_, buff->s_data, _length * _num * sizeof(float_t),cudaMemcpyDeviceToDevice);
+						cudaMemcpy(label_, buff->s_label, _num * sizeof(unsigned int),cudaMemcpyDeviceToDevice);
+						buff->is_forked = forked;
+					}
+				}
+				if(_TERMINATED())
+					return;
+				sleep(1000);
+			}
 		}
 
 
+		int _index = 0;
+
+		int _iter = 0;
 
 	private:
 
-		vector<pthread_t> _threads;
-
-		typedef struct buffer_meta{
-			float_t *s_data;
-			bool is_forked;
-		} buff_item;
+		pthread_t *_threads;
 
 		vector<buff_item *> _buff;
 
+		vector<string> *_data_blob;
+
+		vec_i *_data_label;
+
+		int _batch_size;
+
+		int _max_iter;
+
+		int _num;
+
+		int _length;
+
+		float_t *_mean;
+
+		inline bool _TERMINATED()
+		{
+			for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+			{
+				buff_item *buff = _buff[i];
+				if(buff->is_forked != terminated)
+					return false;
+			}
+			return true;
+		}
+
 	};
-}
+
+};

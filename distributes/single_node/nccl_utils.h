@@ -28,6 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "../../../mycnn.h"
+#include "../hardware/device.h"
+#include "../hardware/device_container.h"
+
 #include "nccl.h"
 
 using namespace mycnn;

@@ -9,10 +9,10 @@
 #include "core/test/sovler_test.hpp"
 #include "core/test/iotools_test.hpp"
 
-//#include "example/cifar10/train.hpp"
+#include "example/cifar10/train.hpp"
 //#include "example/cifar10/test.hpp"
 
-#include "example/imagenet/train.hpp"
+//#include "example/imagenet/train.hpp"
 
 //#include "example/cifar10/data_proc.hpp"
 //#include "example/imagenet/data_proc.hpp"
@@ -35,9 +35,9 @@ int main(int argc, char** argv)
 	//string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	//string meanpath = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
 	//make_mean(datapath,meanpath);
-	//string datapath = "/home/seal/4T/imagenet/227X227_train/";
+	//string datapath = "/home/seal/4T/imagenet/224X224_train/";
 	//string filelist = "/home/seal/4T/imagenet/file_list.txt";
-	//string meanpath = "/home/seal/4T/imagenet/227X227_mean.binproto";
+	//string meanpath = "/home/seal/4T/imagenet/224X224_mean.binproto";
 	//make_mean(datapath,filelist,meanpath);
 	train_net();
 	//test_net();

@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cublas_api.h>
 
 #include "cuda_log.h"
-
+#include <cuda_runtime_api.h>
 
 cudaError_t res;
 cublasHandle_t handle;

@@ -81,7 +81,8 @@ namespace mycnn{
 				cacu_ssx(_rand_vect->s_data(), s_blob_->count(), s_blob_->s_diff());
 				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 				//ratio's scale implementation
-				cacu_scalex(s_blob_->s_diff(),o_blob_->count(),_ratio);
+				//cacu_scalex(s_blob_->s_diff(),o_blob_->count(),_ratio);
+				cacu_ssx(_rand_vect->s_data(),s_blob_->count(),s_blob_->s_diff());
 			}
 		}
 

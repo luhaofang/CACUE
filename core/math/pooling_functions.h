@@ -299,6 +299,47 @@ namespace mycnn{
 #endif
 	}
 
+	inline void cacu_img2col_pad(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __GPU__
+		cacu_img2col_pad_gpu(x,kernel_size,stride,input_dim,channel,output_dim, pad,y);
+#else
+		int cin_length = input_dim*input_dim;
+		int kernel_length = kernel_size*kernel_size;
+		int block_size = kernel_length * channel;
+		float_t *xp,*yp;
+		int out_start;
+		int i,j,c,ki,kj;
+		int input_w,input_h,output_w,output_h;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
+#endif
+		for (i = 0; i < output_dim; ++i)
+			for (j = 0; j < output_dim; ++j)
+			{
+				out_start = (i * output_dim + j) * block_size;
+				output_h = i * stride;
+				output_w = j * stride;
+
+				for (c = 0; c < channel; ++c)
+				{
+					yp = y + out_start + c * kernel_length;
+					xp = x + c * cin_length;
+					for (ki = 0; ki < kernel_size; ki++)
+						for (kj = 0; kj < kernel_size; ++kj)
+						{
+							input_h = output_h + ki;
+							input_w = output_w + kj;
+							if(input_w >= pad && input_w <= input_dim && input_h >= pad && input_h <= input_dim)
+								yp[ki * kernel_size + kj] = xp[(input_h-pad) * input_dim + input_w-pad];
+						}
+				}
+			}
+#endif
+	}
+
 	/*
 	*channel: channel of input data
 	*input_dim: width of input data
@@ -372,6 +413,58 @@ namespace mycnn{
 					for (ki = 0; ki < kernel_size; ++ki)
 						for (kj = 0; kj < kernel_size; ++kj) {
 							yp[ki * input_dim + kj] += xp[ki * kernel_size + kj];
+					}
+				}
+			}
+		}
+#endif
+	}
+
+	/*
+	*channel: channel of input data
+	*kernel_size: pooling window size
+	*stride: stride move of the kernel
+	*input_dim: width of input data
+	*output_dim: width of output data
+	*/
+	inline void cacu_col2img_pad(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __GPU__
+		cacu_col2img_pad_gpu(x,kernel_size,stride,input_dim,channel,output_dim,pad,y);
+#else
+		int sd_out, sn_out;
+
+		int block_size = kernel_size * kernel_size * channel;
+		int k_size = kernel_size * kernel_size;
+		int cout_length = output_dim * output_dim;
+		int cin_length = input_dim * input_dim;
+		float_t *xp,*yp;
+
+		int row,col,c,ki,kj;
+		int input_h,input_w,output_h,output_w;
+
+#if __OPENMP__ == NO
+		#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
+#endif
+		//for output_dim's location
+		for (row = 0; row < output_dim; ++row)
+		{
+			for(col = 0 ; col < output_dim; ++col)
+			{
+
+				output_h = row * stride;
+				output_w = col * stride;
+				sd_out = (row * output_dim + col) * block_size;
+				for (c = 0; c < channel; ++c) {
+					xp = x + sd_out + c * k_size;
+					yp = y + c * cin_length;
+					for (ki = 0; ki < kernel_size; ++ki)
+						for (kj = 0; kj < kernel_size; ++kj) {
+							input_h = output_h + ki;
+							input_w = output_w + kj;
+							if(input_w >= pad && input_w <= input_dim && input_h >= pad && input_h <= input_dim)
+								yp[(input_h-pad) * input_dim + input_w - pad] += xp[ki * kernel_size + kj];
 					}
 				}
 			}

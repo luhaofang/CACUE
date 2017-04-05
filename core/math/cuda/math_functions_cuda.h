@@ -83,6 +83,10 @@ inline void cacu_copy_gpu(float_t *x, int x_length,float_t *y)
 	CUBLAS_CHECK(status);
 }
 
+/**
+ * @cacu_isaxdb_gpu
+ * y[index] = x[index]*a + b
+ */
 extern "C" void cacu_isaxb_gpu(float_t *x, int length, float_t a ,unsigned int *index_, float_t b, float_t *y);
 
 extern "C" void cacu_argmax_gpu(float_t *x,int length, unsigned int *index_);

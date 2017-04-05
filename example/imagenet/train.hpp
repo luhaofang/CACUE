@@ -33,24 +33,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../tools/imageio_utils.h"
 
 #include "./alex_net.h"
+#include "./vgg_net.h"
 #include "./data_proc.h"
 
 
 void train_net()
 {
-	int batch_size = 200;
+	int batch_size = 256;
 
 	int max_iter = 200000;
 
 
 	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __GPU__
-	cuda_set_device(0);
+	cuda_set_device(1);
 #endif
 
-	network *net = create_alexnet(batch_size,train);
+	network *net = create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/alexnet.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -73,7 +74,7 @@ void train_net()
 #else
 	imageio_utils::load_mean_file(mean_->s_data(),meanfile);
 #endif
-	/*
+	/**
 	 * read train list data into local memory
 	 */
 	ifstream is(trainlist);

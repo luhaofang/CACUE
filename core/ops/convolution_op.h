@@ -50,16 +50,12 @@ namespace mycnn{
 				_bias ->set_lr(2);
 			}
 
-			if (_args->pad() != 0)
-				_padded_data = cacu_allocator::create_blob(num, data->channel(), input_dim + 2 * _args->pad(), input_dim + 2 * _args->pad(), _phrase);
-			_col_data = cacu_allocator::create_blob(num, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
+			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
 			echo();
 		};
 
 		~convolution_op(){
 
-			if (_args->pad() != 0)
-				delete _padded_data;
 			delete _col_data;
 		};
 
@@ -78,14 +74,9 @@ namespace mycnn{
 
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
-				if (_args->pad() != 0){
-					cacu_padded_data(s_blob_->p_data(i), s_blob_->channel(), s_blob_->width(), _args->pad(), _padded_data->p_data(i));
-					cacu_img2col(_padded_data->p_data(i), _args->kernel_size(), _args->stride(), _padded_data->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
-				}
-				else
-					cacu_img2col(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _col_data->p_data(i));
+				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), _col_data->s_data());
 				//forward convolution data
-				cacu_sgemm(TRANS, NOTRANS, _col_data->p_data(i), o_blob_->width()*o_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,o_blob_->p_data(i),(float_t)0);
+				cacu_sgemm(TRANS, NOTRANS, _col_data->s_data(), o_blob_->width()*o_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,o_blob_->p_data(i),(float_t)0);
 				//add bias
 				if(_is_use_bias)
 					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
@@ -97,22 +88,18 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 
 			for (int i = 0; i < s_blob_->num(); ++i){
+
 				//gradient propagation
-				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),1 ,_col_data->p_diff(i),0);
+				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),1 ,_col_data->s_diff(),0);
 				//col2img
 				//unpadded
-				if(_args->pad() != 0){
-					cacu_col2img(_col_data->p_diff(i), _args->kernel_size(),_args->stride(), _padded_data->width(), _args->channel(), o_blob_->width(), _padded_data->p_diff(i));
-					cacu_unpadded_data(_padded_data->p_diff(i), _padded_data->channel(), _padded_data->width(), _args->pad(),s_blob_->p_diff(i));
-				}
-				else
-					cacu_col2img(_col_data->p_diff(i),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),s_blob_->p_diff(i));
+				cacu_col2img_pad(_col_data->s_diff(),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff(i));
 				//weights gradient
-				cacu_sgemm(NOTRANS,NOTRANS,_col_data->p_data(i),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff(i),_w->num(),1,_w->s_diff(),1);
+				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), _col_data->s_data());
+				cacu_sgemm(NOTRANS,NOTRANS,_col_data->s_data(),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff(i),_w->num(),1,_w->s_diff(),1);
 				//bias gradient
 				if(_is_use_bias)
 					cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
-
 			}
 		}
 
@@ -139,9 +126,6 @@ namespace mycnn{
 			o_blob->_RESET_DATA();
 			_w->_RESET_DIFF();
 			_bias->_RESET_DIFF();
-
-			if (_args->pad() != 0)
-				_padded_data->_RESET_DATA();
 			_col_data->_RESET_DATA();
 		}
 
@@ -158,8 +142,6 @@ namespace mycnn{
 		weight *_w;
 
 		weight *_bias;
-
-		blob *_padded_data;
 
 		blob *_col_data;
 

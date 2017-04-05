@@ -58,7 +58,6 @@ extern "C" void cacu_isaxb_gpu(float_t *x, int length, float_t a ,unsigned int *
 
 }
 
-
 __global__ void _k_ARGMAX_GPU(float_t *x, int length, unsigned int *index_) {
 
 	__shared__ float_t shared_data[THREADNUM];
