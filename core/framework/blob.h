@@ -249,7 +249,7 @@ namespace mycnn{
 		/*
 		 * loads blob data from model file
 		 */
-		void loads(std::ifstream& is)
+		void load(std::ifstream& is)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __GPU__

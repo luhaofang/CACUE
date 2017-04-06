@@ -104,9 +104,9 @@ namespace mycnn{
 		}
 
 		virtual const void load(std::ifstream& is) override{
-			_w->loads(is);
+			_w->load(is);
 			if(_is_use_bias)
-				_bias->loads(is);
+				_bias->load(is);
 		}
 
 		virtual const void save(std::ostream& os) override{

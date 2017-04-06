@@ -30,6 +30,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <stdarg.h>
 #include <pthread.h>
+#include <unistd.h>
+
+#if __PARALLELTYPE__ == __GPU__
 
 #include <cuda_runtime_api.h>
 
@@ -40,160 +43,209 @@ using namespace mycnn_tools;
 
 namespace mycnn{
 
-	#define MAX_BUFF_SIZE 10
+#define MAX_BUFF_SIZE 10
 
-	typedef enum thread_state {forked, not_forked, terminated} asyn_type;
+/**
+ * Thread condition identifier type
+ */
+typedef enum thread_state {forked, not_forked, terminated} asyn_type;
 
-	typedef struct buffer_meta{
-		float_t *s_data;
-		unsigned int *s_label;
-		asyn_type is_forked;
-	} buff_item;
+/**
+ * Buffer container for asynchronous control
+ */
+typedef struct buffer_meta{
+	float_t *s_data;
+	unsigned int *s_label;
+	asyn_type is_forked;
+} buff_item;
 
-	class cpu_gpu_asyn {
+/**
+ * mutex for global parameter iteration
+ */
+pthread_mutex_t itermutex=PTHREAD_MUTEX_INITIALIZER;
 
-	public:
+/**
+ * data_blob probe index
+ */
+int _asyn_index = 0;
 
-		pthread_mutex_t itermutex=PTHREAD_MUTEX_INITIALIZER;
+/**
+ * mutex iteration
+ */
+int _asyn_iter = 0;
 
-		cpu_gpu_asyn(int num,int length,int batch_size,int max_iter, vector<string> *&data_blob,vec_i *&data_label, float_t *&mean){
-			_buff = vector<buff_item *>(MAX_BUFF_SIZE);
-			cudaError_t res;
-			//initial buffer source
-			for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
-			{
-				buff_item *bi = new buff_item();
-				bi->is_forked = forked;
-				res = cudaMalloc((void**) (&bi->s_data), num * length * sizeof(float_t));
-				CUDA_CHECK(res);
-				res = cudaMalloc((void**) (&bi->s_label), num * sizeof(unsigned int));
-				CUDA_CHECK(res);
-				_buff.push_back(bi);
-			}
-			_threads = new pthread_t[NUM_THREADS];
+/**
+ * thread index for pthread creator
+ */
+int _thread_index = 0;
 
-			_num = num;
-			_length = length;
-			_batch_size = batch_size;
-			_max_iter = max_iter;
-			_data_blob = data_blob;
-			_data_label = data_label;
-			_mean = mean;
-		};
+/**
+ * threads
+ */
+pthread_t *_threads;
 
-		~cpu_gpu_asyn(){
+/**
+ * feeding buffer
+ */
+vector<buff_item *> _asyn_buff;
 
-			for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
-			{
-				cudaFree(_buff[i]->s_data);
-				cudaFree(_buff[i]->s_label);
-			}
-			vector<buff_item *>().swap(_buff);
-			delete _threads;
-		};
+/*
+ * probe for global data blob
+ */
+vector<string> *_asyn_data_blob;
 
-		void initial_threads()
+/**
+ * probe for global label blob
+ */
+vector<vec_i> *_asyn_data_label;
+
+int _asyn_batch_size;
+
+int _asyn_max_iter;
+
+/**
+ * buffer image count
+ */
+int _asyn_num;
+
+/**
+ * buffer length for each image
+ */
+int _asyn_length;
+
+/**
+ * probe for image mean data
+ */
+float_t *_asyn_mean;
+
+void *asyn_fork(void *args)
+{
+	int thread_id = (int)(*((int*)args));
+	if(thread_id < MAX_BUFF_SIZE)
+	{
+		buff_item *buff = _asyn_buff[thread_id];
+		vector<string> batch_blob(_asyn_batch_size);
+		vec_i batch_label(_asyn_batch_size);
+		while(_asyn_iter < _asyn_max_iter)
 		{
-			int rc,i;
-			for(i = 0 ; i < MAX_BUFF_SIZE; ++i)
+			if(buff->is_forked == forked)
 			{
-				rc = pthread_create(&_threads[i], NULL, fork, &i);
-				if (rc)
+				pthread_mutex_lock(&itermutex);
+				_asyn_iter += 1;
+				for(int i = 0 ; i < _asyn_batch_size ; ++i)
 				{
-					printf("ERROR; return code is %d\n", rc);
-					exit(-1);
+					if(_asyn_index >= _asyn_data_blob->size())
+						_asyn_index = 0;
+					batch_blob[i] = _asyn_data_blob->at(_asyn_index);
+					batch_label[i] = _asyn_data_label->at(_asyn_index)[0];
+					_asyn_index += 1;
 				}
-			}
-		}
-
-		void *fork(int max_iter,int thread_id,int batch_size)
-		{
-			buff_item *buff = _buff[thread_id];
-			vector<string> batch_blob(batch_size);
-			vec_i batch_lable(batch_size);
-			while(_iter < max_iter)
-			{
-				if(buff->is_forked == forked)
+				pthread_mutex_unlock(&itermutex);
+				for(int i = 0 ; i < _asyn_batch_size ; ++i)
 				{
-					pthread_mutex_lock(&itermutex);
-					_iter += 1;
-					for(int i = 0 ; i < _batch_size ; ++i)
-					{
-						if(index >= _data_blob->size())
-							index = 0;
-						batch_blob[i] = _data_blob[index];
-						buff->s_label[i] = _data_label[index];
-						index += 1;
-					}
-					pthread_mutex_unlock(&itermutex);
-					for(int i = 0 ; i < _batch_size ; ++i)
-					{
-						imageio_utils::imread_gpu(buff->s_data + i * _length,batch_blob[i]);
-						cacu_saxpy(_mean,(mycnn::float_t)-1,buff->s_data + i * _length, _length);
-					}
-					buff->is_forked = not_forked;
+					imageio_utils::imread_gpu(buff->s_data + i * _asyn_length,batch_blob[i]);
+					cacu_saxpy(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
+					cuda_copy2dev(buff->s_label,&batch_label[0],_asyn_batch_size);
 				}
-				sleep(1000);
+				buff->is_forked = not_forked;
 			}
-			buff->is_forked = terminated;
-			return NULL;
+			usleep(10);
 		}
+		buff->is_forked = terminated;
+	}
+	return NULL;
+}
 
-		void get_gpu_data(float_t *data_,bin_blob *label_)
+void asyn_initial(int num,int length,int max_iter, vector<string> *data_blob,vector<vec_i> *data_label, float_t *mean){
+	_asyn_buff = vector<buff_item *>(MAX_BUFF_SIZE);
+	cudaError_t res;
+	//initial buffer source
+	for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+	{
+		buff_item *bi = new buff_item();
+		bi->is_forked = forked;
+		res = cudaMalloc((void**) (&bi->s_data), num * length * sizeof(float_t));
+		CUDA_CHECK(res);
+		res = cudaMalloc((void**) (&bi->s_label), num * sizeof(unsigned int));
+		CUDA_CHECK(res);
+		_asyn_buff[i] = bi;
+	}
+	_threads = new pthread_t[MAX_BUFF_SIZE];
+
+	_asyn_num = num;
+	_asyn_length = length;
+	_asyn_batch_size = num;
+	_asyn_max_iter = max_iter;
+	_asyn_data_blob = data_blob;
+	_asyn_data_label = data_label;
+	_asyn_mean = mean;
+};
+
+void asyn_release(){
+
+	for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+	{
+		cudaFree(_asyn_buff[i]->s_data);
+		cudaFree(_asyn_buff[i]->s_label);
+	}
+	vector<buff_item *>().swap(_asyn_buff);
+	delete _threads;
+};
+
+void asyn_initial_threads()
+{
+	int rc;
+	_thread_index = MAX_BUFF_SIZE;
+	while(_thread_index > 0)
+	{
+		_thread_index--;
+		rc = pthread_create(&_threads[_thread_index], NULL, asyn_fork, (void*)&_thread_index);
+		if (rc)
 		{
-			while(true){
-				for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
-				{
-					buff_item *buff = _buff[i];
-					if(buff->is_forked == not_forked)
-					{
-						cudaMemcpy(data_, buff->s_data, _length * _num * sizeof(float_t),cudaMemcpyDeviceToDevice);
-						cudaMemcpy(label_, buff->s_label, _num * sizeof(unsigned int),cudaMemcpyDeviceToDevice);
-						buff->is_forked = forked;
-					}
-				}
-				if(_TERMINATED())
-					return;
-				sleep(1000);
-			}
+			printf("ERROR; return code is %d\n", rc);
+			exit(-1);
 		}
+	}
+}
 
+inline bool _ASYN_TERMINATED()
+{
+	for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+	{
+		buff_item *buff = _asyn_buff[i];
+		if(buff->is_forked != terminated)
+			return false;
+	}
+	return true;
+}
 
-		int _index = 0;
-
-		int _iter = 0;
-
-	private:
-
-		pthread_t *_threads;
-
-		vector<buff_item *> _buff;
-
-		vector<string> *_data_blob;
-
-		vec_i *_data_label;
-
-		int _batch_size;
-
-		int _max_iter;
-
-		int _num;
-
-		int _length;
-
-		float_t *_mean;
-
-		inline bool _TERMINATED()
+void asyn_get_gpu_data(float_t *data_,unsigned int *label_)
+{
+	while(true){
+		for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
 		{
-			for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
+			buff_item *buff = _asyn_buff[i];
+			if(buff->is_forked == not_forked)
 			{
-				buff_item *buff = _buff[i];
-				if(buff->is_forked != terminated)
-					return false;
+				cudaMemcpy(data_, buff->s_data, _asyn_length * _asyn_num * sizeof(float_t),cudaMemcpyDeviceToDevice);
+				cudaMemcpy(label_, buff->s_label, _asyn_num * sizeof(unsigned int),cudaMemcpyDeviceToDevice);
+				buff->is_forked = forked;
+				return;
 			}
-			return true;
 		}
+		if(_ASYN_TERMINATED())
+			return;
+		usleep(100);
+	}
+}
 
-	};
+void asyn_join_threads()
+{
+	for(int t = 0; t < MAX_BUFF_SIZE; t++)
+		pthread_join(_threads[t],NULL);
+}
+
 
 };
+
+#endif

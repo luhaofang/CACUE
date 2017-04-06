@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <bitset>
 
 #include "../math/cuda/cuda_utils.h"
 
@@ -175,6 +176,113 @@ namespace mycnn{
 #endif
 		}
 
+		/*
+		 * serializa blob_bit data, output data to model file
+		 * warning: bin_blob just serializa bit wise parameters.
+		 */
+		void serializa_bit(std::ostream& os)
+		{
+			unsigned int* s_data_ = (unsigned int*)_s_data;
+			bitset<32> _bits;
+#if __PARALLELTYPE__ == __GPU__
+			int _len = _length / 32;
+			if(_length % 32 != 0)
+				_len += 1;
+			os.write((char*)(&_len), sizeof(_len));
+			vec_t _v(_length);
+			cuda_copy2host(&_v[0],(float_t*)_s_data,_length);
+			int _index;
+
+			for(int i = 0 ; i < _v.size(); ++i)
+			{
+				_index = i % 32;
+				if (_v[i])
+					_bits[_index] = 1;
+				else
+					_bits[_index] = 0;
+				if(_index == 31 || i == (_v.size() - 1)){
+					auto w = _bits.to_ulong();
+					os.write((char*)(&w), sizeof(w));
+				}
+			}
+			vec_t().swap(_v);
+#else
+			int _len = _length / 32;
+			if(_length % 32 != 0)
+				_len += 1;
+			os.write((char*)(&_len), sizeof(_len));
+			int _index;
+			auto w;
+			for(int i = 0 ; i < _length; ++i)
+			{
+				_index = i % 32;
+				if (s_data_[i])
+					_bits[_index] = 1;
+				else
+					_bits[_index] = 0;
+				if(_index == 31 || i == (_length - 1)){
+					w = _bits.to_ulong();
+					os.write((char*)(&w), sizeof(w));
+				}
+			}
+#endif
+		}
+
+		/*
+		 * load blob_bit data from model file
+		 */
+		void load_bit(std::ifstream& is)
+		{
+			unsigned int* s_data_ = (unsigned int*)_s_data;
+#if __PARALLELTYPE__ == __GPU__
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			int _len = _length / 32;
+			if(_length % 32 != 0)
+				_len += 1;
+			CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_len);
+			vec_t _v(_length);
+			unsigned int _bit;
+			for (int i = 0; i < _len; i++){
+				is.read(reinterpret_cast<char*>(&_bit), sizeof(unsigned int));
+				bitset<32> bits(_bit);
+				for(int j = 0; j < 32; ++j)
+				{
+					if(bits.test(j) && (i * 32 + j < _length))
+						_v[i * 32 + j] = 1;
+					else if(!bits.test(j) && (i * 32 + j < _length))
+						_v[i * 32 + j] = -1;
+				}
+			}
+			cuda_copy2dev((float_t*)_s_data, &_v[0],length_);
+			vec_t().swap(_v);
+#else
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_length);
+			for (int i = 0; i < length_; i++){
+				is.read(reinterpret_cast<char*>(s_data_ + i), sizeof(float_t));
+			}
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			int _len = _length / 32;
+			if(_length % 32 != 0)
+				_len += 1;
+			CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_len);
+			unsigned int _bit;
+			for (int i = 0; i < _len; i++){
+				is.read(reinterpret_cast<char*>(&_bit), sizeof(unsigned int));
+				bitset<32> bits(_bit);
+				for(int j = 0; j < 32; ++j)
+				{
+					if(bits.test(j) && (i * 32 + j < _length))
+						s_data_[i * 32 + j] = 1;
+					else if(!bits.test(j) && (i * 32 + j < _length))
+						s_data_[i * 32 + j] = -1;
+				}
+			}
+#endif
+		}
 
 
 	protected:

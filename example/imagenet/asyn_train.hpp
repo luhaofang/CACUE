@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "./vgg_net.h"
 #include "./data_proc.h"
 
+#include "../../tools/io/cpu_gpu_asyn.h"
+
 
 void train_net()
 {
@@ -46,16 +48,16 @@ void train_net()
 
 	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __GPU__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
 	network *net = create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
 
-	//net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.01f);
+	sgd->set_lr(0.05f);
 	sgd->set_weight_decay(0.0005f);
 
 	string datapath = "/home/seal/4T/imagenet/227X227_train/";
@@ -90,28 +92,20 @@ void train_net()
 		full_label.push_back(label);
 	}
 
-	int ALL_DATA_SIZE = full_data.size();
-
 	/**
 	 * read data for training
 	 */
 	blob *input_data = (blob*)net->input_blobs()->at(0);
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
-	int step_index = 0;
+	asyn_initial(batch_size,mean_->length(),max_iter,(&full_data),(&full_label),mean_->s_data());
+	asyn_initial_threads();
+
 	clock_t start,end;
 	for (int i = 1 ; i <= max_iter; ++i)
 	{
 		start = clock();
-		for (int j = 0 ; j < batch_size ; ++j)
-		{
-			if (step_index == ALL_DATA_SIZE)
-				step_index = 0;
-			//load image data
-			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
-			input_label->copy_data_io(full_label[step_index],j);
-			step_index += 1;
-		}
+		asyn_get_gpu_data(input_data->s_data(),input_label->s_data());
 		sgd->train_iter();
 		end = clock();
 
@@ -124,7 +118,7 @@ void train_net()
 			sgd->set_lr_iter(0.1f);
 		if(i % 20000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/alex_net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/alexnet_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
@@ -134,4 +128,6 @@ void train_net()
 		vec_i().swap(full_label[i]);
 	}
 	vector<string>().swap(full_data);
+
+	asyn_release();
 }

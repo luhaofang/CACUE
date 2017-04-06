@@ -111,10 +111,10 @@ namespace mycnn{
 
 		inline void _CHECK_SIZE_EQ(blob_base* blob_)
 		{
-			CHECK_EQ_OP(_channel,blob_->_channel,"_channel check do not match! ( %d vs %d )",_channel,blob_->_channel);
-			CHECK_EQ_OP(_num,blob_->_num,"_num check do not match! ( %d vs %d )",_num,blob_->_num);
-			CHECK_EQ_OP(_height,blob_->_height,"_height check do not match! ( %d vs %d )",_height,blob_->_height);
-			CHECK_EQ_OP(_width,blob_->_width,"_width check do not match! ( %d vs %d )",_width,blob_->_width);
+			CHECK_EQ_OP(_channel,blob_->_channel,"_channel check does NOT match! ( %d vs %d )",_channel,blob_->_channel);
+			CHECK_EQ_OP(_num,blob_->_num,"_num check does NOT match! ( %d vs %d )",_num,blob_->_num);
+			CHECK_EQ_OP(_height,blob_->_height,"_height check does NOT match! ( %d vs %d )",_height,blob_->_height);
+			CHECK_EQ_OP(_width,blob_->_width,"_width check does NOT match! ( %d vs %d )",_width,blob_->_width);
 		}
 
 		inline blob_type __TYPE__(){return _blob_type;};
