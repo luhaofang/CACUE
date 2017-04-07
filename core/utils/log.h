@@ -29,23 +29,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 #include <stdio.h>
-
+#include <time.h>
 #include <string.h>
 
 namespace mycnn{
 
 
 #define LOG(level, format,...)   \
-	if(level == "DEBUG") \
-		do{ fprintf(stderr,"[%s][%s %s:%d] %s " format "\n",level, __TIME__, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);}while(0); \
-	else\
-		do{ fprintf(stderr,"[%s][%s %s:%d] " format "\n",level, __TIME__, __FILE__, __LINE__, ##__VA_ARGS__);} while (0)
+	do{ 					   	 \
+	time_t now = time(NULL);	 \
+	struct tm _now_; 			 \
+	localtime_r(&now,&_now_);	 \
+	if(level == "DEBUG")		 \
+		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] %s " format "\n", level, _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+	else						 \
+		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level,  _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, ##__VA_ARGS__); \
+	} while (0)
 
 #define LOG_DEBUG(format,...) LOG("DEBUG",format,##__VA_ARGS__)
 #define LOG_WARNING(format,...) LOG("WARNING",format,##__VA_ARGS__)
 #define LOG_FATAL(format,...) {LOG("FATAL",format,##__VA_ARGS__); exit(0);}
 #define LOG_CHECK(format,...) LOG("CHECK",format,##__VA_ARGS__)
 #define LOG_INFO(format,...)  LOG("INFO",format,##__VA_ARGS__)
-
 
 };

@@ -143,13 +143,13 @@ void *asyn_fork(void *args)
 				pthread_mutex_unlock(&itermutex);
 				for(int i = 0 ; i < _asyn_batch_size ; ++i)
 				{
-					imageio_utils::imread_gpu(buff->s_data + i * _asyn_length,batch_blob[i]);
-					cacu_saxpy(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
-					cuda_copy2dev(buff->s_label,&batch_label[0],_asyn_batch_size);
+					imageio_utils::imread(buff->s_data + i * _asyn_length,batch_blob[i]);
+					cacu_saxpy_oblas(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
+					memcpy(buff->s_label,&batch_label[0],_asyn_batch_size*sizeof(unsigned int));
 				}
 				buff->is_forked = not_forked;
 			}
-			usleep(10);
+			usleep(100);
 		}
 		buff->is_forked = terminated;
 	}
@@ -164,10 +164,8 @@ void asyn_initial(int num,int length,int max_iter, vector<string> *data_blob,vec
 	{
 		buff_item *bi = new buff_item();
 		bi->is_forked = forked;
-		res = cudaMalloc((void**) (&bi->s_data), num * length * sizeof(float_t));
-		CUDA_CHECK(res);
-		res = cudaMalloc((void**) (&bi->s_label), num * sizeof(unsigned int));
-		CUDA_CHECK(res);
+		bi->s_data = (float_t*) malloc(num * length * sizeof(float_t));
+		bi->s_label = (unsigned int*) malloc(num * sizeof(unsigned int));
 		_asyn_buff[i] = bi;
 	}
 	_threads = new pthread_t[MAX_BUFF_SIZE];
@@ -185,8 +183,8 @@ void asyn_release(){
 
 	for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
 	{
-		cudaFree(_asyn_buff[i]->s_data);
-		cudaFree(_asyn_buff[i]->s_label);
+		free(_asyn_buff[i]->s_data);
+		free(_asyn_buff[i]->s_label);
 	}
 	vector<buff_item *>().swap(_asyn_buff);
 	delete _threads;
@@ -227,8 +225,8 @@ void asyn_get_gpu_data(float_t *data_,unsigned int *label_)
 			buff_item *buff = _asyn_buff[i];
 			if(buff->is_forked == not_forked)
 			{
-				cudaMemcpy(data_, buff->s_data, _asyn_length * _asyn_num * sizeof(float_t),cudaMemcpyDeviceToDevice);
-				cudaMemcpy(label_, buff->s_label, _asyn_num * sizeof(unsigned int),cudaMemcpyDeviceToDevice);
+				cudaMemcpy(data_, buff->s_data, _asyn_length * _asyn_num * sizeof(float_t),cudaMemcpyHostToDevice);
+				cudaMemcpy(label_, buff->s_label, _asyn_num * sizeof(unsigned int),cudaMemcpyHostToDevice);
 				buff->is_forked = forked;
 				return;
 			}

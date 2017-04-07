@@ -90,7 +90,7 @@ namespace mycnn{
 		inline float_t* s_diff(){ return (float_t*)_s_diff; }
 
 		/**
-		 * reset all data (data&diff) in this blob
+		 * reset all data (data & diff) in this blob
 		 */
 		inline virtual const void _RESET_DATA() override
 		{
@@ -230,7 +230,7 @@ namespace mycnn{
 		/*
 		 * serializa blob data, output data to model file
 		 */
-		void serializa(std::ostream& os)
+		inline void serializa(std::ostream& os)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __GPU__
@@ -249,7 +249,7 @@ namespace mycnn{
 		/*
 		 * loads blob data from model file
 		 */
-		void load(std::ifstream& is)
+		inline void load(std::ifstream& is)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __GPU__

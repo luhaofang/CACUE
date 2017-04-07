@@ -103,4 +103,8 @@ void test_net()
 	}
 
 	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
+
+#if __PARALLELTYPE__ == __GPU__
+	cuda_release();
+#endif
 }

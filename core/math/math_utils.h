@@ -27,13 +27,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <time.h>
 #include "math_config.h"
 #include "../../tools/random.h"
 
 using namespace std;
 
 #define CHECK_OP(level, format, ...) \
-	do{fprintf(stderr,"[%s][%s %s:%d] " format "\n", level, __TIME__, __FILE__, __LINE__,##__VA_ARGS__);}while(0)
+	do{								 \
+		time_t now = time(NULL);	 \
+		struct tm _now_; 			 \
+		localtime_r(&now,&_now_);	 \
+		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level, _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__,##__VA_ARGS__);\
+    }while(0)
 
 #define CHECK_EQ_OP(x,y,format,...)					\
 	if (x != y){							\

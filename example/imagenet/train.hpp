@@ -51,11 +51,11 @@ void train_net()
 
 	network *net = create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
 
-	//net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.01f);
+	sgd->set_lr(0.1f);
 	sgd->set_weight_decay(0.0005f);
 
 	string datapath = "/home/seal/4T/imagenet/227X227_train/";
@@ -134,4 +134,7 @@ void train_net()
 		vec_i().swap(full_label[i]);
 	}
 	vector<string>().swap(full_data);
+#if __PARALLELTYPE__ == __GPU__
+	cuda_release();
+#endif
 }

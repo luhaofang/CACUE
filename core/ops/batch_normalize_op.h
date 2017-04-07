@@ -140,21 +140,30 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
+			float_t *mean_data_,*mean_diff_;
+
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				//calculate dl/x_
 				cacu_cxsize(o_blob_->p_diff(i), o_blob_->length(), _scale->s_data(), _scale->count(), s_blob_->p_diff(i));
 			}
-			//calculate dl/std^2
-			cacu_bn_rou_grad(s_blob_->s_data(), s_blob_->s_diff(), _mean->s_data(), _std->s_data(), s_blob_->num(),s_blob_->length(),s_blob_->channel(), _std->s_diff());
-			//calculate dl/mu
-			cacu_bn_mu_grad(s_blob_->s_data(), s_blob_->s_diff(), _mean->s_data(), _std->s_data(), _std->s_diff(), s_blob_->num(), s_blob_->length(), s_blob_->channel(), _mean->s_diff());
-			//calculate dl/x
-			cacu_bn_dx_grad(s_blob_->s_data(), s_blob_->s_diff(), _mean->s_data(), _std->s_data(), _std->s_diff(), _mean->s_diff(), s_blob_->num(), s_blob_->length(),s_blob_->channel(), s_blob_->s_diff());
 
+			if(!use_global_stats){
+				mean_data_ = _mean->s_data();
+				mean_diff_ = _mean->s_diff();
+			}
+			else{
+				mean_data_ = _history_mean->s_data();
+				mean_diff_ = _history_mean->s_diff();
+			}
+			//calculate dl/std^2
+			cacu_bn_rou_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), s_blob_->num(),s_blob_->length(),s_blob_->channel(), _std->s_diff());
+			//calculate dl/mu
+			cacu_bn_mu_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), _std->s_diff(), s_blob_->num(), s_blob_->length(), s_blob_->channel(), mean_diff_);
+			//calculate dl/x
+			cacu_bn_dx_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), _std->s_diff(), mean_diff_, s_blob_->num(), s_blob_->length(),s_blob_->channel(), s_blob_->s_diff());
 			//gradient of scale
 			cacu_bn_gamma_grad(_x->s_data(), o_blob_->s_diff(),o_blob_->num(),o_blob_->length(),o_blob_->channel(),_scale->s_diff());
 			//gradient of shift
-
 			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(),1, _dim_sum->s_data(),0, o_blob_->length()/o_blob_->channel());
 			cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(),1, _shift->s_diff(),0, s_blob_->channel());
 		}

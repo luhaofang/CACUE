@@ -89,4 +89,7 @@ void train_net()
 	}
 
 	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+#if __PARALLELTYPE__ == __GPU__
+	cuda_release();
+#endif
 }

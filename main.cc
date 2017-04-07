@@ -40,9 +40,9 @@ int main(int argc, char** argv)
 	//string filelist = "/home/seal/4T/imagenet/file_list.txt";
 	//string meanpath = "/home/seal/4T/imagenet/224X224_mean.binproto";
 	//make_mean(datapath,filelist,meanpath);
-	train_net();
+	//train_net();
 	//test_net();
-	//int result =  Catch::Session().run(argc,argv);
+	int result =  Catch::Session().run(argc,argv);
 
 }
 

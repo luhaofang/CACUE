@@ -34,19 +34,10 @@ namespace mycnn{
 	public:
 
 		network(blobs *&datas_){
-		
-#if  __PARALLELTYPE__ == __GPU__
-			cublasCreate_v2(&handle);
-			cuda_initial();
-#endif
 			_input_blobs = datas_;
 		};
 
 		~network(){
-
-#if  __PARALLELTYPE__ == __GPU__
-			cublasDestroy_v2(handle);
-#endif
 			delete _input_blobs;
 		};
 

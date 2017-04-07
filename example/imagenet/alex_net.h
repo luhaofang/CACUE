@@ -58,10 +58,10 @@ layer_block* conv_block_nopooling(blob* data,int output_channel, int kernel_size
 }
 
 
-network* create_alexnet(int batch_size,phrase_type phrase_)
+network* create_alexnet(int batch_size_,phrase_type phrase_)
 {
-	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 227, 227, phrase_);
-	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,phrase_);
+	blob *blob_ = cacu_allocator::create_blob(batch_size_, 3, 227, 227, phrase_);
+	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size_, 1, 1, 1,phrase_);
 
 	blobs *input_datas_ = cacu_allocator::create_blobs();
 	input_datas_->push_back(blob_);

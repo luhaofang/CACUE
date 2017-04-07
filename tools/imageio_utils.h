@@ -72,18 +72,18 @@ namespace mycnn_tools{
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;
 
-			vec_t tmp_(3*c_length);
+			vec_t temp_(3*c_length);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					tmp_[index] = ((float) src.at<cv::Vec3b>(y, x)[0]);
-					tmp_[c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[1]);
-					tmp_[2*c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[2]);
+					temp_[index] = ((float) src.at<cv::Vec3b>(y, x)[0]);
+					temp_[c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[1]);
+					temp_[2*c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[2]);
 				}
 
-			cuda_copy2dev(p_data,&tmp_[0],tmp_.size());
-			vec_t().swap(tmp_);
+			cuda_copy2dev(p_data,&temp_[0],temp_.size());
+			vec_t().swap(temp_);
 		}
 #endif
 

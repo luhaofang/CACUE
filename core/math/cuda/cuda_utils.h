@@ -40,17 +40,6 @@ cublasHandle_t handle;
 cublasStatus_t status;
 
 
-bool cuda_initial()
-{
-	int device_count;
-	if(cudaGetDeviceCount(&device_count))
-	{
-		LOG_FATAL("There is no device!");
-		return false;
-	}
-	return true;
-}
-
 void cuda_set_device(int device_id = 0)
 {
 	struct cudaDeviceProp device_prop;
@@ -65,8 +54,18 @@ void cuda_set_device(int device_id = 0)
 		cout << "totalConstMem       |	" << device_prop.totalConstMem << endl;
 		cout << "=======================================================" << endl;
 	}
+	else
+		LOG_FATAL("device %d not found!",device_id);
 	res = cudaSetDevice(device_id);
 	CUDA_CHECK(res);
+	status = cublasCreate_v2(&handle);
+	CUBLAS_CHECK(status);
+}
+
+void cuda_release()
+{
+	status = cublasDestroy_v2(handle);
+	CUBLAS_CHECK(status);
 }
 
 template<typename DTYPE>

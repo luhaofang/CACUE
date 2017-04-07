@@ -212,7 +212,6 @@ namespace mycnn{
 				_len += 1;
 			os.write((char*)(&_len), sizeof(_len));
 			int _index;
-			auto w;
 			for(int i = 0 ; i < _length; ++i)
 			{
 				_index = i % 32;
@@ -221,7 +220,7 @@ namespace mycnn{
 				else
 					_bits[_index] = 0;
 				if(_index == 31 || i == (_length - 1)){
-					w = _bits.to_ulong();
+					auto w = _bits.to_ulong();
 					os.write((char*)(&w), sizeof(w));
 				}
 			}
@@ -257,12 +256,6 @@ namespace mycnn{
 			cuda_copy2dev((float_t*)_s_data, &_v[0],length_);
 			vec_t().swap(_v);
 #else
-			int length_;
-			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
-			CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_length);
-			for (int i = 0; i < length_; i++){
-				is.read(reinterpret_cast<char*>(s_data_ + i), sizeof(float_t));
-			}
 			int length_;
 			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
 			int _len = _length / 32;

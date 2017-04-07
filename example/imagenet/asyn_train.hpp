@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../tools/io/cpu_gpu_asyn.h"
 
+#if __PARALLELTYPE__ == __GPU__
 
 void train_net()
 {
@@ -45,11 +46,8 @@ void train_net()
 
 	int max_iter = 200000;
 
-
 	//set gpu device if training by gpu
-#if __PARALLELTYPE__ == __GPU__
 	cuda_set_device(0);
-#endif
 
 	network *net = create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
 
@@ -70,12 +68,9 @@ void train_net()
 	/**
 	 * load mean data
 	 */
-	blob *mean_ = cacu_allocator::create_blob(1,3,227,227,test);
-#if __PARALLELTYPE__ == __GPU__
-	imageio_utils::load_mean_file_gpu(mean_->s_data(),meanfile);
-#else
-	imageio_utils::load_mean_file(mean_->s_data(),meanfile);
-#endif
+	//blob *mean_ = cacu_allocator::create_blob(1,3,227,227,test);
+	vec_t mean_(KIMAGESIZE);
+	imageio_utils::load_mean_file(&mean_[0],meanfile);
 	/**
 	 * read train list data into local memory
 	 */
@@ -98,7 +93,7 @@ void train_net()
 	blob *input_data = (blob*)net->input_blobs()->at(0);
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
-	asyn_initial(batch_size,mean_->length(),max_iter,(&full_data),(&full_label),mean_->s_data());
+	asyn_initial(batch_size,KIMAGESIZE,max_iter,(&full_data),(&full_label),&mean_[0]);
 	asyn_initial_threads();
 
 	clock_t start,end;
@@ -130,4 +125,8 @@ void train_net()
 	vector<string>().swap(full_data);
 
 	asyn_release();
+	cuda_release();
+	vec_t().swap(mean_);
 }
+
+#endif
