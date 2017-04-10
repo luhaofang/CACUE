@@ -52,7 +52,6 @@ namespace mycnn{
 			_args->clear();
 		}
 
-		inline blob_base* out_data(){ return _op->out_data(); }
 
 		inline void forward(){ _op->infer(); }
 

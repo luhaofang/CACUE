@@ -46,11 +46,19 @@ namespace mycnn{
 			_pad = pad;
 			_output_dim = 0;
 
+			_args = new args(_output_channel,_kernel_size,_stride,_pad,_input_dim,_channel);
+
+		};
+
+		layer_base(){
+
+			_args = NULL;
+
 		};
 
 		virtual ~layer_base(){
 		
-			
+			delete _args;
 		};
 
 
@@ -87,6 +95,8 @@ namespace mycnn{
 		{
 			_ops.push_back(op);
 		}
+
+		args_base *_args;
 
 	private:
 

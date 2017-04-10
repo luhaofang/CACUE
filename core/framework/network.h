@@ -106,7 +106,7 @@ namespace mycnn{
 
 		inline blobs *& input_blobs(){ return _input_blobs; }
 
-		inline blob *& output_blob(){return (blob*&)_ops[_ops.size()-1]->out_data();}
+		inline blob *& output_blob(){return _ops[_ops.size()-1]->out_data<blob>();}
 
 		void load_weights(chars_t modelpath){
 			std::ifstream is(modelpath);

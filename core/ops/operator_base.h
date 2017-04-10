@@ -102,9 +102,13 @@ namespace mycnn{
 
 		virtual const void LOOP_INIT_DATA_() = 0;
 
-		inline blob_base *&out_data(){ return o_blob; }
+		template<typename BTYPE>
+		inline BTYPE *&out_data(){ return (BTYPE *&)o_blob; }
 
 		inline blobs *&in_datas(){ return s_blobs; }
+
+		template<typename BTYPE>
+		inline BTYPE *&in_data(){return (BTYPE *&)s_blob;}
 
 		inline int weights_size(){ return _weights.size(); }
 
@@ -117,8 +121,6 @@ namespace mycnn{
 			//forward propagation
 			op();
 		}
-
-		inline blob_base * get_blob(){return s_blob;}
 
 		inline void set_blob(blob_base *&blob_){ s_blob = blob_;}
 

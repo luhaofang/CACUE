@@ -54,49 +54,72 @@ namespace mycnn{
 
 		layer* op(op_name op_) {
 
-			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
-			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = _ops.back()->out_data();
+			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
+			out_blob = _ops.back()->out_data<blob_base>();
 			_output_dim = out_blob->width();
 			return this;
 		}
 
 		layer* op(op_name op_, blob *blob_) {
 			refresh_layer_param(blob_);
-			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
+
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			blobs_->push_back(blob_);
-			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = _ops.back()->out_data();
+			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
+			out_blob = _ops.back()->out_data<blob_base>();
 			_output_dim = out_blob->width();
 			return this;
 		}
 
 		layer* op(op_name op_, bin_blob *bin_blob_) {
 			refresh_layer_param(bin_blob_);
-			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
+
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			blobs_->push_back(bin_blob_);
-			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = _ops.back()->out_data();
+			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
+			out_blob = _ops.back()->out_data<blob_base>();
+			_output_dim = out_blob->width();
+			return this;
+		}
+
+		layer* op(op_name op_, blob *blob_ ,args_base *args_) {
+			refresh_layer_param(blob_);
+			_args = args_;
+			blobs *blobs_ = cacu_allocator::create_blobs();
+			if (out_blob != NULL)
+				blobs_->push_back(out_blob);
+			blobs_->push_back(blob_);
+			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
+			out_blob = _ops.back()->out_data<blob_base>();
 			_output_dim = out_blob->width();
 			return this;
 		}
 
 		layer* op(op_name op_, blobs *blobs_) {
 			refresh_layer_param(blobs_->at(0));
-			args *args_ = new args(_output_channel, _kernel_size, _stride, _pad, _input_dim, _channel);
+
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
-			add_op(operator_factory::create_op(op_, blobs_, args_));
-			out_blob = _ops.back()->out_data();
+			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
+			out_blob = _ops.back()->out_data<blob_base>();
+			_output_dim = out_blob->width();
+			return this;
+		}
+
+		layer* op(op_name op_, blobs *blobs_, args_base *args_) {
+			refresh_layer_param(blobs_->at(0));
+			_args = args_;
+			if (out_blob != NULL)
+				blobs_->push_back(out_blob);
+			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
+			out_blob = _ops.back()->out_data<blob_base>();
 			_output_dim = out_blob->width();
 			return this;
 		}

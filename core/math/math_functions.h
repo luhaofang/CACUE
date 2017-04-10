@@ -145,16 +145,16 @@ inline void rand_vector(float_t *vector_, int length, float_t ratio_)
 	vec_t v_(length);
 	for(int i = 0; i < length ; ++i)
 	{
-		if(rand() >= ratio_)
-			v_[i] = 1;
+		if(rand_t::urand(0,1) >= ratio_)
+			v_[i] = 1.0;
 	}
 	cuda_copy2dev(vector_, &v_[0], length);
 	vec_t().swap(v_);
 #else
 	for(int i = 0; i < length ; ++i)
 	{
-		if(rand() >= ratio_)
-			vector_[i] = 1;
+		if(rand_t::urand(0,1) >= ratio_)
+			vector_[i] = 1.0;
 	}
 #endif
 }

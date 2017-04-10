@@ -39,28 +39,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 256;
+	int batch_size = 64;
 
 	int max_iter = 200000;
 
 
 	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __GPU__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
-	network *net = create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
+	network *net = create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.1f);
+	sgd->set_lr(0.01f);
 	sgd->set_weight_decay(0.0005f);
 
-	string datapath = "/home/seal/4T/imagenet/227X227_train/";
+	string datapath = "/home/seal/4T/imagenet/224X224_train/";
 	string trainlist = "/home/seal/4T/imagenet/train_list.txt";
-	string meanfile = "/home/seal/4T/imagenet/227X227_mean.binproto";
+	string meanfile = "/home/seal/4T/imagenet/224X224_mean.binproto";
 
 	vector<string> full_data;
 	vector<vec_i> full_label;
@@ -68,7 +68,7 @@ void train_net()
 	/**
 	 * load mean data
 	 */
-	blob *mean_ = cacu_allocator::create_blob(1,3,227,227,test);
+	blob *mean_ = cacu_allocator::create_blob(1,3,224,224,test);
 #if __PARALLELTYPE__ == __GPU__
 	imageio_utils::load_mean_file_gpu(mean_->s_data(),meanfile);
 #else
@@ -124,10 +124,14 @@ void train_net()
 			sgd->set_lr_iter(0.1f);
 		if(i % 20000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/alex_net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/vgg_net_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
+
+	ostringstream oss;
+	oss << "/home/seal/4T/cacue/imagenet/vgg_net_" << max_iter << ".model";
+	net->save_weights(oss.str());
 
 	for(int i = 0; i < full_label.size(); ++i)
 	{

@@ -158,7 +158,6 @@ void *asyn_fork(void *args)
 
 void asyn_initial(int num,int length,int max_iter, vector<string> *data_blob,vector<vec_i> *data_label, float_t *mean){
 	_asyn_buff = vector<buff_item *>(MAX_BUFF_SIZE);
-	cudaError_t res;
 	//initial buffer source
 	for(int i = 0 ; i < MAX_BUFF_SIZE; ++i)
 	{
@@ -225,8 +224,10 @@ void asyn_get_gpu_data(float_t *data_,unsigned int *label_)
 			buff_item *buff = _asyn_buff[i];
 			if(buff->is_forked == not_forked)
 			{
-				cudaMemcpy(data_, buff->s_data, _asyn_length * _asyn_num * sizeof(float_t),cudaMemcpyHostToDevice);
-				cudaMemcpy(label_, buff->s_label, _asyn_num * sizeof(unsigned int),cudaMemcpyHostToDevice);
+				res = cudaMemcpy(data_, buff->s_data, _asyn_length * _asyn_num * sizeof(float_t),cudaMemcpyHostToDevice);
+				CUDA_CHECK(res);
+				res = cudaMemcpy(label_, buff->s_label, _asyn_num * sizeof(unsigned int),cudaMemcpyHostToDevice);
+				CUDA_CHECK(res);
 				buff->is_forked = forked;
 				return;
 			}

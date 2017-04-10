@@ -32,7 +32,7 @@ TEST_CASE("average_pooling")
 		blob *validate_ = cacu_allocator::create_blob(1, 3, 222, 222, test);
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_result.txt");
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());

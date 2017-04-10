@@ -27,40 +27,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <random>
-#include <time.h>
+namespace mycnn{
+
+	class hinge_loss_op : public operator_base
+	{
 
 
-namespace mycnn {
-
-	class rand_t {
-
-	public:
-
-		rand_t() {
-			srand((unsigned int)time(NULL));
-		}
-
-		~rand_t() {
-		}
-
-		static float_t gaussrand(float_t std) {
-			float_t u = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t v = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t r = u * u + v * v;
-			if (r == 0 || r > 1)
-				return gaussrand(std);
-			float_t c = sqrt(-2 * log(r) / r);
-			return u * c * std;
-		}
-
-		static float_t urand(float_t min, float_t max) {
-
-			float_t pRandomValue = (float_t)(rand() / (float_t)RAND_MAX);
-			pRandomValue = pRandomValue * (max - min) + min;
-			return pRandomValue;
-		}
 
 	};
-
 };

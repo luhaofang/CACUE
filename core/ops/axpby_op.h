@@ -57,7 +57,6 @@ namespace mycnn{
 			blob *y = (blob*)s_blobs->at(1);
 
 			cacu_saxpby(x->s_data(),_args->at(0),y->s_data(),_args->at(1),x->count());
-
 		}
 
 

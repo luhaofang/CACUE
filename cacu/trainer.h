@@ -27,40 +27,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <random>
-#include <time.h>
+#include "../mycnn.h"
 
+namespace mycnn{
 
-namespace mycnn {
+class trainer{
 
-	class rand_t {
+public:
 
-	public:
+	trainer(chars_t &imagelist,chars_t &datapath, network *&net_, solver_base *&solver_){
 
-		rand_t() {
-			srand((unsigned int)time(NULL));
-		}
+		_imagelist = imagelist;
+		_datapath = datapath;
+		_net = net_;
+		_solver = solver_;
 
-		~rand_t() {
-		}
-
-		static float_t gaussrand(float_t std) {
-			float_t u = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t v = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t r = u * u + v * v;
-			if (r == 0 || r > 1)
-				return gaussrand(std);
-			float_t c = sqrt(-2 * log(r) / r);
-			return u * c * std;
-		}
-
-		static float_t urand(float_t min, float_t max) {
-
-			float_t pRandomValue = (float_t)(rand() / (float_t)RAND_MAX);
-			pRandomValue = pRandomValue * (max - min) + min;
-			return pRandomValue;
-		}
 
 	};
+
+	~trainer(){};
+
+
+	inline void set_max_iter(int max_iter_)
+	{
+		_max_iter = max_iter;
+	}
+
+	inline void set_batch_size(int batch_size_)
+	{
+		_batch_size = batch_size_;
+	}
+
+private:
+
+	chars_t _imagelist;
+	chars_t _datapath;
+
+	vector<vec_t> full_data;
+	vector<vec_i> full_label;
+
+	network *_net;
+	solver_base *_solver;
+
+	int _max_iter = 0;
+	int _batch_size = 0;
+
+
+};
 
 };

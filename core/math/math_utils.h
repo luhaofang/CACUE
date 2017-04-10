@@ -48,25 +48,25 @@ using namespace std;
 			}
 
 #define CHECK_LT_OP(x,y,format,...)					\
-	if (x >= y){							\
+	if (x > y){							\
 			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
 			exit(0);						\
 			}
 
 #define CHECK_LE_OP(x,y,format,...)					\
-	if (x > y){								\
+	if (x >= y){								\
 			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
 			exit(0);						\
 			}
 
 #define CHECK_GT_OP(x,y,format,...)					\
-	if (x <= y){							\
+	if (x < y){							\
 			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);  \
 			exit(0);						\
 			}
 
 #define CHECK_GE_OP(x,y,format,...)					\
-	if (x < y){								\
+	if (x <= y){								\
 			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
 			exit(0);						\
 			}

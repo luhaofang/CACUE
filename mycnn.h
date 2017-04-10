@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/utils/args_base.h"
 
 #include "core/framework/args.h"
+#include "core/framework/math_args.h"
 #include "core/framework/blob_base.h"
 #include "core/framework/bin_blob.h"
 #include "core/framework/blob.h"
@@ -53,6 +54,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "core/framework/layer_base.h"
 #include "core/framework/layer.h"
+#include "core/framework/dy_layer.h"
 #include "core/framework/layer_block.h"
 #include "core/framework/network.h"
 #include "core/framework/layer_creator.h"

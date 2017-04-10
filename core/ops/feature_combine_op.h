@@ -29,59 +29,55 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class softmax_with_loss_op : public operator_base
+	class feature_combine_op : public operator_base
 	{
 
 	public:
 
-		softmax_with_loss_op(blobs *&data, args *&args_) : operator_base(data, args_){
+		feature_combine_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
-
-			blob_base *_blob = data->at(0);
-			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
-
-			_loss = (float_t*)malloc(sizeof(float_t));
+			_units_count = args_->at(0);
+			o_blob = create_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phrase);
+			o_blob->_CHECK_SIZE_EQ(s_blob);
+			echo();
 		};
 
-		~softmax_with_loss_op(){
-			free(_loss);
-			delete o_blob;
+		~feature_combine_op(){
+
 		};
 
 		virtual const void check() override{
-			return;
+			//output_channel > 0
+			CHECK_EQ_OP(s_blob->num()%_args->at(0), 0,"s_blob num must be the integral multiple of units count!");
 		}
 
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blobs->at(0);
-			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
-			_loss[0] = 0.0;
+			blob *s_blob_ = (blob*)s_blob;
 
-			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
-			//CE LOSS use o_blob[0] to store loss
-			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
-
-#if __PARALLELTYPE__ == __GPU__
-			cuda_copy2host(_loss, o_blob_->s_diff(),1);
-#else
-			cacu_copy(o_blob_->s_diff(), 1 ,_loss);
-#endif
-			_loss[0] *= normalizer();
-
+			int output_num = s_blob->num() / _units_count;
+			for(int i = 0 ; i < output_num ;++i)
+			{
+				for(int j = 0 ; j < _units_count ; ++j)
+				{
+					cacu_copy(s_blob_->p_data(i*_units_count+j), s_blob_->length(), o_blob_->p_data(i)+j*s_blob_->length());
+				}
+			}
 		}
 
 		virtual const void grad() override{
 			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blobs->at(0);
-			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+			blob *s_blob_ = (blob*)s_blob;
 
-			//CE LOSS BACK PROPGATION
-			for (int i = 0 ; i < s_blob_->num() ; ++i)
+			int output_num = s_blob->num() / _units_count;
+			for(int i = 0 ; i < output_num ;++i)
 			{
-				cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-				cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
+				for(int j = 0 ; j < _units_count ; ++j)
+				{
+					cacu_copy(o_blob_->p_diff(i)+j*s_blob_->length(), s_blob_->length(), s_blob_->p_diff(i*_units_count+j));
+				}
 			}
+
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -94,26 +90,20 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-			LOG_INFO("loss : %f", _loss[0]);
+			LOG_INFO("create feature combine op:");
+			LOG_INFO("channel: %d, output_channel: %d",s_blob->channel(),o_blob->channel());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
+
 			o_blob->_RESET_DATA();
-		}
 
-		float_t normalizer()
-		{
-			blob_base* blob_= s_blobs->at(0);
-			return _loss_weight * ((float_t)1/blob_->num());
 		}
-
-		inline float_t loss(){return _loss[0];}
 
 	private:
 
-		float_t *_loss;
-
-		float_t _loss_weight = 1.0;
+		//combine unit counts
+		int _units_count;
 	};
 };

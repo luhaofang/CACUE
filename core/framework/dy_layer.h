@@ -27,38 +27,68 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <random>
-#include <time.h>
 
+#include "../ops/operator_factory.h"
 
-namespace mycnn {
+namespace mycnn{
 
-	class rand_t {
+	class dy_layer : public layer_base{
+
 
 	public:
 
-		rand_t() {
-			srand((unsigned int)time(NULL));
+		dy_layer(int output_channel = 0, int kernel_size = 0, int stride = 0, int pad = 0, int input_dim = 0, int channel = 0)
+			:layer_base(output_channel, kernel_size, stride, pad, input_dim, channel){
+
+
+		};
+
+		void init(){
+
 		}
 
-		~rand_t() {
+
+		int caculate_data_space(){
+			return 0;
 		}
 
-		static float_t gaussrand(float_t std) {
-			float_t u = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t v = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t r = u * u + v * v;
-			if (r == 0 || r > 1)
-				return gaussrand(std);
-			float_t c = sqrt(-2 * log(r) / r);
-			return u * c * std;
+
+
+		template<class OPTYPE>
+		inline OPTYPE *& get_op(int i)
+		{
+			return (OPTYPE*&)_ops[i];
 		}
 
-		static float_t urand(float_t min, float_t max) {
+		inline operator_base * get_head_op()
+		{
+			return _ops[0];
+		}
 
-			float_t pRandomValue = (float_t)(rand() / (float_t)RAND_MAX);
-			pRandomValue = pRandomValue * (max - min) + min;
-			return pRandomValue;
+		inline blob_base * get_oblob()
+		{
+			return out_blob;
+		}
+
+
+
+		~dy_layer(){
+
+
+		};
+
+	protected:
+
+
+
+	private:
+
+		blob_base* out_blob= NULL;
+
+		inline void refresh_layer_param(blob_base *blob_)
+		{
+			_input_dim = blob_->height();
+			_channel = blob_->channel();
 		}
 
 	};

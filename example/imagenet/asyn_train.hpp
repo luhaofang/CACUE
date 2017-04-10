@@ -47,15 +47,19 @@ void train_net()
 	int max_iter = 200000;
 
 	//set gpu device if training by gpu
-	cuda_set_device(0);
+	cuda_set_device(1);
+
+	//log output
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/alexnet.log", ios::binary);
+	logger.precision(std::numeric_limits<float_t>::digits10);
 
 	network *net = create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/alexnet_60000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.05f);
+	sgd->set_lr(0.01f);
 	sgd->set_weight_decay(0.0005f);
 
 	string datapath = "/home/seal/4T/imagenet/227X227_train/";
@@ -103,12 +107,12 @@ void train_net()
 		asyn_get_gpu_data(input_data->s_data(),input_label->s_data());
 		sgd->train_iter();
 		end = clock();
-
 		if(i % 1 == 0){
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),end - start);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
-
+		logger << ((softmax_with_loss_op*)net->get_op(net->op_count()-1))->loss() << endl;
+		logger.flush();
 		if(i % 50000 == 0)
 			sgd->set_lr_iter(0.1f);
 		if(i % 20000 == 0){
@@ -118,6 +122,11 @@ void train_net()
 		}
 	}
 
+	logger.close();
+
+	ostringstream oss;
+	oss << "/home/seal/4T/cacue/imagenet/alexnet_" << max_iter << ".model";
+	net->save_weights(oss.str());
 	for(int i = 0; i < full_label.size(); ++i)
 	{
 		vec_i().swap(full_label[i]);

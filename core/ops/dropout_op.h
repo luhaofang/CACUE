@@ -43,7 +43,7 @@ namespace mycnn{
 			int channel = data->channel();
 			int num = data->num();
 
-			o_blob = create_oblob(num, channel, input_dim, input_dim, _phrase);
+			o_blob = data;
 			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
 
 			echo();
@@ -60,12 +60,13 @@ namespace mycnn{
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			if (test == o_blob_->phrase())
-				cacu_copy(s_blob_->s_data(), s_blob_->count(),o_blob_->s_data());
-			else
+			float_t scale_ = 1.0 / (1 - _ratio);
+
+			if(train == s_blob_->phrase())
 			{
-				rand_vector(_rand_vect->s_data(),_rand_vect->count(),_ratio);
+				rand_vector(_rand_vect->s_data(),_rand_vect->count(), 1 - _ratio);
 				cacu_ssx(_rand_vect->s_data(), o_blob_->count(), o_blob_->s_data());
+				cacu_scalex(o_blob_->s_data(), o_blob_->count(), scale_);
 			}
 		}
 
@@ -73,16 +74,13 @@ namespace mycnn{
 
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			if (test == o_blob_->phrase())
-				cacu_copy(o_blob_->s_diff(), s_blob_->count(),s_blob_->s_diff());
-			else
+			float_t scale_ = 1.0 / (1 - _ratio);
+
+			if(train == s_blob_->phrase())
 			{
-				//one of the dropout's implementation
-				cacu_ssx(_rand_vect->s_data(), s_blob_->count(), s_blob_->s_diff());
-				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 				//ratio's scale implementation
-				//cacu_scalex(s_blob_->s_diff(),o_blob_->count(),_ratio);
 				cacu_ssx(_rand_vect->s_data(),s_blob_->count(),s_blob_->s_diff());
+				cacu_scalex(s_blob_->s_diff(), o_blob_->count(), scale_);
 			}
 		}
 
@@ -102,15 +100,21 @@ namespace mycnn{
 
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
-			o_blob->_RESET_DATA();
 			_rand_vect->_RESET_DATA();
 		}
 
-		float_t _ratio = 0.5f;
+		inline void set_ratio(float_t ratio_)
+		{
+			CHECK_GE_OP(0,ratio_,"ratio must be a positive decimal!");
+			CHECK_LE_OP(1,ratio_,"ratio must be a positive decimal!");
+			_ratio = ratio_;
+		}
+
 
 	private:
 
 		blob *_rand_vect;
 
+		float_t _ratio = 0.5f;
 	};
 };

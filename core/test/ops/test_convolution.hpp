@@ -33,7 +33,7 @@ TEST_CASE("convolution")
 		blob *validate_ = cacu_allocator::create_blob(1, 3, 74, 74,test);
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/conv/conv_result.txt");
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());
@@ -93,7 +93,7 @@ TEST_CASE("convolution_multidata")
 		for(int i = 0; i < 100; ++i)
 			blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/conv/conv_result.txt",i);
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());
@@ -144,7 +144,7 @@ TEST_CASE("convolution_grad")
 		convolution_op *op = (convolution_op *)operator_factory::create_op(CACU_CONVOLUTION,input,args_);
 		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/conv_grad/kernel.txt");
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 		blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/conv_grad/grad_map.txt");
 
 		for(int i = 0 ; i < 100; ++i){
@@ -251,7 +251,7 @@ TEST_CASE("convolution_grad_multidata")
 		convolution_op *op = (convolution_op *)operator_factory::create_op(CACU_CONVOLUTION,input,args_);
 		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/conv_grad/kernel.txt");
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 		for(int i = 0 ; i< 100; ++i)
 			blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/conv_grad/grad_map.txt",i);
 

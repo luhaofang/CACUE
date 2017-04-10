@@ -35,7 +35,7 @@ TEST_CASE("inner_product")
 		blob *validate_ = cacu_allocator::create_blob(1, 64, 1, 1,test);
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/result.txt");
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_saxpby(output->s_data(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
@@ -96,7 +96,7 @@ TEST_CASE("inner_product_multidata")
 		for(int i = 0 ; i< 100; ++i)
 			blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/result.txt",i);
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __GPU__
 		cacu_saxpby(output->s_data(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
@@ -148,7 +148,7 @@ TEST_CASE("inner_product_grad")
 		inner_product_op *op = (inner_product_op *)operator_factory::create_op(CACU_INNERPRODUCT,input,args_);
 		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/w_bp.txt");
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 		blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/grad_bp.txt");
 
 		for(int i = 0 ; i < 10; ++i){
@@ -257,7 +257,7 @@ TEST_CASE("inner_product_grad_multidata")
 		inner_product_op *op = (inner_product_op *)operator_factory::create_op(CACU_INNERPRODUCT,input,args_);
 		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/w_bp.txt");
 
-		blob *output = (blob*)op->out_data();
+		blob *output = op->out_data<blob>();
 		for(int i = 0 ; i< 100; ++i)
 			blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/grad_bp.txt",i);
 
