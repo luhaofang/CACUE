@@ -54,7 +54,7 @@ namespace mycnn{
 		DTYPE acc;
 		DTYPE *xp;
 		if (BYWIDTH == SUMTYPE){
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < height; ++b){
@@ -66,7 +66,7 @@ namespace mycnn{
 			}
 		}
 		else if (BYHEIGHT == SUMTYPE){
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < width; ++b){
@@ -95,7 +95,7 @@ namespace mycnn{
 		DTYPE *xp;
 		DTYPE *yp;
 		int b,j;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(b,j,yp,xp)
 #endif
 		for (b = 0; b < size; ++b)
@@ -123,7 +123,7 @@ namespace mycnn{
 		DTYPE *xp;
 		DTYPE *yp;
 		int b,j;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(b,j,yp,xp)
 #endif
 		for (b = 0; b < size; ++b)
@@ -148,7 +148,7 @@ namespace mycnn{
 		cacu_sdxsize_gpu(x,length,a,y);
 #else
 		int j;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(j)
 #endif
 		for (j = 0; j < length; ++j)
@@ -171,7 +171,7 @@ namespace mycnn{
 		int block_size = length / size;
 		DTYPE *yp,*zp;
 		int i,j;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,yp,zp)
 #endif
 		for (i = 0; i < size; ++i){
@@ -195,7 +195,7 @@ namespace mycnn{
 #else
 
 		int j;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(j)
 #endif
 		for (j = 0; j < length; ++j)
@@ -214,7 +214,7 @@ namespace mycnn{
 		cacu_root_gpu(x,length,y);
 #else
 		int j;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(j)
 #endif
 		for (int j = 0; j < length; ++j)
@@ -233,7 +233,7 @@ namespace mycnn{
 		cacu_stdbychannel_gpu(varience,length,std,epsilon);
 #else
 		int j;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(j)
 #endif
 		for (j = 0; j < length; ++j)
@@ -263,7 +263,7 @@ namespace mycnn{
 
 		int n,c,f;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,c,f,set)
 #endif
 		for (n = 0; n < num; n++) {
@@ -305,7 +305,7 @@ namespace mycnn{
 
 		int n,c,f;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,c,f,set)
 #endif
 		for (n = 0; n < num; n++) {
@@ -347,7 +347,7 @@ namespace mycnn{
 
 		int n,c,f;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,c,f,set)
 #endif
 		for (n = 0; n < num; n++) {
@@ -386,7 +386,7 @@ namespace mycnn{
 
 		int n,c,f;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,c,f,set)
 #endif
 		for (n = 0; n < num; n++) {
@@ -416,7 +416,7 @@ namespace mycnn{
 #else
 
 		int i;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i)
 #endif
 		for(i = 0 ; i < length ; ++i)

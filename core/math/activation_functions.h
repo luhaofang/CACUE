@@ -44,7 +44,7 @@ namespace mycnn{
 		cacu_relu_gpu(x,length);
 #else
 		int i;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i)
 #endif
 		for (i = 0; i < length; ++i)
@@ -68,7 +68,7 @@ namespace mycnn{
 		cacu_relu_grad_gpu(x,g,length);
 #else
 		int i;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i)
 #endif
 		for (i = 0; i < length; ++i)
@@ -92,7 +92,7 @@ namespace mycnn{
 		cacu_leaky_relu_gpu(x, a, length);
 #else
 		int i;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i)
 #endif
 		for (i = 0; i < length; ++i)
@@ -116,7 +116,7 @@ namespace mycnn{
 		cacu_leaky_relu_grad_gpu(x, g, a, length);
 #else
 		int i;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i)
 #endif
 		for (i = 0; i < length; ++i)
@@ -141,7 +141,7 @@ namespace mycnn{
 #else
 		float_t *xp,*yp,max_,sum_;
 		int n,i;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,i,max_,sum_,xp,yp)
 #endif
 		for (n = 0; n < num; ++n)

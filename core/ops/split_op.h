@@ -27,33 +27,73 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <vector>
-#include <stdarg.h>
-
-using namespace std;
 
 namespace mycnn{
 
-
-	class math_args : public math_args_base{
+	class split_op : public operator_base
+	{
 
 	public:
 
-		math_args(float_t arg):math_args_base(arg, _ARGSEND){
+		split_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+			check();
 
+			int split_count = args_->at(0);
+			o_blobs = create_oblobs();
+			for(int i = 0 ; i < split_count ; ++i)
+			{
+				o_blobs->push_back(cacu_allocator::create_blob(data->num(),data->channel(),data->height(),data->width(), 0,data->phrase()));
+			}
+
+			echo();
+		};
+
+		~split_op(){
+			delete o_blob;
+		};
+
+		virtual const void check() override{
+			return;
 		}
 
-		math_args(float_t arg1,float_t arg2):math_args_base(arg1, arg2, _ARGSEND){
+		virtual const void op() override {
+			blob *s_blob_ = (blob*)s_blob;
 
+			for (unsigned int j = 0; j < (o_blobs)->size(); ++j){
+				blob *o_blob_ = (blob*)(*o_blobs)[j];
+				cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+			}
 		}
 
-		~math_args(){
+		virtual const void grad() override{
+			blob *s_blob_ = (blob*)s_blob;
 
+			for (unsigned int j = 0; j < (o_blobs)->size(); ++j){
+				blob *o_blob_ = (blob*)(*o_blobs)[j];
+				cacu_saxpy(o_blob_->s_diff(),(float_t)1,s_blob_->s_diff(),o_blob_->count());
+			}
 		}
 
+		virtual const void load(std::ifstream& is) override{
+			return;
+		}
 
+		virtual const void save(std::ostream& os) override{
+			return;
+		}
+
+		virtual const void echo() override{
+			LOG_INFO("create split op:");
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blobs->at(0)->channel(),o_blobs->at(0)->height());
+		}
+
+		inline virtual const void LOOP_INIT_DATA_() override
+		{
+			o_blobs->_RESET_DATA();
+		}
 
 	private:
 
+
 	};
-}
+};

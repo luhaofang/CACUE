@@ -45,7 +45,7 @@ namespace mycnn{
 		};
 
 		~sum_elemwise_op(){
-			delete o_blob;
+
 		};
 
 		virtual const void check() override{

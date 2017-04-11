@@ -85,11 +85,10 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
-			float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
-			float_t bias_correction_factor = m > (float_t)1.0 ? (m) / (m - (float_t)1.0) : (float_t)1.0;
+			if(train == _phrase){
+				float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
+				float_t bias_correction_factor = m > (float_t)1.0 ? (m) / (m - (float_t)1.0) : (float_t)1.0;
 
-			if (!use_global_stats)
-			{
 				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, _dim_sum->s_data(),0, s_blob_->length()/s_blob_->channel());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(),1, _mean->s_data(),0, s_blob_->channel());
 
@@ -106,17 +105,33 @@ namespace mycnn{
 				//update history
 				cacu_saxpby(_mean->s_data(), ((float_t)(1) - moving_average_fraction), _history_mean->s_data(), moving_average_fraction, _mean->count());
 				cacu_saxpby(_var->s_data(), ((float_t)(1) - moving_average_fraction)*bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+				if (!use_global_stats)
+				{
+					cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
-				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
+					for (int i = 0; i < s_blob_->num(); ++i){
+						cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+						cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
+						//save for train
+						if(train == _phrase)
+							cacu_copy(o_blob_->p_data(i),o_blob_->length(),_x->p_data(i));
+						cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
+						cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+					}
+				}
+				else
+				{
+					cacu_stdbychannel(_history_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
-				for (int i = 0; i < s_blob_->num(); ++i){
-					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
-					cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
-					//save for train
-					if(train == _phrase)
-						cacu_copy(o_blob_->p_data(i),o_blob_->length(),_x->p_data(i));
-					cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
-					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+					for (int i = 0; i < s_blob_->num(); ++i){
+						cacu_ssxpy(_history_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+						cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
+						//save for train
+						if(train == _phrase)
+							cacu_copy(o_blob_->p_data(i),o_blob_->length(),_x->p_data(i));
+						cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
+						cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+					}
 				}
 			}
 			else
@@ -149,12 +164,11 @@ namespace mycnn{
 
 			if(!use_global_stats){
 				mean_data_ = _mean->s_data();
-				mean_diff_ = _mean->s_diff();
 			}
 			else{
 				mean_data_ = _history_mean->s_data();
-				mean_diff_ = _history_mean->s_diff();
 			}
+			mean_diff_ = _mean->s_diff();
 			//calculate dl/std^2
 			cacu_bn_rou_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), s_blob_->num(),s_blob_->length(),s_blob_->channel(), _std->s_diff());
 			//calculate dl/mu
@@ -184,11 +198,6 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-#if __PARALLELTYPE__ == __GPU__
-			cuda_print(_mean->s_data(),1);
-#else
-			LOG_INFO("%f", (_mean)->s_data()[0]);
-#endif
 			LOG_INFO("create batch_normalize op:");
 			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
@@ -214,7 +223,7 @@ namespace mycnn{
 
 		inline weight* shift(){ return _shift; }
 
-		bool use_global_stats = false;
+		bool use_global_stats = true;
 
 		float_t moving_average_fraction = 0.9f;
 

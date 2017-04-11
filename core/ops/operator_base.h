@@ -41,6 +41,7 @@ namespace mycnn{
 			s_blob = data;
 			s_blobs = NULL;
 			o_blob = NULL;
+			o_blobs = NULL;
 			_args = args_;
 			_phrase = data->phrase();
 			data->__REC__();
@@ -51,6 +52,7 @@ namespace mycnn{
 			s_blob = data;
 			s_blobs = NULL;
 			o_blob = NULL;
+			o_blobs = NULL;
 			_args = NULL;
 			_phrase = data->phrase();
 			data->__REC__();
@@ -61,6 +63,7 @@ namespace mycnn{
 			s_blob = NULL;
 			s_blobs = data;
 			o_blob = NULL;
+			o_blobs = NULL;
 			_args = args_;
 			_phrase = data->at(0)->phrase();
 			data->__REC__();
@@ -71,6 +74,7 @@ namespace mycnn{
 			s_blob = NULL;
 			s_blobs = data;
 			o_blob = NULL;
+			o_blobs = NULL;
 			_args = NULL;
 			_phrase = data->at(0)->phrase();
 			data->__REC__();
@@ -79,8 +83,12 @@ namespace mycnn{
 		virtual ~operator_base(){
 
 			delete _args;
-			if(_IS_ALLOC_OUTPUT)
-				delete o_blob;
+			if(_IS_ALLOC_OUTPUT){
+				if(o_blob != NULL)
+					delete o_blob;
+				if(o_blobs != NULL)
+					delete o_blobs;
+			}
 			for(unsigned int i = 0 ; i< _weights.size(); ++i)
 			{
 				delete _weights[i];
@@ -101,6 +109,8 @@ namespace mycnn{
 		virtual const void echo() = 0;
 
 		virtual const void LOOP_INIT_DATA_() = 0;
+
+		inline blobs *&out_datas(){ return o_blobs; }
 
 		template<typename BTYPE>
 		inline BTYPE *&out_data(){ return (BTYPE *&)o_blob; }
@@ -134,6 +144,8 @@ namespace mycnn{
 		blob_base *s_blob;
 
 		blob_base *o_blob;
+
+		blobs *o_blobs;
 
 		args *_args;
 
@@ -191,6 +203,11 @@ namespace mycnn{
 		inline blob_base * create_oblob(int num,int channel, int height, int width, phrase_type phrase_){
 			_IS_ALLOC_OUTPUT = true;
 			return new blob(num, channel,height,width, 0 ,phrase_);
+		}
+
+		inline blobs * create_oblobs(){
+			_IS_ALLOC_OUTPUT = true;
+			return new blobs();
 		}
 
 	private:

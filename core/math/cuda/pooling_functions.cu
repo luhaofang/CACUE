@@ -61,8 +61,9 @@ __global__ void _k_CACU_MAX_POOLING_GPU(float_t *x, int kernel_size, int stride,
 
 		start_in = (data_row * input_dim + data_col) * stride + c * cin_length;
 
+		widthx = kernel_size;
 		if(data_col == output_dim - 1)
-			widthx = kernel_size - pad;
+			widthx -= pad;
 
 		for(int ki = 0 ; ki < kernel_size && (data_row*stride + ki) < input_dim ; ++ki)
 			for(int kj = 0 ; kj < kernel_size && (data_col*stride + kj) < input_dim ; ++kj)
@@ -135,13 +136,13 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(float_t *x, int kernel_size, int st
 		count_j = 0;
 
 		while (outset_si - (count_i + 1) >= 0
-				&& ((outset_si - (count_i + 1)) * stride) + kernel_size
-						> startset_i) {
+				&& ((outset_si - (count_i + 1)) * stride) + kernel_size - 1
+						>= startset_i) {
 			count_i++;
 		}
 		while (outset_sj - (count_j + 1) >= 0
-				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
-						> startset_j) {
+				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size - 1
+						>= startset_j) {
 			count_j++;
 		}
 
@@ -149,15 +150,18 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(float_t *x, int kernel_size, int st
 			for (int mj = 0; mj <= count_j; mj++) {
 				outset_i = outset_si - mi;
 				outset_j = outset_sj - mj;
+				if(outset_j * stride + kernel_size - 1 >= startset_j && outset_i * stride + kernel_size - 1 >= startset_i)
+				{
+					widthx = kernel_size;
+					if(outset_j == output_dim - 1)
+						widthx -= pad;
 
-				if(outset_j == output_dim - 1)
-					widthx = kernel_size - pad;
-
-				offset_i = startset_i - outset_i * stride;
-				offset_j = startset_j - outset_j * stride;
-				if (index[(outset_i * output_dim + outset_j) + c * cout_length]
-						== (float_t) (offset_i * widthx + offset_j)) {
-					y[i] +=	x[(outset_i * output_dim + outset_j) + c * cout_length];
+					offset_i = startset_i - outset_i * stride;
+					offset_j = startset_j - outset_j * stride;
+					if (index[(outset_i * output_dim + outset_j) + c * cout_length]
+							== (float_t) (offset_i * widthx + offset_j)) {
+						y[i] +=	x[(outset_i * output_dim + outset_j) + c * cout_length];
+					}
 				}
 			}
 
@@ -228,6 +232,7 @@ extern "C" void cacu_average_pooling_gpu(float_t *x, int kernel_size, int stride
 *kernel_size: pooling window size
 *input_dim: width of input data
 *output_dim: width of output data
+			LOG_DEBUG("fuck");
 */
 __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel,int pad, float_t *y) {
 
@@ -274,13 +279,13 @@ __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(float_t *x, int kernel_size, in
 		count_j = 0;
 
 		while (outset_si - (count_i + 1) >= 0
-				&& ((outset_si - (count_i + 1)) * stride) + kernel_size
-						> startset_i) {
+				&& ((outset_si - (count_i + 1)) * stride) + kernel_size - 1
+						>= startset_i) {
 			count_i++;
 		}
 		while (outset_sj - (count_j + 1) >= 0
-				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
-						> startset_j) {
+				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size - 1
+						>= startset_j) {
 			count_j++;
 		}
 
@@ -290,16 +295,19 @@ __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(float_t *x, int kernel_size, in
 				outset_i = outset_si - mi;
 				outset_j = outset_sj - mj;
 
-				pw = kernel_size;
-				ph = kernel_size;
+				if(outset_j * stride + kernel_size - 1 >= startset_j && outset_i * stride + kernel_size - 1 >= startset_i)
+				{
+					ph = kernel_size;
+					pw = kernel_size;
 
-				if (outset_i == output_dim - 1)
-					ph = kernel_size - pad;
+					if (outset_i == output_dim - 1)
+						ph = kernel_size - pad;
 
-				if (outset_j == output_dim - 1)
-					pw = kernel_size - pad;
+					if (outset_j == output_dim - 1)
+						pw = kernel_size - pad;
 
-				y[i] +=	(x[(outset_i * output_dim + outset_j) + c*cout_length] / (float_t) (ph * pw));
+					y[i] +=	(x[(outset_i * output_dim + outset_j) + c*cout_length] / (float_t) (ph * pw));
+				}
 			}
 	}
 }

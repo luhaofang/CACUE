@@ -9,11 +9,11 @@
 #include "core/test/sovler_test.hpp"
 #include "core/test/iotools_test.hpp"
 
-#include "example/cifar10/train.hpp"
+//#include "example/cifar10/train.hpp"
 //#include "example/cifar10/test.hpp"
 
 //#include "example/imagenet/train.hpp"
-//#include "example/imagenet/asyn_train.hpp"
+#include "example/imagenet/asyn_train.hpp"
 
 //#include "example/cifar10/data_proc.hpp"
 //#include "example/imagenet/data_proc.hpp"

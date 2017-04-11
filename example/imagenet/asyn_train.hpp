@@ -32,9 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../tools/imageio_utils.h"
 
-#include "./alex_net.h"
-#include "./vgg_net.h"
-#include "./data_proc.h"
+#include "alex_net.h"
+#include "vgg_net.h"
+#include "resnet_18.h"
+#include "data_proc.h"
 
 #include "../../tools/io/cpu_gpu_asyn.h"
 
@@ -53,7 +54,7 @@ void train_net()
 	std::ofstream logger("/home/seal/4T/cacue/imagenet/alexnet.log", ios::binary);
 	logger.precision(std::numeric_limits<float_t>::digits10);
 
-	network *net = create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
+	network *net = create_alexnet(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);
 
 	net->load_weights("/home/seal/4T/cacue/imagenet/alexnet_60000.model");
 

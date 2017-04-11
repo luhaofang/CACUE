@@ -91,6 +91,24 @@ namespace mycnn{
 				at(i)->__REC__();
 		}
 		
+		/**
+		 * reset all data (data & diff) in this blobs
+		 */
+		inline void _RESET_DATA()
+		{
+			for(int i = 0 ; i < this->size(); ++i)
+				at(0)->_RESET_DATA();
+		}
+
+		/**
+		 * reset diff data (diff) in this blobs
+		 */
+		inline void _RESET_DIFF()
+		{
+			for(int i = 0 ; i < this->size(); ++i)
+				at(0)->_RESET_DIFF();
+		}
+
 	private:
 
 

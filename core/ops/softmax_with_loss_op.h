@@ -57,8 +57,11 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blobs->at(0);
 			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 			_loss[0] = 0.0;
-
+			//cout<< "s-forward:";
+			//cuda_print(s_blob_->s_data(),1000);
 			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
+			//cout<< "forward:";
+			//cuda_print(o_blob_->s_data(),1000);
 			//CE LOSS use o_blob[0] to store loss
 			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 

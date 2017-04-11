@@ -47,7 +47,7 @@ namespace mycnn{
 
 		int n;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,xp)
 #endif
 		for (int n = 0; n < num ; ++n)

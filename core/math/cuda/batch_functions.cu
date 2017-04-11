@@ -335,7 +335,9 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(float_t *x, float_t *d_x, float_t *mean, 
 		shared_data[tid] = 0;
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{
-			set = data_row*length + data_col + i * cin_length;
+			data_row = j / cin_length;
+			data_col = j % cin_length;
+			set = data_row * length + data_col + i * cin_length;
 			shared_data[tid] += ((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (-2.0 * (x[set] - mean[i]))));
 		}
 
@@ -427,6 +429,8 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(float_t *_x, float_t *d_y, int num, in
 
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{
+			data_row = j / cin_length;
+			data_col = j % cin_length;
 			set = data_row * length + data_col + i * cin_length;
 			shared_data[tid] += (_x[set] * d_y[set]);
 		}

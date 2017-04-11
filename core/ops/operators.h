@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "softmax_op.h"
 #include "softmax_with_loss_op.h"
 #include "feature_combine_op.h"
+#include "split_op.h"
 
 #include "axpby_op.h"
 

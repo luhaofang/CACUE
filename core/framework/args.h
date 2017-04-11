@@ -44,6 +44,14 @@ namespace mycnn{
 
 		}
 
+		args(int arg):args_base(arg, _ARGSEND){
+
+		}
+
+		args(int arg1,int arg2):args_base(arg1, arg2, _ARGSEND){
+
+		}
+
 		~args(){
 
 		}

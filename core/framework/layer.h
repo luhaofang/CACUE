@@ -59,37 +59,25 @@ namespace mycnn{
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
 			out_blob = _ops.back()->out_data<blob_base>();
-			_output_dim = out_blob->width();
 			return this;
 		}
 
-		layer* op(op_name op_, blob *blob_) {
+		layer* op(op_name op_, blob_base *blob_) {
+			if(blob_ == NULL)
+				LOG_FATAL("input data is NULL!");
 			refresh_layer_param(blob_);
-
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			blobs_->push_back(blob_);
 			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
 			out_blob = _ops.back()->out_data<blob_base>();
-			_output_dim = out_blob->width();
 			return this;
 		}
 
-		layer* op(op_name op_, bin_blob *bin_blob_) {
-			refresh_layer_param(bin_blob_);
-
-			blobs *blobs_ = cacu_allocator::create_blobs();
-			if (out_blob != NULL)
-				blobs_->push_back(out_blob);
-			blobs_->push_back(bin_blob_);
-			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
-			out_blob = _ops.back()->out_data<blob_base>();
-			_output_dim = out_blob->width();
-			return this;
-		}
-
-		layer* op(op_name op_, blob *blob_ ,args_base *args_) {
+		layer* op(op_name op_, blob_base *blob_ ,args_base *args_) {
+			if(blob_ == NULL)
+				LOG_FATAL("input data is NULL!");
 			refresh_layer_param(blob_);
 			_args = args_;
 			blobs *blobs_ = cacu_allocator::create_blobs();
@@ -98,29 +86,30 @@ namespace mycnn{
 			blobs_->push_back(blob_);
 			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
 			out_blob = _ops.back()->out_data<blob_base>();
-			_output_dim = out_blob->width();
 			return this;
 		}
 
 		layer* op(op_name op_, blobs *blobs_) {
+			if(blobs_ == NULL)
+				LOG_FATAL("input data is NULL!");
 			refresh_layer_param(blobs_->at(0));
 
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
 			out_blob = _ops.back()->out_data<blob_base>();
-			_output_dim = out_blob->width();
 			return this;
 		}
 
 		layer* op(op_name op_, blobs *blobs_, args_base *args_) {
+			if(blobs_ == NULL)
+				LOG_FATAL("input data is NULL!");
 			refresh_layer_param(blobs_->at(0));
 			_args = args_;
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
 			add_op(operator_factory::create_op(op_, blobs_, (args*&)_args));
 			out_blob = _ops.back()->out_data<blob_base>();
-			_output_dim = out_blob->width();
 			return this;
 		}
 
@@ -140,7 +129,10 @@ namespace mycnn{
 			return out_blob;
 		}
 
-
+		inline blobs * get_oblobs()
+		{
+			return _ops.back()->out_datas();
+		}
 
 		~layer(){
 		

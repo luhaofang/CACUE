@@ -48,7 +48,8 @@ namespace mycnn{
 		CACU_LEAKY_RELU,
 		CACU_SOFTMAX,
 		CACU_SOFTMAX_LOSS,
-		CACU_FEATURE_COMBINE
+		CACU_FEATURE_COMBINE,
+		CACU_SPLIT
 	};
 
 	class operator_factory
@@ -96,6 +97,9 @@ namespace mycnn{
 			case CACU_FEATURE_COMBINE:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new feature_combine_op(blob_->at(0), args_);
+			case CACU_SPLIT:
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
+				return new split_op(blob_->at(0), args_);
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);
 				return NULL;

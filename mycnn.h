@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/utils/configs.h"
 
 #include "core/utils/args_base.h"
+#include "core/utils/math_args_base.h"
 
 #include "core/framework/args.h"
 #include "core/framework/math_args.h"

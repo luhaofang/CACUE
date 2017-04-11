@@ -50,7 +50,7 @@ namespace mycnn{
 		int outset;
 		int in_start, out_start;
 		int i,j,c,ki,kj;
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,outset,xd,xp)
 #endif
 		for (i = 0; i < output_dim; ++i)
@@ -100,7 +100,7 @@ namespace mycnn{
 
 		int i,j,c;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,_index, sd_out)
 #endif
 		for (i = 0; i < output_dim; ++i)
@@ -134,7 +134,7 @@ namespace mycnn{
 
 		int i,j,c,ki,kj;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,count,xp,yp)
 #endif
 		for (c = 0; c < channel; ++c)
@@ -182,7 +182,7 @@ namespace mycnn{
 
 		int i,j,c,ki,kj;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,diff_data,sd_out_cp,sn_out_cp,param_w,param_h)
 #endif
 		for (i = 0; i < output_dim; ++i)
@@ -238,7 +238,7 @@ namespace mycnn{
 		int boundary = input_dim + pad;
 		int i,j,c;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,yp,xp)
 #endif
 		for (c = 0; c < channel; ++c){
@@ -275,7 +275,7 @@ namespace mycnn{
 		int in_start, out_start;
 		int i,j,c,ki,kj;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
 #endif
 		for (i = 0; i < output_dim; ++i)
@@ -313,7 +313,7 @@ namespace mycnn{
 		int i,j,c,ki,kj;
 		int input_w,input_h,output_w,output_h;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
 #endif
 		for (i = 0; i < output_dim; ++i)
@@ -358,7 +358,7 @@ namespace mycnn{
 
 		int i,j,c;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,c,yp,xp)
 #endif
 		for (c = 0; c < channel; ++c){
@@ -397,7 +397,7 @@ namespace mycnn{
 
 		int row,col,c,ki,kj;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
 #endif
 		//for output_dim's location
@@ -444,7 +444,7 @@ namespace mycnn{
 		int row,col,c,ki,kj;
 		int input_h,input_w,output_h,output_w;
 
-#if __OPENMP__ == NO
+#if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
 #endif
 		//for output_dim's location

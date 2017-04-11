@@ -35,22 +35,23 @@ using namespace std;
 namespace mycnn{
 
 
-	class math_args : public math_args_base{
+	class math_args_base : public vec_t{
 
 	public:
 
-		math_args(float_t arg):math_args_base(arg, _ARGSEND){
-
+		math_args_base(float_t arg1, ...){
+			va_list arg_ptr;
+			va_start(arg_ptr, arg1);
+			while (arg1 != _ARGSEND){
+				this->push_back(arg1);
+				arg1 = va_arg(arg_ptr, float_t);
+			};
+			va_end(arg_ptr);
 		}
 
-		math_args(float_t arg1,float_t arg2):math_args_base(arg1, arg2, _ARGSEND){
+		~math_args_base(){
 
 		}
-
-		~math_args(){
-
-		}
-
 
 
 	private:

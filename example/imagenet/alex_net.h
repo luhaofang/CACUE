@@ -41,7 +41,7 @@ layer_block* conv_block_maxpooling(blob* data,int output_channel, int kernel_siz
 	l->op(CACU_CONVOLUTION, data)->op(activation_op);
 	l->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.01);
 	l->get_op<convolution_op>(0)->set_bias_init_type(constant,0.1);
-	l->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
+	l->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 	layer *ml = new layer(output_channel, 3, 2);
 	ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 	clock_t end = clock();
