@@ -4,6 +4,8 @@
 
 Dynamic calculate deep learning framework for heterogeneous computing!
 
-We supply model training methods for different platforms and unified model inference process!
+We supply model training methods for different platforms and unified model inference process on different platforms!
+
+please wait...
 
 If this resposity is helpful for you, please star it,thanks~
