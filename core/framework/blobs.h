@@ -46,7 +46,7 @@ namespace mycnn{
 		~blobs(){
 			for (unsigned int i = 0; i < size(); ++i)
 			{
-				switch(at(i)->__TYPE__())
+				switch(at(i)->_TYPE())
 				{
 					case __blob__:
 						delete (blob*)at(i);
@@ -54,6 +54,14 @@ namespace mycnn{
 					case __bin_blob__:
 						delete (bin_blob*)at(i);
 						break;
+#if __USDYNAMIC__ == ON
+					case __dy_blob__:
+						delete (dy_blob*)at(i);
+						break;
+					case __dy_bin_blob__:
+						delete (dy_bin_blob*)at(i);
+						break;
+#endif
 					default:
 						LOG_FATAL("can't identify the type!");
 						break;
@@ -70,14 +78,22 @@ namespace mycnn{
 		template<class BTYPE>
 		inline BTYPE* tget(int i)
 		{
-			switch(at(i)->__TYPE__())
+			switch(at(i)->_TYPE())
 			{
 			case __blob__:
-				return __BLOB__(i);
+				return _BLOB(i);
 				break;
 			case __bin_blob__:
-				return __BIN_BLOB__(i);
+				return _BIN_BLOB(i);
 				break;
+#if __USDYNAMIC__ == ON
+			case __dy_blob__:
+				return _DY_BLOB(i);
+				break;
+			case __dy_bin_blob__:
+				return _DY_BIN_BLOB(i);
+				break;
+#endif
 			default:
 				LOG_FATAL("can't identify the type!");
 				break;
@@ -85,10 +101,10 @@ namespace mycnn{
 			return NULL;
 		}
 
-		inline void __REC__()
+		inline void _REC()
 		{
 			for(int i = 0 ; i < this->size(); ++i)
-				at(i)->__REC__();
+				at(i)->_REC();
 		}
 		
 		/**
@@ -112,17 +128,26 @@ namespace mycnn{
 	private:
 
 
-		blob* __BLOB__(int i)
+		inline blob* _BLOB(int i)
 		{
-			blob* b_ = (blob*)at(i);
-			return b_;
+			return (blob*)at(i);
 		}
 
-		bin_blob* __BIN_BLOB__(int i)
+		inline bin_blob* _BIN_BLOB(int i)
 		{
-			bin_blob* b_ = (bin_blob*)at(i);
-			return b_;
+			return (bin_blob*)at(i);
 		}
+#if __USDYNAMIC__ == ON
+		inline dy_blob* _DY_BLOB(int i)
+		{
+			return (dy_blob*)at(i);
+		}
+
+		inline dy_bin_blob* _DY_BIN_BLOB(int i)
+		{
+			return (dy_bin_blob*)at(i);
+		}
+#endif
 
 	};
 }

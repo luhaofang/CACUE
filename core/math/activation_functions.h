@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "cuda/activation_functions_cuda.h"
+#include "../utils/data_defination.h"
+
 
 namespace mycnn{
 
@@ -40,7 +42,7 @@ namespace mycnn{
 	inline void cacu_relu(float_t *x, int length)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_relu_gpu(x,length);
 #else
 		int i;
@@ -64,7 +66,7 @@ namespace mycnn{
 	inline void cacu_relu_grad(float_t *x, float_t *g, int length)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_relu_grad_gpu(x,g,length);
 #else
 		int i;
@@ -88,7 +90,7 @@ namespace mycnn{
 	inline void cacu_leaky_relu(float_t *x, float_t a, int length)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_leaky_relu_gpu(x, a, length);
 #else
 		int i;
@@ -112,7 +114,7 @@ namespace mycnn{
 	inline void cacu_leaky_relu_grad(float_t *x,float_t *g, float_t a, int length)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_leaky_relu_grad_gpu(x, g, a, length);
 #else
 		int i;
@@ -136,7 +138,7 @@ namespace mycnn{
 	inline void cacu_softmax(float_t *x, int num, int length,float_t *y)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_softmax_gpu(x, num, length, y);
 #else
 		float_t *xp,*yp,max_,sum_;

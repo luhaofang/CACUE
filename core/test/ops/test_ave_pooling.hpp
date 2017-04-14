@@ -13,7 +13,7 @@ TEST_CASE("average_pooling")
 
 
 	SECTION("ave_pooling data vs validate data."){
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(1, 3, 224, 224, test);
@@ -34,7 +34,7 @@ TEST_CASE("average_pooling")
 
 		blob *output = op->out_data<blob>();
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -58,7 +58,7 @@ TEST_CASE("average_pooling")
 
 		delete op,validate_;
 		delete input,args_;
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasDestroy_v2(handle);
 #endif
 	}

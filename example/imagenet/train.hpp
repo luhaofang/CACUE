@@ -32,26 +32,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../tools/imageio_utils.h"
 
-#include "./alex_net.h"
-#include "./vgg_net.h"
-#include "./data_proc.h"
-
+#include "alex_net.h"
+#include "vgg_net.h"
+#include "data_proc.h"
+#include "resnet_18.h"
 
 void train_net()
 {
-	int batch_size = 1;
+	int batch_size = 2;
 
 	int max_iter = 1;
 
 
 	//set gpu device if training by gpu
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
 #endif
 
-	network *net = create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	network *net = create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net.caffemodel");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_40000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -69,7 +69,7 @@ void train_net()
 	 * load mean data
 	 */
 	blob *mean_ = cacu_allocator::create_blob(1,3,224,224,test);
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	imageio_utils::load_mean_file_gpu(mean_->s_data(),meanfile);
 #else
 	imageio_utils::load_mean_file(mean_->s_data(),meanfile);
@@ -112,7 +112,8 @@ void train_net()
 			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
-		sgd->train_iter();
+		//sgd->train_iter();
+		net->predict();
 		end = clock();
 
 		if(i % 1 == 0){
@@ -124,13 +125,13 @@ void train_net()
 			sgd->set_lr_iter(0.1f);
 		if(i % 20000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/vgg_net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/res_net_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
 
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/vgg_net_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/res_net_" << max_iter << ".model";
 	net->save_weights(oss.str());
 
 	for(int i = 0; i < full_label.size(); ++i)
@@ -138,7 +139,7 @@ void train_net()
 		vec_i().swap(full_label[i]);
 	}
 	vector<string>().swap(full_data);
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif
 }

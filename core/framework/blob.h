@@ -44,12 +44,10 @@ namespace mycnn{
 		blob(int num, int channel, int width, int height, float_t _value, phrase_type phrase)
 			:blob_base(num, channel, width, height, phrase, __blob__){
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			_s_data = cuda_malloc_v<float_t>(_num,_cube_length,_value);
-			CUDA_CHECK(res);
 			if (train == phrase){
 				_s_diff = cuda_malloc_v<float_t>(_num,_cube_length,0);
-				CUDA_CHECK(res);
 			}
 #else
 			_s_data = (float_t*)malloc(_length * sizeof(float_t));
@@ -69,6 +67,7 @@ namespace mycnn{
 		 * return the piece probe in blob data
 		 */
 		inline float_t* p_data(int n) {
+			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
 			return (float_t*)_s_data + n*_cube_length;
 		}
 
@@ -76,6 +75,7 @@ namespace mycnn{
 		 * return the piece probe in blob diff
 		 */
 		inline float_t* p_diff(int n) {
+			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
 			return (float_t*)_s_diff + n*_cube_length;
 		}
 
@@ -96,7 +96,7 @@ namespace mycnn{
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 			float_t* s_diff_ = (float_t*)_s_diff;
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_refresh(s_data_,_length);
 			if (train == _phrase)
 				cuda_refresh(s_diff_,_length);
@@ -113,7 +113,7 @@ namespace mycnn{
 		inline virtual const void _RESET_DIFF() override
 		{
 			float_t* s_diff_ = (float_t*)_s_diff;
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			if (train == _phrase)
 				cuda_refresh(s_diff_, _length);
 #else
@@ -128,7 +128,7 @@ namespace mycnn{
 		inline const void set_data(float_t value_)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_setvalue<float_t>(s_data_,value_,_length);
 #else
 			for(int i = 0 ; i < _length ; ++i)
@@ -143,7 +143,7 @@ namespace mycnn{
 		{
 			float_t* s_diff_ = (float_t*)_s_diff;
 			if (train == _phrase){
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 				cuda_setvalue<float_t>(s_diff_,value_,_length);
 #else
 				for(int i = 0 ; i < _length ; ++i)
@@ -180,7 +180,7 @@ namespace mycnn{
 		inline const void copy_data_io(vec_t &data_, int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2dev(p_data(i), &data_[0], _cube_length);
 #else
 			cacu_copy(&data_[0],_cube_length, p_data(i));
@@ -193,7 +193,7 @@ namespace mycnn{
 		inline const void copy_data_io(vec_t &data_)
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2dev(s_data(), &data_[0], _length);
 #else
 			cacu_copy(&data_[0],_length, s_data());
@@ -207,7 +207,7 @@ namespace mycnn{
 		inline const void copy_diff_io(vec_t &data_, int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2dev(p_diff(i), &data_[0], _cube_length);
 #else
 			cacu_copy(&data_[0],_cube_length, p_diff(i));
@@ -220,7 +220,7 @@ namespace mycnn{
 		inline const void copy_diff_io(vec_t &data_)
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2dev(s_diff(), &data_[0], _length);
 #else
 			cacu_copy(&data_[0],_length, s_diff());
@@ -233,7 +233,7 @@ namespace mycnn{
 		inline void serializa(std::ostream& os)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			os.write((char*)(&_length), sizeof(_length));
 			vec_t _v(_length);
 			cuda_copy2host(&_v[0],(float_t*)_s_data,_length);
@@ -252,7 +252,7 @@ namespace mycnn{
 		inline void load(std::ifstream& is)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			vec_t _v(_length);
 			int length_;
 			is.read(reinterpret_cast<char*>(&length_), sizeof(int));

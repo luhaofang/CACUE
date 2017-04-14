@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pthread.h>
 #include <unistd.h>
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 
 #include <cuda_runtime_api.h>
 

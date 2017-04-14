@@ -27,31 +27,77 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../utils/data_defination.h"
+#include <map>
+#include "../mycnn.h"
 
-/**
- * for activation use relu functions in cuda
- */
-extern "C" void cacu_relu_gpu(mycnn::float_t *x, int length);
+using namespace std;
+using namespace mycnn;
 
-/**
- * gradient for activation use relu functions in cuda
- */
-extern "C" void cacu_relu_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, int length);
+class op_injector{
 
-/**
- * for activation use leaky_relu functions in cuda
- */
-extern "C" void cacu_leaky_relu_gpu(mycnn::float_t *x, mycnn::float_t a, int length);
+public:
 
-/**
- * gradient for activation use leaky_relu functions in cuda
- */
-extern "C" void cacu_leaky_relu_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, mycnn::float_t a, int length);
+	op_injector(operator_base *&op_){
 
-/**
- * for activation use softmax functions in cuda
- */
-extern "C" void cacu_softmax_gpu(mycnn::float_t *x, int num , int length, mycnn::float_t *y);
+		_neural_count = new map<unsigned int,unsigned int>();
+		_op = op_;
+	};
+
+	~op_injector(){
+
+		delete _neural_count;
+	};
+
+	inline void add(unsigned int index_)
+	{
+		map<unsigned int,unsigned int>::iterator it = _neural_count->find(index_);
+		if(it != _neural_count->end()){
+			(*_neural_count)[index_] = (*_neural_count)[index_] + 1;
+		}
+		else
+			(*_neural_count)[index_] = 1;
+	}
+
+	inline map<unsigned int,unsigned int> *distribute()
+	{
+		return _neural_count;
+	}
+
+	void get_outblob_count()
+	{
+		blob *o_blob_ = _op->out_data<blob>();
+		for(int n = 0 ; n < o_blob_->num(); ++n)
+		{
+			for(unsigned int i = 0 ; i < o_blob_->length(); ++i)
+			{
+				if(o_blob_->p_data(n)[i] > 0)
+				{
+					add(i);
+				}
+			}
+		}
+	}
+
+	void serializa(string output_path)
+	{
+		std::ofstream os(output_path, ios::binary);
+		os.precision(std::numeric_limits<float_t>::digits10);
+
+		map<unsigned int,unsigned int>::iterator it = _neural_count->begin();
+
+		while(it != _neural_count->end())
+		{
+			os << it->first << " " << it->second << endl;
+		    it ++;
+		}
+		os.close();
+	}
+
+private:
 
 
+	map<unsigned int,unsigned int> *_neural_count;
+
+	operator_base *_op;
+
+};

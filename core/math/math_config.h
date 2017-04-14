@@ -32,4 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define __OPENBLAS__  0XF
 
-#define __GPU__  0XFFF
+#define __CUDNN__ 0XFF
+
+#define __CUDA__ 0XFFF
+
+#define __DYNAMIC__ 0XFFFF

@@ -27,76 +27,81 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <time.h>
-#include "math_config.h"
-#include "cuda/cuda_utils.h"
-#include "../../tools/random.h"
-
-using namespace std;
-
-#define CHECK_OP(level, format, ...) \
-	do{								 \
-		time_t now = time(NULL);	 \
-		struct tm _now_; 			 \
-		localtime_r(&now,&_now_);	 \
-		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level, _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__,##__VA_ARGS__);\
-    }while(0)
-
-#define CHECK_EQ_OP(x,y,format,...)					\
-	if (x != y){							\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
-			exit(0);						\
-			}
-
-#define CHECK_LT_OP(x,y,format,...)					\
-	if (x >= y){							\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
-			exit(0);						\
-			}
-
-#define CHECK_LE_OP(x,y,format,...)					\
-	if (x > y){								\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
-			exit(0);						\
-			}
-
-#define CHECK_GT_OP(x,y,format,...)					\
-	if (x <= y){							\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);  \
-			exit(0);						\
-			}
-
-#define CHECK_GE_OP(x,y,format,...)					\
-	if (x < y){								\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
-			exit(0);						\
-			}
-
-typedef enum {
-
-	TRANS,NOTRANS
-
-} TRANSPOSE;
-
-typedef enum {
-
-	BYWIDTH, BYHEIGHT
-
-} SUM;
-
-
-template<typename DTYPE>
-inline void cacu_print(DTYPE *data, int length)
-{
-
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_print((float_t*)data,length);
-#else
-	for(int i = 0; i < length ;++i)
-		cout << data[i] << ",";
-	cout << endl;
+#include "./cuda/cuda_utils.h"
+#endif
+
+void device_release()
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_release();
 #endif
 }
 
+template<typename DTYPE>
+inline DTYPE* device_malloc(int num,int length)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	DTYPE* data_;
+	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
+	CUDA_CHECK(res);
+	return data_;
+#endif
+}
 
+template<typename DTYPE>
+inline DTYPE* device_malloc_v(int num,int length,DTYPE value)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	return cuda_malloc_v(num,length,value);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_setvalue(DTYPE *data_,DTYPE value, int length)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_setvalue(data_,value,length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_refresh(DTYPE *data_, int length)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_refresh(data_,length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_copy2dev(DTYPE *d_data_, DTYPE* s_values, int length)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_copy2dev(d_data_,s_values,length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_copy2host(DTYPE *d_data_,DTYPE* s_values, int length)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_copy2host(d_data_,s_values,length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_free(DTYPE* data_)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_free(data_);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_print(DTYPE* data_,int length)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_print(data_,length);
+#endif
+}
 

@@ -44,9 +44,15 @@ namespace mycnn{
 			int pad = abs(input_dim - (output_dim - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
 				output_dim += 1;
-			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
 
+#if __USDYNAMIC__ == ON
+			o_blob = create_dy_oblob(num, channel, output_dim, output_dim, _phrase);
+			_index = cacu_allocator::create_dy_bin_blob(num, channel, output_dim, output_dim, test);
+#else
+			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
 			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
+#endif
+
 			echo();
 		};
 
@@ -60,20 +66,42 @@ namespace mycnn{
 		}
 
 		virtual const void op() override {
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blob;
+			dy_bin_blob *index_ = (dy_bin_blob*)_index;
+			for(int i = 0 ; i < s_blob_->num(); ++i){
+				cacu_max_pooling(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data_d(i), index_->p_data_d(i));
+				o_blob_->switch_dev2host();
+				index_->switch_dev2host();
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-
+			bin_blob *index_ = (bin_blob*)_index;
 			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), _index->p_data(i));
+				cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
+#endif
+
 		}
 
 		virtual const void grad() override{
 
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blob;
+			dy_bin_blob *index_ = (dy_bin_blob*)_index;
+			for(int i = 0 ; i < s_blob_->num(); ++i){
+				cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff_d(i), index_->p_data_d(i));
+				s_blob_->switch_dev2host();
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-
-			for(int i = 0 ; i < o_blob_->num(); ++i)
-				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), _index->p_data(i));
+			bin_blob *index_ = (bin_blob*)_index;
+			for(int i = 0 ; i < s_blob_->num(); ++i)
+				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
+#endif
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -97,7 +125,7 @@ namespace mycnn{
 
 	private:
 
-		bin_blob *_index;
+		blob_base *_index;
 
 	};
 };

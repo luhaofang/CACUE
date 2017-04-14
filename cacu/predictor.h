@@ -40,7 +40,7 @@ public:
 
 	~predictor(){};
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 
 	/**
 	 * initial state of the gpu device

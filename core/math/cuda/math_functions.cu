@@ -27,9 +27,9 @@
 
 #include "cuda_log.h"
 
+#include "../../utils/data_defination.h"
 
-
-__global__ void _k_CACU_ISAXB_GPU(float_t *x, int length, float_t a ,unsigned int *index_, float_t b, float_t *y) {
+__global__ void _k_CACU_ISAXB_GPU(mycnn::float_t *x, int length, mycnn::float_t a ,unsigned int *index_, mycnn::float_t b, mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -50,7 +50,7 @@ __global__ void _k_CACU_ISAXB_GPU(float_t *x, int length, float_t a ,unsigned in
  * @cacu_isaxdb_gpu
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_gpu(float_t *x, int length, float_t a ,unsigned int *index_, float_t b, float_t *y) {
+extern "C" void cacu_isaxb_gpu(mycnn::float_t *x, int length, mycnn::float_t a ,unsigned int *index_, mycnn::float_t b, mycnn::float_t *y) {
 
 	_k_CACU_ISAXB_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length,a ,index_,b,y);
 
@@ -58,9 +58,9 @@ extern "C" void cacu_isaxb_gpu(float_t *x, int length, float_t a ,unsigned int *
 
 }
 
-__global__ void _k_ARGMAX_GPU(float_t *x, int length, unsigned int *index_) {
+__global__ void _k_ARGMAX_GPU(mycnn::float_t *x, int length, unsigned int *index_) {
 
-	__shared__ float_t shared_data[THREADNUM];
+	__shared__ mycnn::float_t shared_data[THREADNUM];
 
 	__shared__ unsigned int index_data[THREADNUM];
 
@@ -98,7 +98,7 @@ __global__ void _k_ARGMAX_GPU(float_t *x, int length, unsigned int *index_) {
 	}
 }
 
-extern "C" void cacu_argmax_gpu(float_t *x,int length, unsigned int *index_)
+extern "C" void cacu_argmax_gpu(mycnn::float_t *x,int length, unsigned int *index_)
 {
 	_k_ARGMAX_GPU<<<1, THREADNUM, 0>>>(x, length, index_);
 

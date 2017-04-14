@@ -27,31 +27,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../utils/data_defination.h"
+#include <vector>
+#include <stdarg.h>
+#include <pthread.h>
+#include <unistd.h>
 
-/**
- * for activation use relu functions in cuda
- */
-extern "C" void cacu_relu_gpu(mycnn::float_t *x, int length);
+#if __USDYNAMIC__ == ON
 
-/**
- * gradient for activation use relu functions in cuda
- */
-extern "C" void cacu_relu_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, int length);
-
-/**
- * for activation use leaky_relu functions in cuda
- */
-extern "C" void cacu_leaky_relu_gpu(mycnn::float_t *x, mycnn::float_t a, int length);
-
-/**
- * gradient for activation use leaky_relu functions in cuda
- */
-extern "C" void cacu_leaky_relu_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, mycnn::float_t a, int length);
-
-/**
- * for activation use softmax functions in cuda
- */
-extern "C" void cacu_softmax_gpu(mycnn::float_t *x, int num , int length, mycnn::float_t *y);
-
+#endif
 

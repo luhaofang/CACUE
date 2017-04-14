@@ -44,7 +44,7 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = args_;
 			_phrase = data->phrase();
-			data->__REC__();
+			data->_REC();
 		};
 
 		operator_base(blob_base *&data){
@@ -55,7 +55,7 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = NULL;
 			_phrase = data->phrase();
-			data->__REC__();
+			data->_REC();
 		};
 
 		operator_base(blobs *&data, args *&args_){
@@ -66,7 +66,7 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = args_;
 			_phrase = data->at(0)->phrase();
-			data->__REC__();
+			data->_REC();
 		};
 
 		operator_base(blobs *&data){
@@ -77,7 +77,7 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = NULL;
 			_phrase = data->at(0)->phrase();
-			data->__REC__();
+			data->_REC();
 		};
 
 		virtual ~operator_base(){
@@ -188,7 +188,7 @@ namespace mycnn{
 			default:
 				break;
 			}
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2dev(s_data_,&p_[0],length_);
 			CUDA_CHECK(res);
 #else
@@ -205,6 +205,12 @@ namespace mycnn{
 			return new blob(num, channel,height,width, 0 ,phrase_);
 		}
 
+#if __USDYNAMIC__ == ON
+		inline blob_base * create_dy_oblob(int num,int channel, int height, int width, phrase_type phrase_){
+			_IS_ALLOC_OUTPUT = true;
+			return new dy_blob(num, channel,height,width, 0 ,phrase_);
+		}
+#endif
 		inline blobs * create_oblobs(){
 			_IS_ALLOC_OUTPUT = true;
 			return new blobs();

@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "cuda/pooling_functions_cuda.h"
-
+#include "../utils/data_defination.h"
 
 namespace mycnn{
 
@@ -41,7 +41,7 @@ namespace mycnn{
 	inline void cacu_max_pooling(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_max_pooling_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 #else
 		int cout_length = output_dim*output_dim;
@@ -89,7 +89,7 @@ namespace mycnn{
 	inline void cacu_max_pooling_grad(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_max_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 #else
 		int sd_out;
@@ -124,7 +124,7 @@ namespace mycnn{
 	inline void cacu_average_pooling(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_average_pooling_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
 #else
 		int block_size = output_dim*output_dim;
@@ -168,7 +168,7 @@ namespace mycnn{
 	inline void cacu_average_pooling_grad(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_average_pooling_grad_gpu(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
 #else
 		int sd_out, sn_out, param_w, param_h;
@@ -228,7 +228,7 @@ namespace mycnn{
 	template<typename DTYPE>
 	inline void cacu_padded_data(DTYPE *x, int channel, int input_dim, int pad, DTYPE *y)
 	{
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_padded_data_gpu(x,channel,input_dim,pad,y);
 #else
 		DTYPE *xp, *yp;
@@ -265,7 +265,7 @@ namespace mycnn{
 	inline void cacu_img2col(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_img2col_gpu(x,kernel_size,stride,input_dim,channel,output_dim,y);
 #else
 		int cin_length = input_dim*input_dim;
@@ -302,7 +302,7 @@ namespace mycnn{
 	inline void cacu_img2col_pad(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_img2col_pad_gpu(x,kernel_size,stride,input_dim,channel,output_dim, pad,y);
 #else
 		int cin_length = input_dim*input_dim;
@@ -332,7 +332,7 @@ namespace mycnn{
 						{
 							input_h = output_h + ki;
 							input_w = output_w + kj;
-							if(input_w >= pad && input_w <= input_dim && input_h >= pad && input_h <= input_dim)
+							if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
 								yp[ki * kernel_size + kj] = xp[(input_h-pad) * input_dim + input_w-pad];
 						}
 				}
@@ -348,7 +348,7 @@ namespace mycnn{
 	template<typename DTYPE>
 	inline void cacu_unpadded_data(DTYPE *x, int channel, int input_dim, int pad, DTYPE *y)
 	{
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_unpadded_data_gpu(x,channel,input_dim,pad,y);
 #else
 		DTYPE *xp, *yp;
@@ -384,7 +384,7 @@ namespace mycnn{
 	inline void cacu_col2img(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_col2img_gpu(x,kernel_size,stride,input_dim,channel,output_dim,y);
 #else
 		int sd_out, sn_out;
@@ -430,7 +430,7 @@ namespace mycnn{
 	inline void cacu_col2img_pad(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_col2img_pad_gpu(x,kernel_size,stride,input_dim,channel,output_dim,pad,y);
 #else
 		int sd_out, sn_out;
@@ -463,7 +463,7 @@ namespace mycnn{
 						for (kj = 0; kj < kernel_size; ++kj) {
 							input_h = output_h + ki;
 							input_w = output_w + kj;
-							if(input_w >= pad && input_w <= input_dim && input_h >= pad && input_h <= input_dim)
+							if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
 								yp[(input_h-pad) * input_dim + input_w - pad] += xp[ki * kernel_size + kj];
 					}
 				}

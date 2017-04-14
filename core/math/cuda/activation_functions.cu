@@ -26,8 +26,9 @@
  */
 
 #include "cuda_log.h"
+#include "../../utils/data_defination.h"
 
-__global__ void _k_CACU_RELU_GPU(float_t *x, int length) {
+__global__ void _k_CACU_RELU_GPU(mycnn::float_t *x, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -36,7 +37,7 @@ __global__ void _k_CACU_RELU_GPU(float_t *x, int length) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		x[i] = max((float_t) 0, x[i]);
+		x[i] = max((mycnn::float_t) 0, x[i]);
 
 	}
 }
@@ -44,7 +45,7 @@ __global__ void _k_CACU_RELU_GPU(float_t *x, int length) {
 /**
  * for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_gpu(float_t *x, int length) {
+extern "C" void cacu_relu_gpu(mycnn::float_t *x, int length) {
 
 	_k_CACU_RELU_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length);
 
@@ -53,7 +54,7 @@ extern "C" void cacu_relu_gpu(float_t *x, int length) {
 }
 
 
-__global__ void _k_CACU_RELU_GRAD_GPU(float_t *x, float_t *g, int length) {
+__global__ void _k_CACU_RELU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -71,7 +72,7 @@ __global__ void _k_CACU_RELU_GRAD_GPU(float_t *x, float_t *g, int length) {
 /**
  * gradient for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_grad_gpu(float_t *x,float_t *g, int length) {
+extern "C" void cacu_relu_grad_gpu(mycnn::float_t *x,mycnn::float_t *g, int length) {
 
 	_k_CACU_RELU_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length);
 
@@ -80,7 +81,7 @@ extern "C" void cacu_relu_grad_gpu(float_t *x,float_t *g, int length) {
 }
 
 
-__global__ void _k_CACU_LEAKY_RELU_GPU(float_t *x,float_t a, int length) {
+__global__ void _k_CACU_LEAKY_RELU_GPU(mycnn::float_t *x,mycnn::float_t a, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -98,7 +99,7 @@ __global__ void _k_CACU_LEAKY_RELU_GPU(float_t *x,float_t a, int length) {
 /**
  * for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length) {
+extern "C" void cacu_leaky_relu_gpu(mycnn::float_t *x, mycnn::float_t a, int length) {
 
 	_k_CACU_LEAKY_RELU_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a, length);
 
@@ -106,7 +107,7 @@ extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length) {
 
 }
 
-__global__ void _k_CACU_LEAKY_RELU_GRAD_GPU(float_t *x, float_t *g, float_t a, int length) {
+__global__ void _k_CACU_LEAKY_RELU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g, mycnn::float_t a, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -124,7 +125,7 @@ __global__ void _k_CACU_LEAKY_RELU_GRAD_GPU(float_t *x, float_t *g, float_t a, i
 /**
  * gradient for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int length) {
+extern "C" void cacu_leaky_relu_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, mycnn::float_t a, int length) {
 
 	_k_CACU_LEAKY_RELU_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, a, length);
 
@@ -132,14 +133,14 @@ extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int 
 
 }
 
-__global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length,float_t *y) {
+__global__ void _k_CACU_SOFTMAX_GPU(mycnn::float_t *x, int num, int length,mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
-	__shared__ float_t sum[THREADNUM], max_data[THREADNUM];
+	__shared__ mycnn::float_t sum[THREADNUM], max_data[THREADNUM];
 
-	float_t *xp,*yp;
+	mycnn::float_t *xp,*yp;
 
 	for (int i = bid; i < num ; i += BLOCKNUM){
 
@@ -188,7 +189,7 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length,float_t *y) 
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_gpu(float_t *x, int num ,int length,float_t *y) {
+extern "C" void cacu_softmax_gpu(mycnn::float_t *x, int num ,int length,mycnn::float_t *y) {
 
 	_k_CACU_SOFTMAX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, num, length,y);
 

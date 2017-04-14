@@ -33,14 +33,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace mycnn;
 
-layer_block* conv_block_top(blob_base* data,int output_channel, int kernel_size, int stride = 2, int pad = 3,op_name activation_op = CACU_RELU)
+layer_block* conv_block_top(blob_base* data,int output_channel, int kernel_size, int stride, int pad,op_name activation_op = CACU_RELU)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
 	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l->get_op<convolution_op>(0)->set_bias_init_type(constant);
+	l->get_op<convolution_op>(0)->set_is_use_bias(false);
 	layer *ml = new layer(output_channel, 3, 2);
 	ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 	clock_t end = clock();
@@ -48,7 +48,7 @@ layer_block* conv_block_top(blob_base* data,int output_channel, int kernel_size,
 	return lb;
 }
 
-layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_size, int stride = 1, int s_stride = 2,int pad = 1,op_name activation_op = CACU_RELU)
+layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_size, int stride, int s_stride,int pad,op_name activation_op = CACU_RELU)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
@@ -58,17 +58,17 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	layer *shortcut = new layer(output_channel, 1, s_stride, 0, data->height(), data->channel());
 	shortcut->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE);
 	shortcut->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	shortcut->get_op<convolution_op>(0)->is_use_bias(false);
+	shortcut->get_op<convolution_op>(0)->set_is_use_bias(false);
 
 	layer *l1 = new layer(output_channel, kernel_size, s_stride, pad, data->height(), data->channel());
 	l1->op(CACU_CONVOLUTION, split->get_oblobs()->at(1))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l1->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l1->get_op<convolution_op>(0)->is_use_bias(false);
+	l1->get_op<convolution_op>(0)->set_is_use_bias(false);
 
-	layer *l2 = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	layer *l2 = new layer(output_channel, kernel_size, stride, pad, l1->get_oblob()->height(), l1->get_oblob()->channel());
 	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
 	l2->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l2->get_op<convolution_op>(0)->is_use_bias(false);
+	l2->get_op<convolution_op>(0)->set_is_use_bias(false);
 
 	blobs *b = new blobs();
 	b->push_back(shortcut->get_oblob());
@@ -77,15 +77,15 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	layer *element_wise = new layer();
 	element_wise->op(CACU_SUM_ELEMWISE, b)->op(activation_op);
 
-	layer *l3 = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	layer *l3 = new layer(output_channel, kernel_size, stride, pad, element_wise->get_oblob()->height(), element_wise->get_oblob()->channel());
 	l3->op(CACU_CONVOLUTION, element_wise->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l3->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l3->get_op<convolution_op>(0)->is_use_bias(false);
+	l3->get_op<convolution_op>(0)->set_is_use_bias(false);
 
-	layer *l4 = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
-	l4->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
+	layer *l4 = new layer(output_channel, kernel_size, stride, pad, l3->get_oblob()->height(), l3->get_oblob()->channel());
+	l4->op(CACU_CONVOLUTION, l3->get_oblob())->op(CACU_BATCH_NORMALIZE);
 	l4->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l4->get_op<convolution_op>(0)->is_use_bias(false);
+	l4->get_op<convolution_op>(0)->set_is_use_bias(false);
 
 	blobs *b1 = new blobs();
 	b1->push_back(element_wise->get_oblob());
@@ -113,10 +113,10 @@ network* create_res18net(int batch_size_,phrase_type phrase_)
 	network *net = new network(input_datas_);
 
 	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
-	layer_block *conv2 = conv_block_shotcut(conv1->get_oblob(),64,3,1,1,0);
-	layer_block *conv3 = conv_block_shotcut(conv2->get_oblob(),128,3,1,2,0);
-	layer_block *conv4 = conv_block_shotcut(conv3->get_oblob(),256,3,1,2,0);
-	layer_block *conv5 = conv_block_shotcut(conv4->get_oblob(),512,3,1,2,0);
+	layer_block *conv2 = conv_block_shotcut(conv1->get_oblob(),64,3,1,1,1);
+	layer_block *conv3 = conv_block_shotcut(conv2->get_oblob(),128,3,1,2,1);
+	layer_block *conv4 = conv_block_shotcut(conv3->get_oblob(),256,3,1,2,1);
+	layer_block *conv5 = conv_block_shotcut(conv4->get_oblob(),512,3,1,2,1);
 
 	layer *ave_pool = new layer(512,7,1);
 	ave_pool->op(CACU_AVERAGE_POOLING,conv5->get_oblob());

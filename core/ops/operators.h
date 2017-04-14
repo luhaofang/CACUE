@@ -27,8 +27,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-
-
 #include "../math/math_utils.h"
 
 #include "../math/math_functions.h"

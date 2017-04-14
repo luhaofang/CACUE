@@ -37,11 +37,11 @@ using namespace mycnn;
 using namespace mycnn_tools;
 
 
-const int KIMAGESIZE = 3 * 227 * 227;
+const int KIMAGESIZE = 3 * 224 * 224;
 
 
 void readdata(chars_t filename, mycnn::float_t *data_) {
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	imageio_utils::imread_gpu(data_,filename);
 #else
 	imageio_utils::imread(data_,filename);
@@ -49,7 +49,7 @@ void readdata(chars_t filename, mycnn::float_t *data_) {
 }
 
 void readdata(chars_t filename, mycnn::float_t *data_,mycnn::float_t *mean_) {
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	imageio_utils::imread_gpu(data_,filename);
 #else
 	imageio_utils::imread(data_,filename);

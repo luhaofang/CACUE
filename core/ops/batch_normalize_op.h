@@ -85,69 +85,91 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
+			float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
+
 			if(train == _phrase){
-				float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
+
 				float_t bias_correction_factor = m > (float_t)1.0 ? (m) / (m - (float_t)1.0) : (float_t)1.0;
 
 				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, _dim_sum->s_data(),0, s_blob_->length()/s_blob_->channel());
-				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(),1, _mean->s_data(),0, s_blob_->channel());
+				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel() * s_blob_->num(),1, _mean->s_data(),0, s_blob_->channel());
 
 				cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
+
+				for (int i = 0; i < s_blob_->num(); ++i)
+					cacu_ssxpy(_mean->s_data(),(float_t)(-1),_mean->count(),s_blob_->p_data(i),(float_t)(1),s_blob_->length(),o_blob_->p_data(i));
+
 				//for saving space here we use o_data for container calculate x^2
-				cacu_sqr(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				cacu_sqr(o_blob_->s_data(), o_blob_->count(), o_blob_->s_data());
 
 				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), 1,_dim_sum->s_data(), 0, o_blob_->length()/o_blob_->channel());
 				cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(),1, _var->s_data(),0, o_blob_->channel());
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
-				cacu_saxpy(_mean->s_data(), (float_t)-1.0, _var->s_data(), _mean->count());
-
 				//update history
-				cacu_saxpby(_mean->s_data(), ((float_t)(1) - moving_average_fraction), _history_mean->s_data(), moving_average_fraction, _mean->count());
-				cacu_saxpby(_var->s_data(), ((float_t)(1) - moving_average_fraction)*bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+				cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
+				cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+
+				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
+
+				for (int i = 0; i < s_blob_->num(); ++i){
+					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+					cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
+					//save for train
+					cacu_copy(o_blob_->p_data(i),o_blob_->length(),_x->p_data(i));
+					cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
+					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+
+				}
+			}
+			else
+			{
 				if (!use_global_stats)
 				{
-					cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
+					cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, _dim_sum->s_data(),0, s_blob_->length()/s_blob_->channel());
+					cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel() * s_blob_->num(),1, _mean->s_data(),0, s_blob_->channel());
 
+					cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
+
+					for (int i = 0; i < s_blob_->num(); ++i)
+						cacu_ssxpy(_mean->s_data(),(float_t)(-1),_mean->count(),s_blob_->p_data(i),(float_t)(1),s_blob_->length(),o_blob_->p_data(i));
+
+					//for saving space here we use o_data for container calculate x^2
+					cacu_sqr(o_blob_->s_data(), o_blob_->count(), o_blob_->s_data());
+
+					cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), 1,_dim_sum->s_data(), 0, o_blob_->length()/o_blob_->channel());
+					cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), o_blob_->channel()*o_blob_->num(),1, _var->s_data(),0, o_blob_->channel());
+					cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
+
+					cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 					for (int i = 0; i < s_blob_->num(); ++i){
 						cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
 						cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
-						//save for train
-						if(train == _phrase)
-							cacu_copy(o_blob_->p_data(i),o_blob_->length(),_x->p_data(i));
 						cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
 						cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 					}
 				}
-				else
-				{
+				else{
 					cacu_stdbychannel(_history_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
 					for (int i = 0; i < s_blob_->num(); ++i){
 						cacu_ssxpy(_history_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
 						cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
-						//save for train
-						if(train == _phrase)
-							cacu_copy(o_blob_->p_data(i),o_blob_->length(),_x->p_data(i));
 						cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
 						cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 					}
 				}
 			}
-			else
-			{
-				cacu_stdbychannel(_history_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
-				for (int i = 0; i < s_blob_->num(); ++i){
-					cacu_ssxpy(_history_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
-					cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
-					//save for train
-					if(train == _phrase)
-						cacu_copy(o_blob_->p_data(i),o_blob_->length(),_x->p_data(i));
-					cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
-					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
-				}
-			}
+			//cout << "means:";
+			//cuda_print(_history_mean->s_data(),3);
+			//cout << "vars:";
+			//cuda_print(_history_var->s_data(),3);
+			//cout << "o_blob:";
+			//cuda_print(o_blob_->s_data(),1000);
+			//cout << endl << endl << endl;
+
+
 		}
 
 		virtual const void grad() override{
@@ -161,39 +183,39 @@ namespace mycnn{
 				//calculate dl/x_
 				cacu_cxsize(o_blob_->p_diff(i), o_blob_->length(), _scale->s_data(), _scale->count(), s_blob_->p_diff(i));
 			}
-
-			if(!use_global_stats){
-				mean_data_ = _mean->s_data();
-			}
-			else{
-				mean_data_ = _history_mean->s_data();
-			}
+			mean_data_ = _mean->s_data();
 			mean_diff_ = _mean->s_diff();
 			//calculate dl/std^2
 			cacu_bn_rou_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), s_blob_->num(),s_blob_->length(),s_blob_->channel(), _std->s_diff());
 			//calculate dl/mu
 			cacu_bn_mu_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), _std->s_diff(), s_blob_->num(), s_blob_->length(), s_blob_->channel(), mean_diff_);
 			//calculate dl/x
-			cacu_bn_dx_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), _std->s_diff(), mean_diff_, s_blob_->num(), s_blob_->length(),s_blob_->channel(), s_blob_->s_diff());
+			cacu_bn_dx_grad(s_blob_->s_data(), s_blob_->s_diff(), mean_data_, _std->s_data(), _std->s_diff(), mean_diff_, s_blob_->num(), s_blob_->length(), s_blob_->channel(), s_blob_->s_diff());
 			//gradient of scale
-			cacu_bn_gamma_grad(_x->s_data(), o_blob_->s_diff(),o_blob_->num(),o_blob_->length(),o_blob_->channel(),_scale->s_diff());
+			cacu_bn_gamma_grad(_x->s_data(), o_blob_->s_diff(),o_blob_->num(), o_blob_->length(), o_blob_->channel(),_scale->s_diff());
 			//gradient of shift
-			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(),1, _dim_sum->s_data(),0, o_blob_->length()/o_blob_->channel());
-			cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel()*s_blob_->num(),1, _shift->s_diff(),0, s_blob_->channel());
+			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1, _dim_sum->s_data(), 0, o_blob_->length() / o_blob_->channel());
+			cacu_sumbysize(BYHEIGHT, _dim_sum->s_data(), s_blob_->channel() * s_blob_->num(), 1, _shift->s_diff(), 0, s_blob_->channel());
+
+			//cout << "s_blob:";
+			//cuda_print(s_blob_->s_diff(),1000);
+			//cout << endl;
 		}
 
 		virtual const void load(std::ifstream& is) override {
-			_scale->load(is);
-			_shift->load(is);
+
 			_history_mean->load(is);
 			_history_var->load(is);
+			_scale->load(is);
+			_shift->load(is);
 		}
 
 		virtual const void save(std::ostream& os) override {
-			_scale->serializa(os);
-			_shift->serializa(os);
+
 			_history_mean->serializa(os);
 			_history_var->serializa(os);
+			_scale->serializa(os);
+			_shift->serializa(os);
 		}
 
 		virtual const void echo() override
@@ -225,7 +247,7 @@ namespace mycnn{
 
 		bool use_global_stats = true;
 
-		float_t moving_average_fraction = 0.9f;
+		float_t moving_average_fraction = 0.999f;
 
 		float_t epsilon = 0.00001f;
 

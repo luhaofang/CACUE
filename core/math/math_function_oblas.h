@@ -28,30 +28,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include <cblas.h>
+#include "../../core/utils/data_defination.h"
 
-
-inline void cacu_saxpy_oblas(float_t *x, float_t a, float_t *y, int length)
+inline void cacu_saxpy_oblas(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, int length)
 {
 	cblas_saxpy(length, a, x, 1, y, 1);
 }
 
-inline void cacu_saxpby_oblas(float_t *x, float_t a, float_t *y, float_t b, int length)
+inline void cacu_saxpby_oblas(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, mycnn::float_t b, int length)
 {
 	cblas_saxpby(length, a, x, 1, b, y, 1);
 }
 
-inline void cacu_scalex_oblas(float_t *x, float_t a, int length)
+inline void cacu_scalex_oblas(mycnn::float_t *x, mycnn::float_t a, int length)
 {
 	cblas_sscal(length, a, x, 1);
 }
 
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float_t *x, int x_height, float_t *y, int x_width,float_t alpha,float_t *z,float_t beta)
+inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, mycnn::float_t *x, int x_height, mycnn::float_t *y, int x_width,mycnn::float_t alpha,mycnn::float_t *z,mycnn::float_t beta)
 {
 	int m = x_height,n = x_width;
-	cblas_sgemv(CblasColMajor, trans, m, n, (float_t)alpha, x, m, y, 1, (float_t)beta, z, 1);
+	cblas_sgemv(CblasColMajor, trans, m, n, (mycnn::float_t)alpha, x, m, y, 1, (mycnn::float_t)beta, z, 1);
 }
 
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha,float_t *z,float_t beta)
+inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, mycnn::float_t *x, int x_height, int x_width, mycnn::float_t *y, int y_width, mycnn::float_t alpha,mycnn::float_t *z,mycnn::float_t beta)
 {
 	int m = x_height,n = y_width,k = x_width;
 	int lda = (transx == CblasNoTrans) ? m : k;
@@ -59,7 +59,7 @@ inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, flo
 	cblas_sgemm(CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
 }
 
-inline void cacu_copy_oblas(float_t *x, int x_length,float_t *y)
+inline void cacu_copy_oblas(mycnn::float_t *x, int x_length,mycnn::float_t *y)
 {
 	cblas_scopy(x_length,x,1,y,1);
 }

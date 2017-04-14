@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "cuda_log.h"
-
+#include "../../utils/data_defination.h"
 
 /*
  *channel: channel of input data
@@ -34,13 +34,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *input_dim: width of input data
  *output_dim: width of output data
  */
-__global__ void _k_CACU_CROSS_ENTROPY_GPU(float_t *x, int num, int length, unsigned int *label_, float_t *loss_) {
+__global__ void _k_CACU_CROSS_ENTROPY_GPU(mycnn::float_t *x, int num, int length, unsigned int *label_, mycnn::float_t *loss_) {
 
 	int tid = threadIdx.x;
 
-	extern __shared__ float_t shared_data[];
+	extern __shared__ mycnn::float_t shared_data[];
 
-	float_t *xp;
+	mycnn::float_t *xp;
 
 	shared_data[tid] = 0.0;
 
@@ -64,9 +64,9 @@ __global__ void _k_CACU_CROSS_ENTROPY_GPU(float_t *x, int num, int length, unsig
 }
 
 
-extern "C" void cacu_cross_entropy_gpu(float_t *x, int num, int length, unsigned int *label_, float_t *loss_){
+extern "C" void cacu_cross_entropy_gpu(mycnn::float_t *x, int num, int length, unsigned int *label_, mycnn::float_t *loss_){
 
-	_k_CACU_CROSS_ENTROPY_GPU<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, num, length, label_,loss_);
+	_k_CACU_CROSS_ENTROPY_GPU<<<1, THREADNUM, THREADNUM * sizeof(mycnn::float_t)>>>(x, num, length, label_,loss_);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 

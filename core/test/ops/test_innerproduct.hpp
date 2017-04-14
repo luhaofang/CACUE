@@ -14,7 +14,7 @@ TEST_CASE("inner_product")
 
 
 	SECTION("ip data vs validate data."){
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(1, 128, 7, 7,test);
@@ -37,7 +37,7 @@ TEST_CASE("inner_product")
 
 		blob *output = op->out_data<blob>();
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_saxpby(output->s_data(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -61,7 +61,7 @@ TEST_CASE("inner_product")
 
 		delete op,validate_;
 		delete input,args_;
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasDestroy_v2(handle);
 #endif
 	}
@@ -73,7 +73,7 @@ TEST_CASE("inner_product_multidata")
 
 
 	SECTION("ip data vs validate data."){
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(100, 128, 7, 7,test);
@@ -98,7 +98,7 @@ TEST_CASE("inner_product_multidata")
 
 		blob *output = op->out_data<blob>();
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_saxpby(output->s_data(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -122,7 +122,7 @@ TEST_CASE("inner_product_multidata")
 
 		delete op,validate_;
 		delete input,args_;
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasDestroy_v2(handle);
 #endif
 	}
@@ -134,7 +134,7 @@ TEST_CASE("inner_product_grad")
 
 	SECTION("ip grad data vs validate data."){
 
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(1, 512, 7, 7,train);
@@ -167,7 +167,7 @@ TEST_CASE("inner_product_grad")
 		blob *validate_b = cacu_allocator::create_blob(64, 1, 1, 1,test);
 		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bgrad_bp.txt");
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 
 		cacu_saxpby(b->s_diff(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
@@ -229,7 +229,7 @@ TEST_CASE("inner_product_grad")
 
 		delete op,validate_,validate_k,validate_b;
 		delete input,args_;
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasDestroy_v2(handle);
 #endif
 	}
@@ -242,7 +242,7 @@ TEST_CASE("inner_product_grad_multidata")
 
 	SECTION("ip grad data vs validate data."){
 
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
 		blob *b = cacu_allocator::create_blob(100, 512, 7, 7,train);
@@ -278,7 +278,7 @@ TEST_CASE("inner_product_grad_multidata")
 		blob *validate_b = cacu_allocator::create_blob(64, 1, 1, 1,test);
 		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bgrad_bp.txt");
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 
 		cacu_saxpby(b->s_diff(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
@@ -344,7 +344,7 @@ TEST_CASE("inner_product_grad_multidata")
 
 		delete op,validate_,validate_k,validate_b;
 		delete input,args_;
-#if  __PARALLELTYPE__ == __GPU__
+#if  __PARALLELTYPE__ == __CUDA__
 		cublasDestroy_v2(handle);
 #endif
 	}

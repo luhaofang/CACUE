@@ -52,7 +52,7 @@ using namespace cv;
 #include <vector>
 
 #include "../core/math/cuda/cuda_utils.h"
-
+#include "../core/utils/data_defination.h"
 
 using namespace std;
 
@@ -64,8 +64,8 @@ namespace mycnn_tools{
 
 	public:
 
-#if __PARALLELTYPE__ == __GPU__
-		static void imread_gpu(float *p_data,string file_path_)
+#if __PARALLELTYPE__ == __CUDA__
+		static void imread_gpu(mycnn::float_t *p_data,string file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			unsigned int height = src.rows;
@@ -77,9 +77,9 @@ namespace mycnn_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					temp_[index] = ((float) src.at<cv::Vec3b>(y, x)[0]);
-					temp_[c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[1]);
-					temp_[2*c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[2]);
+					temp_[index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[0]);
+					temp_[c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[1]);
+					temp_[2*c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
 
 			cuda_copy2dev(p_data,&temp_[0],temp_.size());
@@ -87,7 +87,7 @@ namespace mycnn_tools{
 		}
 #endif
 
-		static void imread(float *p_data,string file_path_)
+		static void imread(mycnn::float_t *p_data,string file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			unsigned int height = src.rows;
@@ -98,63 +98,63 @@ namespace mycnn_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					p_data[index] = ((float) src.at<cv::Vec3b>(y, x)[0]);
-					p_data[c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[1]);
-					p_data[2*c_length + index] = ((float) src.at<cv::Vec3b>(y, x)[2]);
+					p_data[index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[0]);
+					p_data[c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[1]);
+					p_data[2*c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
 		}
 
-		static void save_mean_file(float *p_data, string mean_file_ , int length_)
+		static void save_mean_file(mycnn::float_t *p_data, string mean_file_ , int length_)
 		{
 			ofstream os(mean_file_, ios::binary);
-			os.precision(numeric_limits<float>::digits10);
+			os.precision(numeric_limits<mycnn::float_t>::digits10);
 			if(!os)
 				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
 			for(int i = 0 ; i < length_; ++i)
 			{
-				os.write((char*)(p_data+i), sizeof(float));
+				os.write((char*)(p_data+i), sizeof(mycnn::float_t));
 			}
 			os.close();
 		}
 
-		static void load_mean_file(float *p_data, string mean_file_)
+		static void load_mean_file(mycnn::float_t *p_data, string mean_file_)
 		{
 			ifstream is(mean_file_);
-			is.precision(numeric_limits<float>::digits10);
+			is.precision(numeric_limits<mycnn::float_t>::digits10);
 			if(!is)
 				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
-			vector<float> temp_;
-			float fp_;
+			vector<mycnn::float_t> temp_;
+			mycnn::float_t fp_;
 
 			for(int i = 0 ;is.peek()!=EOF ;++i)
 			{
-				is.read(reinterpret_cast<char*>(&fp_), sizeof(float));
+				is.read(reinterpret_cast<char*>(&fp_), sizeof(mycnn::float_t));
 				temp_.push_back(fp_);
 			}
 			is.close();
 
-			float *d_= &temp_[0];
-			memcpy(p_data,d_,temp_.size()*sizeof(float));
+			mycnn::float_t *d_= &temp_[0];
+			memcpy(p_data,d_,temp_.size()*sizeof(mycnn::float_t));
 		}
 
-#if __PARALLELTYPE__ == __GPU__
-		static void load_mean_file_gpu(float *p_data, string mean_file_)
+#if __PARALLELTYPE__ == __CUDA__
+		static void load_mean_file_gpu(mycnn::float_t *p_data, string mean_file_)
 		{
 			ifstream is(mean_file_);
-			is.precision(numeric_limits<float>::digits10);
+			is.precision(numeric_limits<mycnn::float_t>::digits10);
 			if(!is)
 				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
-			vector<float> temp_;
-			float fp_;
+			vector<mycnn::float_t> temp_;
+			mycnn::float_t fp_;
 
 			for(int i = 0 ;is.peek()!=EOF ;++i)
 			{
-				is.read(reinterpret_cast<char*>(&fp_), sizeof(float));
+				is.read(reinterpret_cast<char*>(&fp_), sizeof(mycnn::float_t));
 				temp_.push_back(fp_);
 			}
 			is.close();
 
-			float *d_= &temp_[0];
+			mycnn::float_t *d_= &temp_[0];
 
 			cuda_copy2dev(p_data,d_,temp_.size());
 		}

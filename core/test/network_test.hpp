@@ -30,7 +30,7 @@ network* create_alexnet()
 	blob *b = cacu_allocator::create_blob(1, 3, 227, 227, 1, train);
 	weight *_b = new weight("test",2, 3, 227, 227,train);
 	_b->set_init_type(gaussian,1);
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	cuda_print(_b->s_data(),1);
 #else
 	LOG_INFO("%f,%f",_b->s_data()[0],_b->s_data()[1]);

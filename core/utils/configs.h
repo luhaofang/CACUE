@@ -29,7 +29,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../math/math_config.h"
 
+namespace mycnn{
 
-#define __PARALLELTYPE__  __GPU__
+#define __PARALLELTYPE__  __CUDA__
 
 #define __OPENMP__  OFF
+
+#define __USDYNAMIC__  OFF
+
+//embedding size for device
+#define __EMBEDSIZE__ 1
+
+
+};

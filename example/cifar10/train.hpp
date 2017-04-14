@@ -32,8 +32,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../tools/imageio_utils.h"
 
-#include "./cifar_quick_net.h"
-#include "./data_proc.h"
+#include "cifar_quick_net.h"
+#include "data_proc.h"
+#include "cifar_test_net.h"
 
 
 void train_net()
@@ -42,11 +43,11 @@ void train_net()
 
 	int max_iter = 5000;
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
 #endif
 
-	network *net = create_cifar_quick_net(batch_size,train);
+	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,train);
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -89,7 +90,7 @@ void train_net()
 	}
 
 	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif
 }

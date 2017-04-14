@@ -65,7 +65,7 @@ namespace mycnn{
 			//CE LOSS use o_blob[0] to store loss
 			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2host(_loss, o_blob_->s_diff(),1);
 #else
 			cacu_copy(o_blob_->s_diff(), 1 ,_loss);

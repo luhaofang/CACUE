@@ -31,9 +31,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../mycnn.h"
 
 #include "../../tools/imageio_utils.h"
+#include "../../tools/op_injector.h"
 
-#include "./cifar_quick_net.h"
-#include "./data_proc.h"
+#include "cifar_quick_net.h"
+#include "data_proc.h"
+#include "cifar_test_net.h"
+
 
 
 void test_net()
@@ -42,11 +45,13 @@ void test_net()
 
 	int max_iter = 5000;
 
-#if __PARALLELTYPE__ == __GPU__
-	cuda_set_device(1);
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_set_device(0);
 #endif
 
-	network *net = create_cifar_quick_net(batch_size,test);
+	network *net = create_cifar_test_net(batch_size,test);//create_cifar_quick_net(batch_size,test);
+
+	op_injector *injector = new op_injector(net->get_op(4));
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
@@ -84,7 +89,7 @@ void test_net()
 			step_index += 1;
 		}
 		net->predict();
-
+		//injector->get_outblob_count();
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
 			max_index = argmax(output_data->p_data(j),output_data->length());
@@ -104,7 +109,10 @@ void test_net()
 
 	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
 
-#if __PARALLELTYPE__ == __GPU__
+	//injector->serializa("/home/seal/4T/cacue/cifar10/relu3.txt");
+
+	delete injector;
+#if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif
 }

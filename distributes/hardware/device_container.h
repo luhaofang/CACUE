@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "device.hpp"
+#include "device.h"
 
 namespace mycnn_distribute{
 

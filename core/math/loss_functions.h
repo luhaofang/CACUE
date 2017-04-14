@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "cuda/loss_functions_cuda.h"
+#include "../utils/data_defination.h"
 
 namespace mycnn{
 
@@ -40,7 +41,7 @@ namespace mycnn{
 	inline void cacu_cross_entropy(float_t *x, int num, int length, unsigned int *label_, float_t *loss_)
 	{
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 		cacu_cross_entropy_gpu(x, num, length, label_,loss_);
 #else
 		float *xp;

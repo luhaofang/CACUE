@@ -52,16 +52,37 @@ namespace mycnn{
 		}
 
 		virtual const void op() override {
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blob;
+			for(int i = 0 ; i < s_blob_->num(); ++i)
+			{
+				cacu_relu(o_blob_->p_data_d(i),o_blob_->length());
+				o_blob_->switch_dev2host();
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			cacu_relu(o_blob_->s_data(), o_blob_->count());
+#endif
 		}
 
 		virtual const void grad() override{
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blob;
+			for(int i = 0 ; i < s_blob_->num(); ++i)
+			{
+				cacu_relu_grad(o_blob_->p_data_d(i),o_blob_->p_diff_d(i),o_blob_->length());
+				o_blob_->switch_dev2host();
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-
 			cacu_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), s_blob_->count());
+#endif
 		}
 
 		virtual const void load(std::ifstream& is) override{

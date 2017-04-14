@@ -80,7 +80,7 @@ namespace mycnn{
 				break;
 			}
 			float_t* s_data_ = (float_t*)_s_data;
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2dev(s_data_,&w[0],_length);
 			CUDA_CHECK(res);
 #else
@@ -88,6 +88,52 @@ namespace mycnn{
 				s_data_[i] = w[i];
 #endif
 			vec_t().swap(w);
+		}
+
+
+		/*
+		 * serializa blob data, output data to model file
+		 */
+		inline void serializa(std::ostream& os)
+		{
+			float_t* s_data_ = (float_t*)_s_data;
+	#if __PARALLELTYPE__ == __CUDA__
+			os.write((char*)(&_length), sizeof(_length));
+			vec_t _v(_length);
+			cuda_copy2host(&_v[0],(float_t*)_s_data,_length);
+			for (auto w : _v) os.write((char*)(&w), sizeof(w));
+			vec_t().swap(_v);
+	#else
+			os.write((char*)(&_length), sizeof(_length));
+			for(int i = 0 ; i < _length; ++i)
+				os.write((char*)(&s_data_[i]), sizeof(s_data_[i]));
+	#endif
+		}
+
+		/*
+		 * loads blob data from model file
+		 */
+		inline void load(std::ifstream& is)
+		{
+			float_t* s_data_ = (float_t*)_s_data;
+	#if __PARALLELTYPE__ == __CUDA__
+			vec_t _v(_length);
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			CHECK_EQ_OP(length_,_length,"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, _length);
+			for (int i = 0; i < length_; i++){
+				is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
+			}
+			cuda_copy2dev((float_t*)_s_data, &_v[0],length_);
+			vec_t().swap(_v);
+	#else
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			CHECK_EQ_OP(length_,_length,"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, _length);
+			for (int i = 0; i < length_; i++){
+				is.read(reinterpret_cast<char*>(s_data_ + i), sizeof(float_t));
+			}
+	#endif
 		}
 
 	private:

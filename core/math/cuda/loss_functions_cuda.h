@@ -27,11 +27,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-
+#include "../../utils/data_defination.h"
 /**
  * for cross entropy use loss functions in cuda
  */
-extern "C" void cacu_cross_entropy_gpu(float_t *x, int num, int length, unsigned int *label_, float_t *loss_);
+extern "C" void cacu_cross_entropy_gpu(mycnn::float_t *x, int num, int length, unsigned int *label_, mycnn::float_t *loss_);
 
 
 

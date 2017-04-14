@@ -38,11 +38,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "core/framework/args.h"
 #include "core/framework/math_args.h"
 #include "core/framework/blob_base.h"
-#include "core/framework/bin_blob.h"
 #include "core/framework/blob.h"
-#include "core/framework/blobs.h"
 #include "core/framework/dy_blob.h"
+#include "core/framework/bin_blob.h"
 #include "core/framework/dy_bin_blob.h"
+#include "core/framework/blobs.h"
 #include "core/framework/weight.h"
 
 #include "core/utils/cacu_allocator.h"

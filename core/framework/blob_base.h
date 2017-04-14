@@ -35,9 +35,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
-#define __BLOBMAXREC__ 0xFFFF
-
 namespace mycnn{
+
+#define __BLOBMAXREC__ 0xFFFFFFFF
 
 	class blob_base{
 
@@ -55,7 +55,7 @@ namespace mycnn{
 			_blob_type = type;
 			_s_data = NULL;
 			_s_diff = NULL;
-			_REC = 0;
+			_REC_ = 0;
 			//check the input data dim
 			long c_length_ = channel*width*height;
 			CHECK_LT_OP(c_length_,_MAX_INT_,"BLOB cell length is out of bounds: %ld vs d", c_length_,_MAX_INT_);
@@ -66,7 +66,7 @@ namespace mycnn{
 		}
 
 		virtual ~blob_base(){
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 			cuda_free(_s_data);
 			if(train == _phrase)
 				cuda_free(_s_diff);
@@ -117,15 +117,15 @@ namespace mycnn{
 			CHECK_EQ_OP(_width,blob_->_width,"_width check does NOT match! ( %d vs %d )",_width,blob_->_width);
 		}
 
-		inline blob_type __TYPE__(){return _blob_type;};
+		inline blob_type _TYPE(){return _blob_type;};
 
-		inline bool is_output() {return _REC == 0;}
+		inline bool is_output() {return _REC_ == 0;}
 
-		inline void __REC__(){
-			if(_REC < __BLOBMAXREC__)
-				_REC += 1;
+		inline void _REC(){
+			if(_REC_ < __BLOBMAXREC__)
+				_REC_ += 1;
 			else
-				LOG_WARNING("blob address %X has rec for %d times, but the max rec for cacu is %d",this,_REC,__BLOBMAXREC__);
+				LOG_WARNING("blob address %X has rec for %d times, but the max rec for cacu is %d",this,_REC_,__BLOBMAXREC__);
 		};
 
 	protected:		
@@ -138,7 +138,7 @@ namespace mycnn{
 		int _length;
 		phrase_type _phrase;
 
-		inline void __SET_TYPE__(blob_type blob_type_){_blob_type = blob_type_;};
+		inline void _SET_TYPE(blob_type blob_type_){_blob_type = blob_type_;};
 
 		void *_s_data;
 
@@ -148,7 +148,7 @@ namespace mycnn{
 		
 		blob_type _blob_type;
 
-		unsigned _REC;
+		unsigned _REC_;
 
 	};
 }

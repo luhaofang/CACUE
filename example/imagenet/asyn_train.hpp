@@ -39,11 +39,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../tools/io/cpu_gpu_asyn.h"
 
-#if __PARALLELTYPE__ == __GPU__
+#if __PARALLELTYPE__ == __CUDA__
 
 void train_net()
 {
-	int batch_size = 256;
+	int batch_size = 128;
 
 	int max_iter = 200000;
 
@@ -51,21 +51,21 @@ void train_net()
 	cuda_set_device(1);
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/alexnet.log", ios::binary);
-	logger.precision(std::numeric_limits<float_t>::digits10);
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net.log", ios::binary);
+	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
-	network *net = create_alexnet(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);
+	network *net = create_res18net(batch_size,train);//create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/alexnet_60000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
 	sgd->set_lr(0.01f);
 	sgd->set_weight_decay(0.0005f);
 
-	string datapath = "/home/seal/4T/imagenet/227X227_train/";
+	string datapath = "/home/seal/4T/imagenet/224X224_train/";
 	string trainlist = "/home/seal/4T/imagenet/train_list.txt";
-	string meanfile = "/home/seal/4T/imagenet/227X227_mean.binproto";
+	string meanfile = "/home/seal/4T/imagenet/224X224_mean.binproto";
 
 	vector<string> full_data;
 	vector<vec_i> full_label;
@@ -116,9 +116,9 @@ void train_net()
 		logger.flush();
 		if(i % 50000 == 0)
 			sgd->set_lr_iter(0.1f);
-		if(i % 20000 == 0){
+		if(i % 10000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/alexnet_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/res18net_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
@@ -126,7 +126,7 @@ void train_net()
 	logger.close();
 
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/alexnet_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/res18net_" << max_iter << ".model";
 	net->save_weights(oss.str());
 	for(int i = 0; i < full_label.size(); ++i)
 	{
