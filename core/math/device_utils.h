@@ -46,6 +46,8 @@ inline DTYPE* device_malloc(int num,int length)
 	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
 	CUDA_CHECK(res);
 	return data_;
+#else
+	return NULL;
 #endif
 }
 
@@ -54,6 +56,8 @@ inline DTYPE* device_malloc_v(int num,int length,DTYPE value)
 {
 #if __PARALLELTYPE__ == __CUDA__
 	return cuda_malloc_v(num,length,value);
+#else
+	return NULL;
 #endif
 }
 

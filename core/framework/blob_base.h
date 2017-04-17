@@ -109,6 +109,10 @@ namespace mycnn{
 
 		virtual const void _RESET_DIFF() = 0;
 
+		virtual const void serializa(std::ostream& os) = 0;
+
+		virtual const void load(std::ifstream& is) = 0;
+
 		inline void _CHECK_SIZE_EQ(blob_base* blob_)
 		{
 			CHECK_EQ_OP(_channel,blob_->_channel,"_channel check does NOT match! ( %d vs %d )",_channel,blob_->_channel);

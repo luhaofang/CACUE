@@ -38,14 +38,21 @@ namespace mycnn{
 			check();
 
 			blob_base *_blob = data->at(0);
-			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
 
+#if __USDYNAMIC__ == ON
+			o_blob = create_dy_oblob(_blob->num(),args_->output_channel(),1,1,train);
+			_device_loss = device_malloc_v(1,1,(float_t)0);
+#else
+			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
+#endif
 			_loss = (float_t*)malloc(sizeof(float_t));
 		};
 
 		~softmax_with_loss_op(){
 			free(_loss);
-			delete o_blob;
+#if __USDYNAMIC__ == ON
+			device_free(_device_loss);
+#endif
 		};
 
 		virtual const void check() override{
@@ -53,28 +60,56 @@ namespace mycnn{
 		}
 
 		virtual const void op() override {
+
+			_loss[0] = 0.0;
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blobs->at(0);
+			dy_bin_blob *labels_ = (dy_bin_blob*)s_blobs->at(1);
+
+			for(int i = 0 ; i < o_blob_->num();++i)
+			{
+				cacu_softmax(s_blob_->p_data_d(i), 1, s_blob_->length(),o_blob_->p_data_d(i));
+				cacu_cross_entropy(o_blob_->p_data_d(i),1,o_blob_->length(),labels_->p_data_d(i),_device_loss);
+				o_blob_->_sync(i);
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blobs->at(0);
 			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
-			_loss[0] = 0.0;
-			//cout<< "s-forward:";
-			//cuda_print(s_blob_->s_data(),1000);
-			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
-			//cout<< "forward:";
-			//cuda_print(o_blob_->s_data(),1000);
-			//CE LOSS use o_blob[0] to store loss
-			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 
-#if __PARALLELTYPE__ == __CUDA__
-			cuda_copy2host(_loss, o_blob_->s_diff(),1);
+			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
+			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+#endif
+
+#if __USDYNAMIC__ == ON
+			cuda_copy2host(_loss, _device_loss, 1);
 #else
+	#if __PARALLELTYPE__ == __CUDA__
+			cuda_copy2host(_loss, o_blob_->s_diff(),1);
+	#else
 			cacu_copy(o_blob_->s_diff(), 1 ,_loss);
+	#endif
 #endif
 			_loss[0] *= normalizer();
-
 		}
 
 		virtual const void grad() override{
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blobs->at(0);
+			dy_bin_blob *labels_ = (dy_bin_blob*)s_blobs->at(1);
+
+			//CE LOSS BACK PROPGATION
+			for (int i = 0 ; i < s_blob_->num() ; ++i)
+			{
+				cacu_isaxb(o_blob_->p_data_d(i),s_blob_->length(),(float_t)1,labels_->p_data_d(i),(float_t)-1, s_blob_->p_diff_d(i));
+				cacu_scalex(s_blob_->p_diff_d(i),s_blob_->length(),normalizer());
+				s_blob_->_sync(i);
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blobs->at(0);
 			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
@@ -85,6 +120,7 @@ namespace mycnn{
 				cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
 				cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
 			}
+#endif
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -116,6 +152,9 @@ namespace mycnn{
 	private:
 
 		float_t *_loss;
+#if __USDYNAMIC__ == ON
+		float_t *_device_loss;
+#endif
 
 		float_t _loss_weight = 1.0;
 	};

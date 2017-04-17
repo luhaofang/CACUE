@@ -37,13 +37,16 @@ namespace mycnn{
 		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-			o_blob = create_oblob(data->num(),args_->output_channel(),1,1,test);
-
+#if __USDYNAMIC__ == ON
+			o_blob = create_dy_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
+#else
+			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
+#endif
 			echo();
 		};
 
 		~softmax_op(){
-			delete o_blob;
+
 		};
 
 		virtual const void check() override{
@@ -51,9 +54,19 @@ namespace mycnn{
 		}
 
 		virtual const void op() override {
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blob;
+			for(int i = 0 ; i < s_blob_->num(); ++i){
+				cacu_softmax(s_blob_->p_data_d(i), 1,s_blob_->length(),o_blob_->p_data_d(i));
+				o_blob_->_sync(i);
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->length(),o_blob_->s_data());
+#endif
 			//echo();
 		}
 

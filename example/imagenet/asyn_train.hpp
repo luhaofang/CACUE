@@ -56,7 +56,7 @@ void train_net()
 
 	network *net = create_res18net(batch_size,train);//create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_120000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 

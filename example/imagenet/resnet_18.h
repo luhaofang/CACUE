@@ -77,8 +77,11 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	layer *element_wise = new layer();
 	element_wise->op(CACU_SUM_ELEMWISE, b)->op(activation_op);
 
+	layer *split1 = new layer();
+	split1->op(CACU_SPLIT,element_wise->get_oblob(),new args(2));
+
 	layer *l3 = new layer(output_channel, kernel_size, stride, pad, element_wise->get_oblob()->height(), element_wise->get_oblob()->channel());
-	l3->op(CACU_CONVOLUTION, element_wise->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
+	l3->op(CACU_CONVOLUTION, split1->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l3->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l3->get_op<convolution_op>(0)->set_is_use_bias(false);
 
@@ -88,14 +91,14 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	l4->get_op<convolution_op>(0)->set_is_use_bias(false);
 
 	blobs *b1 = new blobs();
-	b1->push_back(element_wise->get_oblob());
+	b1->push_back(split1->get_oblobs()->at(1));
 	b1->push_back(l4->get_oblob());
 
 	layer *block_wise = new layer();
 	block_wise->op(CACU_SUM_ELEMWISE, b1)->op(activation_op);
 
 	clock_t end = clock();
-	*lb << split << shortcut << l1 << l2 << element_wise << l3 << l4 << block_wise;
+	*lb << split << shortcut << l1 << l2 << element_wise << split1 << l3 << l4 << block_wise;
 	return lb;
 }
 

@@ -27,8 +27,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../tools/random.h"
-
 namespace mycnn{
 
 	class dropout_op : public operator_base
@@ -42,10 +40,13 @@ namespace mycnn{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-
+#if __USDYNAMIC__ == ON
+			o_blob = data;
+			_rand_vect = cacu_allocator::create_dy_blob(num,channel,input_dim,input_dim, test);
+#else
 			o_blob = data;
 			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
-
+#endif
 			echo();
 		};
 
@@ -58,30 +59,69 @@ namespace mycnn{
 		}
 
 		virtual const void op() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
+
 			float_t scale_ = 1.0 / (1 - _ratio);
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blob;
+			dy_blob *rand_vect_ = (dy_blob*)_rand_vect;
 
 			if(train == s_blob_->phrase())
 			{
-				rand_vector(_rand_vect->s_data(),_rand_vect->count(), 1 - _ratio);
-				cacu_ssx(_rand_vect->s_data(), o_blob_->count(), o_blob_->s_data());
+				for(int i = 0; i < s_blob_->num(); ++i)
+				{
+					rand_vector(rand_vect_->p_data_d(i),rand_vect_->length(), 1 - _ratio);
+					cacu_ssx(rand_vect_->p_data_d(i), o_blob_->length(), o_blob_->p_data_d(i));
+					cacu_scalex(o_blob_->p_data_d(i), o_blob_->length(), scale_);
+					o_blob_->_sync(i);
+					rand_vect_->_sync(i);
+				}
+			}
+#else
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blob;
+			blob *rand_vect_ = (blob*)_rand_vect;
+
+			if(train == s_blob_->phrase())
+			{
+				rand_vector(rand_vect_->s_data(),rand_vect_->count(), 1 - _ratio);
+				cacu_ssx(rand_vect_->s_data(), o_blob_->count(), o_blob_->s_data());
 				cacu_scalex(o_blob_->s_data(), o_blob_->count(), scale_);
 			}
+#endif
 		}
 
 		virtual const void grad() override{
 
+
+			float_t scale_ = 1.0 / (1 - _ratio);
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+			dy_blob *s_blob_ = (dy_blob*)s_blob;
+			dy_blob *rand_vect_ = (dy_blob*)_rand_vect;
+
+			if(train == s_blob_->phrase())
+			{
+				for(int i = 0; i < s_blob_->num(); ++i){
+					//ratio's scale implementation
+					cacu_ssx(rand_vect_->p_data_d(i),s_blob_->length(),s_blob_->p_diff_d(i));
+					cacu_scalex(s_blob_->p_diff_d(i), o_blob_->length(), scale_);
+					s_blob_->_sync(i);
+				}
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			float_t scale_ = 1.0 / (1 - _ratio);
+			blob *rand_vect_ = (blob*)_rand_vect;
 
 			if(train == s_blob_->phrase())
 			{
 				//ratio's scale implementation
-				cacu_ssx(_rand_vect->s_data(),s_blob_->count(),s_blob_->s_diff());
+				cacu_ssx(rand_vect_->s_data(),s_blob_->count(),s_blob_->s_diff());
 				cacu_scalex(s_blob_->s_diff(), o_blob_->count(), scale_);
 			}
+#endif
 		}
 
 		virtual const void load(std::ifstream& is) override{
@@ -113,7 +153,7 @@ namespace mycnn{
 
 	private:
 
-		blob *_rand_vect;
+		blob_base *_rand_vect;
 
 		float_t _ratio = 0.5f;
 	};

@@ -54,14 +54,12 @@ namespace mycnn{
 					case __bin_blob__:
 						delete (bin_blob*)at(i);
 						break;
-#if __USDYNAMIC__ == ON
 					case __dy_blob__:
 						delete (dy_blob*)at(i);
 						break;
 					case __dy_bin_blob__:
 						delete (dy_bin_blob*)at(i);
 						break;
-#endif
 					default:
 						LOG_FATAL("can't identify the type!");
 						break;
@@ -73,32 +71,6 @@ namespace mycnn{
 		{
 			this->push_back(blob_base_);
 			return *this;
-		}
-
-		template<class BTYPE>
-		inline BTYPE* tget(int i)
-		{
-			switch(at(i)->_TYPE())
-			{
-			case __blob__:
-				return _BLOB(i);
-				break;
-			case __bin_blob__:
-				return _BIN_BLOB(i);
-				break;
-#if __USDYNAMIC__ == ON
-			case __dy_blob__:
-				return _DY_BLOB(i);
-				break;
-			case __dy_bin_blob__:
-				return _DY_BIN_BLOB(i);
-				break;
-#endif
-			default:
-				LOG_FATAL("can't identify the type!");
-				break;
-			}
-			return NULL;
 		}
 
 		inline void _REC()
@@ -128,26 +100,6 @@ namespace mycnn{
 	private:
 
 
-		inline blob* _BLOB(int i)
-		{
-			return (blob*)at(i);
-		}
-
-		inline bin_blob* _BIN_BLOB(int i)
-		{
-			return (bin_blob*)at(i);
-		}
-#if __USDYNAMIC__ == ON
-		inline dy_blob* _DY_BLOB(int i)
-		{
-			return (dy_blob*)at(i);
-		}
-
-		inline dy_bin_blob* _DY_BIN_BLOB(int i)
-		{
-			return (dy_bin_blob*)at(i);
-		}
-#endif
 
 	};
 }

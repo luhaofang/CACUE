@@ -47,16 +47,15 @@ namespace mycnn{
 				output_dim = (input_dim + 2 * _args->pad()) / _args->stride();
 #if __USDYNAMIC__ == ON
 			o_blob = create_dy_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
-			_col_data = cacu_allocator::create_dy_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
+
 #else
 			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
-			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
 #endif
 			_w = create_param("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
 
 			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
 			_bias ->set_lr(2);
-
+			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
 			echo();
 		};
 
@@ -79,7 +78,7 @@ namespace mycnn{
 #if __USDYNAMIC__ == ON
 			dy_blob *o_blob_ = (dy_blob*)o_blob;
 			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			dy_blob *col_data_ = (dy_blob*)_col_data;
+			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
 				cacu_img2col_pad(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
@@ -88,7 +87,7 @@ namespace mycnn{
 				//add bias
 				if(_is_use_bias)
 					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data_d(i), (float_t)(1), o_blob_->length(), o_blob_->p_data_d(i));
-				o_blob_->switch_dev2host();
+				o_blob_->_sync(i);
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
@@ -111,7 +110,7 @@ namespace mycnn{
 #if __USDYNAMIC__ == ON
 			dy_blob *o_blob_ = (dy_blob*)o_blob;
 			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			dy_blob *col_data_ = (dy_blob*)_col_data;
+			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
 
 				//gradient propagation
@@ -125,12 +124,13 @@ namespace mycnn{
 				//bias gradient
 				if(_is_use_bias)
 					cacu_sumbysize(BYWIDTH,o_blob_->p_diff_d(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
-				s_blob_->switch_dev2host();
+				s_blob_->_sync(i);
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
+
 			for (int i = 0; i < s_blob_->num(); ++i){
 
 				//gradient propagation

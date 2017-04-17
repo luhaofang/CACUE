@@ -51,7 +51,7 @@ void train_net()
 
 	network *net = create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_40000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net.caffemodel");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -112,8 +112,8 @@ void train_net()
 			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
-		//sgd->train_iter();
-		net->predict();
+		sgd->train_iter();
+		//net->predict();
 		end = clock();
 
 		if(i % 1 == 0){

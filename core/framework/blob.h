@@ -152,7 +152,7 @@ namespace mycnn{
 			}
 		}
 
-		virtual inline const int calculate_size() override{
+		inline virtual const int calculate_size() override{
 			return test == _phrase ? _length * sizeof(float_t) : 2 * _length * sizeof(float_t);
 		}
 		
@@ -230,7 +230,7 @@ namespace mycnn{
 		/*
 		 * serializa blob data, output data to model file
 		 */
-		inline void serializa(std::ostream& os)
+		inline virtual const void serializa(std::ostream& os) override
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __CUDA__
@@ -249,7 +249,7 @@ namespace mycnn{
 		/*
 		 * loads blob data from model file
 		 */
-		inline void load(std::ifstream& is)
+		inline virtual const void load(std::ifstream& is) override
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 #if __PARALLELTYPE__ == __CUDA__

@@ -51,25 +51,51 @@ namespace mycnn{
 		virtual const void check() override{
 
 			CHECK_GE_OP(s_blobs->size(), 2 , "blobs size must >= 2 vs %d",s_blobs->size());
+			for(int i = 1 ; i < s_blobs->size() ; ++i)
+			{
+				CHECK_EQ_OP(s_blobs->at(i)->count(), s_blobs->at(0)->count(), "blob count must be equal %d vs %d",s_blobs->at(i)->count(),s_blobs->at(0)->count());
+			}
 
 		}
 
 		virtual const void op() override {
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+
+			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
+				dy_blob *s_blob_ = (dy_blob *)s_blobs->at(j);
+				for(int i = 0 ; i < o_blob_->num();++i){
+					cacu_saxpy(s_blob_->p_data_d(i), (float_t)1, o_blob_->p_data_d(i), o_blob_->length());
+				}
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
-				blob *s_blob_ = (blob*)(*s_blobs)[j];
+				blob *s_blob_ = (blob *)s_blobs->at(j);
 				cacu_saxpy(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), o_blob_->count());
 			}
+#endif
 		}
 
 		virtual const void grad() override{
+
+#if __USDYNAMIC__ == ON
+			dy_blob *o_blob_ = (dy_blob*)o_blob;
+
+			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
+				dy_blob *s_blob_ = (dy_blob *)s_blobs->at(j);
+				cacu_ram_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
+			}
+#else
 			blob *o_blob_ = (blob*)o_blob;
 
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
-				blob *s_blob_ = (blob*)(*s_blobs)[j];
+				blob *s_blob_ = (blob *)s_blobs->at(j);
 				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 			}
+#endif
 		}
 
 		virtual const void load(std::ifstream& is) override{

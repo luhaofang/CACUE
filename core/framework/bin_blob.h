@@ -180,7 +180,7 @@ namespace mycnn{
 		 * serializa blob_bit data, output data to model file
 		 * warning: bin_blob just serializa bit wise parameters.
 		 */
-		void serializa_bit(std::ostream& os)
+		inline virtual const void serializa(std::ostream& os) override
 		{
 			unsigned int* s_data_ = (unsigned int*)_s_data;
 			bitset<32> _bits;
@@ -230,7 +230,7 @@ namespace mycnn{
 		/*
 		 * load blob_bit data from model file
 		 */
-		void load_bit(std::ifstream& is)
+		inline virtual const void load(std::ifstream& is) override
 		{
 			unsigned int* s_data_ = (unsigned int*)_s_data;
 #if __PARALLELTYPE__ == __CUDA__

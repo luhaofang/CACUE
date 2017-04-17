@@ -70,7 +70,7 @@ namespace mycnn{
 			dy_blob *s_blob_ = (dy_blob*)s_blob;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				cacu_average_pooling(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data_d(i));
-				o_blob_->switch_dev2host();
+				o_blob_->_sync(i);
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
@@ -87,7 +87,7 @@ namespace mycnn{
 			dy_blob *s_blob_ = (dy_blob*)s_blob;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				cacu_average_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff_d(i));
-				s_blob_->switch_dev2host();
+				s_blob_->_sync(i);
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
