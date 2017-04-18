@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define __OPENMP__  OFF
 
-#define __USDYNAMIC__  ON
+#define __USDYNAMIC__  OFF
 
 //embedding size for device
 #define __EMBEDSIZE__ 1

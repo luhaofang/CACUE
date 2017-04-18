@@ -39,7 +39,11 @@ namespace mycnn{
 			check();
 
 			blob_base *_blob = data->at(0);
+#if __USDYNAMIC__ == ON
+			o_blob = create_dy_oblob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
+#else
 			o_blob = create_oblob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
+#endif
 
 			echo();
 		};

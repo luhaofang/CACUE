@@ -143,3 +143,43 @@ network* create_res18net(int batch_size_,phrase_type phrase_)
 
 	return net;
 }
+
+network* create_res18_dy_net(int batch_size_,phrase_type phrase_)
+{
+	dy_blob *blob_ = cacu_allocator::create_dy_blob(batch_size_, 3, 224, 224, phrase_);
+	dy_bin_blob *label_ = cacu_allocator::create_dy_bin_blob(batch_size_, 1, 1, 1,phrase_);
+
+	blobs *input_datas_ = cacu_allocator::create_blobs();
+	input_datas_->push_back(blob_);
+	input_datas_->push_back(label_);
+
+	network *net = new network(input_datas_);
+
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
+	layer_block *conv2 = conv_block_shotcut(conv1->get_oblob(),64,3,1,1,1);
+	layer_block *conv3 = conv_block_shotcut(conv2->get_oblob(),128,3,1,2,1);
+	layer_block *conv4 = conv_block_shotcut(conv3->get_oblob(),256,3,1,2,1);
+	layer_block *conv5 = conv_block_shotcut(conv4->get_oblob(),512,3,1,2,1);
+
+	layer *ave_pool = new layer(512,7,1);
+	ave_pool->op(CACU_AVERAGE_POOLING,conv5->get_oblob());
+
+	if(phrase_ == train){
+		layer_block *loss_ = loss_layer((blob*)ave_pool->get_oblob(), label_, 1000);
+		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+
+		*net << conv1 << conv2 << conv3 << conv4 << conv5 << ave_pool << loss_;
+	}
+	else
+	{
+		layer_block *predict_ = predict_layer((blob*)ave_pool->get_oblob(), 1000);
+		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+
+		*net << conv1 << conv2 << conv3 << conv4 << conv5 << ave_pool << predict_;
+	}
+
+
+	return net;
+}

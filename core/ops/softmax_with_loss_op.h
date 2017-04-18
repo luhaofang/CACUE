@@ -68,6 +68,8 @@ namespace mycnn{
 			dy_blob *s_blob_ = (dy_blob*)s_blobs->at(0);
 			dy_bin_blob *labels_ = (dy_bin_blob*)s_blobs->at(1);
 
+			device_setvalue<float_t>(_device_loss,0,1);
+
 			for(int i = 0 ; i < o_blob_->num();++i)
 			{
 				cacu_softmax(s_blob_->p_data_d(i), 1, s_blob_->length(),o_blob_->p_data_d(i));
@@ -84,10 +86,10 @@ namespace mycnn{
 #endif
 
 #if __USDYNAMIC__ == ON
-			cuda_copy2host(_loss, _device_loss, 1);
+			device_copy2host(_loss, _device_loss, 1);
 #else
 	#if __PARALLELTYPE__ == __CUDA__
-			cuda_copy2host(_loss, o_blob_->s_diff(),1);
+			cuda_copy2host(_loss, o_blob_->s_diff(), 1);
 	#else
 			cacu_copy(o_blob_->s_diff(), 1 ,_loss);
 	#endif

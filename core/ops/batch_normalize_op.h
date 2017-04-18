@@ -178,10 +178,11 @@ namespace mycnn{
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
 				//update history
-				cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
-				cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
+				cacu_saxpby(_var->s_data(), (1.0 - moving_average_fraction) * bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
+
 				for (int i = 0; i < s_blob_->num(); ++i){
 					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
 					cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
@@ -214,14 +215,16 @@ namespace mycnn{
 
 			float_t *mean_data_,*mean_diff_;
 
-			//gradient of shift
 			dim_sum_->_RESET_DATA();
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				//calculate dl/x_
 				cacu_cxsize(o_blob_->p_diff_d(i), o_blob_->length(), _scale->s_data(), _scale->count(), s_blob_->p_diff_d(i));
 				cacu_saxpy(o_blob_->p_diff_d(i), 1, dim_sum_->s_data(), dim_sum_->count());
+				//gradient of scale
+				cacu_bn_gamma_grad(x_->p_data_d(i), o_blob_->p_diff_d(i), 1, o_blob_->length(), o_blob_->channel(),_scale->s_diff());
 				s_blob_->_sync(i);
 			}
+			//gradient of shift
 			cacu_sumbysize(BYWIDTH, dim_sum_->s_data(), dim_sum_->count(), 1, _shift->s_diff(), 0, s_blob_->height() * s_blob_->width());
 
 			mean_data_ = _mean->s_data();
@@ -236,12 +239,10 @@ namespace mycnn{
 				cacu_bn_mu_grad(s_blob_->p_data_d(i), s_blob_->p_diff_d(i), mean_data_, _std->s_data(), _std->s_diff(), 1, s_blob_->length(), s_blob_->channel(), mean_diff_);
 
 			//calculate dl/x
-			for(int i = 0 ; i < s_blob_->num(); ++i)
+			for(int i = 0 ; i < s_blob_->num(); ++i){
 				cacu_bn_dx_grad(s_blob_->p_data_d(i), s_blob_->p_diff_d(i), mean_data_, _std->s_data(), _std->s_diff(), mean_diff_, 1, s_blob_->length(), s_blob_->channel(), s_blob_->p_diff_d(i));
-
-			//gradient of scale
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_bn_gamma_grad(x_->p_data_d(i), o_blob_->p_diff_d(i), 1, o_blob_->length(), o_blob_->channel(),_scale->s_diff());
+				s_blob_->_sync(i);
+			}
 
 #else
 			blob *o_blob_ = (blob*)o_blob;

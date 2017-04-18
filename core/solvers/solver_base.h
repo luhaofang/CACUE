@@ -77,7 +77,8 @@ namespace mycnn{
 
 		inline void train_iter()
 		{
-
+			if(train !=_net->phrase())
+				LOG_FATAL("net phrase is not equal to train, please set the input blob's phrase!");
 			_net->predict();
 			for(int i = _net->op_count() - 1 ; i >= 0; --i)
 			{

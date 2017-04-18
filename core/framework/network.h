@@ -108,6 +108,8 @@ namespace mycnn{
 
 		inline blob *& output_blob(){return _ops[_ops.size()-1]->out_data<blob>();}
 
+		inline phrase_type phrase(){return _input_blobs->at(0)->phrase();}
+
 		void load_weights(chars_t modelpath){
 			std::ifstream is(modelpath);
 			is.precision(std::numeric_limits<float_t>::digits10);
@@ -129,6 +131,15 @@ namespace mycnn{
 			LOG_INFO("The model is save at : %s",modelpath.c_str());
 		}
 
+		void check(){
+			for(unsigned int i =0 ; i < _ops.size();++i){
+				clock_t start = clock();
+				_ops[i]->echo();
+				clock_t end = clock();
+				//LOG_INFO("%d time cost: %d", i ,end - start);
+			}
+		}
+
 	private:
 
 		vector<layer_base*> _layers;
@@ -136,6 +147,7 @@ namespace mycnn{
 		vector<operator_base*> _ops;
 
 		blobs* _input_blobs;
+
 	};
 
 };

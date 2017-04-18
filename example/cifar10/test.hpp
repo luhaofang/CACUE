@@ -49,7 +49,7 @@ void test_net()
 	cuda_set_device(0);
 #endif
 
-	network *net = create_cifar_test_net(batch_size,test);//create_cifar_quick_net(batch_size,test);
+	network *net = create_cifar_quick_net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
 	op_injector *injector = new op_injector(net->get_op(4));
 

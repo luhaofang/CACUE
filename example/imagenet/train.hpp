@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 2;
+	int batch_size = 1;
 
 	int max_iter = 1;
 
@@ -49,9 +49,9 @@ void train_net()
 	cuda_set_device(0);
 #endif
 
-	network *net = create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	network *net = create_res18net(batch_size,test);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res18net.caffemodel");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_10000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -108,12 +108,12 @@ void train_net()
 			if (step_index == ALL_DATA_SIZE)
 				step_index = 0;
 			//load image data
-			readdata(full_data[step_index],input_data->p_data(j));//,mean_->s_data());
+			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
 			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
-		sgd->train_iter();
-		//net->predict();
+		//sgd->train_iter();
+		net->predict();
 		end = clock();
 
 		if(i % 1 == 0){

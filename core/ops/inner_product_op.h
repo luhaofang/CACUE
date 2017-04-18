@@ -141,7 +141,8 @@ namespace mycnn{
 			o_blob->_RESET_DATA();
 
 			_w->_RESET_DIFF();
-			_bias->_RESET_DIFF();
+			if(_is_use_bias)
+				_bias->_RESET_DIFF();
 		}
 
 		inline void set_weight_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _w, value);}

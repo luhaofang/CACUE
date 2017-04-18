@@ -60,7 +60,7 @@ __global__ void _k_CACU_CROSS_ENTROPY_GPU(mycnn::float_t *x, int num, int length
 		__syncthreads();
 	}
 	if(tid == 0)
-		loss_[0] = shared_data[0];
+		loss_[0] += shared_data[0];
 }
 
 

@@ -224,10 +224,15 @@ void asyn_get_gpu_data(float_t *data_,unsigned int *label_)
 			buff_item *buff = _asyn_buff[i];
 			if(buff->is_forked == not_forked)
 			{
+#if __USDYNAMIC__ == ON
+				memcpy(data_, buff->s_data, _asyn_length * _asyn_num * sizeof(float_t));
+				memcpy(label_, buff->s_label, _asyn_num * sizeof(unsigned int));
+#else
 				res = cudaMemcpy(data_, buff->s_data, _asyn_length * _asyn_num * sizeof(float_t),cudaMemcpyHostToDevice);
 				CUDA_CHECK(res);
 				res = cudaMemcpy(label_, buff->s_label, _asyn_num * sizeof(unsigned int),cudaMemcpyHostToDevice);
 				CUDA_CHECK(res);
+#endif
 				buff->is_forked = forked;
 				return;
 			}
