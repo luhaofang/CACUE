@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../math/math_config.h"
 
-#define __PARALLELTYPE__  __CUDA__
+#define __PARALLELTYPE__  __OPENBLAS__
 
 #define __OPENMP__  OFF
 

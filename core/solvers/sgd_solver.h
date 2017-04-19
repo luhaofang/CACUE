@@ -60,12 +60,10 @@ namespace mycnn{
 		virtual const void update_weight(weight* w_, int weight_index_) override
 		{
 			//printf("%d:",w_->count());
-#if __PARALLELTYPE__ == __CUDA__
-			//cuda_print(w_->s_data(),1);
-			//cuda_print(w_->s_diff(),1);
-#else
-			//cout << w_->s_data()[0] << "," << w_->s_diff()[0] << ",";
-#endif
+
+			//cacu_print(w_->s_data(),1);
+			//cacu_print(w_->s_diff(),1);
+
 			blob* history_ = (blob*)_history_v->at(weight_index_);
 			float_t learn_rate_ = w_->lr() * _global_lr;
 			//normalization
@@ -76,13 +74,10 @@ namespace mycnn{
 			cacu_saxpby(w_->s_diff(), learn_rate_, history_->s_data(), _momentum, w_->count());
 			//update to weight
 			cacu_saxpy(history_->s_data(), -1, w_->s_data(), w_->count());
-#if __PARALLELTYPE__ == __CUDA__
-			//cuda_print(w_->s_data(),1);
-			//cuda_print(history_->s_data(),1);
-#else
-			//cout << history_->s_data()[0] << "," << w_->s_data()[0];
+
+			//cacu_print(history_->s_data(),1);
+			//cacu_print(w_->s_data(),1);
 			//cout << endl;
-#endif
 			//echo();
 		}
 

@@ -51,8 +51,8 @@ namespace mycnn{
 		};
 
 		virtual const void check() override{
-			//output_channel > 0
-			CHECK_EQ_OP(s_blob->num()%_args->at(0), 0,"s_blob num must be the integral multiple of units count!");
+			int mod = s_blob->num() % _args->at(0);
+			CHECK_EQ_OP(mod, 0, "s_blob num must be integral multiple of units count vs %d!" , mod);
 		}
 
 		virtual const void op() override {

@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#ifndef _WIN32
+
 #include <vector>
 #include <stdarg.h>
 #include <pthread.h>
@@ -251,5 +253,7 @@ void asyn_join_threads()
 
 
 };
+
+#endif
 
 #endif

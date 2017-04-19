@@ -34,7 +34,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
+#ifdef _WIN32
+#define LOG(level, format,...)   \
+	do{ 					   	 \
+	time_t now = time(NULL);	 \
+	struct tm _now_; 			 \
+	localtime_s(&_now_,&now);	 \
+	if(level == "DEBUG")		 \
+		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] %s " format "\n", level, _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+	else						 \
+		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level,  _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, ##__VA_ARGS__); \
+	} while (0)
 
+#else
 #define LOG(level, format,...)   \
 	do{ 					   	 \
 	time_t now = time(NULL);	 \
@@ -42,9 +54,10 @@ namespace mycnn{
 	localtime_r(&now,&_now_);	 \
 	if(level == "DEBUG")		 \
 		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] %s " format "\n", level, _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-	else						 \
+		else						 \
 		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level,  _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, ##__VA_ARGS__); \
-	} while (0)
+		} while (0)
+#endif
 
 #define LOG_DEBUG(format,...) LOG("DEBUG",format,##__VA_ARGS__)
 #define LOG_WARNING(format,...) LOG("WARNING",format,##__VA_ARGS__)

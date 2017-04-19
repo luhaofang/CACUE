@@ -145,8 +145,8 @@ namespace mycnn{
 
 		inline void set_ratio(float_t ratio_)
 		{
-			CHECK_GE_OP(0,ratio_,"ratio must be a positive decimal!");
-			CHECK_LE_OP(1,ratio_,"ratio must be a positive decimal!");
+			CHECK_GE_OP(0, ratio_, "ratio must be a positive decimal vs %f!", ratio_);
+			CHECK_LE_OP(1, ratio_, "ratio must be a positive decimal vs %f!", ratio_);
 			_ratio = ratio_;
 		}
 

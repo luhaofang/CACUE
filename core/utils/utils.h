@@ -54,7 +54,6 @@ namespace mycnn {
 		return ret;
 	}
 
-
 	inline static long timespan(clock_t &start,clock_t &end)
 	{
 #ifdef _WIN32
@@ -65,8 +64,14 @@ namespace mycnn {
 
 	}
 
-
-
+#ifdef _WIN32
+	std::wstring StringToWString(const chars_t &str)
+	{
+		std::wstring wstr(str.length(), L' ');
+		std::copy(str.begin(), str.end(), wstr.begin());
+		return wstr;
+	}
+#endif
 
 
 

@@ -464,7 +464,7 @@ namespace mycnn{
 							input_h = output_h + ki;
 							input_w = output_w + kj;
 							if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
-								yp[(input_h-pad) * input_dim + input_w - pad] += xp[ki * kernel_size + kj];
+								yp[(input_h - pad) * input_dim + input_w - pad] += xp[ki * kernel_size + kj];
 					}
 				}
 			}

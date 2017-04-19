@@ -27,13 +27,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-/*
- * includes all distribution files
- *
- */
+#include <vector>
+#include <stdarg.h>
 
-#include "../mycnn.h"
+using namespace std;
 
-#include "hardware/device.h"
+namespace mycnn{
 
 
+	class math_args : public vec_t{
+
+	public:
+
+		math_args(int arg1, ...){
+			va_list arg_ptr;
+			va_start(arg_ptr, arg1);
+			while (arg1 != _ARGSEND){
+				this->push_back(arg1);
+				arg1 = va_arg(arg_ptr, int);
+			};
+			va_end(arg_ptr);
+		}
+
+		~math_args(){
+
+		}
+
+
+	private:
+
+	};
+}

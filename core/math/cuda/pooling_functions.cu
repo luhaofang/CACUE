@@ -587,25 +587,29 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(mycnn::float_t *x, int kernel_size, int 
 
 	int block_size = kernel_size * kernel_size * channel;
 
-	int length = input_dim * input_dim * channel;
+	int input_dim_ = input_dim + 2 * pad;
+
+	int length = input_dim_ * input_dim_ * channel;
 
 	int cin_length = input_dim * input_dim;
+
+	int cin_length_ = input_dim_ * input_dim_;
 
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 		//row
-		startset_i = (i % cin_length) / input_dim;
+		startset_i = (i % cin_length_) / input_dim_;
 		//col
-		startset_j = (i % cin_length) % input_dim;
+		startset_j = (i % cin_length_) % input_dim_;
 
 		if(startset_i >= pad && startset_i < input_dim + pad && startset_j >= pad && startset_j < input_dim + pad)
 		{
 			//channel
-			c = i / cin_length;
+			c = i / cin_length_;
 
 			inset_index = ((startset_i - pad) * input_dim  + (startset_j - pad)) + c * cin_length;
-			y[inset_index] = 0;
+			//y[inset_index] = 0;
 
 			outset_si = startset_i / stride;
 			outset_sj = startset_j / stride;
@@ -619,13 +623,13 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(mycnn::float_t *x, int kernel_size, int 
 			count_j = 0;
 
 			while (outset_si - (count_i + 1) >= 0
-					&& ((outset_si - (count_i + 1)) * stride) + kernel_size
-							> startset_i) {
+					&& ((outset_si - (count_i + 1)) * stride) + kernel_size - 1
+							>= startset_i) {
 				count_i++;
 			}
 			while (outset_sj - (count_j + 1) >= 0
-					&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
-							> startset_j) {
+					&& ((outset_sj - (count_j + 1)) * stride) + kernel_size - 1
+							>= startset_j) {
 				count_j++;
 			}
 
@@ -641,7 +645,6 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(mycnn::float_t *x, int kernel_size, int 
 					outset_index = (outset_i * output_dim + outset_j) * block_size;
 
 					y[inset_index] += x[outset_index + k_index];
-
 				}
 		}
 	}

@@ -63,7 +63,59 @@ namespace mycnn_tools{
 	class imageio_utils {
 
 	public:
-
+#ifdef _WIN32
+#if __PARALLELTYPE__ == __CUDA__
+		static void imread_gpu(mycnn::float_t *p_data, string file_path_)
+		{
+			vec_t temp_(3 * c_length);
+			GdiplusStartupInput gdiplusstartupinput;
+			ULONG_PTR gdiplustoken;
+			GdiplusStartup(&gdiplustoken, &gdiplusstartupinput, NULL);
+			Bitmap* bmp = new Bitmap(StringToWString(file_path_).c_str());
+			unsigned int height = bmp->GetHeight();
+			unsigned int width = bmp->GetWidth();
+			Color color;
+			unsigned int c_length = height * width;
+			unsigned int index;
+			for (unsigned int y = 0; y < height; y++)
+				for (unsigned int x = 0; x < width; x++)
+				{
+					index = y * width + x;
+					bmp->GetPixel(x, y, &color);
+					temp_[index] = ((mycnn::float_t)color.GetRed());
+					temp_[c_length + index] = ((mycnn::float_t)color.GetGreen());
+					temp_[2 * c_length + index] = ((mycnn::float_t)color.GetBlue());
+				}
+			delete bmp;
+			GdiplusShutdown(gdiplustoken);
+			cuda_copy2dev(p_data, &temp_[0], temp_.size());
+			vec_t().swap(temp_);
+		}
+#endif
+		static void imread(mycnn::float_t *p_data, string file_path_)
+		{
+			GdiplusStartupInput gdiplusstartupinput;
+			ULONG_PTR gdiplustoken;
+			GdiplusStartup(&gdiplustoken, &gdiplusstartupinput, NULL);
+			Bitmap* bmp = new Bitmap(StringToWString(file_path_).c_str());
+			unsigned int height = bmp->GetHeight();
+			unsigned int width = bmp->GetWidth();
+			Color color;
+			unsigned int c_length = height * width;
+			unsigned int index;
+			for (unsigned int y = 0; y < height; y++)
+				for (unsigned int x = 0; x < width; x++)
+				{
+					index = y * width + x;
+					bmp->GetPixel(x, y, &color);
+					p_data[index] = ((mycnn::float_t)color.GetRed());
+					p_data[c_length + index] = ((mycnn::float_t)color.GetGreen());
+					p_data[2 * c_length + index] = ((mycnn::float_t)color.GetBlue());
+				}
+			delete bmp;
+			GdiplusShutdown(gdiplustoken);
+		}
+#else
 #if __PARALLELTYPE__ == __CUDA__
 		static void imread_gpu(mycnn::float_t *p_data,string file_path_)
 		{
@@ -86,7 +138,6 @@ namespace mycnn_tools{
 			vec_t().swap(temp_);
 		}
 #endif
-
 		static void imread(mycnn::float_t *p_data,string file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
@@ -104,6 +155,8 @@ namespace mycnn_tools{
 				}
 		}
 
+
+#endif
 		static void save_mean_file(mycnn::float_t *p_data, string mean_file_ , int length_)
 		{
 			ofstream os(mean_file_, ios::binary);

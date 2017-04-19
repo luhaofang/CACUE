@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#if __PARALLELTYPE__ == __CUDA__
+
 #include <cuda_runtime.h>
 
 namespace mycnn_distribute{
@@ -53,3 +55,5 @@ class device {
 
 	};
 };
+
+#endif

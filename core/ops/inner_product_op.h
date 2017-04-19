@@ -44,10 +44,10 @@ namespace mycnn{
 #endif
 
 			_w = create_param("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
-			if(_is_use_bias){
-				_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
-				_bias ->set_lr(2);
-			}
+
+			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
+			_bias ->set_lr(2);
+
 			echo();
 		};
 

@@ -33,7 +33,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../tools/random.h"
 
 using namespace std;
-
+#ifdef _WIN32
+#define CHECK_OP(level, format, ...) \
+	do{								 \
+		time_t now = time(NULL);	 \
+		struct tm _now_; 			 \
+		localtime_s(&_now_,&now);	 \
+		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level, _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__,##__VA_ARGS__);\
+	    }while(0)
+#else
 #define CHECK_OP(level, format, ...) \
 	do{								 \
 		time_t now = time(NULL);	 \
@@ -41,6 +49,7 @@ using namespace std;
 		localtime_r(&now,&_now_);	 \
 		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level, _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__,##__VA_ARGS__);\
     }while(0)
+#endif
 
 #define CHECK_EQ_OP(x,y,format,...)					\
 	if (x != y){							\

@@ -52,10 +52,10 @@ namespace mycnn{
 			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 #endif
 			_w = create_param("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
-			if(_is_use_bias){
-				_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
-				_bias ->set_lr(2);
-			}
+
+			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
+			_bias ->set_lr(2);
+
 			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
 			echo();
 		};

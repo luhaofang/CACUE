@@ -80,7 +80,7 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	layer *split1 = new layer();
 	split1->op(CACU_SPLIT,element_wise->get_oblob(),new args(2));
 
-	layer *l3 = new layer(output_channel, kernel_size, stride, pad, element_wise->get_oblob()->height(), element_wise->get_oblob()->channel());
+	layer *l3 = new layer(output_channel, kernel_size, stride, pad, split1->get_oblobs()->at(0)->height(), split1->get_oblobs()->at(0)->channel());
 	l3->op(CACU_CONVOLUTION, split1->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l3->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l3->get_op<convolution_op>(0)->set_is_use_bias(false);
@@ -102,7 +102,41 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	return lb;
 }
 
+network* create_testnet(int batch_size_,phrase_type phrase_)
+{
+	blob *blob_ = cacu_allocator::create_blob(batch_size_, 3, 224, 224, phrase_);
+	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size_, 1, 1, 1,phrase_);
 
+	blobs *input_datas_ = cacu_allocator::create_blobs();
+	input_datas_->push_back(blob_);
+	input_datas_->push_back(label_);
+
+	network *net = new network(input_datas_);
+
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
+
+	layer *ave_pool = new layer(64,conv1->get_oblob()->height(),1);
+	ave_pool->op(CACU_AVERAGE_POOLING,conv1->get_oblob());
+
+	if(phrase_ == train){
+		layer_block *loss_ = loss_layer((blob*)ave_pool->get_oblob(), label_, 1000);
+		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+
+		*net << conv1 << ave_pool << loss_;
+	}
+	else
+	{
+		layer_block *predict_ = predict_layer((blob*)ave_pool->get_oblob(), 1000);
+		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+
+		*net << conv1 << ave_pool << predict_;
+	}
+
+
+	return net;
+}
 
 network* create_res18net(int batch_size_,phrase_type phrase_)
 {
