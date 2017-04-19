@@ -75,44 +75,44 @@ namespace mycnn{
 			return new bin_blob(bin_blob_->num(), bin_blob_->channel(), bin_blob_->width(), bin_blob_->height(), 0, phrase_);
 		}
 
-		inline static dy_blob* create_dy_blob(int num, int channel, int width, int height, float_t value, phrase_type phrase)
+		inline static em_blob* create_em_blob(int num, int channel, int width, int height, float_t value, phrase_type phrase)
 		{
-			return new dy_blob(num, channel, width, height, value, phrase);
+			return new em_blob(num, channel, width, height, value, phrase);
 		}
 
-		inline static dy_blob* create_dy_blob(int num, int channel, int width, int height, phrase_type phrase)
+		inline static em_blob* create_em_blob(int num, int channel, int width, int height, phrase_type phrase)
 		{
-			return new dy_blob(num, channel, width, height, 0, phrase);
+			return new em_blob(num, channel, width, height, 0, phrase);
 		}
 
-		inline static dy_blob* create_dy_blob(blob_base *&blob_)
+		inline static em_blob* create_em_blob(blob_base *&blob_)
 		{
-			return new dy_blob(blob_->num(), blob_->channel(), blob_->width(), blob_->height(), 0, blob_->phrase());
+			return new em_blob(blob_->num(), blob_->channel(), blob_->width(), blob_->height(), 0, blob_->phrase());
 		}
 
-		inline static dy_blob* create_dy_blob(blob_base *&blob_, phrase_type phrase_)
+		inline static em_blob* create_em_blob(blob_base *&blob_, phrase_type phrase_)
 		{
-			return new dy_blob(blob_->num(), blob_->channel(), blob_->width(), blob_->height(), 0, phrase_);
+			return new em_blob(blob_->num(), blob_->channel(), blob_->width(), blob_->height(), 0, phrase_);
 		}
 
-		inline static dy_bin_blob* create_dy_bin_blob(int num, int channel, int width, int height, unsigned int value, phrase_type phrase)
+		inline static em_bin_blob* create_em_bin_blob(int num, int channel, int width, int height, unsigned int value, phrase_type phrase)
 		{
-			return new dy_bin_blob(num, channel, width, height, value, phrase);
+			return new em_bin_blob(num, channel, width, height, value, phrase);
 		}
 
-		inline static dy_bin_blob* create_dy_bin_blob(int num, int channel, int width, int height, phrase_type phrase)
+		inline static em_bin_blob* create_em_bin_blob(int num, int channel, int width, int height, phrase_type phrase)
 		{
-			return new dy_bin_blob(num, channel, width, height, 0, phrase);
+			return new em_bin_blob(num, channel, width, height, 0, phrase);
 		}
 
-		inline static dy_bin_blob* create_dy_bin_blob(blob_base *&bin_blob_)
+		inline static em_bin_blob* create_em_bin_blob(blob_base *&bin_blob_)
 		{
-			return new dy_bin_blob(bin_blob_->num(), bin_blob_->channel(), bin_blob_->width(), bin_blob_->height(), 0, bin_blob_->phrase());
+			return new em_bin_blob(bin_blob_->num(), bin_blob_->channel(), bin_blob_->width(), bin_blob_->height(), 0, bin_blob_->phrase());
 		}
 
-		inline static dy_bin_blob* create_dy_bin_blob(blob_base *&bin_blob_, phrase_type phrase_)
+		inline static em_bin_blob* create_em_bin_blob(blob_base *&bin_blob_, phrase_type phrase_)
 		{
-			return new dy_bin_blob(bin_blob_->num(), bin_blob_->channel(), bin_blob_->width(), bin_blob_->height(), 0, phrase_);
+			return new em_bin_blob(bin_blob_->num(), bin_blob_->channel(), bin_blob_->width(), bin_blob_->height(), 0, phrase_);
 		}
 
 		inline static blobs* create_blobs()

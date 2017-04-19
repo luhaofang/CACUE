@@ -42,8 +42,8 @@ namespace mycnn{
 			o_blobs = create_oblobs();
 			for(int i = 0 ; i < split_count ; ++i)
 			{
-	#if __USDYNAMIC__ == ON
-				o_blobs->push_back(cacu_allocator::create_dy_blob(data->num(),data->channel(),data->height(),data->width(), 0,data->phrase()));
+	#if __USEMBEDDING__ == ON
+				o_blobs->push_back(cacu_allocator::create_em_blob(data->num(),data->channel(),data->height(),data->width(), 0,data->phrase()));
 	#else
 				o_blobs->push_back(cacu_allocator::create_blob(data->num(),data->channel(),data->height(),data->width(), 0,data->phrase()));
 	#endif
@@ -62,11 +62,11 @@ namespace mycnn{
 
 		virtual const void op() override {
 
-#if __USDYNAMIC__ == ON
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *s_blob_ = (em_blob*)s_blob;
 
 			for (int j = 0; j < (o_blobs)->size(); ++j){
-				dy_blob *o_blob_ = (dy_blob *)o_blobs->at(j);
+				em_blob *o_blob_ = (em_blob *)o_blobs->at(j);
 				cacu_ram_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 			}
 #else
@@ -81,15 +81,15 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *s_blob_ = (em_blob*)s_blob;
 
-			for (int j = 0; j < (o_blobs)->size(); ++j){
-				dy_blob *o_blob_ = (dy_blob *)o_blobs->at(j);
-				for(int i = 0 ; i < s_blob_->num();++i){
+			for(int i = 0 ; i < s_blob_->num();++i){
+				for (int j = 0; j < (o_blobs)->size(); ++j){
+					em_blob *o_blob_ = (em_blob *)o_blobs->at(j);
 					cacu_saxpy(o_blob_->p_diff_d(i),(float_t)1,s_blob_->p_diff_d(i),o_blob_->length());
-					s_blob_->_sync(i);
 				}
+				s_blob_->_sync(i);
 			}
 #else
 			blob *s_blob_ = (blob*)s_blob;

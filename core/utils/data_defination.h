@@ -80,7 +80,7 @@ namespace mycnn {
 	 * original data maintaining type.
 	 */
 	enum blob_type{
-		__blob__, __bin_blob__, __dy_blob__, __dy_bin_blob__
+		__blob__, __bin_blob__, __em_blob__, __em_bin_blob__
 	};
 
 	typedef float float_t;

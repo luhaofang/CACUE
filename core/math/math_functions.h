@@ -135,16 +135,6 @@ inline void cacu_copy(float_t *x, int length, float_t *y)
 #endif
 }
 
-/**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
- */
-inline void cacu_ram_copy(float_t *x, int length, float_t *y)
-{
-	memcpy(y,x,length*sizeof(float_t));
-}
 
 /**
  * @rand_vector

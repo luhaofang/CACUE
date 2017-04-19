@@ -45,8 +45,8 @@ namespace mycnn{
 			int output_dim = (input_dim + 2 * _args->pad() - _args->kernel_size()) / _args->stride() + 1;
 			if(_args->kernel_size() == 1)
 				output_dim = (input_dim + 2 * _args->pad()) / _args->stride();
-#if __USDYNAMIC__ == ON
-			o_blob = create_dy_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 
 #else
 			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
@@ -76,9 +76,9 @@ namespace mycnn{
 
 		virtual const void op() override {
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
@@ -108,9 +108,9 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
 

@@ -53,14 +53,12 @@ namespace mycnn{
 
 		virtual const void op() override {
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-			{
-				cacu_relu(o_blob_->p_data_d(i),o_blob_->length());
-				o_blob_->_sync(i);
-			}
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
+
+			cacu_relu_cpu(o_blob_->s_data(),o_blob_->count());
+
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
@@ -70,14 +68,12 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-			{
-				cacu_relu_grad(s_blob_->p_data_d(i),o_blob_->p_diff_d(i),s_blob_->length());
-				s_blob_->_sync(i);
-			}
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
+
+			cacu_relu_grad_cpu(s_blob_->s_data(),o_blob_->s_diff(),s_blob_->count());
+
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;

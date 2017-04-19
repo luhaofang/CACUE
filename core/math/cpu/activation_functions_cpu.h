@@ -27,10 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-
-#include "cuda/activation_functions_cuda.h"
-#include "cpu/activation_functions_cpu.h"
-
+#include "../../utils/data_defination.h"
 
 
 namespace mycnn{
@@ -40,15 +37,17 @@ namespace mycnn{
 	 * math x[i] = max(0,x[i]) :
 	 * for activation use relu functions.
 	 */
-	inline void cacu_relu(float_t *x, int length)
+	inline void cacu_relu_cpu(float_t *x, int length)
 	{
-
-#if __PARALLELTYPE__ == __CUDA__
-		cacu_relu_gpu(x,length);
-#else
-		cacu_relu_cpu(x,length);
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
 #endif
-
+		for (i = 0; i < length; ++i)
+		{
+			if (x[i] < 0)
+				x[i] = 0.0;
+		}
 	}
 
 	/**
@@ -56,15 +55,17 @@ namespace mycnn{
 	 * math if(x[i]<0)?g[i] = g[i]:g[i] = 0;
 	 * gradient for activation use relu functions.
 	 */
-	inline void cacu_relu_grad(float_t *x, float_t *g, int length)
+	inline void cacu_relu_grad_cpu(float_t *x, float_t *g, int length)
 	{
-
-#if __PARALLELTYPE__ == __CUDA__
-		cacu_relu_grad_gpu(x,g,length);
-#else
-		cacu_relu_grad_cpu(x,g,length);
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
 #endif
-
+		for (i = 0; i < length; ++i)
+		{
+			if (x[i] <= 0)
+				g[i] = 0.0;
+		}
 	}
 
 	/**
@@ -72,15 +73,17 @@ namespace mycnn{
 	 * math if(x[i]<0)?x[i] = x[i]:x[i] *= a;
 	 * for activation use leaky_relu functions.
 	 */
-	inline void cacu_leaky_relu(float_t *x, float_t a, int length)
+	inline void cacu_leaky_relu_cpu(float_t *x, float_t a, int length)
 	{
-
-#if __PARALLELTYPE__ == __CUDA__
-		cacu_leaky_relu_gpu(x, a, length);
-#else
-		cacu_leaky_relu_cpu(x, a, length);
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
 #endif
-
+		for (i = 0; i < length; ++i)
+		{
+			if (x[i] < 0)
+				x[i] *= a;
+		}
 	}
 
 	/**
@@ -88,15 +91,17 @@ namespace mycnn{
 	 * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
 	 * gradient for activation use leaky_relu functions.
 	 */
-	inline void cacu_leaky_relu_grad(float_t *x,float_t *g, float_t a, int length)
+	inline void cacu_leaky_relu_grad_cpu(float_t *x,float_t *g, float_t a, int length)
 	{
-
-#if __PARALLELTYPE__ == __CUDA__
-		cacu_leaky_relu_grad_gpu(x, g, a, length);
-#else
-		cacu_leaky_relu_grad_cpu(x, g, a, length);
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
 #endif
-
+		for (i = 0; i < length; ++i)
+		{
+			if (x[i] <= 0)
+				g[i] *= a;
+		}
 	}
 
 	/**
@@ -104,15 +109,31 @@ namespace mycnn{
 	 * math softmax;
 	 * for activation use softmax functions.
 	 */
-	inline void cacu_softmax(float_t *x, int num, int length,float_t *y)
+	inline void cacu_softmax_cpu(float_t *x, int num, int length,float_t *y)
 	{
-
-#if __PARALLELTYPE__ == __CUDA__
-		cacu_softmax_gpu(x, num, length, y);
-#else
-		cacu_softmax_cpu(x, num, length, y);
+		float_t *xp,*yp,max_,sum_;
+		int n,i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(n,i,max_,sum_,xp,yp)
 #endif
-
+		for (n = 0; n < num; ++n)
+		{
+			xp = x + n * length;
+			yp = y + n * length;
+			max_ = xp[0];
+			sum_ = 0;
+			for (i = 1; i < length; ++i)
+				max_ = max(xp[i], max_);
+			for (i = 0; i < length; ++i)
+			{
+				yp[i] = exp(xp[i] - max_);
+				sum_ += yp[i];
+			}
+			for (i = 0; i < length; ++i)
+			{
+				yp[i] = (yp[i] / sum_);
+			}
+		}
 	}
 
 };

@@ -27,33 +27,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <stdio.h>
-#include <fstream>
-#include <sstream>
+#include "../../utils/data_defination.h"
 
-#include "../imageio_utils.h"
-
-using namespace std;
-
-namespace mycnn_tools{
-
-class cacu_binIO
-{
-public :
-
-	cacu_binIO(){};
-
-	~cacu_binIO(){};
+namespace mycnn{
 
 	/**
-	 * read image list and create image_bin datas. Every bin file contains a batchsize image data.
-	 * image_list contains the image names
-	 * output_dir is the bin files output location
-	 * input_dir denotes the image files' location
-	 * length denotes the length of an image for example 3*227*227 for alexnet
+	 * @cacu_cross_entropy
+	 * math x[i] = max(0,x[i]) :
+	 * for loss use cross entropy functions.
 	 */
-	void create_bins(string& image_list, string& output_dir, string& input_dir,int length,int batch_size);
+	inline void cacu_cross_entropy_cpu(float_t *x, int num, int length, unsigned int *label_, float_t *loss_)
+	{
+
+		float *xp;
+
+		int n;
+
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(n,xp)
+#endif
+		for (int n = 0; n < num ; ++n)
+		{
+			xp = x + n * length;
+			loss_[0] -= log(xp[label_[n]]);
+		}
+	}
 
 
-};
+
 };

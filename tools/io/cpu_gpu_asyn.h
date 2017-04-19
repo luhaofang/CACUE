@@ -146,7 +146,7 @@ void *asyn_fork(void *args)
 				for(int i = 0 ; i < _asyn_batch_size ; ++i)
 				{
 					imageio_utils::imread(buff->s_data + i * _asyn_length,batch_blob[i]);
-					cacu_saxpy_oblas(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
+					cacu_saxpy_cpu(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
 					memcpy(buff->s_label,&batch_label[0],_asyn_batch_size*sizeof(unsigned int));
 				}
 				buff->is_forked = not_forked;

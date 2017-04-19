@@ -39,9 +39,8 @@ namespace mycnn{
 
 			blob_base *_blob = data->at(0);
 
-#if __USDYNAMIC__ == ON
-			o_blob = create_dy_oblob(_blob->num(),args_->output_channel(),1,1,train);
-			_device_loss = device_malloc_v(1,1,(float_t)0);
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(_blob->num(),args_->output_channel(),1,1,train);
 #else
 			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
 #endif
@@ -50,9 +49,6 @@ namespace mycnn{
 
 		~softmax_with_loss_op(){
 			free(_loss);
-#if __USDYNAMIC__ == ON
-			device_free(_device_loss);
-#endif
 		};
 
 		virtual const void check() override{
@@ -63,19 +59,14 @@ namespace mycnn{
 
 			_loss[0] = 0.0;
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blobs->at(0);
-			dy_bin_blob *labels_ = (dy_bin_blob*)s_blobs->at(1);
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blobs->at(0);
+			em_bin_blob *labels_ = (em_bin_blob*)s_blobs->at(1);
 
-			device_setvalue<float_t>(_device_loss,0,1);
+			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
+			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 
-			for(int i = 0 ; i < o_blob_->num();++i)
-			{
-				cacu_softmax(s_blob_->p_data_d(i), 1, s_blob_->length(),o_blob_->p_data_d(i));
-				cacu_cross_entropy(o_blob_->p_data_d(i),1,o_blob_->length(),labels_->p_data_d(i),_device_loss);
-				o_blob_->_sync(i);
-			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blobs->at(0);
@@ -85,8 +76,8 @@ namespace mycnn{
 			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 #endif
 
-#if __USDYNAMIC__ == ON
-			device_copy2host(_loss, _device_loss, 1);
+#if __USEMBEDDING__ == ON
+			cacu_copy(o_blob_->s_diff(), 1 ,_loss);
 #else
 	#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2host(_loss, o_blob_->s_diff(), 1);
@@ -99,10 +90,10 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blobs->at(0);
-			dy_bin_blob *labels_ = (dy_bin_blob*)s_blobs->at(1);
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blobs->at(0);
+			em_bin_blob *labels_ = (em_bin_blob*)s_blobs->at(1);
 
 			//CE LOSS BACK PROPGATION
 			for (int i = 0 ; i < s_blob_->num() ; ++i)
@@ -154,9 +145,6 @@ namespace mycnn{
 	private:
 
 		float_t *_loss;
-#if __USDYNAMIC__ == ON
-		float_t *_device_loss;
-#endif
 
 		float_t _loss_weight = 1.0;
 	};

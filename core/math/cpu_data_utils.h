@@ -25,18 +25,31 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-#include "cacu_binIO.h"
-#include <vector>
-
-using namespace std;
+#pragma once
 
 
-namespace mycnn_tools{
+#include "../utils/data_defination.h"
 
-void cacu_binIO::create_bins(string& image_list,string& output_dir,string& input_dir,int length,int batch_size)
-{
 
-}
+namespace mycnn{
+
+	/**
+	 * @cacu_ram_copy
+	 * copy ram data
+	 * math y = x:
+	 * length: the input data's size
+	 */
+	inline void cacu_ram_copy(float_t *x, int length, float_t *y)
+	{
+		memcpy(y,x,length*sizeof(float_t));
+	}
+
+
+	inline void cacu_saxpy_cpu(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, int length)
+	{
+#if __PARALLELTYPE__ == __OPENBLAS__
+		cblas_saxpy(length, a, x, 1, y, 1);
+#endif
+	}
 
 };

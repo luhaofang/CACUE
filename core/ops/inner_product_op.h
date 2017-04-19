@@ -37,8 +37,8 @@ namespace mycnn{
 		inner_product_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
-#if __USDYNAMIC__ == ON
-			o_blob = create_dy_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
 #else
 			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
 #endif
@@ -62,9 +62,9 @@ namespace mycnn{
 
 		virtual const void op() override {
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 
 			for(int i = 0; i < s_blob_->num(); ++i){
 				cacu_sgemm(TRANS, NOTRANS, _w->s_data(),_w->num(), _w->length(),s_blob_->p_data_d(i),1, 1 ,o_blob_->p_data_d(i),0);
@@ -89,9 +89,9 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 
 			for(int i = 0; i < s_blob_->num();++i){
 				//gradient propagation

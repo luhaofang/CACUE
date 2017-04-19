@@ -34,7 +34,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../math/batch_functions.h"
 #include "../math/pooling_functions.h"
 #include "../math/loss_functions.h"
+
 #include "../math/device_data_utils.h"
+#include "../math/cpu_data_utils.h"
 
 #include "operator_base.h"
 #include "math_operator_base.h"

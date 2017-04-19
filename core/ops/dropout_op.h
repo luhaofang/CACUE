@@ -40,9 +40,9 @@ namespace mycnn{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-#if __USDYNAMIC__ == ON
+#if __USEMBEDDING__ == ON
 			o_blob = data;
-			_rand_vect = cacu_allocator::create_dy_blob(num,channel,input_dim,input_dim, test);
+			_rand_vect = cacu_allocator::create_em_blob(num,channel,input_dim,input_dim, test);
 #else
 			o_blob = data;
 			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
@@ -62,10 +62,10 @@ namespace mycnn{
 
 			float_t scale_ = 1.0 / (1 - _ratio);
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			dy_blob *rand_vect_ = (dy_blob*)_rand_vect;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
+			em_blob *rand_vect_ = (em_blob*)_rand_vect;
 
 			if(train == s_blob_->phrase())
 			{
@@ -96,10 +96,10 @@ namespace mycnn{
 
 
 			float_t scale_ = 1.0 / (1 - _ratio);
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			dy_blob *rand_vect_ = (dy_blob*)_rand_vect;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
+			em_blob *rand_vect_ = (em_blob*)_rand_vect;
 
 			if(train == s_blob_->phrase())
 			{

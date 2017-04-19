@@ -45,9 +45,9 @@ namespace mycnn{
 			if (pad != 0)
 				output_dim += 1;
 
-#if __USDYNAMIC__ == ON
-			o_blob = create_dy_oblob(num, channel, output_dim, output_dim, _phrase);
-			_index = cacu_allocator::create_dy_bin_blob(num, channel, output_dim, output_dim, test);
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(num, channel, output_dim, output_dim, _phrase);
+			_index = cacu_allocator::create_em_bin_blob(num, channel, output_dim, output_dim, test);
 #else
 			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
 			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
@@ -66,10 +66,10 @@ namespace mycnn{
 		}
 
 		virtual const void op() override {
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			dy_bin_blob *index_ = (dy_bin_blob*)_index;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
+			em_bin_blob *index_ = (em_bin_blob*)_index;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				cacu_max_pooling(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data_d(i), index_->p_data_d(i));
 				o_blob_->_sync(i);
@@ -87,10 +87,10 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
-			dy_bin_blob *index_ = (dy_bin_blob*)_index;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
+			em_bin_blob *index_ = (em_bin_blob*)_index;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff_d(i), index_->p_data_d(i));
 				s_blob_->_sync(i);

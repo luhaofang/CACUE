@@ -38,11 +38,11 @@ namespace mycnn{
 		batch_normal_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 
 			check();
-#if __USDYNAMIC__ == ON
-			o_blob = create_dy_oblob(data->num(), data->channel(), data->height(),data->width(), _phrase);
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(), data->channel(), data->height(),data->width(), _phrase);
 			//save for train
 			if(train == _phrase)
-				_x = cacu_allocator::create_dy_blob(data->num(), data->channel(), data->height(), data->width(), test);
+				_x = cacu_allocator::create_em_blob(data->num(), data->channel(), data->height(), data->width(), test);
 
 			_dim_sum = cacu_allocator::create_blob(1, data->channel(), data->height(), data->width(), test);
 #else
@@ -95,11 +95,11 @@ namespace mycnn{
 
 		virtual const void op() override {
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *dim_sum_ = (blob*)_dim_sum;
-			dy_blob *x_ = (dy_blob*)_x;
+			em_blob *x_ = (em_blob*)_x;
 
 			float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
 
@@ -140,8 +140,8 @@ namespace mycnn{
 				}
 			}
 			else{
-				cacu_stdbychannel(_history_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
+				cacu_stdbychannel(_history_var->s_data(), _std->count(), _std->s_data(), epsilon);
 				for (int i = 0; i < s_blob_->num(); ++i){
 					cacu_ssxpy(_history_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data_d(i), (float_t)(1), s_blob_->length(), o_blob_->p_data_d(i));
 					cacu_cdxsize(o_blob_->p_data_d(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data_d(i));
@@ -218,11 +218,11 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *dim_sum_ = (blob*)_dim_sum;
-			dy_blob *x_ = (dy_blob*)_x;
+			em_blob *x_ = (em_blob*)_x;
 
 			float_t *mean_data_,*mean_diff_;
 

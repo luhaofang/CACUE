@@ -54,11 +54,11 @@ namespace mycnn{
 					case __bin_blob__:
 						delete (bin_blob*)at(i);
 						break;
-					case __dy_blob__:
-						delete (dy_blob*)at(i);
+					case __em_blob__:
+						delete (em_blob*)at(i);
 						break;
-					case __dy_bin_blob__:
-						delete (dy_bin_blob*)at(i);
+					case __em_bin_blob__:
+						delete (em_bin_blob*)at(i);
 						break;
 					default:
 						LOG_FATAL("can't identify the type!");

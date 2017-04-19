@@ -29,11 +29,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../math/math_config.h"
 
-#define __PARALLELTYPE__  __OPENBLAS__
+#define __PARALLELTYPE__  __CUDA__
 
 #define __OPENMP__  OFF
 
-#define __USDYNAMIC__  OFF
+#define __USEMBEDDING__  ON
 
 //embedding size for device
 #define __EMBEDSIZE__ 1

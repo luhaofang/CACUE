@@ -37,8 +37,8 @@ namespace mycnn{
 		feature_combine_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 			_units_count = args_->at(0);
-#if __USDYNAMIC__ == ON
-			o_blob = create_dy_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phrase);
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phrase);
 #else
 			o_blob = create_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phrase);
 #endif
@@ -56,18 +56,17 @@ namespace mycnn{
 		}
 
 		virtual const void op() override {
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 
 			int output_num = s_blob->num() / _units_count;
 			for(int i = 0 ; i < output_num ;++i)
 			{
 				for(int j = 0 ; j < _units_count ; ++j)
 				{
-					cacu_copy(s_blob_->p_data_d(i*_units_count+j), s_blob_->length(), o_blob_->p_data_d(i)+j*s_blob_->length());
+					cacu_ram_copy(s_blob_->p_data(i*_units_count+j), s_blob_->length(), o_blob_->p_data(i)+j*s_blob_->length());
 				}
-				o_blob_->_sync(i);
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
@@ -86,9 +85,9 @@ namespace mycnn{
 
 		virtual const void grad() override{
 
-#if __USDYNAMIC__ == ON
-			dy_blob *o_blob_ = (dy_blob*)o_blob;
-			dy_blob *s_blob_ = (dy_blob*)s_blob;
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blob;
 
 			int output_num = s_blob->num() / _units_count;
 			for(int i = 0 ; i < output_num ;++i)

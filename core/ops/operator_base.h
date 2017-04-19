@@ -205,10 +205,10 @@ namespace mycnn{
 			return new blob(num, channel,height,width, 0 ,phrase_);
 		}
 
-#if __USDYNAMIC__ == ON
-		inline blob_base * create_dy_oblob(int num,int channel, int height, int width, phrase_type phrase_){
+#if __USEMBEDDING__ == ON
+		inline blob_base * create_em_oblob(int num,int channel, int height, int width, phrase_type phrase_){
 			_IS_ALLOC_OUTPUT = true;
-			return new dy_blob(num, channel,height,width, 0 ,phrase_);
+			return new em_blob(num, channel,height,width, 0 ,phrase_);
 		}
 #endif
 		inline blobs * create_oblobs(){

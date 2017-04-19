@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "cuda/loss_functions_cuda.h"
+#include "cpu/loss_functions_cpu.h"
+
 #include "../utils/data_defination.h"
 
 namespace mycnn{
@@ -44,18 +46,7 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_cross_entropy_gpu(x, num, length, label_,loss_);
 #else
-		float *xp;
-
-		int n;
-
-#if __OPENMP__ == ON
-		#pragma omp parallel for default(shared) private(n,xp)
-#endif
-		for (int n = 0; n < num ; ++n)
-		{
-			xp = x + n * length;
-			loss_[0] -= log(xp[label_[n]]);
-		}
+		cacu_cross_entropy_cpu(x, num, length, label_,loss_);
 #endif
 	}
 
