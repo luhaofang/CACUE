@@ -91,7 +91,7 @@ namespace mycnn{
 
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j){
 				em_blob *s_blob_ = (em_blob *)s_blobs->at(j);
-				cacu_ram_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
+				cacu_copy_cpu(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;

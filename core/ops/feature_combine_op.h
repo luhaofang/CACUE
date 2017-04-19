@@ -65,7 +65,7 @@ namespace mycnn{
 			{
 				for(int j = 0 ; j < _units_count ; ++j)
 				{
-					cacu_ram_copy(s_blob_->p_data(i*_units_count+j), s_blob_->length(), o_blob_->p_data(i)+j*s_blob_->length());
+					cacu_copy_cpu(s_blob_->p_data(i*_units_count+j), s_blob_->length(), o_blob_->p_data(i)+j*s_blob_->length());
 				}
 			}
 #else

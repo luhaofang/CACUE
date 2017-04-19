@@ -67,7 +67,7 @@ namespace mycnn{
 
 			for (int j = 0; j < (o_blobs)->size(); ++j){
 				em_blob *o_blob_ = (em_blob *)o_blobs->at(j);
-				cacu_ram_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				cacu_copy_cpu(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 			}
 #else
 			blob *s_blob_ = (blob*)s_blob;

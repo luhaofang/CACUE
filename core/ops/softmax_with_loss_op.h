@@ -64,8 +64,8 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blobs->at(0);
 			em_bin_blob *labels_ = (em_bin_blob*)s_blobs->at(1);
 
-			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
-			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+			cacu_softmax_cpu(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
+			cacu_cross_entropy_cpu(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 
 #else
 			blob *o_blob_ = (blob*)o_blob;
@@ -77,7 +77,7 @@ namespace mycnn{
 #endif
 
 #if __USEMBEDDING__ == ON
-			cacu_copy(o_blob_->s_diff(), 1 ,_loss);
+			cacu_copy_cpu(o_blob_->s_diff(), 1 ,_loss);
 #else
 	#if __PARALLELTYPE__ == __CUDA__
 			cuda_copy2host(_loss, o_blob_->s_diff(), 1);
