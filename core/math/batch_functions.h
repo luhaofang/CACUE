@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cuda/batch_functions_cuda.h"
 #include "cpu/batch_functions_cpu.h"
 
+
 namespace mycnn{
 
 

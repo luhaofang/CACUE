@@ -29,6 +29,28 @@
 
 #include "../../utils/data_defination.h"
 
+__global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,int length){
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] =  atomicAdd_system(y + i, a * x[i]);
+	}
+
+}
+
+extern "C" void cacu_saxpy_atomic_gpu(float *x, float a, float *y,int length)
+{
+	_k_CACU_SAXPY_ATOMIC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a ,y,length);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
 __global__ void _k_CACU_ISAXB_GPU(mycnn::float_t *x, int length, mycnn::float_t a ,unsigned int *index_, mycnn::float_t b, mycnn::float_t *y) {
 
 	int tid = threadIdx.x;

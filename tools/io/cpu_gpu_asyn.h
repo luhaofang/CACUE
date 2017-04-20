@@ -158,6 +158,44 @@ void *asyn_fork(void *args)
 	return NULL;
 }
 
+void *asyn_fork_without_mean(void *args)
+{
+	int thread_id = (int)(*((int*)args));
+	if(thread_id < MAX_BUFF_SIZE)
+	{
+		buff_item *buff = _asyn_buff[thread_id];
+		vector<string> batch_blob(_asyn_batch_size);
+		vec_i batch_label(_asyn_batch_size);
+		while(_asyn_iter < _asyn_max_iter)
+		{
+			if(buff->is_forked == forked)
+			{
+				pthread_mutex_lock(&itermutex);
+				_asyn_iter += 1;
+				for(int i = 0 ; i < _asyn_batch_size ; ++i)
+				{
+					if(_asyn_index >= _asyn_data_blob->size())
+						_asyn_index = 0;
+					batch_blob[i] = _asyn_data_blob->at(_asyn_index);
+					batch_label[i] = _asyn_data_label->at(_asyn_index)[0];
+					_asyn_index += 1;
+				}
+				pthread_mutex_unlock(&itermutex);
+				for(int i = 0 ; i < _asyn_batch_size ; ++i)
+				{
+					imageio_utils::imread(buff->s_data + i * _asyn_length,batch_blob[i]);
+					//cacu_saxpy_cpu(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
+					memcpy(buff->s_label,&batch_label[0],_asyn_batch_size*sizeof(unsigned int));
+				}
+				buff->is_forked = not_forked;
+			}
+			usleep(100);
+		}
+		buff->is_forked = terminated;
+	}
+	return NULL;
+}
+
 void asyn_initial(int num,int length,int max_iter, vector<string> *data_blob,vector<vec_i> *data_label, float_t *mean){
 	_asyn_buff = vector<buff_item *>(MAX_BUFF_SIZE);
 	//initial buffer source
@@ -198,7 +236,7 @@ void asyn_initial_threads()
 	while(_thread_index > 0)
 	{
 		_thread_index--;
-		rc = pthread_create(&_threads[_thread_index], NULL, asyn_fork, (void*)&_thread_index);
+		rc = pthread_create(&_threads[_thread_index], NULL, asyn_fork_without_mean, (void*)&_thread_index);
 		if (rc)
 		{
 			printf("ERROR; return code is %d\n", rc);

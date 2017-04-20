@@ -42,7 +42,7 @@ namespace mycnn{
  * math y = a*x + y:
  * length: the input data's size
  */
-inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
+inline void cacu_saxpy(float *x, float a, float *y,int length)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -57,7 +57,7 @@ inline void cacu_saxpy(float_t *x, float_t a, float_t *y,int length)
  * math y = a*x + b*y:
  * length: the input data's size
  */
-inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length)
+inline void cacu_saxpby(float *x, float a, float *y, float b, int length)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -73,7 +73,7 @@ inline void cacu_saxpby(float_t *x, float_t a, float_t *y, float_t b, int length
  * math x[i] = a*x[i] :
  * x is a length dim array list, a is the corresponding scalar.
  */
-inline void cacu_scalex(float_t *x, int length, float_t a)
+inline void cacu_scalex(float *x, int length, float a)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -89,7 +89,7 @@ inline void cacu_scalex(float_t *x, int length, float_t a)
  * math z = X*y:
  * trans_: whether x is needed to transpose
  */
-inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, int x_width, float_t alpha, float_t *z , float_t beta)
+inline void cacu_sgemv(TRANSPOSE trans_,float *x, int x_height, float *y, int x_width, float alpha, float *z , float beta)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -107,7 +107,7 @@ inline void cacu_sgemv(TRANSPOSE trans_,float_t *x, int x_height, float_t *y, in
  * transx_: whether x is need to transpose
  * transy_: whether y is need to transpose
  */
-inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float_t *x, int x_height, int x_width, float_t *y, int y_width, float_t alpha, float_t *z, float_t beta)
+inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float *x, int x_height, int x_width, float *y, int y_width, float alpha, float *z, float beta)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -135,6 +135,20 @@ inline void cacu_copy(float_t *x, int length, float_t *y)
 #endif
 }
 
+
+/**
+ * @cacu_saxpy_atomic
+ * math y = ax + y:
+ * length: the input data's size
+ */
+inline void cacu_saxpy_atomic(float *x, float a, float *y, int length)
+{
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_saxpy_atomic_gpu(x, a, y, length);
+#else
+	memcpy(y,x,length*sizeof(float_t));
+#endif
+}
 
 /**
  * @rand_vector

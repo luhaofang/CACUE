@@ -30,17 +30,18 @@
 
 #include "cuda_log.h"
 #include "cuda_utils.h"
+
 #include "../../utils/data_defination.h"
 #if __PARALLELTYPE__ == __CUDA__
 
 
-inline void cacu_saxpy_gpu(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, int length) {
+inline void cacu_saxpy_gpu(float *x, float a, float *y, int length) {
 	mycnn::float_t a_ = a;
 	status = cublasSaxpy_v2(handle, length, &a_, x, 1, y, 1);
 	CUBLAS_CHECK(status);
 }
 
-inline void cacu_saxpby_gpu(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, mycnn::float_t b, int length)
+inline void cacu_saxpby_gpu(float *x, float a, float *y, float b, int length)
 {
 	mycnn::float_t a_ = a;
 	mycnn::float_t b_ = b;
@@ -50,14 +51,14 @@ inline void cacu_saxpby_gpu(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t 
 	CUBLAS_CHECK(status);
 }
 
-inline void cacu_scalex_gpu(mycnn::float_t *x, mycnn::float_t a, int length)
+inline void cacu_scalex_gpu(float *x, float a, int length)
 {
 	mycnn::float_t a_ = a;
 	status = cublasSscal_v2(handle, length, &a, x, 1);
 	CUBLAS_CHECK(status);
 }
 
-inline void cacu_sgemv_gpu(cublasOperation_t trans, mycnn::float_t *x, int x_height, mycnn::float_t *y, int x_width, mycnn::float_t alpha, mycnn::float_t *z , mycnn::float_t beta)
+inline void cacu_sgemv_gpu(cublasOperation_t trans, float *x, int x_height, float *y, int x_width, float alpha, float *z , float beta)
 {
 	int m = x_height,n = x_width;
 	mycnn::float_t _alpha = alpha;
@@ -66,7 +67,7 @@ inline void cacu_sgemv_gpu(cublasOperation_t trans, mycnn::float_t *x, int x_hei
 	CUBLAS_CHECK(status);
 }
 
-inline void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, mycnn::float_t *x, int x_height, int x_width, mycnn::float_t *y, int y_width, mycnn::float_t alpha, mycnn::float_t *z, mycnn::float_t beta)
+inline void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, float *x, int x_height, int x_width, float *y, int y_width, float alpha, float *z, float beta)
 {
 	int m = x_height,n = y_width,k = x_width;
 	int lda = (transx == CUBLAS_OP_N) ? m : k;
@@ -82,6 +83,8 @@ inline void cacu_copy_gpu(mycnn::float_t *x, int x_length,mycnn::float_t *y)
 	status = cublasScopy_v2(handle, x_length, x, 1, y, 1);
 	CUBLAS_CHECK(status);
 }
+
+extern "C" void cacu_saxpy_atomic_gpu(float *x, float a, float *y,int length);
 
 /**
  * @cacu_isaxdb_gpu

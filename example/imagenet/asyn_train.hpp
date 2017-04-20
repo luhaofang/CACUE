@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 128;
+	int batch_size = 16;
 
 	int max_iter = 200000;
 
@@ -54,13 +54,13 @@ void train_net()
 	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net.log", ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
-	network *net = create_res18net(batch_size,train);//create_alexnet(batch_size,train);//create_vgg_16_net(batch_size,train);
+	network *net = create_vgg_16_net(batch_size,train);//create_res18net(batch_size,train);//create_alexnet(batch_size,train);
 
-	//net->load_weights("/home/seal/4T/cacue/imagenet/res18net_30000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net.caffemodel");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.01f);
+	sgd->set_lr(0.000001f);
 	sgd->set_weight_decay(0.0005f);
 
 	string datapath = "/home/seal/4T/imagenet/224X224_train/";

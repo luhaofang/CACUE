@@ -111,8 +111,8 @@ network* create_alexnet(int batch_size_,phrase_type phrase_)
 
 network* create_dy_alexnet(int batch_size_,phrase_type phrase_)
 {
-	dy_blob *blob_ = cacu_allocator::create_dy_blob(batch_size_, 3, 227, 227, phrase_);
-	dy_bin_blob *label_ = cacu_allocator::create_dy_bin_blob(batch_size_, 1, 1, 1,phrase_);
+	em_blob *blob_ = cacu_allocator::create_em_blob(batch_size_, 3, 227, 227, phrase_);
+	em_bin_blob *label_ = cacu_allocator::create_em_bin_blob(batch_size_, 1, 1, 1,phrase_);
 
 	blobs *input_datas_ = cacu_allocator::create_blobs();
 	input_datas_->push_back(blob_);
