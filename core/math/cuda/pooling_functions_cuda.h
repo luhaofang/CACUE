@@ -97,3 +97,7 @@ extern "C" void cacu_col2img_gpu(mycnn::float_t *x, int kernel_size, int stride,
 
 extern "C" void cacu_col2img_pad_gpu(mycnn::float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, mycnn::float_t *y);
 
+extern "C" void cacu_col2img_pad_1x1_gpu(mycnn::float_t *x, int stride, int input_dim, int channel, int output_dim,int pad, mycnn::float_t *y);
+
+
+

@@ -157,8 +157,7 @@ namespace mycnn{
 			blob *x_ = (blob*)_x;
 
 			float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
-			//cout << "forward_s:   ";
-			//cacu_print(s_blob_->s_data(),1000);
+
 			if (!use_global_stats)
 			{
 				float_t bias_correction_factor = m > (float_t)1.0 ? (m) / (m - (float_t)1.0) : (float_t)1.0;
@@ -171,7 +170,7 @@ namespace mycnn{
 				for (int i = 0; i < s_blob_->num(); ++i)
 					cacu_ssxpy(_mean->s_data(),(float_t)(-1),_mean->count(),s_blob_->p_data(i),(float_t)(1),s_blob_->length(),o_blob_->p_data(i));
 
-				//for saving space here we use o_data for container calculate x^2
+				//for saving space here we use x_ for container calculate x^2
 				cacu_sqr(o_blob_->s_data(), o_blob_->count(), x_->s_data());
 
 				cacu_sumbysize(BYWIDTH, x_->s_data(), o_blob_->count(), 1,dim_sum_->s_data(), 0, o_blob_->length()/o_blob_->channel());
@@ -210,7 +209,7 @@ namespace mycnn{
 			//cout << "std:   ";
 			//cacu_print(_std->s_data(),_std->count());
 			//cout << "forward_o:   ";
-			//cacu_print(o_blob_->s_data(),1000);
+			//cacu_print(o_blob_->s_data(),10000);
 			//cout << endl;
 
 #endif
@@ -262,7 +261,8 @@ namespace mycnn{
 			blob *x_ = (blob*)_x;
 
 			float_t *mean_data_,*mean_diff_;
-
+			//cacu_print(o_blob_->s_diff(),10000);
+			//cout << endl << endl;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				//calculate dl/x_
 				cacu_cxsize(o_blob_->p_diff(i), o_blob_->length(), _scale->s_data(), _scale->count(), s_blob_->p_diff(i));
@@ -280,7 +280,14 @@ namespace mycnn{
 			//gradient of shift
 			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1, dim_sum_->s_data(), 0, o_blob_->length() / o_blob_->channel());
 			cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _shift->s_diff(), 0, s_blob_->channel());
-
+/*
+			cacu_print(_scale->s_diff(),_scale->count());
+			cout << endl;
+			cacu_print(_shift->s_diff(),_shift->count());
+			cout << endl;
+			cacu_print(s_blob_->s_diff(),10000);
+			cout << endl << endl;
+			//*/
 #endif
 		}
 

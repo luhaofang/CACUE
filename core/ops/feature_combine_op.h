@@ -124,7 +124,7 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			LOG_INFO("create feature combine op:");
-			LOG_INFO("channel: %d, output_channel: %d",s_blob->channel(),o_blob->channel());
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

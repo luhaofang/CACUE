@@ -47,7 +47,7 @@ __global__ void _k_CACU_CROSS_ENTROPY_GPU(mycnn::float_t *x, int num, int length
 	for (int i = tid; i < num; i+=THREADNUM)
 	{
 		xp = x + i * length;
-		shared_data[tid] -= log(xp[label_[i]]);
+		atomicAdd(shared_data+tid,-log(xp[label_[i]]));
 	}
 
 	__syncthreads();
@@ -55,12 +55,12 @@ __global__ void _k_CACU_CROSS_ENTROPY_GPU(mycnn::float_t *x, int num, int length
 	int acc_length = THREADNUM / 2;
 	while(acc_length > 0){
 		if(tid < acc_length)
-			shared_data[tid] += shared_data[tid + acc_length];
+			atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
 		acc_length /= 2;
 		__syncthreads();
 	}
 	if(tid == 0)
-		loss_[0] += shared_data[0];
+		atomicAdd(loss_ ,shared_data[0]);
 }
 
 

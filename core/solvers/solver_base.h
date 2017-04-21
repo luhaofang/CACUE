@@ -49,6 +49,8 @@ namespace mycnn{
 					_temp->push_back(temp_w);
 				}
 			}
+
+			_batch_size = _net->input_blobs()->at(0)->num();
 		};
 
 		virtual ~solver_base(){
@@ -154,6 +156,8 @@ namespace mycnn{
 	private:
 
 		blobs* _temp;
+
+		int _batch_size;
 
 	};
 }

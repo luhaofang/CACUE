@@ -38,7 +38,7 @@ __global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,int length)
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] =  atomicAdd_system(y + i, a * x[i]);
+		atomicAdd(y + i, a * x[i]);
 	}
 
 }

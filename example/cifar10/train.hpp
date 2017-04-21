@@ -53,8 +53,8 @@ void train_net()
 
 	sgd->set_lr(0.001f);
 
-	string datapath = "E:/mywork/data/cifar-10-batches-bin/";
-	string meanfile = "E:/mywork/data/cifar-10-batches-bin/mean.binproto";
+	string datapath = "/home/seal/4T/cacue/cifar10/data/";
+	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -89,7 +89,7 @@ void train_net()
 
 	}
 
-	net->save_weights("E:/mywork/data/cifar-10-batches-bin/cifar10_quick.model");
+	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif

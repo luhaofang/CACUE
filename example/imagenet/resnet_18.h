@@ -115,15 +115,19 @@ network* create_testnet(int batch_size_,phrase_type phrase_)
 
 	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
 
-	layer *ave_pool = new layer(64,conv1->get_oblob()->height(),1);
-	ave_pool->op(CACU_AVERAGE_POOLING,conv1->get_oblob());
+	layer *conv2 = new layer(512,3,1,1);
+	conv2->op(CACU_CONVOLUTION,conv1->get_oblob());
+	conv2->get_op<convolution_op>(0)->set_is_use_bias(false);
+
+	layer *ave_pool = new layer(64,conv2->get_oblob()->height(),1);
+	ave_pool->op(CACU_AVERAGE_POOLING,conv2->get_oblob());
 
 	if(phrase_ == train){
 		layer_block *loss_ = loss_layer((blob*)ave_pool->get_oblob(), label_, 1000);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 
-		*net << conv1 << ave_pool << loss_;
+		*net << conv1 << conv2 << ave_pool << loss_;
 	}
 	else
 	{
@@ -131,7 +135,7 @@ network* create_testnet(int batch_size_,phrase_type phrase_)
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 
-		*net << conv1 << ave_pool << predict_;
+		*net << conv1 << conv2 << ave_pool << predict_;
 	}
 
 

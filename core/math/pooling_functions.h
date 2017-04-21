@@ -185,7 +185,10 @@ namespace mycnn{
 	{
 
 #if __PARALLELTYPE__ == __CUDA__
-		cacu_col2img_pad_gpu(x,kernel_size,stride,input_dim,channel,output_dim,pad,y);
+		if(kernel_size != 1)
+			cacu_col2img_pad_gpu(x,kernel_size,stride,input_dim,channel,output_dim,pad,y);
+		else
+			cacu_col2img_pad_1x1_gpu(x,stride,input_dim,channel,output_dim,pad,y);
 #else
 		cacu_col2img_pad_cpu(x,kernel_size,stride,input_dim,channel,output_dim,pad,y);
 #endif

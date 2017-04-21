@@ -36,7 +36,7 @@ namespace mycnn{
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 		l->op(CACU_CONVOLUTION, data);
-		layer *ml = new layer(output_channel, 3, 2);
+		layer *ml = new layer(output_channel, 3, 2, l->get_oblob()->height(),l->get_oblob()->channel());
 		ml->op(CACU_MAX_POOLING, l->get_oblob())->op(activation_op);
 		clock_t end = clock();
 		*lb << l << ml;

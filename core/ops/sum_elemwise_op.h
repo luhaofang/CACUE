@@ -100,7 +100,6 @@ namespace mycnn{
 				blob *s_blob_ = (blob *)s_blobs->at(j);
 				cacu_copy(o_blob_->s_diff(),o_blob_->count(),s_blob_->s_diff());
 			}
-			blob *s_blob_ = (blob *)s_blobs->at(1);
 #endif
 		}
 

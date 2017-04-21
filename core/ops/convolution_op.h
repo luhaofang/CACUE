@@ -146,7 +146,6 @@ namespace mycnn{
 				if(_is_use_bias)
 					cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 			}
-			//cacu_print(s_blob_->s_diff(),s_blob_->count());
 #endif
 		}
 
@@ -165,7 +164,7 @@ namespace mycnn{
 		virtual const void echo() override
 		{
 			LOG_INFO("create convolution op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height(), _args->kernel_size());
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height(), _args->kernel_size(),_args->stride(),_args->pad());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

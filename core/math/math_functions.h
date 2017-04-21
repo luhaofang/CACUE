@@ -146,7 +146,7 @@ inline void cacu_saxpy_atomic(float *x, float a, float *y, int length)
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_saxpy_atomic_gpu(x, a, y, length);
 #else
-	memcpy(y,x,length*sizeof(float_t));
+	cacu_saxpy_oblas(x, a, y, length);
 #endif
 }
 

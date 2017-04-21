@@ -99,6 +99,7 @@ namespace mycnn{
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			bin_blob *index_ = (bin_blob*)_index;
+
 			for(int i = 0 ; i < s_blob_->num(); ++i)
 				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
 #endif
@@ -114,7 +115,7 @@ namespace mycnn{
 
 		virtual const void echo() override{
 			LOG_INFO("create max_pooling op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height(), _args->kernel_size(),_args->stride(),_args->pad());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

@@ -141,14 +141,11 @@ void *asyn_fork(void *args)
 					batch_blob[i] = _asyn_data_blob->at(_asyn_index);
 					batch_label[i] = _asyn_data_label->at(_asyn_index)[0];
 					_asyn_index += 1;
-				}
-				pthread_mutex_unlock(&itermutex);
-				for(int i = 0 ; i < _asyn_batch_size ; ++i)
-				{
 					imageio_utils::imread(buff->s_data + i * _asyn_length,batch_blob[i]);
 					cacu_saxpy_cpu(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
-					memcpy(buff->s_label,&batch_label[0],_asyn_batch_size*sizeof(unsigned int));
 				}
+				memcpy(buff->s_label,&batch_label[0],_asyn_batch_size*sizeof(unsigned int));
+				pthread_mutex_unlock(&itermutex);
 				buff->is_forked = not_forked;
 			}
 			usleep(100);
@@ -179,14 +176,10 @@ void *asyn_fork_without_mean(void *args)
 					batch_blob[i] = _asyn_data_blob->at(_asyn_index);
 					batch_label[i] = _asyn_data_label->at(_asyn_index)[0];
 					_asyn_index += 1;
-				}
-				pthread_mutex_unlock(&itermutex);
-				for(int i = 0 ; i < _asyn_batch_size ; ++i)
-				{
 					imageio_utils::imread(buff->s_data + i * _asyn_length,batch_blob[i]);
-					//cacu_saxpy_cpu(_asyn_mean,(mycnn::float_t)-1,buff->s_data + i * _asyn_length, _asyn_length);
-					memcpy(buff->s_label,&batch_label[0],_asyn_batch_size*sizeof(unsigned int));
 				}
+				memcpy(buff->s_label,&batch_label[0],_asyn_batch_size*sizeof(unsigned int));
+				pthread_mutex_unlock(&itermutex);
 				buff->is_forked = not_forked;
 			}
 			usleep(100);
@@ -236,7 +229,7 @@ void asyn_initial_threads()
 	while(_thread_index > 0)
 	{
 		_thread_index--;
-		rc = pthread_create(&_threads[_thread_index], NULL, asyn_fork_without_mean, (void*)&_thread_index);
+		rc = pthread_create(&_threads[_thread_index], NULL, asyn_fork, (void*)&_thread_index);
 		if (rc)
 		{
 			printf("ERROR; return code is %d\n", rc);

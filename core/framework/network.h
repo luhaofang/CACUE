@@ -108,6 +108,22 @@ namespace mycnn{
 
 		inline blob *& output_blob(){return _ops[_ops.size()-1]->out_data<blob>();}
 
+		inline void output_blobs(){
+			for(int i = 0; i < op_count(); ++i)	{
+				blob_base * bp = get_op(i)->out_data<blob_base>();
+				if(bp != NULL&&bp->is_output())
+					LOG_DEBUG("%d",i);
+				else if(bp == NULL)
+				{
+					for(int j = 0 ; j < get_op(i)->out_datas()->size(); ++j)
+					{
+						if(get_op(i)->out_datas()->at(j)->is_output())
+							LOG_DEBUG("%d:%d",i,j);
+					}
+				}
+			}
+		}
+
 		inline phrase_type phrase(){return _input_blobs->at(0)->phrase();}
 
 		void load_weights(chars_t modelpath){

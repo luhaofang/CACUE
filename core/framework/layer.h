@@ -78,7 +78,6 @@ namespace mycnn{
 		layer* op(op_name op_, blob_base *blob_ ,args_base *args_) {
 			if(blob_ == NULL)
 				LOG_FATAL("input data is NULL!");
-			refresh_layer_param(blob_);
 			_args = args_;
 			blobs *blobs_ = cacu_allocator::create_blobs();
 			if (out_blob != NULL)
@@ -104,7 +103,6 @@ namespace mycnn{
 		layer* op(op_name op_, blobs *blobs_, args_base *args_) {
 			if(blobs_ == NULL)
 				LOG_FATAL("input data is NULL!");
-			refresh_layer_param(blobs_->at(0));
 			_args = args_;
 			if (out_blob != NULL)
 				blobs_->push_back(out_blob);
@@ -119,17 +117,17 @@ namespace mycnn{
 			return (OPTYPE*&)_ops[i];
 		}
 
-		inline operator_base * get_head_op()
+		inline operator_base *&get_head_op()
 		{
 			return _ops[0];
 		}
 
-		inline blob_base * get_oblob()
+		inline blob_base *&get_oblob()
 		{
 			return out_blob;
 		}
 
-		inline blobs * get_oblobs()
+		inline blobs *&get_oblobs()
 		{
 			return _ops.back()->out_datas();
 		}
@@ -147,10 +145,11 @@ namespace mycnn{
 
 		blob_base* out_blob= NULL;
 
+		//args refresh by input blob
 		inline void refresh_layer_param(blob_base *blob_)
 		{
-			_input_dim = blob_->height();
-			_channel = blob_->channel();
+			_args->at(4) = blob_->height();
+			_args->at(5) = blob_->channel();
 		}
 
 	};

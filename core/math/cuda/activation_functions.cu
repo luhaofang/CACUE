@@ -160,7 +160,7 @@ __global__ void _k_CACU_SOFTMAX_GPU(mycnn::float_t *x, int num, int length,mycnn
 		sum[tid] = 0;
 		for (int i = tid; i < length; i += THREADNUM) {
 			yp[i] = exp(xp[i] - max_data[tid]);
-			sum[tid] += yp[i];
+			atomicAdd(sum + tid, yp[i]);
 		}
 
 		__syncthreads();
@@ -168,7 +168,7 @@ __global__ void _k_CACU_SOFTMAX_GPU(mycnn::float_t *x, int num, int length,mycnn
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				sum[tid] += sum[tid + acc_length];
+				atomicAdd(sum+tid, sum[tid + acc_length]);
 			acc_length /= 2;
 			__syncthreads();
 		}

@@ -39,14 +39,14 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(mycnn::float_t *x, int heigth, int
 	for (int i = bid; i < heigth; i += BLOCKNUM) {
 		shared_data[tid] = 0;
 		for(int j = tid ;  j < width; j += THREADNUM){
-			shared_data[tid] += x[i * width + j];
+			atomicAdd(shared_data + tid,x[i * width + j]);
 		}
 		__syncthreads();
 
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				shared_data[tid] += shared_data[tid + acc_length];
+				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
 			acc_length /= 2;
 			__syncthreads();
 		}
@@ -66,7 +66,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(mycnn::float_t *x, int height, in
 		shared_data[tid] = 0;
 		for(int j = tid ;j < height; j += THREADNUM)
 		{
-			shared_data[tid] += x[j*width + i];
+			atomicAdd(shared_data + tid , x[j*width + i]);
 		}
 		__syncthreads();
 
@@ -74,7 +74,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(mycnn::float_t *x, int height, in
 		while(acc_length > 0){
 
 			if(tid < acc_length)
-				shared_data[tid] += shared_data[tid + acc_length];
+				atomicAdd(shared_data + tid, shared_data[tid + acc_length]);
 			acc_length /= 2;
 			__syncthreads();
 		}
@@ -278,10 +278,10 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, 
 			data_row = j / cin_length;
 			data_col = j % cin_length;
 			set = data_row * length + data_col + i*cin_length;
-			shared_data[tid] +=
+			atomicAdd(shared_data+tid ,
 					(x[set] - mean[i])
 							* d_x[set]
-							* (-0.5	/ (std[i] * std[i] * std[i]));
+							* (-0.5	/ (std[i] * std[i] * std[i])));
 		}
 
 		__syncthreads();
@@ -289,12 +289,12 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, 
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				shared_data[tid] += shared_data[tid + acc_length];
+				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
 			acc_length /= 2;
 			__syncthreads();
 		}
 		if(tid == 0)
-			d_rou[i] = shared_data[0];
+			atomicAdd(d_rou+i,shared_data[0]);
 	}
 }
 
@@ -338,7 +338,7 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, m
 			data_row = j / cin_length;
 			data_col = j % cin_length;
 			set = data_row * length + data_col + i * cin_length;
-			shared_data[tid] += ((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (-2.0 * (x[set] - mean[i]))));
+			atomicAdd(shared_data+tid,((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (-2.0 * (x[set] - mean[i])))));
 		}
 
 		__syncthreads();
@@ -346,12 +346,12 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, m
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				shared_data[tid] += shared_data[tid + acc_length];
+				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
 			acc_length /= 2;
 			__syncthreads();
 		}
 		if(tid == 0)
-			d_mean[i] = shared_data[0];
+			atomicAdd(d_mean+i,shared_data[0]);
 	}
 }
 
@@ -432,7 +432,7 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(mycnn::float_t *_x, mycnn::float_t *d_
 			data_row = j / cin_length;
 			data_col = j % cin_length;
 			set = data_row * length + data_col + i * cin_length;
-			shared_data[tid] += (_x[set] * d_y[set]);
+			atomicAdd(shared_data+tid,(_x[set] * d_y[set]));
 		}
 
 		__syncthreads();
@@ -440,12 +440,12 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(mycnn::float_t *_x, mycnn::float_t *d_
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				shared_data[tid] += shared_data[tid + acc_length];
+				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
 			acc_length /= 2;
 			__syncthreads();
 		}
 		if(tid == 0)
-			d_gamma[i] = shared_data[0];
+			atomicAdd(d_gamma+i,shared_data[0]);
 	}
 }
 
