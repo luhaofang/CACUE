@@ -39,22 +39,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 128;
+	int batch_size = 8;
 
-	int max_iter = 200000;
+	int max_iter = 1;
 
 
 	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
-	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net.log", ios::binary);
-	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
 	network *net = create_res18net(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/ResNet-18-model.caffemodel");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->output_blobs();
+
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -111,7 +110,7 @@ void train_net()
 			if (step_index == ALL_DATA_SIZE)
 				step_index = 0;
 			//load image data
-			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
+			readdata(full_data[step_index],input_data->p_data(j));//,mean_->s_data());
 			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
@@ -123,21 +122,18 @@ void train_net()
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),end - start);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
-		logger << ((softmax_with_loss_op*)net->get_op(net->op_count()-1))->loss() << endl;
-			logger.flush();
+
 		if(i % 50000 == 0)
 			sgd->set_lr_iter(0.1f);
 		if(i % 20000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/res18net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/res_net_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
 
-	logger.close();
-
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/res18net_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/res_net_" << max_iter << ".model";
 	net->save_weights(oss.str());
 
 	for(int i = 0; i < full_label.size(); ++i)
@@ -145,6 +141,9 @@ void train_net()
 		vec_i().swap(full_label[i]);
 	}
 	vector<string>().swap(full_data);
+
+
+
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif

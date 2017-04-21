@@ -45,7 +45,7 @@ void train_net()
 {
 	int batch_size = 128;
 
-	int max_iter = 1000;
+	int max_iter = 200000;
 
 	//set gpu device if training by gpu
 	cuda_set_device(1);
@@ -56,11 +56,11 @@ void train_net()
 
 	network *net = create_res18net(batch_size,train);//create_res18net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res18net.caffemodel");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/res18net.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.00001f);
+	sgd->set_lr(0.01f);
 	sgd->set_weight_decay(0.0005f);
 
 	string datapath = "/home/seal/4T/imagenet/224X224_train/";
