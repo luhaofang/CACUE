@@ -43,17 +43,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "inner_product_op.h"
 #include "convolution_op.h"
-#include "sum_elemwise_op.h"
-#include "relu_op.h"
 #include "batch_normalize_op.h"
-#include "average_pooling_op.h"
-#include "max_pooling_op.h"
 #include "dropout_op.h"
-#include "leaky_relu_op.h"
-#include "softmax_op.h"
-#include "softmax_with_loss_op.h"
+
+#include "sum_elemwise_op.h"
 #include "feature_combine_op.h"
 #include "split_op.h"
+
+#include "average_pooling_op.h"
+#include "max_pooling_op.h"
+#include "roi_pooling_op.h"
+
+#include "relu_op.h"
+#include "leaky_relu_op.h"
+#include "softmax_op.h"
+
+#include "softmax_with_loss_op.h"
+#include "hinge_loss_op.h"
 
 #include "axpby_op.h"
 

@@ -28,47 +28,46 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
-#include "../math/cuda/cuda_utils.h"
-
-using namespace std;
-
-namespace mycnn{
-
-	class dy_bin_blob : public bin_blob{
-
-	public:
-
-		dy_bin_blob(int channel, int width, int height, unsigned int _value, phrase_type phrase)
-			:bin_blob(1, channel, width, height, _value,  phrase){
 
 
-		}
+#include "../../core/utils/data_defination.h"
 
-		~dy_bin_blob(){
+#if __CBLASTYPE__ == __MKL__
 
-		}
+#include <mkl.h>
 
-		inline const void copy_data_io(vec_i &data_ , int i = 0)
-		{
-			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
-#if __PARALLELTYPE__ == __GPU__
-			cuda_copy2dev(p_data(i),&data_[0],_cube_length);
-#else
-			memcpy(p_data(i),&data_[0],_cube_length*sizeof(unsigned int));
-#endif
-		}
-
-		inline const void copy_data_io(vec_t &data_, int i = 0)
-		{
-			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
-#if __PARALLELTYPE__ == __GPU__
-			cuda_copy2dev(p_diff(i),&data_[0],_cube_length);
-#else
-			memcpy(p_diff(i),&data_[0],_cube_length*sizeof(float_t));
-#endif
-		}
-
-	protected:
-
-	};
+inline void cacu_saxpy_mkl(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, int length)
+{
+	cblas_saxpy(length, a, x, 1, y, 1);
 }
+
+inline void cacu_saxpby_mkl(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, mycnn::float_t b, int length)
+{
+	cblas_saxpby(length, a, x, 1, b, y, 1);
+}
+
+inline void cacu_scalex_mkl(mycnn::float_t *x, mycnn::float_t a, int length)
+{
+	cblas_sscal(length, a, x, 1);
+}
+
+inline void cacu_sgemv_mkl(CBLAS_TRANSPOSE trans, mycnn::float_t *x, int x_height, mycnn::float_t *y, int x_width,mycnn::float_t alpha,mycnn::float_t *z,mycnn::float_t beta)
+{
+	int m = x_height,n = x_width;
+	cblas_sgemv(CBLAS_LAYOUT::CblasColMajor, trans, m, n, alpha, x, m, y, 1, beta, z, 1);
+}
+
+inline void cacu_sgemm_mkl(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, mycnn::float_t *x, int x_height, int x_width, mycnn::float_t *y, int y_width, mycnn::float_t alpha,mycnn::float_t *z,mycnn::float_t beta)
+{
+	int m = x_height,n = y_width,k = x_width;
+	int lda = (transx == CBLAS_TRANSPOSE::CblasNoTrans) ? m : k;
+	int ldb = (transy == CBLAS_TRANSPOSE::CblasNoTrans) ? k : n;
+	cblas_sgemm(CBLAS_LAYOUT::CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
+}
+
+inline void cacu_copy_mkl(mycnn::float_t *x, int x_length,mycnn::float_t *y)
+{
+	cblas_scopy(x_length,x,1,y,1);
+}
+
+#endif

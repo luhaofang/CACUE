@@ -13,8 +13,8 @@
 //#include "example/cifar10/test.hpp"
 //#include "example/cifar10/dy_train.hpp"
 
-//#include "example/imagenet/train.hpp"
-#include "example/imagenet/asyn_train.hpp"
+#include "example/imagenet/train.hpp"
+//#include "example/imagenet/asyn_train.hpp"
 //#include "example/imagenet/dy_train.hpp"
 
 //#include "example/cifar10/data_proc.hpp"

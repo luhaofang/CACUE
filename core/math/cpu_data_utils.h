@@ -47,8 +47,19 @@ namespace mycnn{
 
 	inline void cacu_saxpy_cpu(mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y, int length)
 	{
-#if __PARALLELTYPE__ == __OPENBLAS__
-		cblas_saxpy(length, a, x, 1, y, 1);
+#if __CBLASTYPE__ == __OPENBLAS__
+		cacu_saxpy_oblas(x, a, y, length);
+#elif __CBLASTYPE__ == __MKL__
+		cacu_saxpy_mkl(x, a, y, length);
+#endif
+	}
+
+	inline void cacu_scalex_cpu(mycnn::float_t *x, mycnn::float_t a, int length)
+	{
+#if __CBLASTYPE__ == __OPENBLAS__
+		cacu_scalex_oblas(x, a, length);
+#elif __CBLASTYPE__ == __MKL__
+		cacu_scalex_mkl(x, a, length);
 #endif
 	}
 

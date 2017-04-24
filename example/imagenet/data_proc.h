@@ -70,12 +70,20 @@ vec_t compute_mean(chars_t &filepath, chars_t &filelist)
 	while( getline(is,file_) )
 	{
 		imageio_utils::imread(&temp[0],filepath + file_);
+#if __PARALLELTYPE__ == __OPENBLAS__
 		cacu_saxpy_oblas(&temp[0], 1, &mean[0],KIMAGESIZE);
+#elif __PARALLELTYPE__ == __MKL__
+		cacu_saxpy_mkl(&temp[0], 1, &mean[0],KIMAGESIZE);
+#endif
 		count += 1;
 		if(count % 1000 == 0)
 			LOG_INFO("make mean file process : %d",count);
 	}
+#if __PARALLELTYPE__ == __OPENBLAS__
 	cacu_scalex_oblas(&mean[0],(float)1.0/count,KIMAGESIZE);
+#elif __PARALLELTYPE__ == __MKL__
+	cacu_scalex_mkl(&mean[0],(float)1.0/count,KIMAGESIZE);
+#endif
 	return mean;
 }
 

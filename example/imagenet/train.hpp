@@ -39,9 +39,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 8;
+	int batch_size = 32;
 
-	int max_iter = 1;
+	int max_iter = 1000;
 
 
 	//set gpu device if training by gpu
@@ -49,11 +49,11 @@ void train_net()
 	cuda_set_device(0);
 #endif
 
-	network *net = create_res18net(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	network *net = create_vgg_16_net(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
 	net->output_blobs();
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res18net.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/vgg16.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 

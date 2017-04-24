@@ -43,25 +43,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 128;
+	int batch_size = 32;
 
-	int max_iter = 200000;
+	int max_iter = 2000;
 
 	//set gpu device if training by gpu
 	cuda_set_device(1);
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net.log", ios::binary);
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/vgg16net.log", ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
-	network *net = create_res18net(batch_size,train);//create_res18net(batch_size,train);//create_alexnet(batch_size,train);
+	network *net = create_vgg_16_net(batch_size,train);//create_res18net(batch_size,train);//create_alexnet(batch_size,train);
 
-	//net->load_weights("/home/seal/4T/cacue/imagenet/res18net.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/vgg16.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.01f);
-	sgd->set_weight_decay(0.0005f);
+	sgd->set_lr(0.00001f);
+	sgd->set_weight_decay(0.00005f);
 
 	string datapath = "/home/seal/4T/imagenet/224X224_train/";
 	string trainlist = "/home/seal/4T/imagenet/train_list.txt";
@@ -118,7 +118,7 @@ void train_net()
 			sgd->set_lr_iter(0.1f);
 		if(i % 10000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/res18net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/vgg16net_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
@@ -126,7 +126,7 @@ void train_net()
 	logger.close();
 
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/res18net_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/vgg16net_" << max_iter << ".model";
 	net->save_weights(oss.str());
 	for(int i = 0; i < full_label.size(); ++i)
 	{

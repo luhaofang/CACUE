@@ -133,7 +133,7 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 	else
 	{
 		layer_block *predict_ = predict_layer(fc7->get_oblob(), 1000);
-		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.1f);
+		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.01f);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 
 		*net << conv1_1 << conv1_2 << conv2_1 << conv2_2 << conv3_1 << conv3_2 << conv3_3 << conv4_1 << conv4_2 << conv4_3 << conv5_1 << conv5_2 << conv5_3 << fc6 << fc7 << predict_;

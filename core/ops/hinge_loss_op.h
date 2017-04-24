@@ -32,7 +32,120 @@ namespace mycnn{
 	class hinge_loss_op : public operator_base
 	{
 
+	public:
 
+		hinge_loss_op(blobs *&data, args *&args_) : operator_base(data, args_){
+			check();
 
+			blob_base *_blob = data->at(0);
+
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(_blob->num(),args_->output_channel(),1,1,train);
+#else
+			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
+#endif
+			_loss = (float_t*)malloc(sizeof(float_t));
+		};
+
+		~hinge_loss_op(){
+			free(_loss);
+		};
+
+		virtual const void check() override{
+			return;
+		}
+
+		virtual const void op() override {
+
+			_loss[0] = 0.0;
+
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blobs->at(0);
+			em_bin_blob *labels_ = (em_bin_blob*)s_blobs->at(1);
+
+			cacu_softmax_cpu(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
+			cacu_cross_entropy_cpu(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+
+#else
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blobs->at(0);
+			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+
+			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
+			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+#endif
+
+#if __USEMBEDDING__ == ON
+			cacu_copy_cpu(o_blob_->s_diff(), 1 ,_loss);
+#else
+	#if __PARALLELTYPE__ == __CUDA__
+			cuda_copy2host(_loss, o_blob_->s_diff(), 1);
+	#else
+			cacu_copy(o_blob_->s_diff(), 1 ,_loss);
+	#endif
+#endif
+			_loss[0] *= normalizer();
+		}
+
+		virtual const void grad() override{
+
+#if __USEMBEDDING__ == ON
+			em_blob *o_blob_ = (em_blob*)o_blob;
+			em_blob *s_blob_ = (em_blob*)s_blobs->at(0);
+			em_bin_blob *labels_ = (em_bin_blob*)s_blobs->at(1);
+
+			//CE LOSS BACK PROPGATION
+			for (int i = 0 ; i < s_blob_->num() ; ++i)
+			{
+				cacu_isaxb(o_blob_->p_data_d(i),s_blob_->length(),(float_t)1,labels_->p_data_d(i),(float_t)-1, s_blob_->p_diff_d(i));
+				cacu_scalex(s_blob_->p_diff_d(i),s_blob_->length(),normalizer());
+				s_blob_->_sync(i);
+			}
+#else
+			blob *o_blob_ = (blob*)o_blob;
+			blob *s_blob_ = (blob*)s_blobs->at(0);
+			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+
+			//CE LOSS BACK PROPGATION
+			for (int i = 0 ; i < s_blob_->num() ; ++i)
+			{
+				cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
+				cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
+			}
+#endif
+		}
+
+		virtual const void load(std::ifstream& is) override{
+			return;
+		}
+
+		virtual const void save(std::ostream& os) override{
+			return;
+		}
+
+		virtual const void echo() override
+		{
+			LOG_INFO("loss : %f", _loss[0]);
+		}
+
+		inline virtual const void LOOP_INIT_DATA_() override
+		{
+			o_blob->_RESET_DATA();
+		}
+
+		float_t normalizer()
+		{
+			blob_base* blob_= s_blobs->at(0);
+			return _loss_weight * ((float_t)1/blob_->num());
+		}
+
+		inline float_t loss(){return _loss[0];}
+
+	private:
+
+		float_t *_loss;
+
+		float_t _loss_weight = 1.0;
 	};
 };

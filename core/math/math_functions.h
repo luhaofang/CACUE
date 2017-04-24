@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "math_function_openmp.h"
 #include "math_function_oblas.h"
+#include "math_function_mkl.h"
 
 #include "cuda/math_functions_cuda.h"
 #include "../utils/data_defination.h"
@@ -47,6 +48,8 @@ inline void cacu_saxpy(float *x, float a, float *y,int length)
 
 #if __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpy_oblas(x, a, y, length);
+#elif __PARALLELTYPE__ == __MKL__
+	cacu_saxpy_mkl(x, a, y, length);
 #elif __PARALLELTYPE__ == __CUDA__
 	cacu_saxpy_gpu(x, a, y, length);
 #endif
@@ -62,6 +65,8 @@ inline void cacu_saxpby(float *x, float a, float *y, float b, int length)
 
 #if __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpby_oblas(x, a, y, b, length);
+#elif __PARALLELTYPE__ == __MKL__
+	cacu_saxpby_mkl(x, a, y, b, length);
 #elif __PARALLELTYPE__ == __CUDA__
 	cacu_saxpby_gpu(x, a, y, b, length);
 #endif
@@ -78,6 +83,8 @@ inline void cacu_scalex(float *x, int length, float a)
 
 #if __PARALLELTYPE__ == __OPENBLAS__
 	cacu_scalex_oblas(x, a, length);
+#elif __PARALLELTYPE__ == __MKL__
+	cacu_scalex_mkl(x, a, length);
 #elif __PARALLELTYPE__ == __CUDA__
 	cacu_scalex_gpu(x, a, length);
 #endif
@@ -95,6 +102,9 @@ inline void cacu_sgemv(TRANSPOSE trans_,float *x, int x_height, float *y, int x_
 #if __PARALLELTYPE__ == __OPENBLAS__
 	CBLAS_TRANSPOSE transx = (trans_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemv_oblas(transx, x, x_height, y, x_width,alpha, z ,beta);
+#elif __PARALLELTYPE__ == __MKL__
+	CBLAS_TRANSPOSE transx = (trans_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
+	cacu_sgemv_mkl(transx, x, x_height, y, x_width,alpha, z ,beta);
 #elif __PARALLELTYPE__ == __CUDA__
 	cublasOperation_t transx = (trans_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
 	cacu_sgemv_gpu(transx, x, x_height, y, x_width, alpha, z, beta);
@@ -114,6 +124,10 @@ inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float *x, int x_hei
 	CBLAS_TRANSPOSE transx = (transx_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	CBLAS_TRANSPOSE transy = (transy_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemm_oblas(transx, transy, x, x_height, x_width, y, y_width, alpha, z, beta);
+#elif __PARALLELTYPE__ == __MKL__
+	CBLAS_TRANSPOSE transx = (transx_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
+	CBLAS_TRANSPOSE transy = (transy_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
+	cacu_sgemm_mkl(transx, transy, x, x_height, x_width, y, y_width, alpha, z, beta);
 #elif __PARALLELTYPE__ == __CUDA__
 	cublasOperation_t transx = (transx_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
 	cublasOperation_t transy = (transy_ == TRANS) ? cublasOperation_t::CUBLAS_OP_T : cublasOperation_t::CUBLAS_OP_N;
@@ -145,8 +159,10 @@ inline void cacu_saxpy_atomic(float *x, float a, float *y, int length)
 {
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_saxpy_atomic_gpu(x, a, y, length);
-#else
+#elif __PARALLELTYPE__ == __OPENBLAS__
 	cacu_saxpy_oblas(x, a, y, length);
+#elif __PARALLELTYPE__ == __MKL__
+	cacu_saxpy_mkl(x, a, y, length);
 #endif
 }
 
@@ -215,6 +231,8 @@ inline unsigned int argmax(float_t *data, int length)
 	return index;
 #endif
 }
+
+
 
 
 };

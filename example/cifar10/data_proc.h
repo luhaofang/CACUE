@@ -146,10 +146,10 @@ vec_t compute_mean(chars_t &filepath, int filecount)
 	mycnn::float_t length = (mycnn::float_t) mean_data.size();
 
 	for (unsigned int i = 0; i < mean_data.size(); i++) {
-		cacu_saxpy_oblas(&mean_data[i][0], 1, &mean[0],kCIFARImageNBytes);
+		cacu_saxpy_cpu(&mean_data[i][0], 1, &mean[0],kCIFARImageNBytes);
 	}
 
-	cacu_scalex_oblas(&mean[0],(float)1.0/length,kCIFARImageNBytes);
+	cacu_scalex_cpu(&mean[0],(float)1.0/length,kCIFARImageNBytes);
 	return mean;
 }
 
