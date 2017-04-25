@@ -39,9 +39,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 32;
+	int batch_size = 128;
 
-	int max_iter = 1000;
+	int max_iter = 200000;
 
 
 	//set gpu device if training by gpu
@@ -49,15 +49,19 @@ void train_net()
 	cuda_set_device(0);
 #endif
 
-	network *net = create_vgg_16_net(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	//log output
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net.log", ios::binary);
+	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
+
+	network *net = create_res18net(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
 	net->output_blobs();
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/vgg16.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/vgg16.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.00001f);
+	sgd->set_lr(0.01f);
 	sgd->set_weight_decay(0.00005f);
 
 	string datapath = "/home/seal/4T/imagenet/224X224_train/";
@@ -110,7 +114,7 @@ void train_net()
 			if (step_index == ALL_DATA_SIZE)
 				step_index = 0;
 			//load image data
-			readdata(full_data[step_index],input_data->p_data(j));//,mean_->s_data());
+			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
 			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
@@ -122,7 +126,8 @@ void train_net()
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),end - start);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
-
+		logger << ((softmax_with_loss_op*)net->get_op(net->op_count()-1))->loss() << endl;
+		logger.flush();
 		if(i % 50000 == 0)
 			sgd->set_lr_iter(0.1f);
 		if(i % 20000 == 0){
@@ -131,6 +136,8 @@ void train_net()
 			net->save_weights(oss.str());
 		}
 	}
+
+	logger.close();
 
 	ostringstream oss;
 	oss << "/home/seal/4T/cacue/imagenet/res_net_" << max_iter << ".model";
