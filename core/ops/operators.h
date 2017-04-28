@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "convolution_op.h"
 #include "batch_normalize_op.h"
 #include "dropout_op.h"
+#include "p_innerproduct_op.h"
 
 #include "sum_elemwise_op.h"
 #include "feature_combine_op.h"

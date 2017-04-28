@@ -43,15 +43,15 @@ void test_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 5000;
+	int max_iter = 100;
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(0);
+	cuda_set_device(1);
 #endif
 
-	network *net = create_cifar_quick_net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_cifar_test_net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
-	op_injector *injector = new op_injector(net->get_op(4));
+	op_injector *injector = new op_injector(net->get_op(13));
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
@@ -93,6 +93,7 @@ void test_net()
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
 			max_index = argmax(output_data->p_data(j),output_data->length());
+			//LOG_DEBUG("%u", max_index);
 			if(max_index == _full_label[i * batch_size + j]){
 				count += 1.0;
 			}
@@ -109,7 +110,7 @@ void test_net()
 
 	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
 
-	//injector->serializa("/home/seal/4T/cacue/cifar10/relu3.txt");
+	//injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
 
 	delete injector;
 #if __PARALLELTYPE__ == __CUDA__

@@ -45,17 +45,17 @@ void test_net()
 
 	int ALLIMAGE = 50000;
 
-	int max_iter = 5000;
+	int max_iter = 500;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(1);
 #endif
 
-	network *net = create_res18net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_res18net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/res18net.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res_net_40000.model");
 
-	op_injector *injector = new op_injector(net->get_op(4));
+	op_injector *injector = new op_injector(net->get_op(29));
 
 	string datapath = "/home/seal/4T/imagenet/224X224_val/";
 	string vallist = "/home/seal/4T/imagenet/val_list";
@@ -112,6 +112,7 @@ void test_net()
 				break;
 			//load image data
 			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
+			//readdata("/home/seal/4T/imagenet/test1.JPEG",input_data->p_data(j),mean_->s_data());
 			step_index += 1;
 		}
 		net->predict();
@@ -119,7 +120,7 @@ void test_net()
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
 			max_index = argmax(output_data->p_data(j),output_data->length());
-			//cout << max_index << ":" << full_label[i * batch_size + j] << endl;
+			cout << max_index << ":" << full_label[i * batch_size + j] << endl;
 			if(max_index == full_label[i * batch_size + j]){
 				count += 1.0;
 			}
@@ -136,7 +137,7 @@ void test_net()
 
 	LOG_INFO("precious: %f,%f", count / ALLIMAGE, count);
 
-	//injector->serializa("/home/seal/4T/cacue/cifar10/relu3.txt");
+	//injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
 
 	delete injector;
 #if __PARALLELTYPE__ == __CUDA__

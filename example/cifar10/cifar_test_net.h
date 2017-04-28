@@ -60,6 +60,28 @@ layer_block* conv_avepooling(blob* data, int output_channel, int kernel_size, in
 	return lb;
 }
 
+layer_block* conv_nopooling(blob* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
+{
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	l->op(CACU_CONVOLUTION, data)->op(activation_op);
+	clock_t end = clock();
+	*lb << l;
+	return lb;
+}
+
+layer_block* conv_nopooling_norelu(blob* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
+{
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	l->op(CACU_CONVOLUTION, data);
+	clock_t end = clock();
+	*lb << l;
+	return lb;
+}
+
 network* create_cifar_test_net(int batch_size,phrase_type phrase_)
 {
 	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 32, 32, phrase_);
@@ -72,31 +94,68 @@ network* create_cifar_test_net(int batch_size,phrase_type phrase_)
 	network *net = new network(input_datas_);
 
 	layer_block *conv1 = conv_maxpooling(blob_, 32, 5, 1, 2);
-	conv1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.0001f);
+	conv1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv1");
-	layer_block *conv2 = conv_avepooling((blob*)conv1->get_oblob(), 64, 9, 1, 1);
-	conv2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian,0.001f);
-	conv2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
+
+	layer_block *conv2 = conv_nopooling((blob*)conv1->get_oblob(), 64, 5, 1, 2);
+	conv2->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv2->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv2");
-	layer_block *fc6 = fc_layer_nodropout((blob*)conv2->get_oblob(), 64);
-	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.1f);
-	fc6->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("fc6");
+
+	layer_block *conv2_1 = conv_avepooling((blob*)conv2->get_oblob(), 64, 5, 1, 2);
+	conv2_1->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv2_1->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+	LOG_DEBUG("conv3");
+
+	layer_block *conv3 = conv_nopooling((blob*)conv2_1->get_oblob(), 128, 5, 1, 2);
+	conv3->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv3->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+	LOG_DEBUG("conv3");
+
+	layer_block *conv3_1 = conv_avepooling((blob*)conv3->get_oblob(), 128, 5, 1, 2);
+	conv3_1->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv3_1->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+	LOG_DEBUG("conv3");
+	/*
+	layer_block *conv4 = conv_nopooling((blob*)conv3->get_oblob(), 32, 5, 1, 2);
+	conv4->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv4->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+	LOG_DEBUG("conv4");
+	layer_block *conv5 = conv_avepooling((blob*)conv4->get_oblob(), 32, 5, 1, 2);
+	conv5->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv5->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+	LOG_DEBUG("conv5");
+	*/
+//	layer_block *conv4 = conv_nopooling_norelu((blob*)conv3_1->get_oblob(), 256, 1, 1, 0);
+//	conv4->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+//	conv4->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+//	LOG_DEBUG("conv5");
+
+	layer_block *conv4_1 = conv_nopooling_norelu((blob*)conv3_1->get_oblob(), 10, 1, 1, 0);
+	conv4_1->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv4_1->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+	LOG_DEBUG("conv4");
+
+//	layer *al = new layer();
+//	al->op(CACU_P_INNERPRODUCT,conv4_1->get_oblob());
+//	al->get_op<p_innerproduct_op>(0)->set_weight_init_type(msra);
+//	al->get_op<p_innerproduct_op>(0)->set_bias_init_type(constant);
+
 	if(phrase_ == train){
-		layer_block *loss_ = loss_layer((blob*)fc6->get_oblob(), label_, 10);
-		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.1f);
+		layer_block *loss_ = loss_layer(conv4_1->get_oblob(), label_, 10);
+		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 		LOG_DEBUG("loss");
-		*net << conv1 << conv2 << fc6 << loss_;
+		*net << conv1 << conv2 << conv2_1 << conv3 << conv3_1 << conv4_1 << loss_;
 	}
 	else
 	{
-		layer_block *predict_ = predict_layer((blob*)fc6->get_oblob(), 10);
-		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.1f);
+		layer_block *predict_ = predict_layer(conv4_1->get_oblob(), 10);
+		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 		LOG_DEBUG("predict");
-		*net << conv1 << conv2 << fc6 << predict_;
+		*net << conv1 << conv2 << conv2_1 << conv3 << conv3_1 << conv4_1 << predict_;
 	}
 
 	return net;

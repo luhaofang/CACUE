@@ -120,7 +120,21 @@ namespace mycnn{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel);
-		l->op(CACU_INNERPRODUCT, data)->op(CACU_SOFTMAX_LOSS, label);
+		l->op(CACU_P_INNERPRODUCT, data)->op(CACU_SOFTMAX_LOSS, label);
+		clock_t end = clock();
+		*lb << l;
+		return lb;
+	}
+
+	layer_block* loss_without_fc(blob_base* data, blob_base* label, int output_channel)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		blobs *data_ = new blobs();
+		data_->push_back(data);
+		data_->push_back(label);
+		layer *l = new layer(output_channel);
+		l->op(CACU_SOFTMAX_LOSS, data_);
 		clock_t end = clock();
 		*lb << l;
 		return lb;
@@ -132,6 +146,17 @@ namespace mycnn{
 		clock_t start = clock();
 		layer *l = new layer(output_channel);
 		l->op(CACU_INNERPRODUCT, data)->op(CACU_SOFTMAX);
+		clock_t end = clock();
+		*lb << l;
+		return lb;
+	}
+
+	layer_block* predict_without_fc(blob_base* data, int output_channel)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel);
+		l->op(CACU_SOFTMAX,data);
 		clock_t end = clock();
 		*lb << l;
 		return lb;

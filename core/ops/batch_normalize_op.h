@@ -124,8 +124,8 @@ namespace mycnn{
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
 				//update history
-				cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
-				cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
+				cacu_saxpby(_var->s_data(), 1.0 - moving_average_fraction, _history_var->s_data(), moving_average_fraction, _var->count());
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 				for (int i = 0; i < s_blob_->num(); ++i){
@@ -157,7 +157,6 @@ namespace mycnn{
 			blob *x_ = (blob*)_x;
 
 			float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
-
 			if (!use_global_stats)
 			{
 				float_t bias_correction_factor = m > (float_t)1.0 ? (m) / (m - (float_t)1.0) : (float_t)1.0;
@@ -190,7 +189,7 @@ namespace mycnn{
 
 				//update history
 				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
-				cacu_saxpby(_var->s_data(), (1.0 - moving_average_fraction) * bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+				cacu_saxpby(_var->s_data(), 1.0 - moving_average_fraction, _history_var->s_data(), moving_average_fraction, _var->count());
 
 			}
 			else{
@@ -203,15 +202,6 @@ namespace mycnn{
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 			}
-
-			//cout << "mean:   ";
-			//cacu_print(_mean->s_data(),_mean->count());
-			//cout << "std:   ";
-			//cacu_print(_std->s_data(),_std->count());
-			//cout << "forward_o:   ";
-			//cacu_print(o_blob_->s_data(),10000);
-			//cout << endl;
-
 #endif
 		}
 
@@ -280,14 +270,6 @@ namespace mycnn{
 			//gradient of shift
 			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1, dim_sum_->s_data(), 0, o_blob_->length() / o_blob_->channel());
 			cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _shift->s_diff(), 0, s_blob_->channel());
-/*
-			cacu_print(_scale->s_diff(),_scale->count());
-			cout << endl;
-			cacu_print(_shift->s_diff(),_shift->count());
-			cout << endl;
-			cacu_print(s_blob_->s_diff(),10000);
-			cout << endl << endl;
-			//*/
 #endif
 		}
 

@@ -127,7 +127,7 @@ namespace mycnn{
 		inline phrase_type phrase(){return _input_blobs->at(0)->phrase();}
 
 		void load_weights(chars_t modelpath){
-			std::ifstream is(modelpath);
+			std::ifstream is(modelpath, ios::binary);
 			is.precision(std::numeric_limits<float_t>::digits10);
 			for(int i = 0; i < op_count(); ++i)	{
 				get_op(i)->load(is);

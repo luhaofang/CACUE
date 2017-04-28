@@ -41,6 +41,7 @@ namespace mycnn{
 		CACU_CONVOLUTION,
 		CACU_BATCH_NORMALIZE,
 		CACU_DROPOUT,
+		CACU_P_INNERPRODUCT,
 
 		CACU_MAX_POOLING,
 		CACU_AVERAGE_POOLING,
@@ -112,6 +113,9 @@ namespace mycnn{
 			case CACU_ROI_POOLING:
 				CHECK_EQ_OP(blob_->size(), 2 , "blobs size must == 2 vs %d",blob_->size());
 				return new roi_pooling_op(blob_, args_);
+			case CACU_P_INNERPRODUCT:
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
+				return new p_innerproduct_op(blob_->at(0), args_);
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);
 				return NULL;
