@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <execinfo.h>
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
@@ -61,7 +62,7 @@ namespace mycnn{
 
 #define LOG_DEBUG(format,...) LOG("DEBUG",format,##__VA_ARGS__)
 #define LOG_WARNING(format,...) LOG("WARNING",format,##__VA_ARGS__)
-#define LOG_FATAL(format,...) {LOG("FATAL",format,##__VA_ARGS__); exit(0);}
+#define LOG_FATAL(format,...) {	LOG("FATAL",format,##__VA_ARGS__); exit(0);}
 #define LOG_CHECK(format,...) LOG("CHECK",format,##__VA_ARGS__)
 #define LOG_INFO(format,...)  LOG("INFO",format,##__VA_ARGS__)
 

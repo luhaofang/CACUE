@@ -89,11 +89,28 @@ namespace mycnn{
 		inline void set_inputdata(blob_base *&blob_){  layers(0)->get_head_op()->set_blob(blob_);}
 
 		inline void predict(){
-			for(unsigned int i =0 ; i < _layers.size();++i){
+			for(unsigned int i = 0 ; i < _layers.size();++i){
 				clock_t start = clock();
 				_layers[i]->operate();
 				clock_t end = clock();
 				//LOG_INFO("%d time cost: %d", i ,end - start);
+			}
+		}
+
+		inline void back_propagate(){
+			for(int i = op_count() - 1 ; i >= 0; --i)
+			{
+				get_op(i)->grad();
+			}
+		}
+
+		inline void set_weights(float_t value){
+			for(int i = op_count() - 1 ; i >= 0; --i)
+			{
+				for(int j = 0 ; j < get_op(i)->weights_size(); ++j)
+				{
+					get_op(i)->get_weight(j)->set_data(value);
+				}
 			}
 		}
 

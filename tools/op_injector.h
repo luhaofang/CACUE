@@ -79,6 +79,27 @@ public:
 		os.close();
 	}
 
+	void s_diff_serializa(string output_path)
+	{
+		std::ofstream os(output_path, ios::binary);
+		os.precision(std::numeric_limits<float_t>::digits10);
+#if __PARALLELTYPE__ == __CUDA__
+		vec_t data(_op->in_data<blob>()->count());
+		cuda_copy2host(&data[0],_op->in_data<blob>()->s_diff(),data.size());
+
+		for(int i = 0; i < _op->in_data<blob>()->count(); ++i)
+		{
+			os << data[i] << endl;
+		}
+#else
+		for(int i = 0; i < _op->in_data<blob>()->count(); ++i)
+		{
+			os << _op->in_data<blob>()->s_diff()[i] << endl;
+		}
+#endif
+		os.close();
+	}
+
 	inline map<unsigned int,unsigned int> *distribute()
 	{
 		return _neural_count;

@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <execinfo.h>
+#include <cxxabi.h>
 #include <time.h>
 #include "math_config.h"
 #include "cuda/cuda_utils.h"
@@ -53,33 +55,49 @@ using namespace std;
 
 #define CHECK_EQ_OP(x,y,format,...)					\
 	if (x != y){							\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
+			void * array[32];		  \
+			char ** stacktrace = backtrace_symbols(array, 1);  \
+			CHECK_OP("FATAL", "%s " format,stacktrace[0],##__VA_ARGS__, x, y);	\
+			free(stacktrace);				\
 			exit(0);						\
 			}
 
 #define CHECK_LT_OP(x,y,format,...)					\
 	if (x >= y){							\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
+			void * array[32];		  \
+			char ** stacktrace = backtrace_symbols(array, 1);  \
+			CHECK_OP("FATAL", "%s " format,stacktrace[0],##__VA_ARGS__, x, y);	\
+			free(stacktrace);				\
 			exit(0);						\
 			}
 
 #define CHECK_LE_OP(x,y,format,...)					\
 	if (x > y){								\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
+			void * array[32];		  \
+			char ** stacktrace = backtrace_symbols(array, 1);  \
+			CHECK_OP("FATAL", "%s " format,stacktrace[0],##__VA_ARGS__, x, y);	\
+			free(stacktrace);				\
 			exit(0);						\
 			}
 
 #define CHECK_GT_OP(x,y,format,...)					\
 	if (x <= y){							\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);  \
+			void * array[32];		  \
+			char ** stacktrace = backtrace_symbols(array, 1);  \
+			CHECK_OP("FATAL", "%s " format,stacktrace[0],##__VA_ARGS__, x, y);	\
+			free(stacktrace);				\
 			exit(0);						\
 			}
 
 #define CHECK_GE_OP(x,y,format,...)					\
 	if (x < y){								\
-			CHECK_OP("FATAL", format,##__VA_ARGS__, x, y);	\
+			void * array[32];		  \
+			char ** stacktrace = backtrace_symbols(array, 1);  \
+			CHECK_OP("FATAL", "%s " format,stacktrace[0],##__VA_ARGS__, x, y);	\
+			free(stacktrace);				\
 			exit(0);						\
 			}
+
 
 typedef enum {
 

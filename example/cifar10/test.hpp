@@ -41,9 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void test_net()
 {
-	int batch_size = 100;
+	int batch_size = 1;
 
-	int max_iter = 100;
+	int max_iter = 1;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(1);
@@ -93,7 +93,7 @@ void test_net()
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
 			max_index = argmax(output_data->p_data(j),output_data->length());
-			//LOG_DEBUG("%u", max_index);
+			LOG_DEBUG("%u", max_index);
 			if(max_index == _full_label[i * batch_size + j]){
 				count += 1.0;
 			}
@@ -110,7 +110,7 @@ void test_net()
 
 	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
 
-	//injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
+	injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
 
 	delete injector;
 #if __PARALLELTYPE__ == __CUDA__

@@ -29,38 +29,38 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class convolution_op : public operator_base
+	class deconvolution_op : public operator_base
 	{
 
 	public:
 
 		//output_channel, kernel_size, stride, pad, input_dim, channel
-		convolution_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		deconvolution_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 
 			check();
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
 
-			int output_dim = (input_dim + 2 * _args->pad() - _args->kernel_size()) / _args->stride() + 1;
+			int output_dim = (input_dim - 1) * _args->stride() + _args->kernel_size() - _args->pad() * 2;
 			if(_args->kernel_size() == 1)
-				output_dim = (input_dim + 2 * _args->pad()) / _args->stride();
+				output_dim = input_dim * _args->stride() - 2 * _args->pad();
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 
 #else
 			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 #endif
-			_w = create_param("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
+			_w = create_param("w", data->channel(), _args->output_channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
 
-			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
+			_bias = create_param("bias", data->channel(), 1, 1, 1, _phrase);
 			_bias ->set_lr(2);
 
-			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
+			_col_data = cacu_allocator::create_blob(1, _args->output_channel(), input_dim * _args->kernel_size(), input_dim*_args->kernel_size(), _phrase);
 			echo();
 		};
 
-		~convolution_op(){
+		~deconvolution_op(){
 
 			delete _col_data;
 		};
@@ -81,29 +81,30 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
-				//padded data if needed & img2col change
-				cacu_img2col_pad(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
-				//forward convolution data
-				cacu_sgemm(TRANS, NOTRANS, col_data_->s_data(), o_blob_->width()*o_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,o_blob_->p_data_d(i),(float_t)0);
-				//add bias
-				if(_is_use_bias)
-					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data_d(i), (float_t)(1), o_blob_->length(), o_blob_->p_data_d(i));
+
+				//forward propagation
+				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),s_blob_->p_data_d(i),o_blob_->width()*o_blob_->height(),1 ,col_data_->s_data(),0);
+				//col2img
+				//unpadded
+				cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),_args->pad(), o_blob_->p_data_d(i));
+
 				o_blob_->_sync(i);
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
+
 			for (int i = 0; i < s_blob_->num(); ++i){
-				//padded data if needed & img2col change
-				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
-				//forward convolution data
-				cacu_sgemm(TRANS, NOTRANS, col_data_->s_data(), o_blob_->width()*o_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,o_blob_->p_data(i),(float_t)0);
-				//add bias
-				if(_is_use_bias)
-					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
+
+				//forward propagation
+				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),s_blob_->p_data(i),o_blob_->width()*o_blob_->height(),1 ,col_data_->s_data(),0);
+				//col2img
+				//unpadded
+				cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),_args->pad(), o_blob_->p_data(i));
 			}
 #endif
+
 		}
 
 		virtual const void grad() override{
@@ -113,38 +114,38 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
+				//padded data if needed & img2col change
+				cacu_img2col_pad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->channel(), s_blob_->width(), _args->pad(), col_data_->s_diff());
+				//backward convolution data
+				cacu_sgemm(TRANS, NOTRANS, col_data_->s_diff(), s_blob_->width()*s_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,s_blob_->p_diff_d(i),(float_t)0);
+				//add bias
+				if(_is_use_bias)
+					cacu_ssxpy(_bias->s_diff(), (float_t)(1), _bias->count(), s_blob_->p_diff_d(i), (float_t)(1), s_blob_->length(), s_blob_->p_diff_d(i));
+				o_blob_->_sync(i);
 
-				//gradient propagation
-				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),o_blob_->p_diff_d(i),o_blob_->width()*o_blob_->height(),1 ,col_data_->s_diff(),0);
-				//col2img
-				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff_d(i));
-				//weights gradient
-				cacu_img2col_pad(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
-				cacu_sgemm(NOTRANS,NOTRANS,col_data_->s_data(),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff_d(i),_w->num(),1,_w->s_diff(),1);
+				cacu_sgemm(NOTRANS,NOTRANS,col_data_->s_diff(),_w->length(),s_blob_->width()*s_blob_->height(),s_blob_->p_data_d(i),_w->num(),1,_w->s_diff(),1);
 				//bias gradient
 				if(_is_use_bias)
-					cacu_sumbysize(BYWIDTH,o_blob_->p_diff_d(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
-				s_blob_->_sync(i);
+					cacu_sumbysize(BYWIDTH,s_blob_->p_diff(i),s_blob_->length(),1,_bias->s_diff(),1,s_blob_->width()*s_blob_->height());
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
-
 			for (int i = 0; i < s_blob_->num(); ++i){
+				//padded data if needed & img2col change
+				cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->channel(), s_blob_->width(), _args->pad(), col_data_->s_diff());
+				//backward convolution data
+				cacu_sgemm(TRANS, NOTRANS, col_data_->s_diff(), s_blob_->width()*s_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,s_blob_->p_diff(i),(float_t)0);
+				//add bias
+				if(_is_use_bias)
+					cacu_ssxpy(_bias->s_diff(), (float_t)(1), _bias->count(), s_blob_->p_diff(i), (float_t)(1), s_blob_->length(), s_blob_->p_diff(i));
 
-				//gradient propagation
-				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),o_blob_->p_diff(i),o_blob_->width()*o_blob_->height(),1 ,col_data_->s_diff(),0);
-				//col2img
-				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff(i));
-				//weights gradient
-				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
-				cacu_sgemm(NOTRANS,NOTRANS,col_data_->s_data(),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff(i),_w->num(),1,_w->s_diff(),1);
+				cacu_sgemm(NOTRANS,NOTRANS,col_data_->s_diff(),_w->length(),s_blob_->width()*s_blob_->height(),s_blob_->p_data(i),_w->num(),1,_w->s_diff(),1);
 				//bias gradient
 				if(_is_use_bias)
-					cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
+					cacu_sumbysize(BYWIDTH,s_blob_->p_diff(i),s_blob_->length(),1,_bias->s_diff(),1,s_blob_->width()*s_blob_->height());
+
 			}
 #endif
 		}
@@ -163,7 +164,7 @@ namespace mycnn{
 
 		virtual const void echo() override
 		{
-			LOG_INFO("create convolution op:");
+			LOG_INFO("create deconvolution op:");
 			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height(), _args->kernel_size(),_args->stride(),_args->pad());
 		}
 

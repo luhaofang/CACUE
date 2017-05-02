@@ -145,7 +145,7 @@ namespace mycnn{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel);
-		l->op(CACU_INNERPRODUCT, data)->op(CACU_SOFTMAX);
+		l->op(CACU_P_INNERPRODUCT, data)->op(CACU_SOFTMAX);
 		clock_t end = clock();
 		*lb << l;
 		return lb;
