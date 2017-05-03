@@ -46,22 +46,22 @@ void train_net()
 
 	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(0);
+	cuda_set_device(1);
 #endif
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net_80000.log", ios::binary);
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net_test.log", ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
 	network *net = create_res18net(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
 	net->output_blobs();
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res_net_40000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/res18net.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.0001f);
+	sgd->set_lr(0.00001f);
 	sgd->set_weight_decay(0.00005f);
 
 	string datapath = "/home/seal/4T/imagenet/224X224_train/";
@@ -128,9 +128,9 @@ void train_net()
 		}
 		logger << ((softmax_with_loss_op*)net->get_op(net->op_count()-1))->loss() << endl;
 		logger.flush();
-		if(i % 50000 == 0)
+		if(i % 20000 == 0)
 			sgd->set_lr_iter(0.1f);
-		if(i % 10000 == 0){
+		if(i % 1000 == 0){
 			ostringstream oss;
 			oss << "/home/seal/4T/cacue/imagenet/res_net_" << i << ".model";
 			net->save_weights(oss.str());

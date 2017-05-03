@@ -104,12 +104,12 @@ namespace mycnn{
 			}
 		}
 
-		inline void set_weights(float_t value){
+		inline void set_weights_type(param_init_type type_,float_t value = 0){
 			for(int i = op_count() - 1 ; i >= 0; --i)
 			{
 				for(int j = 0 ; j < get_op(i)->weights_size(); ++j)
 				{
-					get_op(i)->get_weight(j)->set_data(value);
+					get_op(i)->get_weight(j)->set_init_type(type_,value);
 				}
 			}
 		}
@@ -161,7 +161,7 @@ namespace mycnn{
 			}
 			os.close();
 			LOG_INFO("optimization is done!");
-			LOG_INFO("The model is save at : %s",modelpath.c_str());
+			LOG_INFO("The model is saved at : %s",modelpath.c_str());
 		}
 
 		void check(){

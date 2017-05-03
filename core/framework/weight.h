@@ -65,6 +65,7 @@ namespace mycnn{
 					w[i] = value;
 				break;
 			case mycnn::xavier:
+				value = sqrt((float_t) 3.0/ (num() * height() * width()));
 				for (int i = 0; i < _length; ++i)
 					w[i] = rand_t::urand(-value, value);
 				break;
@@ -73,6 +74,7 @@ namespace mycnn{
 					w[i] = rand_t::gaussrand(value);
 				break;
 			case mycnn::msra:
+				value = sqrt((float_t) 2.0/ (num() * height() * width()));
 				for (int i = 0; i < _length; ++i)
 					w[i] = rand_t::gaussrand(value);
 				break;

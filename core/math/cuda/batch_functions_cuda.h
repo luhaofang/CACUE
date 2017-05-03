@@ -59,13 +59,6 @@ extern "C" void cacu_sxsize_gpu(mycnn::float_t *x, int length, mycnn::float_t a,
 extern "C" void cacu_cdxsize_gpu(mycnn::float_t *x, int length, mycnn::float_t *a, int size, mycnn::float_t *y);
 
 /**
- * @cacu_sdxsize_gpu
- * math y[i] = x[i] / a :
- * x is a length dim array list, a is the corresponding denominator.
- */
-extern "C" void cacu_sdxsize_gpu(mycnn::float_t *x, int length, mycnn::float_t a, mycnn::float_t *y);
-
-/**
  * @cacu_ssxpy_gpu
  * math z[i] = a * x[j] + b * y[i] :
  * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).

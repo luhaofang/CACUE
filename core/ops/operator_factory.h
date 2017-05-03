@@ -57,7 +57,9 @@ namespace mycnn{
 
 		CACU_SUM_ELEMWISE,
 		CACU_FEATURE_COMBINE,
-		CACU_SPLIT
+		CACU_SPLIT,
+
+		CACU_INJECTOR
 	};
 
 	class operator_factory
@@ -120,6 +122,9 @@ namespace mycnn{
 			case CACU_DECONVOLUTION:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new deconvolution_op(blob_->at(0), args_);
+			case CACU_INJECTOR:
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
+				return new injector_op(blob_->at(0), args_);
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);
 				return NULL;

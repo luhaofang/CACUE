@@ -82,7 +82,7 @@ namespace mycnn{
 			if(train !=_net->phrase())
 				LOG_FATAL("net phrase is not equal to train, please set the input blob's phrase!");
 			_net->predict();
-			for(int i = _net->op_count() - 1 ; i >= 0; --i)
+			for(int i = _net->op_count() - 1 ; i >= _net->op_count() - 3; --i)
 			{
 				_net->get_op(i)->grad();
 			}
@@ -92,6 +92,7 @@ namespace mycnn{
 			for(int i = 0 ; i < _net->op_count();++i)
 			{
 				operator_base* op_ = _net->get_op(i);
+				if(weight_index_ < 2)
 				for(int j = 0; j < op_->weights_size(); ++j)
 				{
 					update_weight(op_->get_weight(j),weight_index_);
@@ -113,7 +114,7 @@ namespace mycnn{
 
 		float_t _global_lr = 1.0;
 
-		float_t _global_weight_decay = 0.004f;
+		float_t _global_weight_decay = 0.00005f;
 
 		regularize_type _regularize = L2;
 

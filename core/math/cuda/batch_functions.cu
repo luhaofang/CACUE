@@ -155,14 +155,6 @@ extern "C" void cacu_cdxsize_gpu(mycnn::float_t *x, int length, mycnn::float_t *
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-/**
- * @cacu_sdxsize_gpu
- * math y[i] = x[i] / a :
- * x: length dim array list
- * a: the corresponding denominator.
- */
-extern "C" void cacu_sdxsize_gpu(mycnn::float_t *x, int length, mycnn::float_t a, mycnn::float_t *y);
-
 __global__ void _k_CACU_SSXPY_GPU(mycnn::float_t *x, mycnn::float_t a, int size, mycnn::float_t *y, mycnn::float_t b, int length, mycnn::float_t *z) {
 
 	int tid = threadIdx.x;

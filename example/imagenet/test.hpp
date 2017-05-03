@@ -51,9 +51,9 @@ void test_net()
 	cuda_set_device(1);
 #endif
 
-	network *net = create_res18net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_res18net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res_net_40000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/res18net.model");
 
 	op_injector *injector = new op_injector(net->get_op(29));
 
@@ -112,9 +112,10 @@ void test_net()
 				break;
 			//load image data
 			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
-			//readdata("/home/seal/4T/imagenet/test1.JPEG",input_data->p_data(j),mean_->s_data());
+			//readdata("/home/seal/4T/imagenet/test1.JPEG",input_data->p_data(j));//,mean_->s_data());
 			step_index += 1;
 		}
+
 		net->predict();
 		//injector->get_outblob_count();
 		for(int j = 0 ; j < batch_size ; ++j)
