@@ -56,7 +56,7 @@ namespace mycnn{
 			_scale = create_param("scale", data->channel(), 1, 1, 1, _phrase);
 			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
 
-			_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, _phrase);
+			_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
 
 			_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1, _phrase);
 			_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
@@ -78,6 +78,8 @@ namespace mycnn{
 
 			delete _history_mean;
 			delete _history_var;
+			delete _moving_scalar;
+			delete _one;
 
 			delete _std;
 
@@ -90,7 +92,7 @@ namespace mycnn{
 		virtual const void check() override{
 			//training for batch_size
 			if(train == _phrase){
-				CHECK_GT_OP(s_blob->num(), 1 ,"batch size for training must > 1 vs %d",s_blob->num());
+				//CHECK_GT_OP(s_blob->num(), 1 ,"batch size for training must > 1 vs %d",s_blob->num());
 				use_global_stats = false;
 			}
 			else
@@ -128,7 +130,7 @@ namespace mycnn{
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
 				cacu_scalex(_moving_scalar->s_data(), 1, moving_average_fraction);
-				cacu_saxpy(_moving_scalar->s_data(), 1, _one->s_data(), 1);
+				cacu_saxpy(_one->s_data(), 1, _moving_scalar->s_data(), 1);
 				//update history
 				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
 				cacu_saxpby(_var->s_data(), 1.0 - moving_average_fraction, _history_var->s_data(), moving_average_fraction, _var->count());
@@ -195,8 +197,10 @@ namespace mycnn{
 					cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
+
 				cacu_scalex(_moving_scalar->s_data(), 1, moving_average_fraction);
-				cacu_saxpy(_moving_scalar->s_data(), 1, _one->s_data(), 1);
+				cacu_saxpy(_one->s_data(), 1, _moving_scalar->s_data(), 1);
+
 				//update history
 				cacu_saxpby(_mean->s_data(), 1.0, _history_mean->s_data(), moving_average_fraction, _mean->count());
 				cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());

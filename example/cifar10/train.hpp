@@ -44,11 +44,11 @@ void train_net()
 	int max_iter = 5000;
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
-	network *net = create_cifar_test_net(batch_size,train);//create_cifar_test_net(batch_size,train);
-	//net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,train);
+	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
 	sgd_solver *sgd = new sgd_solver(net);
 	sgd->set_lr(0.001f);
 

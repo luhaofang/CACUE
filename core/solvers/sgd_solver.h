@@ -59,10 +59,6 @@ namespace mycnn{
 		 */
 		virtual const void update_weight(weight* w_, int weight_index_) override
 		{
-			//printf("%d:",w_->count());
-
-			//cacu_print(w_->s_data(),1);
-
 
 			blob* history_ = (blob*)_history_v->at(weight_index_);
 			float_t learn_rate_ = w_->lr() * _global_lr;
@@ -75,12 +71,6 @@ namespace mycnn{
 			//update to weight
 			cacu_saxpy_atomic(history_->s_data(), -1, w_->s_data(), w_->count());
 
-			//cacu_print(w_->s_data(),w_->count());
-			//cout<<endl<<endl;
-			//cacu_print(history_->s_data(),1);
-			//cacu_print(w_->s_data(),1);
-			//cout << endl;
-			//echo();
 		}
 
 		inline void set_momentum(float_t momentum_){ _momentum = momentum_ ;}

@@ -63,6 +63,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "softmax_with_loss_op.h"
 #include "hinge_loss_op.h"
 
+#include "injector_op.h"
+
 #include "axpby_op.h"
 
 #include "operation.h"

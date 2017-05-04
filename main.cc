@@ -13,11 +13,11 @@
 //#include "example/cifar10/test.hpp"
 //#include "example/cifar10/dy_train.hpp"
 
-#include "example/imagenet/train.hpp"
+//#include "example/imagenet/train.hpp"
 //#include "example/imagenet/asyn_train.hpp"
 //#include "example/imagenet/dy_train.hpp"
 //#include "example/imagenet/test.hpp"
-//#include "example/imagenet/image_test.hpp"
+#include "example/imagenet/image_test.hpp"
 
 //#include "example/cifar10/data_proc.hpp"
 //#include "example/imagenet/data_proc.hpp"
@@ -44,8 +44,8 @@ int main(int argc, char** argv)
 	//string filelist = "/home/seal/4T/imagenet/file_list.txt";
 	//string meanpath = "/home/seal/4T/imagenet/224X224_mean.binproto";
 	//make_mean(datapath,filelist,meanpath);
-	train_net();
-	//test_net();
+	//train_net();
+	test_net();
 	//int result =  Catch::Session().run(argc,argv);
 
 }

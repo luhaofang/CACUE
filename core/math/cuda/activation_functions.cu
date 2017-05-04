@@ -37,8 +37,8 @@ __global__ void _k_CACU_RELU_GPU(mycnn::float_t *x, int length) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		x[i] = max((mycnn::float_t) 0, x[i]);
-
+		if(x[i] <= 0)
+			x[i] = 0;
 	}
 }
 
