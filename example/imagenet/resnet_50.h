@@ -132,22 +132,23 @@ network* create_res50net(int batch_size_,phrase_type phrase_)
 
 	*net << conv3a << conv3b << conv3c << conv3d;
 
-	layer_block *conv4a = conv_block_shortcut1(conv3c->get_oblob(),256,1024,3,1,2,1);
+	layer_block *conv4a = conv_block_shortcut1(conv3d->get_oblob(),256,1024,3,1,2,1);
 	layer_block *conv4b = conv_block_shortcut2(conv4a->get_oblob(),256,1024,3,1,1,1);
 	layer_block *conv4c = conv_block_shortcut2(conv4b->get_oblob(),256,1024,3,1,1,1);
 	layer_block *conv4d = conv_block_shortcut2(conv4c->get_oblob(),256,1024,3,1,1,1);
-	layer_block *conv4f = conv_block_shortcut2(conv4d->get_oblob(),256,1024,3,1,1,1);
+	layer_block *conv4e = conv_block_shortcut2(conv4d->get_oblob(),256,1024,3,1,1,1);
+	layer_block *conv4f = conv_block_shortcut2(conv4e->get_oblob(),256,1024,3,1,1,1);
 
-	*net << conv4a << conv4b << conv4c << conv4d << conv4f;
+	*net << conv4a << conv4b << conv4c << conv4d << conv4e << conv4f;
 
-	layer_block *conv5a = conv_block_shortcut1(conv4c->get_oblob(),512,2084,3,1,2,1);
+	layer_block *conv5a = conv_block_shortcut1(conv4f->get_oblob(),512,2084,3,1,2,1);
 	layer_block *conv5b = conv_block_shortcut2(conv5a->get_oblob(),512,2084,3,1,1,1);
 	layer_block *conv5c = conv_block_shortcut2(conv5b->get_oblob(),512,2084,3,1,1,1);
 
 	*net << conv5a << conv5b << conv5c;
 
-	layer *ave_pool = new layer(512,7,1);
-	ave_pool->op(CACU_AVERAGE_POOLING,conv5c->get_oblob());
+	layer *ave_pool = new layer(2084,7,1);
+	ave_pool->op(CACU_AVERAGE_POOLING, conv5c->get_oblob());
 
 	if(phrase_ == train){
 		layer_block *loss_ = loss_layer((blob*)ave_pool->get_oblob(), label_, 1000);

@@ -420,4 +420,38 @@ namespace mycnn{
 			}
 		}
 	}
+
+
+	inline void cacu_row_max_pooling_cpu(float_t *x, int input_length, int output_length, float_t *y)
+	{
+		sort(x, x + input_length);
+		for(int i = 0 ; i < output_length; ++i)
+		{
+			y[i] = x[i];
+		}
+	}
+
+	inline void cacu_row_max_pooling_index_cpu(float_t *x, int input_length, int output_length, float_t *y,unsigned int* index)
+	{
+		for(int i = 0 ; i < output_length; ++i)
+		{
+			for(int j = 0 ; j < input_length; ++j)
+				if(x[j] == y[i])
+				{
+					index[i] = j;
+					break;
+				}
+		}
+	}
+
+	inline void cacu_row_max_pooling_grad_cpu(float_t *x, int output_length, float_t *y, unsigned int* index)
+	{
+		for(int i = 0 ; i < output_length; ++i)
+		{
+			y[index[i]] = x[i];
+		}
+	}
+
+
+
 };

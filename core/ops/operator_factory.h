@@ -44,6 +44,7 @@ namespace mycnn{
 		CACU_P_INNERPRODUCT,
 		CACU_DECONVOLUTION,
 
+		CACU_ROW_MAX_POOLING,
 		CACU_MAX_POOLING,
 		CACU_AVERAGE_POOLING,
 		CACU_ROI_POOLING,
@@ -125,6 +126,9 @@ namespace mycnn{
 			case CACU_INJECTOR:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new injector_op(blob_->at(0), args_);
+			case CACU_ROW_MAX_POOLING:
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
+				return new row_max_pooling_op(blob_->at(0), args_);
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);
 				return NULL;

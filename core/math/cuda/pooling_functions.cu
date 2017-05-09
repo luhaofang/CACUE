@@ -25,6 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <thrust/sort.h>
+
 #include "cuda_log.h"
 #include "../../utils/log.h"
 #include "../../utils/data_defination.h"
@@ -716,9 +718,75 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_GPU(mycnn::float_t *x, int stride, int i
 	}
 }
 
+
 extern "C" void cacu_col2img_pad_1x1_gpu(mycnn::float_t *x, int stride, int input_dim, int channel, int output_dim, int pad, mycnn::float_t *y)
 {
 	_k_CACU_COL2IMG_PAD_1x1_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, stride, input_dim, channel, output_dim,pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
+
+__global__ void _K_CACU_ROW_MAX_POOLING_GPU(mycnn::float_t *x, int input_length, int output_length, mycnn::float_t *y)
+{
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for(int i = threadid ; i < output_length; i += BLOCKNUM * THREADNUM)
+	{
+		y[i] = x[i];
+	}
+}
+
+extern "C" void cacu_row_max_pooling_gpu(mycnn::float_t *x, int input_length, int output_length, mycnn::float_t *y)
+{
+
+	thrust::sort(x, x + input_length,thrust::greater<mycnn::float_t>());
+	_K_CACU_ROW_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length, output_length, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _K_CACU_ROW_MAX_POOLING_INDEX_GPU(mycnn::float_t *x, int input_length, int output_length, mycnn::float_t *y,unsigned int* index)
+{
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for(int i = threadid ; i < output_length; i += BLOCKNUM * THREADNUM)
+	{
+		for(int j = 0; j < input_length; ++j)
+		{
+			if(x[j] == y[i]){
+				index[i] = j;
+				break;
+			}
+		}
+	}
+}
+
+extern "C" void cacu_row_max_pooling_index_gpu(mycnn::float_t *x, int input_length, int output_length, mycnn::float_t *y,unsigned int* index)
+{
+	_K_CACU_ROW_MAX_POOLING_INDEX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length, output_length, y, index);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _K_CACU_ROW_MAX_POOLING_GRAD_GPU(mycnn::float_t *x, int output_length, mycnn::float_t *y, unsigned int* index)
+{
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for(int i = threadid ; i < output_length; i += BLOCKNUM * THREADNUM)
+	{
+		y[index[i]] = x[i];
+	}
+}
+
+extern "C" void cacu_row_max_pooling_grad_gpu(mycnn::float_t *x, int output_length, mycnn::float_t *y, unsigned int* index)
+{
+	_K_CACU_ROW_MAX_POOLING_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, output_length, y, index);
+	CUDA_CHECK(cudaThreadSynchronize());
+}

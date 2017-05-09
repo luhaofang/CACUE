@@ -62,6 +62,7 @@ namespace mycnn{
 		virtual const void check() override{
 			//kernel_size > 0
 			CHECK_GT_OP(_args->kernel_size(), 0,"kernel_size must > 0 vs %d",_args->kernel_size());
+			CHECK_EQ_OP(_args->output_channel(),s_blob->channel(),"source data must equal to layer args output_channel!");
 		}
 
 		virtual const void op() override {

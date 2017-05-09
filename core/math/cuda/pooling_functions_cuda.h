@@ -99,5 +99,10 @@ extern "C" void cacu_col2img_pad_gpu(mycnn::float_t *x, int kernel_size, int str
 
 extern "C" void cacu_col2img_pad_1x1_gpu(mycnn::float_t *x, int stride, int input_dim, int channel, int output_dim,int pad, mycnn::float_t *y);
 
+extern "C" void cacu_row_max_pooling_gpu(mycnn::float_t *x, int input_length, int output_length, mycnn::float_t *y);
+
+extern "C" void cacu_row_max_pooling_index_gpu(mycnn::float_t *x, int input_length, int output_length, mycnn::float_t *y,unsigned int* index);
+
+extern "C" void cacu_row_max_pooling_grad_gpu(mycnn::float_t *x, int output_length, mycnn::float_t *y, unsigned int* index);
 
 

@@ -160,7 +160,6 @@ namespace mycnn{
 				get_op(i)->save(os);
 			}
 			os.close();
-			LOG_INFO("optimization is done!");
 			LOG_INFO("The model is saved at : %s",modelpath.c_str());
 		}
 

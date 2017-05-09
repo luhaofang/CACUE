@@ -29,41 +29,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class max_pooling_op : public operator_base
+	class row_max_pooling_op : public operator_base
 	{
 
 	public:
 
-		max_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		row_max_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 			check();
 
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-			int output_dim = (input_dim - _args->kernel_size()) / _args->stride() + 1;
-			int pad = abs(input_dim - (output_dim - 1) * _args->stride() - _args->kernel_size());
-			if (pad != 0)
-				output_dim += 1;
+			int output_channel = data->count()*args_->at(0);
 
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, channel, output_dim, output_dim, _phrase);
-			_index = cacu_allocator::create_em_bin_blob(num, channel, output_dim, output_dim, test);
+			o_blob = create_em_oblob(num, output_channel, 1, 1, _phrase);
+			_index = cacu_allocator::create_em_bin_blob(num, output_channel, 1, 1, test);
+			_x = cacu_allocator::create_em_blob(1, channel, input_dim, input_dim, test);
 #else
-			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
-			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
+			o_blob = create_oblob(num, output_channel, 1, 1, _phrase);
+			_index = cacu_allocator::create_bin_blob(num, output_channel, 1, 1, test);
+			_x = cacu_allocator::create_blob(1, channel, input_dim, input_dim, test);
 #endif
 
 			echo();
 		};
 
-		~max_pooling_op(){
+		~row_max_pooling_op(){
 			delete _index;
+			delete _x;
 		};
 
 		virtual const void check() override{
 			//kernel_size > 0
-			CHECK_GT_OP(_args->kernel_size(), 0,"kernel_size must > 0 vs %d",_args->kernel_size());
-			CHECK_EQ_OP(_args->output_channel(),s_blob->channel(),"source data must equal to layer args output_channel!");
+			CHECK_GT_OP(_args->at(0), 0,"output_channel must > 0 vs %d",_args->at(0));
 		}
 
 		virtual const void op() override {
@@ -71,17 +70,33 @@ namespace mycnn{
 			em_blob *o_blob_ = (em_blob*)o_blob;
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_bin_blob *index_ = (em_bin_blob*)_index;
+			em_blob *x_ = (em_blob*)_x;
+
 			for(int i = 0 ; i < s_blob_->num(); ++i){
-				cacu_max_pooling(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data_d(i), index_->p_data_d(i));
+				if(_phrase == train){
+					cacu_copy(s_blob_->p_data_d(i),s_blob_->length(),x_->s_data());
+					cacu_row_max_pooling(x_->s_data(),s_blob_->length(),o_blob_->length(),o_blob_->p_data_d(i));
+					cacu_row_max_pooling_index(s_blob_->p_data_d(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data_d(i),index_->p_data_d(i));
+					index_->_sync(i);
+				}
+				else
+					cacu_row_max_pooling(s_blob_->p_data_d(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data_d(i));
 				o_blob_->_sync(i);
-				index_->_sync(i);
 			}
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
+			blob *x_ = (blob*)_x;
 			bin_blob *index_ = (bin_blob*)_index;
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
+			for(int i = 0 ; i < s_blob_->num(); ++i){
+				if(_phrase == train){
+					cacu_copy(s_blob_->p_data(i),s_blob_->length(),x_->s_data());
+					cacu_row_max_pooling(x_->s_data(),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i));
+					cacu_row_max_pooling_index(s_blob_->p_data(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i),index_->p_data(i));
+				}
+				else
+					cacu_row_max_pooling(s_blob_->p_data(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i));
+			}
 #endif
 
 		}
@@ -93,7 +108,7 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_bin_blob *index_ = (em_bin_blob*)_index;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
-				cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff_d(i), index_->p_data_d(i));
+				cacu_row_max_pooling_grad(o_blob_->p_diff_d(i), o_blob_->length(), s_blob_->p_diff_d(i), index_->p_data_d(i));
 				s_blob_->_sync(i);
 			}
 #else
@@ -102,7 +117,7 @@ namespace mycnn{
 			bin_blob *index_ = (bin_blob*)_index;
 
 			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
+				cacu_row_max_pooling_grad(o_blob_->p_diff(i), o_blob_->length(), s_blob_->p_diff(i), index_->p_data(i));
 #endif
 		}
 
@@ -115,7 +130,7 @@ namespace mycnn{
 		}
 
 		virtual const void echo() override{
-			LOG_INFO("create max_pooling op:");
+			LOG_INFO("create row_max_pooling op:");
 			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height(), _args->kernel_size(),_args->stride(),_args->pad());
 		}
 
@@ -128,6 +143,8 @@ namespace mycnn{
 	private:
 
 		blob_base *_index;
+
+		blob_base *_x;
 
 	};
 };

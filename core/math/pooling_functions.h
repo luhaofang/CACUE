@@ -193,4 +193,47 @@ namespace mycnn{
 		cacu_col2img_pad_cpu(x,kernel_size,stride,input_dim,channel,output_dim,pad,y);
 #endif
 	}
+
+	/*
+	 *channel: channel of input data
+	 *kernel_size: pooling window size
+	 *input_dim: width of input data
+	 *output_dim: width of output data
+	 */
+	inline void cacu_row_max_pooling(float_t *x, int input_length, int output_length, float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_row_max_pooling_gpu(x, input_length, output_length, y);
+#else
+		cacu_row_max_pooling_cpu(x, input_length, output_length, y);
+#endif
+	}
+
+
+	inline void cacu_row_max_pooling_index(float_t *x, int input_length, int output_length, float_t *y,unsigned int* index)
+	{
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_row_max_pooling_index_gpu(x, input_length, output_length, y, index);
+#else
+		cacu_row_max_pooling_index_cpu(x, input_length, output_length, y, index);
+#endif
+	}
+
+
+	/*
+	 *channel: channel of input data
+	 *kernel_size: pooling window size
+	 *input_dim: width of input data
+	 *output_dim: width of output data
+	 */
+	inline void cacu_row_max_pooling_grad(float_t *x, int output_length, float_t *y, unsigned int* index)
+	{
+
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_row_max_pooling_grad_gpu(x, output_length, y, index);
+#else
+		cacu_row_max_pooling_grad_cpu(x, output_length, y, index);
+#endif
+	}
 };
