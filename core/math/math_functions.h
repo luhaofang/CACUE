@@ -34,6 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "math_function_mkl.h"
 
 #include "cuda/math_functions_cuda.h"
+
+#include "../utils/configs.h"
 #include "../utils/data_defination.h"
 
 namespace mycnn{

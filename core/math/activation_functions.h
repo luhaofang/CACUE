@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cuda/activation_functions_cuda.h"
 #include "cpu/activation_functions_cpu.h"
 
+#include "../utils/configs.h"
 
 
 namespace mycnn{

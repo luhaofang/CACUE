@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cuda/loss_functions_cuda.h"
 #include "cpu/loss_functions_cpu.h"
 
+
+#include "../utils/configs.h"
 #include "../utils/data_defination.h"
 
 namespace mycnn{

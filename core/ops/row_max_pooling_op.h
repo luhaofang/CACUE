@@ -40,15 +40,15 @@ namespace mycnn{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
-			int output_channel = data->count()*args_->at(0);
+			int output_length = data->length()/_args->at(0);
 
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(num, output_channel, 1, 1, _phrase);
-			_index = cacu_allocator::create_em_bin_blob(num, output_channel, 1, 1, test);
+			_index = cacu_allocator::create_em_bin_blob(num, output_length, 1, 1, test);
 			_x = cacu_allocator::create_em_blob(1, channel, input_dim, input_dim, test);
 #else
-			o_blob = create_oblob(num, output_channel, 1, 1, _phrase);
-			_index = cacu_allocator::create_bin_blob(num, output_channel, 1, 1, test);
+			o_blob = create_oblob(num, output_length, 1, 1, _phrase);
+			_index = cacu_allocator::create_bin_blob(num, output_length, 1, 1, test);
 			_x = cacu_allocator::create_blob(1, channel, input_dim, input_dim, test);
 #endif
 
@@ -71,34 +71,35 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_bin_blob *index_ = (em_bin_blob*)_index;
 			em_blob *x_ = (em_blob*)_x;
-
-			for(int i = 0 ; i < s_blob_->num(); ++i){
-				if(_phrase == train){
+			if(_phrase == train){
+				for(int i = 0 ; i < s_blob_->num(); ++i){
 					cacu_copy(s_blob_->p_data_d(i),s_blob_->length(),x_->s_data());
-					cacu_row_max_pooling(x_->s_data(),s_blob_->length(),o_blob_->length(),o_blob_->p_data_d(i));
+					cacu_row_max_pooling(x_->s_data(),x_->count(),o_blob_->length(),o_blob_->p_data_d(i));
 					cacu_row_max_pooling_index(s_blob_->p_data_d(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data_d(i),index_->p_data_d(i));
 					index_->_sync(i);
 				}
-				else
-					cacu_row_max_pooling(s_blob_->p_data_d(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data_d(i));
-				o_blob_->_sync(i);
 			}
+			else
+				for(int i = 0 ; i < s_blob_->num(); ++i){
+					cacu_row_max_pooling(s_blob_->p_data_d(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data_d(i));
+					o_blob_->_sync(i);
+				}
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 			blob *x_ = (blob*)_x;
 			bin_blob *index_ = (bin_blob*)_index;
-			for(int i = 0 ; i < s_blob_->num(); ++i){
-				if(_phrase == train){
+			if(_phrase == train){
+				for(int i = 0 ; i < s_blob_->num(); ++i){
 					cacu_copy(s_blob_->p_data(i),s_blob_->length(),x_->s_data());
-					cacu_row_max_pooling(x_->s_data(),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i));
+					cacu_row_max_pooling(x_->s_data(),x_->count(),o_blob_->length(),o_blob_->p_data(i));
 					cacu_row_max_pooling_index(s_blob_->p_data(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i),index_->p_data(i));
 				}
-				else
-					cacu_row_max_pooling(s_blob_->p_data(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i));
 			}
+			else
+				for(int i = 0 ; i < s_blob_->num(); ++i)
+					cacu_row_max_pooling(s_blob_->p_data(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i));
 #endif
-
 		}
 
 		virtual const void grad() override{
@@ -131,7 +132,7 @@ namespace mycnn{
 
 		virtual const void echo() override{
 			LOG_INFO("create row_max_pooling op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height(), _args->kernel_size(),_args->stride(),_args->pad());
+			LOG_INFO("channel: %d, input_dim: %d, output_length: %d",s_blob->channel(),s_blob->height(),o_blob->length());
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override

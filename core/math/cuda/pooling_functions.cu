@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <thrust/sort.h>
+#include <thrust/execution_policy.h>
 
 #include "cuda_log.h"
 #include "../../utils/log.h"
@@ -742,7 +743,7 @@ __global__ void _K_CACU_ROW_MAX_POOLING_GPU(mycnn::float_t *x, int input_length,
 extern "C" void cacu_row_max_pooling_gpu(mycnn::float_t *x, int input_length, int output_length, mycnn::float_t *y)
 {
 
-	thrust::sort(x, x + input_length,thrust::greater<mycnn::float_t>());
+	thrust::stable_sort(thrust::device, x, x + input_length,thrust::greater<mycnn::float_t>());
 	_K_CACU_ROW_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length, output_length, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
