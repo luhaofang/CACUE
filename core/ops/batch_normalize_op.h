@@ -30,12 +30,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	class batch_normal_op : public operator_base
+	class batch_normalize_op : public operator_base
 	{
 
 	public:
 
-		batch_normal_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		batch_normalize_op(blob_base *&data, args *&args_) : operator_base(data, args_){
 
 			check();
 #if __USEMBEDDING__ == ON
@@ -55,6 +55,7 @@ namespace mycnn{
 #endif
 			_scale = create_param("scale", data->channel(), 1, 1, 1, _phrase);
 			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
+			_shift->set_lr(2);
 
 			_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
 
@@ -71,7 +72,7 @@ namespace mycnn{
 			echo();
 		};
 
-		~batch_normal_op(){
+		~batch_normalize_op(){
 
 			delete _mean;
 			delete _var;
@@ -335,6 +336,10 @@ namespace mycnn{
 		inline weight* scale(){ return _scale; }
 
 		inline weight* shift(){ return _shift; }
+
+		inline void set_scale_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _scale, value);}
+
+		inline void set_shift_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _shift, value);}
 
 		bool use_global_stats = true;
 

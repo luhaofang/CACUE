@@ -86,7 +86,7 @@ namespace mycnn{
 				return new relu_op(blob_->at(0), args_);
 			case CACU_BATCH_NORMALIZE:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
-				return new batch_normal_op(blob_->at(0), args_);
+				return new batch_normalize_op(blob_->at(0), args_);
 			case CACU_MAX_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new max_pooling_op(blob_->at(0), args_);
