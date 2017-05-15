@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * for cross entropy use loss functions in cuda
  */
-extern "C" void cacu_cross_entropy_gpu(mycnn::float_t *x, int num, int length, unsigned int *label_, mycnn::float_t *loss_);
+extern "C" void cacu_cross_entropy_gpu(mycnn::float_t *x, int num, int length,const unsigned int *label_, mycnn::float_t *loss_);
 
 
 

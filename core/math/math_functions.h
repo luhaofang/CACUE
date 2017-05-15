@@ -45,7 +45,7 @@ namespace mycnn{
  * math y = a*x + y:
  * length: the input data's size
  */
-inline void cacu_saxpy(float *x, float a, float *y,int length)
+inline void cacu_saxpy(const float *x,const float a, float *y,int length)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -62,7 +62,7 @@ inline void cacu_saxpy(float *x, float a, float *y,int length)
  * math y = a*x + b*y:
  * length: the input data's size
  */
-inline void cacu_saxpby(float *x, float a, float *y, float b, int length)
+inline void cacu_saxpby(const float *x,const float a, float *y,const float b, int length)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -80,7 +80,7 @@ inline void cacu_saxpby(float *x, float a, float *y, float b, int length)
  * math x[i] = a*x[i] :
  * x is a length dim array list, a is the corresponding scalar.
  */
-inline void cacu_scalex(float *x, int length, float a)
+inline void cacu_scalex(float *x, int length,const float a)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -98,7 +98,7 @@ inline void cacu_scalex(float *x, int length, float a)
  * math z = X*y:
  * trans_: whether x is needed to transpose
  */
-inline void cacu_sgemv(TRANSPOSE trans_,float *x, int x_height, float *y, int x_width, float alpha, float *z , float beta)
+inline void cacu_sgemv(TRANSPOSE trans_,const float *x, int x_height,const float *y, int x_width,const float alpha, float *z ,const float beta)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -119,7 +119,7 @@ inline void cacu_sgemv(TRANSPOSE trans_,float *x, int x_height, float *y, int x_
  * transx_: whether x is need to transpose
  * transy_: whether y is need to transpose
  */
-inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float *x, int x_height, int x_width, float *y, int y_width, float alpha, float *z, float beta)
+inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_,const float *x, int x_height, int x_width,const float *y, int y_width,const float alpha, float *z,const float beta)
 {
 
 #if __PARALLELTYPE__ == __OPENBLAS__
@@ -142,7 +142,7 @@ inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float *x, int x_hei
  * math y = x:
  * length: the input data's size
  */
-inline void cacu_copy(float_t *x, int length, float_t *y)
+inline void cacu_copy(const float_t *x, int length, float_t *y)
 {
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_copy_gpu(x, length, y);
@@ -173,13 +173,15 @@ inline void cacu_saxpy_atomic(float *x, float a, float *y, int length)
  * math vector_[i] = (rand()>=ratio_)
  * length: the input data's size
  */
-inline void rand_vector(float_t *vector_, int length, float_t ratio_)
+inline void rand_vector(float_t *vector_, int length,const float_t ratio_)
 {
+	rand_t *rand = new rand_t();
 #if __PARALLELTYPE__ == __CUDA__
 	vec_t v_(length);
+
 	for(int i = 0; i < length ; ++i)
 	{
-		if(rand_t::urand(0,1) >= ratio_)
+		if(rand->urand(0,1) >= ratio_)
 			v_[i] = 1.0;
 	}
 	cuda_copy2dev(vector_, &v_[0], length);
@@ -187,10 +189,11 @@ inline void rand_vector(float_t *vector_, int length, float_t ratio_)
 #else
 	for(int i = 0; i < length ; ++i)
 	{
-		if(rand_t::urand(0,1) >= ratio_)
+		if(rand->urand(0,1) >= ratio_)
 			vector_[i] = 1.0;
 	}
 #endif
+	delete rand;
 }
 
 
@@ -225,7 +228,7 @@ inline void mask_vector(float_t *vector_, int length, float_t *mask)
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-inline void cacu_isaxb(float_t *x, int length, float_t a ,unsigned int *index_, float_t b, float_t *y)
+inline void cacu_isaxb(const float_t *x, int length,const float_t a , const unsigned int *index_,const float_t b, float_t *y)
 {
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_isaxb_gpu(x,length, a, index_, b, y);

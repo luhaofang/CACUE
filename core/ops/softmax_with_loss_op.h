@@ -52,7 +52,7 @@ namespace mycnn{
 		};
 
 		virtual const void check() override{
-			return;
+			CHECK_GT_OP(_args->output_channel(),0,"source data must > 0 vs %d !",_args->output_channel());
 		}
 
 		virtual const void op() override {
@@ -113,6 +113,7 @@ namespace mycnn{
 				cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
 				cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
 			}
+
 #endif
 		}
 

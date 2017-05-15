@@ -40,8 +40,6 @@ layer_block* conv_block_top(blob_base* data,int output_channel, int kernel_size,
 	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l->get_op<convolution_op>(0)->set_is_use_bias(false);
-	l->get_op<batch_normalize_op>(1)->set_scale_init_type(constant,1);
 	layer *ml = new layer(output_channel, 3, 2);
 	ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 	clock_t end = clock();
@@ -60,19 +58,16 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	shortcut->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE);
 	shortcut->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	shortcut->get_op<convolution_op>(0)->set_is_use_bias(false);
-	shortcut->get_op<batch_normalize_op>(1)->set_scale_init_type(constant,1);
 
 	layer *l1 = new layer(output_channel, kernel_size, s_stride, pad, data->height(), data->channel());
 	l1->op(CACU_CONVOLUTION, split->get_oblobs()->at(1))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l1->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l1->get_op<convolution_op>(0)->set_is_use_bias(false);
-	l1->get_op<batch_normalize_op>(1)->set_scale_init_type(constant,1);
 
 	layer *l2 = new layer(output_channel, kernel_size, stride, pad, l1->get_oblob()->height(), l1->get_oblob()->channel());
 	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
 	l2->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l2->get_op<convolution_op>(0)->set_is_use_bias(false);
-	l2->get_op<batch_normalize_op>(1)->set_scale_init_type(constant,1);
 
 	blobs *b = new blobs();
 	b->push_back(shortcut->get_oblob());
@@ -88,13 +83,11 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	l3->op(CACU_CONVOLUTION, split1->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l3->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l3->get_op<convolution_op>(0)->set_is_use_bias(false);
-	l3->get_op<batch_normalize_op>(1)->set_scale_init_type(constant,1);
 
 	layer *l4 = new layer(output_channel, kernel_size, stride, pad, l3->get_oblob()->height(), l3->get_oblob()->channel());
 	l4->op(CACU_CONVOLUTION, l3->get_oblob())->op(CACU_BATCH_NORMALIZE);
 	l4->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l4->get_op<convolution_op>(0)->set_is_use_bias(false);
-	l4->get_op<batch_normalize_op>(1)->set_scale_init_type(constant,1);
 
 	blobs *b1 = new blobs();
 	b1->push_back(split1->get_oblobs()->at(1));
@@ -210,7 +203,7 @@ network* create_res18net_without_fc(int batch_size_,phrase_type phrase_)
 	layer *ave_pool = new layer(512,7,1);
 	ave_pool->op(CACU_AVERAGE_POOLING,conv5->get_oblob());
 
-	layer_block *fc8 = fc_layer(ave_pool->get_oblob(),1000);
+	layer_block *fc8 = fc_layer_nodropout(ave_pool->get_oblob(),1000);
 	fc8->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 	fc8->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc8->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);

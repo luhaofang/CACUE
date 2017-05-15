@@ -98,25 +98,16 @@ network* create_cifar_test_net(int batch_size,phrase_type phrase_)
 	conv1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv1");
 
-	layer_block *conv2 = conv_nopooling((blob*)conv1->get_oblob(), 64, 5, 1, 2);
+	layer_block *conv2 = conv_avepooling((blob*)conv1->get_oblob(), 64, 5, 1, 2);
 	conv2->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 	conv2->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv2");
 
-	layer_block *conv2_1 = conv_avepooling((blob*)conv2->get_oblob(), 64, 5, 1, 2);
-	conv2_1->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-	conv2_1->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("conv3");
-
-	layer_block *conv3 = conv_nopooling((blob*)conv2_1->get_oblob(), 128, 5, 1, 2);
+	layer_block *conv3 = conv_avepooling((blob*)conv2->get_oblob(), 64, 5, 1, 2);
 	conv3->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 	conv3->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv3");
 
-	layer_block *conv3_1 = conv_avepooling((blob*)conv3->get_oblob(), 128, 5, 1, 2);
-	conv3_1->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-	conv3_1->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-	LOG_DEBUG("conv3");
 	/*
 	layer_block *conv4 = conv_nopooling((blob*)conv3->get_oblob(), 32, 5, 1, 2);
 	conv4->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
@@ -127,15 +118,12 @@ network* create_cifar_test_net(int batch_size,phrase_type phrase_)
 	conv5->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv5");
 	*/
-//	layer_block *conv4 = conv_nopooling_norelu((blob*)conv3_1->get_oblob(), 256, 1, 1, 0);
-//	conv4->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-//	conv4->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
-//	LOG_DEBUG("conv5");
-
-	layer_block *conv4_1 = conv_nopooling_norelu((blob*)conv3_1->get_oblob(), 10, 1, 1, 0);
-	conv4_1->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-	conv4_1->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+	layer_block *conv4 = conv_nopooling_norelu((blob*)conv3->get_oblob(), 10, 1, 1, 0);
+	conv4->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	conv4->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	LOG_DEBUG("conv4");
+
+
 
 //	layer *al = new layer();
 //	al->op(CACU_P_INNERPRODUCT,conv4_1->get_oblob());
@@ -143,7 +131,7 @@ network* create_cifar_test_net(int batch_size,phrase_type phrase_)
 //	al->get_op<p_innerproduct_op>(0)->set_bias_init_type(constant);
 
 	if(phrase_ == train){
-		layer_block *loss_ = loss_layer(conv4_1->get_oblob(), label_, 10);
+		layer_block *loss_ = loss_layer(conv4->get_oblob(), label_, 10);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 		LOG_DEBUG("loss");
@@ -151,7 +139,7 @@ network* create_cifar_test_net(int batch_size,phrase_type phrase_)
 	}
 	else
 	{
-		layer_block *predict_ = predict_layer(conv4_1->get_oblob(), 10);
+		layer_block *predict_ = predict_layer(conv4->get_oblob(), 10);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 		LOG_DEBUG("predict");

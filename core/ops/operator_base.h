@@ -136,6 +136,9 @@ namespace mycnn{
 
 		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
 
+		inline void set_phrase(phrase_type phrase_){ _phrase = phrase_;}
+
+
 
 	protected:
 
@@ -165,6 +168,7 @@ namespace mycnn{
 			vec_t p_(w_->count());
 			int length_ = w_->count();
 			float_t *s_data_ = w_->s_data();
+			rand_t *rand = new rand_t();
 			switch (type)
 			{
 			case mycnn::constant:
@@ -174,16 +178,16 @@ namespace mycnn{
 			case mycnn::xavier:
 				value = sqrt((float_t) 3.0/ (w_->num() * w_->height() * w_->width()));
 				for (int i = 0; i < length_; i++)
-					p_[i] = rand_t::urand(-value, value);
+					p_[i] = rand->urand(-value, value);
 				break;
 			case mycnn::gaussian:
 				for (int i = 0; i < length_; i++)
-					p_[i] = rand_t::gaussrand(value);
+					p_[i] = rand->gaussrand(value);
 				break;
 			case mycnn::msra:
 				value = sqrt((float_t) 2.0/ (w_->num() * w_->height() * w_->width()));
 				for (int i = 0; i < length_; i++)
-					p_[i] = rand_t::gaussrand(value);
+					p_[i] = rand->gaussrand(value);
 				break;
 			default:
 				break;
@@ -196,6 +200,7 @@ namespace mycnn{
 				s_data_[i] = p_[i];
 #endif
 			vec_t().swap(p_);
+			delete rand;
 		}
 
 		inline void _add2op_weights(weight *w){_weights.push_back(w);}

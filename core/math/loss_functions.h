@@ -42,7 +42,7 @@ namespace mycnn{
 	 * math x[i] = max(0,x[i]) :
 	 * for loss use cross entropy functions.
 	 */
-	inline void cacu_cross_entropy(float_t *x, int num, int length, unsigned int *label_, float_t *loss_)
+	inline void cacu_cross_entropy(float_t *x, int num, int length,const unsigned int *label_, float_t *loss_)
 	{
 
 #if __PARALLELTYPE__ == __CUDA__

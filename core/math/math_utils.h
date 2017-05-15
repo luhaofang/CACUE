@@ -117,7 +117,7 @@ inline void cacu_print(DTYPE *data, int length)
 {
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_print((float_t*)data,length);
+	cuda_print(data,length);
 #else
 	for(int i = 0; i < length ;++i)
 		cout << data[i] << ",";

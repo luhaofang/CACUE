@@ -58,6 +58,7 @@ namespace mycnn{
 		void set_init_type(param_init_type type, float_t value = 0)
 		{
 			vec_t w(_length);
+			rand_t *rand = new rand_t();
 			switch (type)
 			{
 			case mycnn::constant:
@@ -67,16 +68,16 @@ namespace mycnn{
 			case mycnn::xavier:
 				value = sqrt((float_t) 3.0/ (num() * height() * width()));
 				for (int i = 0; i < _length; ++i)
-					w[i] = rand_t::urand(-value, value);
+					w[i] = rand->urand(-value, value);
 				break;
 			case mycnn::gaussian:
 				for (int i = 0; i < _length; ++i)
-					w[i] = rand_t::gaussrand(value);
+					w[i] = rand->gaussrand(value);
 				break;
 			case mycnn::msra:
 				value = sqrt((float_t) 2.0/ (num() * height() * width()));
 				for (int i = 0; i < _length; ++i)
-					w[i] = rand_t::gaussrand(value);
+					w[i] = rand->gaussrand(value);
 				break;
 			default:
 				break;
@@ -90,6 +91,7 @@ namespace mycnn{
 				s_data_[i] = w[i];
 #endif
 			vec_t().swap(w);
+			delete rand;
 		}
 
 

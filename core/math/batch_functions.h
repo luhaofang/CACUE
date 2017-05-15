@@ -43,7 +43,7 @@ namespace mycnn{
 	 * warning: take seriously this function may create accumulated error when width is large enough
 	 */
 	template<typename DTYPE>
-	inline void cacu_sumbysize(SUM SUMTYPE ,DTYPE *x, int length,float_t alpha, DTYPE *y, float_t beta,int width)
+	inline void cacu_sumbysize(SUM SUMTYPE ,const DTYPE *x, int length,const float_t alpha, DTYPE *y,const float_t beta,int width)
 	{
 
 #if __PARALLELTYPE__ == __CUDA__
@@ -59,7 +59,7 @@ namespace mycnn{
 	 * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
 	 */
 	template<typename DTYPE>
-	inline void cacu_cxsize(DTYPE *x, int length, DTYPE *a, int size,DTYPE *y)
+	inline void cacu_cxsize(const DTYPE *x, int length,const DTYPE *a, int size,DTYPE *y)
 	{
 
 #if __PARALLELTYPE__ == __CUDA__
@@ -75,7 +75,7 @@ namespace mycnn{
 	 * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
 	 */
 	template<typename DTYPE>
-	inline void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y)
+	inline void cacu_cdxsize(const DTYPE *x, int length,const DTYPE *a, int size, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_cdxsize_gpu(x, length, a, size, y);
@@ -91,7 +91,7 @@ namespace mycnn{
 	 * a & b are corresponding scalars for x, y
 	 */
 	template<typename DTYPE>
-	inline void cacu_ssxpy(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z)
+	inline void cacu_ssxpy(const DTYPE *x, const DTYPE a, int size,const DTYPE *y,const DTYPE b, int length, DTYPE *z)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_ssxpy_gpu(x, a, size, y, b, length, z);
@@ -105,7 +105,7 @@ namespace mycnn{
 	 * math y[i] = x[i]^2 :
 	 */
 	template<typename DTYPE>
-	inline void cacu_sqr(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_sqr(const DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_sqr_gpu(x,length,y);
@@ -119,7 +119,7 @@ namespace mycnn{
 	 * math y[i] = sqrt(x[i]) :
 	 */
 	template<typename DTYPE>
-	inline void cacu_root(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_root(const DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_root_gpu(x,length,y);
@@ -133,7 +133,7 @@ namespace mycnn{
 	 * math std[i] = sqrt(varience[i] + epsilon) :
 	 */
 	template<typename DTYPE>
-	inline void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std, DTYPE epsilon)
+	inline void cacu_stdbychannel(const DTYPE *varience, int length, DTYPE *std,const DTYPE epsilon)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_stdbychannel_gpu(varience,length,std,epsilon);
@@ -153,7 +153,7 @@ namespace mycnn{
 	 * d_rou: gradient of batch's variance
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_rou_grad(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, int num, int length, int channel, DTYPE *d_rou)
+	inline void cacu_bn_rou_grad(const DTYPE *x,const DTYPE *d_x,const DTYPE *mean,const DTYPE *std, int num, int length, int channel, DTYPE *d_rou)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_bn_rou_grad_gpu(x, d_x, mean, std, num, length, channel, d_rou);
@@ -174,7 +174,7 @@ namespace mycnn{
 	 * d_mean: gradient of batch's mean
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_mu_grad(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, DTYPE *d_rou, int num, int length, int channel,DTYPE *d_mean)
+	inline void cacu_bn_mu_grad(const DTYPE *x,const DTYPE *d_x,const DTYPE *mean,const DTYPE *std,const DTYPE *d_rou, int num, int length, int channel,DTYPE *d_mean)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_bn_mu_grad_gpu(x, d_x, mean, std, d_rou, num, length ,channel, d_mean);
@@ -196,7 +196,7 @@ namespace mycnn{
 	 * dx: gradient of x
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_dx_grad(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, DTYPE *d_rou, DTYPE *d_mean, int num, int length, int channel,DTYPE *dx)
+	inline void cacu_bn_dx_grad(const DTYPE *x,const DTYPE *d_x,const DTYPE *mean,const DTYPE *std,const DTYPE *d_rou,const DTYPE *d_mean, int num, int length, int channel,DTYPE *dx)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_bn_dx_grad_gpu(x, d_x, mean, std, d_rou, d_mean, num, length, channel, dx);
@@ -214,7 +214,7 @@ namespace mycnn{
 	 * d_gamma: gradient of gamma
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_gamma_grad(DTYPE *_x, DTYPE *d_y, int num, int length, int channel, DTYPE *d_gamma)
+	inline void cacu_bn_gamma_grad(const DTYPE *_x,const DTYPE *d_y, int num, int length, int channel, DTYPE *d_gamma)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_bn_gamma_grad_gpu(_x, d_y, num, length, channel, d_gamma);
@@ -229,7 +229,7 @@ namespace mycnn{
 	 * scale by element wise.
 	 */
 	template<typename DTYPE>
-	inline void cacu_ssx(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_ssx(const DTYPE *x, int length, DTYPE *y)
 	{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_ssx_gpu(x, length, y);

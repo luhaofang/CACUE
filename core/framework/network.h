@@ -172,6 +172,12 @@ namespace mycnn{
 			}
 		}
 
+		void set_phrase(phrase_type phrase_){
+			for(unsigned int i =0 ; i < _ops.size();++i){
+				_ops[i]->set_phrase(phrase_);
+			}
+		}
+
 	private:
 
 		vector<layer_base*> _layers;

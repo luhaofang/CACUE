@@ -57,7 +57,8 @@ namespace mycnn{
 		};
 
 		virtual const void check() override{
-			return;
+			//split count > 0
+			CHECK_GT_OP(_args->at(0), 0,"output_channel must > 0 vs %d",_args->at(0));
 		}
 
 		virtual const void op() override {

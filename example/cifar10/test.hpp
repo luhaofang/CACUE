@@ -41,17 +41,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void test_net()
 {
-	int batch_size = 1;
+	int batch_size = 100;
 
-	int max_iter = 1;
+	int max_iter = 100;
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
-	network *net = create_cifar_test_net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,test);
 
-	op_injector *injector = new op_injector(net->get_op(13));
+	op_injector *injector = new op_injector(net->get_op(8));
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
@@ -68,7 +68,7 @@ void test_net()
 
 	blob *output_data = net->output_blob();
 
-	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_sparse.model");
 
 	unsigned int max_index;
 	float_t count = 0;
@@ -89,11 +89,13 @@ void test_net()
 			step_index += 1;
 		}
 		net->predict();
+		//cacu_copy(net->output_blob()->s_data(),net->output_blob()->count(),net->output_blob()->s_diff());
+		//net->set_weights_type(constant,1);
+		//net->back_propagate();
 		//injector->get_outblob_count();
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
 			max_index = argmax(output_data->p_data(j),output_data->length());
-			LOG_DEBUG("%u", max_index);
 			if(max_index == _full_label[i * batch_size + j]){
 				count += 1.0;
 			}
@@ -110,7 +112,7 @@ void test_net()
 
 	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
 
-	injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
+	//injector->s_diff_serializa("/home/seal/4T/cacue/imagenet/test.txt");
 
 	delete injector;
 #if __PARALLELTYPE__ == __CUDA__

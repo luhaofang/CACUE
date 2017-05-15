@@ -41,19 +41,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void test_net()
 {
-	int batch_size = 1;
+	int batch_size = 100;
 
 	int ALLIMAGE = 50000;
 
-	int max_iter = 1;
+	int max_iter = 500;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
 #endif
 
-	network *net = create_res18net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_vgg_16_net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/res18net.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net_30000.model");
 
 	op_injector *injector = new op_injector(net->get_op(29));
 

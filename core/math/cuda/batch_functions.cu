@@ -29,7 +29,7 @@
 #include "../math_utils.h"
 #include "../../utils/data_defination.h"
 
-__global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(mycnn::float_t *x, int heigth, int width, mycnn::float_t alpha, mycnn::float_t *y ,mycnn::float_t beta) {
+__global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(const mycnn::float_t *x, int heigth, int width,const mycnn::float_t alpha, mycnn::float_t *y ,const mycnn::float_t beta) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -55,7 +55,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(mycnn::float_t *x, int heigth, int
 	}
 }
 
-__global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(mycnn::float_t *x, int height, int width,mycnn::float_t alpha, mycnn::float_t *y, mycnn::float_t beta) {
+__global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(const mycnn::float_t *x, int height, int width,const mycnn::float_t alpha, mycnn::float_t *y,const mycnn::float_t beta) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -90,7 +90,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(mycnn::float_t *x, int height, in
  * accumulate the value by width or height , width is the matrix array's width dim which stored in row -major format.
  * sum by width y is (length/ width) height dim, sum by height y is width dim.
  */
-extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,mycnn::float_t *x, int length, mycnn::float_t alpha, mycnn::float_t *y, mycnn::float_t beta, int width){
+extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE , const mycnn::float_t *x, int length,const mycnn::float_t alpha, mycnn::float_t *y,const mycnn::float_t beta, int width){
 
 	int height = length / width;
 
@@ -101,7 +101,7 @@ extern "C" void cacu_sumbysize_gpu(SUM SUMTYPE ,mycnn::float_t *x, int length, m
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_CXSIZE_GPU(mycnn::float_t *x, int length, mycnn::float_t *a, int size,mycnn::float_t *y) {
+__global__ void _k_CACU_CXSIZE_GPU(const mycnn::float_t *x, int length,const mycnn::float_t *a, int size,mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -122,13 +122,13 @@ __global__ void _k_CACU_CXSIZE_GPU(mycnn::float_t *x, int length, mycnn::float_t
  * a: size dim array list
  * a[j] is the corresponding scalar, j = i / (length / size).
  */
-extern "C" void cacu_cxsize_gpu(mycnn::float_t *x, int length, mycnn::float_t *a, int size,mycnn::float_t *y)
+extern "C" void cacu_cxsize_gpu(const mycnn::float_t *x, int length,const mycnn::float_t *a, int size,mycnn::float_t *y)
 {
 	_k_CACU_CXSIZE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_CDXSIZE_GPU(mycnn::float_t *x, int length, mycnn::float_t *a, int size ,mycnn::float_t *y) {
+__global__ void _k_CACU_CDXSIZE_GPU(const mycnn::float_t *x, int length,const mycnn::float_t *a, int size ,mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -149,13 +149,13 @@ __global__ void _k_CACU_CDXSIZE_GPU(mycnn::float_t *x, int length, mycnn::float_
  * a: size dim array list
  * a[j] is the corresponding denominator, j = i / (length / size).
  */
-extern "C" void cacu_cdxsize_gpu(mycnn::float_t *x, int length, mycnn::float_t *a, int size, mycnn::float_t *y)
+extern "C" void cacu_cdxsize_gpu(const mycnn::float_t *x, int length,const mycnn::float_t *a, int size, mycnn::float_t *y)
 {
 	_k_CACU_CDXSIZE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_SSXPY_GPU(mycnn::float_t *x, mycnn::float_t a, int size, mycnn::float_t *y, mycnn::float_t b, int length, mycnn::float_t *z) {
+__global__ void _k_CACU_SSXPY_GPU(const mycnn::float_t *x,const mycnn::float_t a, int size,const mycnn::float_t *y,const mycnn::float_t b, int length, mycnn::float_t *z) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -177,13 +177,13 @@ __global__ void _k_CACU_SSXPY_GPU(mycnn::float_t *x, mycnn::float_t a, int size,
  * x[j] is the corresponding scalar, j = i / (length / size).
  * a & b are corresponding scalars for x, y
  */
-extern "C" void cacu_ssxpy_gpu(mycnn::float_t *x, mycnn::float_t a, int size, mycnn::float_t *y, mycnn::float_t b, int length, mycnn::float_t *z)
+extern "C" void cacu_ssxpy_gpu(const mycnn::float_t *x,const mycnn::float_t a, int size,const mycnn::float_t *y,const mycnn::float_t b, int length, mycnn::float_t *z)
 {
 	_k_CACU_SSXPY_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a, size, y, b, length, z);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_SQR_GPU(mycnn::float_t *x, int length, mycnn::float_t *y) {
+__global__ void _k_CACU_SQR_GPU(const mycnn::float_t *x, int length, mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -199,13 +199,13 @@ __global__ void _k_CACU_SQR_GPU(mycnn::float_t *x, int length, mycnn::float_t *y
  * @cacu_sqr_gpu
  * math y[i] = x[i]^2 :
  */
-extern "C" void cacu_sqr_gpu(mycnn::float_t *x, int length, mycnn::float_t *y)
+extern "C" void cacu_sqr_gpu(const mycnn::float_t *x, int length, mycnn::float_t *y)
 {
 	_k_CACU_SQR_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_ROOT_GPU(mycnn::float_t *x, int length, mycnn::float_t *y) {
+__global__ void _k_CACU_ROOT_GPU(const mycnn::float_t *x, int length, mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -221,13 +221,13 @@ __global__ void _k_CACU_ROOT_GPU(mycnn::float_t *x, int length, mycnn::float_t *
  * @cacu_root_gpu
  * math y[i] = sqrt(x[i]) :
  */
-extern "C" void cacu_root_gpu(mycnn::float_t *x, int length, mycnn::float_t *y)
+extern "C" void cacu_root_gpu(const mycnn::float_t *x, int length, mycnn::float_t *y)
 {
 	_k_CACU_ROOT_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_STDBYCHANNEL_GPU(mycnn::float_t *varience, int length, mycnn::float_t *std, mycnn::float_t epsilon) {
+__global__ void _k_CACU_STDBYCHANNEL_GPU(const mycnn::float_t *varience, int length, mycnn::float_t *std,const mycnn::float_t epsilon) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -243,13 +243,13 @@ __global__ void _k_CACU_STDBYCHANNEL_GPU(mycnn::float_t *varience, int length, m
  * @cacu_stdbychannel_gpu
  * math std[i] = sqrt(varience[i] + epsilon) :
  */
-extern "C" void cacu_stdbychannel_gpu(mycnn::float_t *varience, int length, mycnn::float_t *std, mycnn::float_t epsilon)
+extern "C" void cacu_stdbychannel_gpu(const mycnn::float_t *varience, int length, mycnn::float_t *std,const mycnn::float_t epsilon)
 {
 	_k_CACU_STDBYCHANNEL_GPU<<<BLOCKNUM, THREADNUM, 0>>>(varience, length, std, epsilon);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_BN_ROU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, mycnn::float_t *mean, mycnn::float_t *std, int num, int length, int channel, mycnn::float_t *d_rou) {
+__global__ void _k_CACU_BN_ROU_GRAD_GPU(const mycnn::float_t *x,const mycnn::float_t *d_x,const mycnn::float_t *mean,const mycnn::float_t *std, int num, int length, int channel, mycnn::float_t *d_rou) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -300,14 +300,14 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, 
  * length: size of a feature map
  * d_rou: gradient of batch's variance
  */
-extern "C" void cacu_bn_rou_grad_gpu(mycnn::float_t *x, mycnn::float_t *d_x, mycnn::float_t *mean, mycnn::float_t *std, int num, int length, int channel, mycnn::float_t *d_rou)
+extern "C" void cacu_bn_rou_grad_gpu(const mycnn::float_t *x,const mycnn::float_t *d_x,const mycnn::float_t *mean,const mycnn::float_t *std, int num, int length, int channel, mycnn::float_t *d_rou)
 {
 
 	_k_CACU_BN_ROU_GRAD_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(mycnn::float_t)>>>(x, d_x, mean, std, num, length, channel, d_rou);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_BN_MU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, mycnn::float_t *mean, mycnn::float_t *std, mycnn::float_t *d_rou, int num, int length, int channel,mycnn::float_t *d_mean) {
+__global__ void _k_CACU_BN_MU_GRAD_GPU(const mycnn::float_t *x,const mycnn::float_t *d_x,const mycnn::float_t *mean,const mycnn::float_t *std,const mycnn::float_t *d_rou, int num, int length, int channel,mycnn::float_t *d_mean) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -358,13 +358,13 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, m
  * length: size of a feature map
  * d_mean: gradient of batch's mean
  */
-extern "C" void cacu_bn_mu_grad_gpu(mycnn::float_t *x, mycnn::float_t *d_x, mycnn::float_t *mean, mycnn::float_t *std, mycnn::float_t *d_rou, int num, int length, int channel,mycnn::float_t *d_mean)
+extern "C" void cacu_bn_mu_grad_gpu(const mycnn::float_t *x,const mycnn::float_t *d_x,const mycnn::float_t *mean,const mycnn::float_t *std,const mycnn::float_t *d_rou, int num, int length, int channel,mycnn::float_t *d_mean)
 {
 	_k_CACU_BN_MU_GRAD_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(mycnn::float_t)>>>(x, d_x, mean, std, d_rou, num, length ,channel, d_mean);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_BN_DX_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, mycnn::float_t *mean, mycnn::float_t *std, mycnn::float_t *d_rou, mycnn::float_t *d_mean, int num, int length, int channel,mycnn::float_t *dx) {
+__global__ void _k_CACU_BN_DX_GRAD_GPU(const mycnn::float_t *x,const mycnn::float_t *d_x,const mycnn::float_t *mean,const mycnn::float_t *std,const mycnn::float_t *d_rou,const mycnn::float_t *d_mean, int num, int length, int channel,mycnn::float_t *dx) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -396,13 +396,13 @@ __global__ void _k_CACU_BN_DX_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *d_x, m
  * length: size of a feature map
  * dx: gradient of x
  */
-extern "C" void cacu_bn_dx_grad_gpu(mycnn::float_t *x, mycnn::float_t *d_x, mycnn::float_t *mean, mycnn::float_t *std, mycnn::float_t *d_rou, mycnn::float_t *d_mean, int num, int length, int channel,mycnn::float_t *dx)
+extern "C" void cacu_bn_dx_grad_gpu(const mycnn::float_t *x,const mycnn::float_t *d_x,const mycnn::float_t *mean,const mycnn::float_t *std,const mycnn::float_t *d_rou,const mycnn::float_t *d_mean, int num, int length, int channel,mycnn::float_t *dx)
 {
 	_k_CACU_BN_DX_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, d_x, mean, std, d_rou, d_mean, num, length, channel, dx);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_BN_GAMMA_GRAD_GPU(mycnn::float_t *_x, mycnn::float_t *d_y, int num, int length, int channel, mycnn::float_t *d_gamma) {
+__global__ void _k_CACU_BN_GAMMA_GRAD_GPU(const mycnn::float_t *_x,const mycnn::float_t *d_y, int num, int length, int channel, mycnn::float_t *d_gamma) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -449,13 +449,13 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(mycnn::float_t *_x, mycnn::float_t *d_
  * length: size of a feature map
  * d_gamma: gradient of gamma
  */
-extern "C" void cacu_bn_gamma_grad_gpu(mycnn::float_t *_x, mycnn::float_t *d_y, int num, int length, int channel, mycnn::float_t *d_gamma)
+extern "C" void cacu_bn_gamma_grad_gpu(const mycnn::float_t *_x,const mycnn::float_t *d_y, int num, int length, int channel, mycnn::float_t *d_gamma)
 {
 	_k_CACU_BN_GAMMA_GRAD_GPU<<<BLOCKNUM, THREADNUM, THREADNUM*sizeof(mycnn::float_t)>>>(_x, d_y, num, length, channel, d_gamma);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_SSX_GPU(mycnn::float_t *x, int length, mycnn::float_t *y) {
+__global__ void _k_CACU_SSX_GPU(const mycnn::float_t *x, int length, mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -472,7 +472,7 @@ __global__ void _k_CACU_SSX_GPU(mycnn::float_t *x, int length, mycnn::float_t *y
  * math y[i] *= x[i] :
  * scale by element wise.
  */
-extern "C" void cacu_ssx_gpu(mycnn::float_t *x, int length, mycnn::float_t *y)
+extern "C" void cacu_ssx_gpu(const mycnn::float_t *x, int length, mycnn::float_t *y)
 {
 	_k_CACU_SSX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 	CUDA_CHECK(cudaThreadSynchronize());

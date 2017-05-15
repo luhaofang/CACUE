@@ -51,7 +51,7 @@ extern "C" void cacu_saxpy_atomic_gpu(float *x, float a, float *y,int length)
 }
 
 
-__global__ void _k_CACU_ISAXB_GPU(mycnn::float_t *x, int length, mycnn::float_t a ,unsigned int *index_, mycnn::float_t b, mycnn::float_t *y) {
+__global__ void _k_CACU_ISAXB_GPU(const mycnn::float_t *x, int length,const mycnn::float_t a ,const unsigned int *index_, const mycnn::float_t b, mycnn::float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -72,7 +72,7 @@ __global__ void _k_CACU_ISAXB_GPU(mycnn::float_t *x, int length, mycnn::float_t 
  * @cacu_isaxdb_gpu
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_gpu(mycnn::float_t *x, int length, mycnn::float_t a ,unsigned int *index_, mycnn::float_t b, mycnn::float_t *y) {
+extern "C" void cacu_isaxb_gpu(const mycnn::float_t *x, int length,const mycnn::float_t a ,const unsigned int *index_,const mycnn::float_t b, mycnn::float_t *y) {
 
 	_k_CACU_ISAXB_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length,a ,index_,b,y);
 
@@ -80,7 +80,7 @@ extern "C" void cacu_isaxb_gpu(mycnn::float_t *x, int length, mycnn::float_t a ,
 
 }
 
-__global__ void _k_ARGMAX_GPU(mycnn::float_t *x, int length, unsigned int *index_) {
+__global__ void _k_ARGMAX_GPU(const mycnn::float_t *x, int length, unsigned int *index_) {
 
 	__shared__ mycnn::float_t shared_data[THREADNUM];
 
@@ -120,7 +120,7 @@ __global__ void _k_ARGMAX_GPU(mycnn::float_t *x, int length, unsigned int *index
 	}
 }
 
-extern "C" void cacu_argmax_gpu(mycnn::float_t *x,int length, unsigned int *index_)
+extern "C" void cacu_argmax_gpu(const mycnn::float_t *x,int length, unsigned int *index_)
 {
 	_k_ARGMAX_GPU<<<1, THREADNUM, 0>>>(x, length, index_);
 

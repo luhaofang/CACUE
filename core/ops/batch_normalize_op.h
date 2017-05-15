@@ -54,6 +54,7 @@ namespace mycnn{
 			_dim_sum = cacu_allocator::create_blob(data->num(), data->channel(), 1, 1, test);
 #endif
 			_scale = create_param("scale", data->channel(), 1, 1, 1, _phrase);
+			_scale->set_init_type(constant,1);
 			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
 			_shift->set_lr(2);
 
