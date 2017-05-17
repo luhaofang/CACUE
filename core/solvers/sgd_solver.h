@@ -68,6 +68,7 @@ namespace mycnn{
 			__REGULARIZE__(w_ ,weight_index_);
 			//history_v update
 			cacu_saxpby(w_->s_diff(), learn_rate_, history_->s_data(), _momentum, w_->count());
+
 			//update to weight
 			cacu_saxpy_atomic(history_->s_data(), -1, w_->s_data(), w_->count());
 

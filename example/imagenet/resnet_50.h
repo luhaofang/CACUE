@@ -41,7 +41,7 @@ layer_block* conv_shortcut_block(blob_base* data,int output_channel, int output_
 	layer *split = new layer();
 	split->op(CACU_SPLIT,data,new args(2));
 
-	layer *shortcut = new layer(output_channel, 1, s_stride, 0, split->get_oblobs()->at(0)->height(), split->get_oblobs()->at(0)->channel());
+	layer *shortcut = new layer(output_channel, 1, s_stride, 0, data->height(), data->channel());
 	shortcut->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	shortcut->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	shortcut->get_op<convolution_op>(0)->set_is_use_bias(false);
@@ -79,7 +79,7 @@ layer_block* identity_block(blob_base* data,int output_channel, int output_chann
 	layer *split = new layer();
 	split->op(CACU_SPLIT,data,new args(2));
 
-	layer *shortcut = new layer(output_channel, 1, s_stride, 0, data->height(), data->channel());
+	layer *shortcut = new layer(output_channel, 1, s_stride, 0, split->get_oblobs()->at(0)->height(), split->get_oblobs()->at(0)->channel());
 	shortcut->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	shortcut->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	shortcut->get_op<convolution_op>(0)->set_is_use_bias(false);
@@ -155,7 +155,7 @@ network* create_res50net(int batch_size_,phrase_type phrase_)
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(xavier);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 
-		*net <<  loss_;
+		*net << loss_;
 	}
 	else
 	{

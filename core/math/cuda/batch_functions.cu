@@ -50,6 +50,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(const mycnn::float_t *x, int heigt
 			acc_length /= 2;
 			__syncthreads();
 		}
+
 		if(tid == 0)
 			y[i] = alpha * shared_data[0] + beta * y[i];
 	}
@@ -78,6 +79,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(const mycnn::float_t *x, int heig
 			acc_length /= 2;
 			__syncthreads();
 		}
+
 		if(tid == 0)
 			y[i] = alpha * shared_data[0] + beta * y[i];
 	}
@@ -285,8 +287,9 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(const mycnn::float_t *x,const mycnn::flo
 			acc_length /= 2;
 			__syncthreads();
 		}
+
 		if(tid == 0)
-			atomicAdd(d_rou+i,shared_data[0]);
+			d_rou[i] += shared_data[0];
 	}
 }
 
@@ -342,8 +345,9 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(const mycnn::float_t *x,const mycnn::floa
 			acc_length /= 2;
 			__syncthreads();
 		}
+
 		if(tid == 0)
-			atomicAdd(d_mean+i,shared_data[0]);
+			d_mean[i] += shared_data[0];
 	}
 }
 
@@ -436,8 +440,9 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(const mycnn::float_t *_x,const mycnn::
 			acc_length /= 2;
 			__syncthreads();
 		}
+
 		if(tid == 0)
-			atomicAdd(d_gamma+i,shared_data[0]);
+			d_gamma[i] += shared_data[0];
 	}
 }
 

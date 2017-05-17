@@ -85,7 +85,7 @@ namespace mycnn{
 		inline void _RESET_DATA()
 		{
 			for(int i = 0 ; i < this->size(); ++i)
-				at(0)->_RESET_DATA();
+				at(i)->_RESET_DATA();
 		}
 
 		/**
@@ -94,7 +94,7 @@ namespace mycnn{
 		inline void _RESET_DIFF()
 		{
 			for(int i = 0 ; i < this->size(); ++i)
-				at(0)->_RESET_DIFF();
+				at(i)->_RESET_DIFF();
 		}
 
 	private:

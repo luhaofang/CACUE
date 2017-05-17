@@ -175,7 +175,7 @@ namespace mycnn{
 				float_t bias_correction_factor = m > (float_t)1.0 ? (m) / (m - (float_t)1.0) : (float_t)1.0;
 
 				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, dim_sum_->s_data(),0, s_blob_->length()/s_blob_->channel());
-				cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(),1, _mean->s_data(),0, s_blob_->channel());
+				cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _mean->s_data(), 0, s_blob_->channel());
 
 				cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
 
@@ -186,7 +186,7 @@ namespace mycnn{
 				cacu_sqr(o_blob_->s_data(), o_blob_->count(), x_->s_data());
 
 				cacu_sumbysize(BYWIDTH, x_->s_data(), o_blob_->count(), 1,dim_sum_->s_data(), 0, o_blob_->length()/o_blob_->channel());
-				cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), o_blob_->channel()*o_blob_->num(),1, _var->s_data(),0, o_blob_->channel());
+				cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), o_blob_->channel() * o_blob_->num(), 1, _var->s_data(), 0, o_blob_->channel());
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
@@ -271,8 +271,7 @@ namespace mycnn{
 			blob *x_ = (blob*)_x;
 
 			float_t *mean_data_,*mean_diff_;
-			//cacu_print(o_blob_->s_diff(),10000);
-			//cout << endl << endl;
+
 			for(int i = 0 ; i < s_blob_->num(); ++i){
 				//calculate dl/x_
 				cacu_cxsize(o_blob_->p_diff(i), o_blob_->length(), _scale->s_data(), _scale->count(), s_blob_->p_diff(i));

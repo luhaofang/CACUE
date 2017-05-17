@@ -62,7 +62,7 @@ inline void cacu_sgemv_gpu(cublasOperation_t trans,const float *x, int x_height,
 	CUBLAS_CHECK(status);
 }
 
-inline void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy,const float *x, int x_height, int x_width,const float *y, int y_width, const float alpha, float *z,const float beta)
+inline void cacu_sgemm_gpu(cublasOperation_t transx, cublasOperation_t transy, const float *x, int x_height, int x_width,const float *y, int y_width, const float alpha, float *z,const float beta)
 {
 	int m = x_height,n = y_width,k = x_width;
 	int lda = (transx == CUBLAS_OP_N) ? m : k;

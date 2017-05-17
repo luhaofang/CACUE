@@ -72,7 +72,7 @@ template<typename DTYPE>
 inline DTYPE* cuda_malloc(int num,int length)
 {
 	DTYPE* data_;
-	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
+	res = cudaMalloc((void**) (&data_), num * length * sizeof(DTYPE));
 	CUDA_CHECK(res);
 	return data_;
 }
@@ -81,7 +81,7 @@ template<typename DTYPE>
 inline DTYPE* cuda_malloc_v(int num,int length,DTYPE value)
 {
 	DTYPE* data_;
-	res = cudaMalloc((void**) (&data_), num * length * sizeof(float_t));
+	res = cudaMalloc((void**) (&data_), num * length * sizeof(DTYPE));
 	CUDA_CHECK(res);
 	res = cudaMemset((void*) (data_), value, num * length * sizeof(DTYPE));
 	CUDA_CHECK(res);

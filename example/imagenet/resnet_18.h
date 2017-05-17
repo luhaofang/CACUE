@@ -40,6 +40,7 @@ layer_block* conv_block_top(blob_base* data,int output_channel, int kernel_size,
 	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	//l->get_op<convolution_op>(0)->set_is_use_bias(false);
 	layer *ml = new layer(output_channel, 3, 2);
 	ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 	clock_t end = clock();
