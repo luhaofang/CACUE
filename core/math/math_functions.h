@@ -157,7 +157,7 @@ inline void cacu_copy(const float_t *x, int length, float_t *y)
  * math y = ax + y:
  * length: the input data's size
  */
-inline void cacu_saxpy_atomic(float *x, float a, float *y, int length)
+inline void cacu_saxpy_atomic(const float_t *x, float_t a, float_t *y, int length)
 {
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_saxpy_atomic_gpu(x, a, y, length);

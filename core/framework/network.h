@@ -146,6 +146,8 @@ namespace mycnn{
 		void load_weights(chars_t modelpath){
 			std::ifstream is(modelpath, ios::binary);
 			is.precision(std::numeric_limits<float_t>::digits10);
+			if(!is)
+				LOG_FATAL("file %s cannot be opened!",modelpath.c_str());
 			for(int i = 0; i < op_count(); ++i)	{
 				get_op(i)->load(is);
 			}

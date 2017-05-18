@@ -29,7 +29,7 @@
 
 #include "../../utils/data_defination.h"
 
-__global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,int length){
+__global__ void _k_CACU_SAXPY_ATOMIC_GPU(const float_t *x, float_t a, float_t *y,int length){
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -43,7 +43,7 @@ __global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,int length)
 
 }
 
-extern "C" void cacu_saxpy_atomic_gpu(float *x, float a, float *y,int length)
+extern "C" void cacu_saxpy_atomic_gpu(const float_t *x, float_t a, float_t *y,int length)
 {
 	_k_CACU_SAXPY_ATOMIC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a ,y,length);
 

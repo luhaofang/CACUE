@@ -77,7 +77,7 @@ inline void cacu_copy_gpu(const mycnn::float_t *x, int x_length,mycnn::float_t *
 	CUBLAS_CHECK(status);
 }
 
-extern "C" void cacu_saxpy_atomic_gpu(float *x, float a, float *y,int length);
+extern "C" void cacu_saxpy_atomic_gpu(const mycnn::float_t *x, mycnn::float_t a, mycnn::float_t *y,int length);
 
 /**
  * @cacu_isaxdb_gpu
