@@ -27,9 +27,7 @@
 using namespace mycnn;
 using namespace mycnn_tools;
 
-
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
 	//test_blob();
 	//test_op();
 	//test_network();

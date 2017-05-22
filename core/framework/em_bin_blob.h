@@ -161,10 +161,10 @@ namespace mycnn{
 			unsigned int* s_data_ = (unsigned int*)_s_data;
 			float_t* s_diff_ = (float_t*)_s_diff;
 
-			memset(s_data_, 0 ,_length*sizeof(unsigned int));
+			cacu_memset<unsigned int>(s_data_, 0 ,_length);
 			if (train == _phrase)
-				memset(s_diff_, 0 ,_length*sizeof(float_t));
-			memset(__BUFFER__, FAILEDHITS, _data_length * sizeof(int));
+				cacu_memset<mycnn::float_t>(s_diff_, 0 ,_length);
+			cacu_memset<int>(__BUFFER__, FAILEDHITS, _data_length);
 		}
 
 		/**
@@ -175,8 +175,8 @@ namespace mycnn{
 			float_t* s_diff_ = (float_t*)_s_diff;
 
 			if (train == _phrase)
-				memset(s_diff_, 0 ,_length*sizeof(float_t));
-			memset(__BUFFER__, FAILEDHITS, _data_length * sizeof(int));
+				cacu_memset<mycnn::float_t>(s_diff_, 0 ,_length);
+			cacu_memset<int>(__BUFFER__, FAILEDHITS, _data_length);
 		}
 
 		/**
@@ -211,7 +211,7 @@ namespace mycnn{
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 			memcpy(p_data(i),&data_[0],_cube_length*sizeof(unsigned int));
-			memset(__BUFFER__, FAILEDHITS, _data_length * sizeof(int));
+			cacu_memset(__BUFFER__, FAILEDHITS, _data_length);
 		}
 
 		/*
@@ -221,7 +221,7 @@ namespace mycnn{
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
 			memcpy(s_data(),&data_[0],_length*sizeof(unsigned int));
-			memset(__BUFFER__, FAILEDHITS, _data_length * sizeof(int));
+			cacu_memset(__BUFFER__, FAILEDHITS, _data_length);
 		}
 
 		/*
@@ -232,7 +232,7 @@ namespace mycnn{
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 			cacu_copy_cpu(&data_[0],_cube_length, p_diff(i));
-			memset(__BUFFER__, FAILEDHITS, _data_length * sizeof(int));
+			cacu_memset(__BUFFER__, FAILEDHITS, _data_length);
 		}
 
 		/*
@@ -242,7 +242,7 @@ namespace mycnn{
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
 			cacu_copy_cpu(&data_[0],_length, s_diff());
-			memset(__BUFFER__, FAILEDHITS, _data_length * sizeof(int));
+			cacu_memset(__BUFFER__, FAILEDHITS, _data_length);
 		}
 
 		virtual inline const int calculate_size() override{

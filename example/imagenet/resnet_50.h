@@ -116,7 +116,7 @@ network* create_res50net(int batch_size_,phrase_type phrase_)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3, true);
 	layer_block *conv2a = conv_shortcut_block(conv1->get_oblob(),64,256,3,1,1,1);
 	layer_block *conv2b = identity_block(conv2a->get_oblob(),64,256,3,1,1,1);
 	layer_block *conv2c = identity_block(conv2b->get_oblob(),64,256,3,1,1,1);

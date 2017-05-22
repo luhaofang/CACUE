@@ -101,9 +101,9 @@ namespace mycnn{
 			if (train == _phrase)
 				cuda_refresh(s_diff_,_length);
 #else
-			memset(s_data_, 0 ,_length*sizeof(float_t));
+			cacu_memset(s_data_, 0 ,_length);
 			if (train == _phrase)
-				memset(s_diff_, 0 ,_length*sizeof(float_t));
+				cacu_memset(s_diff_, 0 ,_length);
 #endif
 		}
 
@@ -118,7 +118,7 @@ namespace mycnn{
 				cuda_refresh(s_diff_, _length);
 #else
 			if (train == _phrase)
-				memset(s_diff_, 0 ,_length*sizeof(float_t));
+				cacu_memset(s_diff_, 0 ,_length);
 #endif
 		}
 

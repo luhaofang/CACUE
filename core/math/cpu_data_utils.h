@@ -63,4 +63,13 @@ namespace mycnn{
 #endif
 	}
 
+	template<typename DTYPE>
+	inline void cacu_memset(DTYPE *x, DTYPE value, int length)
+	{
+		for(int i = 0; i < length ; ++i)
+		{
+			x[i] = value;
+		}
+	}
+
 };

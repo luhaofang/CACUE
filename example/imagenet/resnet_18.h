@@ -33,14 +33,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace mycnn;
 
-layer_block* conv_block_top(blob_base* data,int output_channel, int kernel_size, int stride, int pad,op_name activation_op = CACU_RELU)
+layer_block* conv_block_top(blob_base* data,int output_channel, int kernel_size, int stride, int pad, bool usebias,op_name activation_op = CACU_RELU)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
 	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
 	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	//l->get_op<convolution_op>(0)->set_is_use_bias(false);
+	l->get_op<convolution_op>(0)->set_is_use_bias(usebias);
 	layer *ml = new layer(output_channel, 3, 2);
 	ml->op(CACU_MAX_POOLING, (blob*)l->get_oblob());
 	clock_t end = clock();
@@ -113,7 +113,7 @@ network* create_testnet(int batch_size_,phrase_type phrase_)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3, false);
 
 	layer *conv2 = new layer(512,3,1,1);
 	conv2->op(CACU_CONVOLUTION,conv1->get_oblob());
@@ -153,7 +153,7 @@ network* create_res18net(int batch_size_,phrase_type phrase_)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3, false);
 	layer_block *conv2 = conv_block_shotcut(conv1->get_oblob(),64,3,1,1,1);
 	layer_block *conv3 = conv_block_shotcut(conv2->get_oblob(),128,3,1,2,1);
 	layer_block *conv4 = conv_block_shotcut(conv3->get_oblob(),256,3,1,2,1);
@@ -195,7 +195,7 @@ network* create_res18net_without_fc(int batch_size_,phrase_type phrase_)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3, false);
 	layer_block *conv2 = conv_block_shotcut(conv1->get_oblob(),64,3,1,1,1);
 	layer_block *conv3 = conv_block_shotcut(conv2->get_oblob(),128,3,1,2,1);
 	layer_block *conv4 = conv_block_shotcut(conv3->get_oblob(),256,3,1,2,1);
@@ -226,7 +226,7 @@ network* create_res18_dy_net(int batch_size_,phrase_type phrase_)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3);
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3, false);
 	layer_block *conv2 = conv_block_shotcut(conv1->get_oblob(),64,3,1,1,1);
 	layer_block *conv3 = conv_block_shotcut(conv2->get_oblob(),128,3,1,2,1);
 	layer_block *conv4 = conv_block_shotcut(conv3->get_oblob(),256,3,1,2,1);
