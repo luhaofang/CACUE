@@ -49,6 +49,7 @@ namespace mycnn{
 			_height = height;
 			_channel = channel;
 			_num = num;
+			_channel_length = width*height;
 			_cube_length = channel*width*height;
 			_length = _num*_cube_length;
 			_phrase = phrase;
@@ -97,6 +98,8 @@ namespace mycnn{
 
 		inline int height(){ return _height; }
 
+		inline int channel_length(){return _channel_length; }
+
 		inline int length(){ return _cube_length; }
 
 		inline int count(){ return _length; }
@@ -140,6 +143,7 @@ namespace mycnn{
 		int _num;
 		int _cube_length;
 		int _length;
+		int _channel_length;
 		phrase_type _phrase;
 
 		inline void _SET_TYPE(blob_type blob_type_){_blob_type = blob_type_;};

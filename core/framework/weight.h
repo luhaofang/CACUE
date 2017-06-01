@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../tools/random.h"
+#include "../../tools/rand_t.h"
 #include "../math/cuda/cuda_utils.h"
 
 namespace mycnn{
@@ -55,7 +55,7 @@ namespace mycnn{
 
 		~weight(){};
 
-		void set_init_type(param_init_type type, float_t value = 0)
+		inline void set_init_type(param_init_type type, float_t value = 0)
 		{
 			vec_t w(_length);
 			rand_t *rand = new rand_t();
@@ -80,6 +80,7 @@ namespace mycnn{
 					w[i] = rand->gaussrand(value);
 				break;
 			default:
+				LOG_FATAL("unknown weight type for [%s]!",_name.c_str());
 				break;
 			}
 			float_t* s_data_ = (float_t*)_s_data;
@@ -104,13 +105,41 @@ namespace mycnn{
 	#if __PARALLELTYPE__ == __CUDA__
 			os.write((char*)(&_length), sizeof(_length));
 			vec_t _v(_length);
-			cuda_copy2host(&_v[0],(float_t*)_s_data,_length);
+			cuda_copy2host(&_v[0], s_data_,_length);
 			for (auto w : _v) os.write((char*)(&w), sizeof(w));
 			vec_t().swap(_v);
 	#else
 			os.write((char*)(&_length), sizeof(_length));
 			for(int i = 0 ; i < _length; ++i)
 				os.write((char*)(&s_data_[i]), sizeof(s_data_[i]));
+	#endif
+		}
+
+		/*
+		 * serializa blob data, output data to model file
+		 */
+		inline void serializa_group(std::ostream& os, int group)
+		{
+			float_t* p_data_;
+			int length = _length / group;
+	#if __PARALLELTYPE__ == __CUDA__
+			os.write((char*)(&length), sizeof(length));
+			vec_t _v(length);
+			for(int n = 0 ; n < _num ; ++n){
+				p_data_ = p_data(n);
+				cuda_copy2host(&_v[0] + n * _channel_length, p_data_, _channel_length * (_channel / group));
+			}
+			for (auto w : _v) os.write((char*)(&w), sizeof(w));
+			vec_t().swap(_v);
+	#else
+			os.write((char*)(&length), sizeof(length));
+			vec_t _v(length);
+			for(int n = 0 ; n < _num ; ++n){
+				p_data_ = p_data(n);
+				cacu_copy_cpu(p_data_, _channel_length * (channel / group), &_v[0] + n * _channel_length);
+			}
+			for (auto w : _v) os.write((char*)(&w), sizeof(w));
+			vec_t().swap(_v);
 	#endif
 		}
 
@@ -125,18 +154,51 @@ namespace mycnn{
 			int length_;
 			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
 			CHECK_EQ_OP(length_,_length,"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, _length);
-			for (int i = 0; i < length_; i++){
+			for (int i = 0; i < length_; ++i){
 				is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
 			}
-			cuda_copy2dev((float_t*)_s_data, &_v[0],length_);
+			cuda_copy2dev(s_data_, &_v[0],length_);
 			vec_t().swap(_v);
 	#else
 			int length_;
 			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
 			CHECK_EQ_OP(length_,_length,"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, _length);
-			for (int i = 0; i < length_; i++){
+			for (int i = 0; i < length_; ++i){
 				is.read(reinterpret_cast<char*>(s_data_ + i), sizeof(float_t));
 			}
+	#endif
+		}
+
+		/*
+		 * loads blob data from model file
+		 */
+		inline void load_group(std::ifstream& is, int group)
+		{
+			float_t* p_data_ = (float_t*)_s_data;
+	#if __PARALLELTYPE__ == __CUDA__
+			vec_t _v(_channel_length * (_channel / group));
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			CHECK_EQ_OP(length_,_num * _v.size(),"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, _num * _v.size());
+			for (int n = 0; n < _num; ++n){
+				for(int i = 0 ; i < _v.size(); ++i)
+					is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
+				p_data_ = p_data(n);
+				cuda_copy2dev(p_data_, &_v[0], _v.size());
+			}
+			vec_t().swap(_v);
+	#else
+			vec_t _v(_channel_length * (_channel / group));
+			int length_;
+			is.read(reinterpret_cast<char*>(&length_), sizeof(int));
+			CHECK_EQ_OP(length_,_num * _v.size(),"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, _num * _v.size());
+			for (int n = 0; n < _num; ++n){
+				for(int i = 0 ; i < _v.size(); ++i)
+					is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
+				p_data_ = p_data(n);
+				cacu_copy_cpu(&_v[0], _v.size(), p_data_);
+			}
+			vec_t().swap(_v);
 	#endif
 		}
 

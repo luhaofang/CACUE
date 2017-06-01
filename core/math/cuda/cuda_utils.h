@@ -93,16 +93,15 @@ template<typename DTYPE>
 inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
 {
 	vector<DTYPE> v(length,value);
-	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
+	res = cudaMemset((void*) (data_), (DTYPE)value ,length * sizeof(DTYPE));
+	//res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	CUDA_CHECK(res);
-	vector<DTYPE>().swap(v);
-}
-
-template<typename DTYPE>
-inline void cuda_refresh(DTYPE *data_, int length)
-{
-	res = cudaMemset((void*) (data_), (DTYPE)0 ,length * sizeof(DTYPE));
+	res = cudaMemcpy((void*) (&v[0]), (void*) (data_),	length * sizeof(DTYPE), cudaMemcpyDeviceToHost);
 	CUDA_CHECK(res);
+	for(int i = 0; i < length ;++i)
+		cout<< v[i] << ",";
+	cout<<endl;
+	//vector<DTYPE>().swap(v);
 }
 
 template<typename DTYPE>
@@ -134,6 +133,13 @@ inline void cuda_print(DTYPE* data_,int length)
 		cout<< v[i] << ",";
 	cout<<endl;
 	vector<DTYPE>().swap(v);
+}
+
+template<typename DTYPE>
+inline void cuda_refresh(DTYPE *data_, int length)
+{
+	res = cudaMemset((void*) (data_), (DTYPE)0 ,length * sizeof(DTYPE));
+	CUDA_CHECK(res);
 }
 
 

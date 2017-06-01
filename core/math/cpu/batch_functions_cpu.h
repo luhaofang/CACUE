@@ -366,4 +366,55 @@ namespace mycnn{
 			y[i] *= x[i];
 	}
 
+	/**
+	 * @cacu_group_alloc
+	 * alloc data by group
+	 */
+	template<typename DTYPE>
+	inline void cacu_group_alloc_cpu(int num, int channel, int channel_length, int group, DTYPE *y)
+	{
+		int length = channel * channel_length;
+
+		int start_set = (channel / group) * channel_length;
+
+		int copy_length = length - start_set;
+
+		float_t *yp,*xp;
+
+		for (int n = 0; n < num; ++n) {
+
+			yp = y + n * length + start_set;
+			xp = y + n * length;
+
+			for (int i = 0; i < copy_length; ++i){
+				yp[i] = xp[i % start_set];
+			}
+		}
+	}
+
+	/**
+	 * @cacu_group_combine
+	 * combine data by group
+	 */
+	template<typename DTYPE>
+	inline void cacu_group_combine_cpu(int num, int channel, int channel_length, int group, DTYPE *y)
+	{
+		int length = channel * channel_length;
+
+		int start_set = (channel / group) * channel_length;
+
+		float_t *yp,*xp;
+
+		for (int n = 0; n < num; ++n) {
+
+			yp = y + n * length + start_set;
+			xp = y + n * length;
+
+			for (int i = 0; i < start_set; ++i){
+				for(int g = 0; g < group - 1; ++g)
+					xp[i] += yp[i + g * start_set];
+			}
+		}
+	}
+
 };

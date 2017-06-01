@@ -158,8 +158,6 @@ __global__ void _k_CACU_SOFTMAX_GPU(mycnn::float_t *x, int num, int length,mycnn
 		//bank conflict
 		max_data[tid] = max_data[0];
 
-		__syncthreads();
-
 		sum[tid] = 0;
 		for (int i = tid; i < length; i += THREADNUM) {
 			yp[i] = exp(xp[i] - max_data[tid]);

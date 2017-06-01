@@ -27,55 +27,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <string>
+#include <random>
+#include <time.h>
 
 
-using namespace std;
-using namespace mycnn_tools;
+namespace mycnn_tools {
 
-namespace mycnn {
+	class rand_t {
 
+	public:
 
-	//string split
-	vector<string> split(string str, string pattern) {
-		vector<string> ret;
-		if (pattern.empty())
-			return ret;
-		size_t start = 0, index = str.find_first_of(pattern, 0);
-		while (index != str.npos) {
-			if (start != index) {
-				if (str.substr(start, index - start) != "")
-					ret.push_back(str.substr(start, index - start));
-			}
-			start = index + 1;
-			index = str.find_first_of(pattern, start);
+		rand_t() {
+			srand((unsigned int)time(NULL));
 		}
-		if (!str.substr(start).empty()) {
-			if (str.substr(start) != "")
-				ret.push_back(str.substr(start));
+
+		~rand_t() {
 		}
-		return ret;
-	}
 
-	inline static long timespan(clock_t &start,clock_t &end)
-	{
-#ifdef _WIN32
-		return (end - start);
-#elif linux
-		return (end - start)/1000;
-#endif
+		static float_t gaussrand(float_t std) {
+			float_t u = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
+			float_t v = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
+			float_t r = u * u + v * v;
+			if (r == 0 || r > 1)
+				return gaussrand(std);
+			float_t c = sqrt(-2 * log(r) / r);
+			return u * c * std;
+		}
 
-	}
+		static float_t urand(float_t min, float_t max) {
 
-#ifdef _WIN32
-	std::wstring StringToWString(const chars_t &str)
-	{
-		std::wstring wstr(str.length(), L' ');
-		std::copy(str.begin(), str.end(), wstr.begin());
-		return wstr;
-	}
-#endif
+			float_t pRandomValue = (float_t)(rand() / (float_t)RAND_MAX);
+			pRandomValue = pRandomValue * (max - min) + min;
+			return pRandomValue;
+		}
 
-
+	};
 
 };

@@ -165,42 +165,7 @@ namespace mycnn{
 
 		inline void set_param_init_type(param_init_type type, weight *w_, float_t value = 0.0)
 		{
-			vec_t p_(w_->count());
-			int length_ = w_->count();
-			float_t *s_data_ = w_->s_data();
-			rand_t *rand = new rand_t();
-			switch (type)
-			{
-			case mycnn::constant:
-				for (int i = 0; i < length_; i++)
-					p_[i] = value;
-				break;
-			case mycnn::xavier:
-				value = sqrt((float_t) 3.0/ (w_->num() * w_->height() * w_->width()));
-				for (int i = 0; i < length_; i++)
-					p_[i] = rand->urand(-value, value);
-				break;
-			case mycnn::gaussian:
-				for (int i = 0; i < length_; i++)
-					p_[i] = rand->gaussrand(value);
-				break;
-			case mycnn::msra:
-				value = sqrt((float_t) 2.0/ (w_->num() * w_->height() * w_->width()));
-				for (int i = 0; i < length_; i++)
-					p_[i] = rand->gaussrand(value);
-				break;
-			default:
-				break;
-			}
-#if __PARALLELTYPE__ == __CUDA__
-			cuda_copy2dev(s_data_,&p_[0],length_);
-			CUDA_CHECK(res);
-#else
-			for (int i = 0; i < length_; ++i)
-				s_data_[i] = p_[i];
-#endif
-			vec_t().swap(p_);
-			delete rand;
+			w_->set_init_type(type,value);
 		}
 
 		inline void _add2op_weights(weight *w){_weights.push_back(w);}

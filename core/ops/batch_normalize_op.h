@@ -172,7 +172,7 @@ namespace mycnn{
 			float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
 			if (!use_global_stats)
 			{
-				float_t bias_correction_factor = m > (float_t)1.0 ? (m) / (m - (float_t)1.0) : (float_t)1.0;
+				float_t bias_correction_factor = m > 1.0 ? (m) / (m - 1.0) : 1.0;
 
 				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, dim_sum_->s_data(),0, s_blob_->length()/s_blob_->channel());
 				cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _mean->s_data(), 0, s_blob_->channel());
@@ -200,11 +200,11 @@ namespace mycnn{
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 
-				cacu_scalex(_moving_scalar->s_data(), 1, moving_average_fraction);
-				cacu_saxpy(_one->s_data(), 1, _moving_scalar->s_data(), 1);
+				cacu_scalex(_moving_scalar->s_data(), (float_t)(1), moving_average_fraction);
+				cacu_saxpy(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), 1);
 
 				//update history
-				cacu_saxpby(_mean->s_data(), 1.0, _history_mean->s_data(), moving_average_fraction, _mean->count());
+				cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
 				cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
 
 			}

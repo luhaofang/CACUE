@@ -482,3 +482,73 @@ extern "C" void cacu_ssx_gpu(const mycnn::float_t *x, int length, mycnn::float_t
 	_k_CACU_SSX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
+
+
+__global__ void _k_CACU_GROUP_ALLOC_GPU(int num, int channel, int channel_length, int group, mycnn::float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int length = channel * channel_length;
+
+	int start_set = (channel / group) * channel_length;
+
+	int copy_length = length - start_set;
+
+	float_t *yp,*xp;
+
+	for (int n = bid; n < num; n += BLOCKNUM) {
+
+		yp = y + n * length + start_set;
+		xp = y + n * length;
+
+		for (int i = tid; i < copy_length; i += THREADNUM){
+			yp[i] = xp[i % start_set];
+		}
+	}
+}
+
+
+/**
+ * @cacu_group_alloc
+ * alloc data by group
+ */
+extern "C" void cacu_group_alloc_gpu(int num, int channel, int channel_length, int group, mycnn::float_t *y){
+
+	_k_CACU_GROUP_ALLOC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(num, channel, channel_length, group, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+
+}
+
+__global__ void _k_CACU_GROUP_COMBINE_GPU(int num, int channel, int channel_length, int group, mycnn::float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int length = channel * channel_length;
+
+	int start_set = (channel / group) * channel_length;
+
+	float_t *yp,*xp;
+
+	for (int n = bid; n < num; n += BLOCKNUM) {
+
+		yp = y + n * length + start_set;
+		xp = y + n * length;
+
+		for (int i = tid; i < start_set; i += THREADNUM){
+			for(int g = 0; g < group - 1; ++g)
+				xp[i] += yp[i + g * start_set];
+		}
+	}
+}
+
+/**
+ * @cacu_group_combine
+ * combine data by group
+ */
+extern "C" void cacu_group_combine_gpu(int num, int channel, int channel_length, int group, mycnn::float_t *y){
+	_k_CACU_GROUP_COMBINE_GPU<<<BLOCKNUM, THREADNUM, 0>>>(num, channel, channel_length, group, y);
+	CUDA_CHECK(cudaThreadSynchronize());
+
+}

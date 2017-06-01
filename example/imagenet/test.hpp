@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include <time.h>
+#include <sys/time.h>
 
 #include "../../mycnn.h"
 
@@ -35,26 +36,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "data_proc.h"
 #include "resnet_18.h"
+#include "resnet_50.h"
 #include "vgg_net.h"
-
+#include "mobilenet.h"
 
 
 void test_net()
 {
-	int batch_size = 100;
+	int batch_size = 50;
 
 	int ALLIMAGE = 50000;
 
-	int max_iter = 500;
+	int max_iter = 1000;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
 #endif
 
-	network *net = create_vgg_16_net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_res18net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/vgg16net_30000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_20000.model");//vgg16net_100000.model");
 
+	//net->check();
 	op_injector *injector = new op_injector(net->get_op(29));
 
 	string datapath = "/home/seal/4T/imagenet/224X224_val/";
@@ -100,11 +103,12 @@ void test_net()
 
 	int step_index = 0;
 
-	clock_t start,end;
-
+	struct timeval start;
+	struct timeval end;
+	unsigned long diff;
 	for (int i = 0 ; i < max_iter; ++i)
 	{
-		start = clock();
+		gettimeofday(&start,NULL);
 
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
@@ -127,10 +131,11 @@ void test_net()
 			}
 		}
 
-		end = clock();
+		gettimeofday(&end,NULL);
 
 		if(i % 1 == 0){
-			LOG_INFO("iter_%d , %ld ms/iter", i, end - start);
+			diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+			LOG_INFO("iter_%d , %ld ms/iter", i, diff/1000);
 		}
 		if (step_index == ALLIMAGE)
 			break;

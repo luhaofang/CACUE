@@ -44,7 +44,7 @@ void train_net()
 	int max_iter = 5000;
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(0);
+	cuda_set_device(1);
 #endif
 
 	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,train);

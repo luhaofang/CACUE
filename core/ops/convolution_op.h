@@ -80,6 +80,10 @@ namespace mycnn{
 			em_blob *o_blob_ = (em_blob*)o_blob;
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
+
+			if(_group != 1 && _phrase == train)
+				cacu_group_alloc(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_data());
+
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
 				cacu_img2col_pad(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
@@ -95,6 +99,9 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
 
+			if(_group != 1 && _phrase == train)
+				cacu_group_alloc(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_data());
+
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
 				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
@@ -104,6 +111,7 @@ namespace mycnn{
 				if(_is_use_bias)
 					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
+
 #endif
 		}
 
@@ -128,6 +136,9 @@ namespace mycnn{
 					cacu_sumbysize(BYWIDTH,o_blob_->p_diff_d(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 				s_blob_->_sync(i);
 			}
+
+			if(_group != 1)
+				cacu_group_combine(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_diff());
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
@@ -147,17 +158,29 @@ namespace mycnn{
 				if(_is_use_bias)
 					cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 			}
+
+			if(_group != 1)
+				cacu_group_combine(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_diff());
 #endif
 		}
 
 		virtual const void load(std::ifstream& is) override{
-			_w->load(is);
+			if(_group != 1){
+				_w->load_group(is,_group);
+				cacu_group_alloc(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_data());
+			}
+			else
+				_w->load(is);
 			if(_is_use_bias)
 				_bias->load(is);
 		}
 
 		virtual const void save(std::ostream& os) override{
-			_w->serializa(os);
+			if(_group != 1){
+				_w->serializa_group(os, _group);
+			}
+			else
+				_w->serializa(os);
 			if(_is_use_bias)
 				_bias->serializa(os);
 		}
@@ -181,9 +204,18 @@ namespace mycnn{
 
 		inline void set_bias_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _bias, value);}
 
+		inline void set_group(int group){
+			CHECK_GT_OP(group, 0,"group must > 0 vs %d",group);
+			CHECK_LE_OP(group, _args->channel(),"group must <= %d vs %d", _args->channel(), group);
+			CHECK_EQ_OP(_args->channel() % group, 0,"channel mod group must == 0 vs %d", _args->channel() % group);
+			this->_group = group;
+		}
+
 	    void set_is_use_bias(bool switcher_){
 	    	_is_use_bias = switcher_;
 	    };
+
+
 
 	protected:
 
@@ -194,6 +226,8 @@ namespace mycnn{
 		weight *_bias;
 
 		blob_base *_col_data;
+
+		int _group = 1;
 
 	};
 };

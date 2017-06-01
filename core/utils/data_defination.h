@@ -41,7 +41,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <limits.h>
 
+#include "../../tools/rand_t.h"
+
 using namespace std;
+using namespace mycnn_tools;
 
 namespace mycnn {
 
@@ -94,5 +97,8 @@ namespace mycnn {
 	typedef vector<unsigned int> vec_i;
 
 	typedef vector<float_t*> vec_f;
+
+	rand_t cacu_rand();
+
 
 };

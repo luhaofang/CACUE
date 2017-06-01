@@ -238,4 +238,36 @@ namespace mycnn{
 #endif
 	}
 
+
+	/**
+	 * @cacu_group_alloc
+	 * alloc data by group
+	 */
+	template<typename DTYPE>
+	inline void cacu_group_alloc(int num, int channel, int channel_length, int group, DTYPE *y)
+	{
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_group_alloc_gpu(num, channel, channel_length, group, y);
+#else
+		cacu_group_alloc_cpu(x, length, y);
+#endif
+	}
+
+	/**
+	 * @cacu_group_combine
+	 * combine data by group
+	 */
+	template<typename DTYPE>
+	inline void cacu_group_combine(int num, int channel, int channel_length, int group, DTYPE *y)
+	{
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_group_combine_gpu(num, channel, channel_length, group, y);
+#else
+		cacu_group_combine_cpu(x, length, y);
+#endif
+	}
+
+
+
+
 };

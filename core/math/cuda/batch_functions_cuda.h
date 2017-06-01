@@ -139,3 +139,28 @@ extern "C" void cacu_bn_gamma_grad_gpu(const mycnn::float_t *_x,const mycnn::flo
  * scale by element wise.
  */
 extern "C" void cacu_ssx_gpu(const mycnn::float_t *x, int length, mycnn::float_t *y);
+
+/**
+ * @cacu_group_alloc
+ * alloc data by group
+ */
+extern "C" void cacu_group_alloc_gpu(int num, int channel, int channel_length, int group, mycnn::float_t *y);
+
+
+
+/**
+ * @cacu_group_combine
+ * combine data by group
+ */
+extern "C" void cacu_group_combine_gpu(int num, int channel, int channel_length, int group, mycnn::float_t *y);
+
+
+
+
+
+
+
+
+
+
+

@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include <time.h>
-
+#include <sys/time.h>
 #include "../../mycnn.h"
 
 #include "../../tools/imageio_utils.h"
@@ -37,12 +37,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "data_proc.h"
 #include "resnet_18.h"
 #include "resnet_50.h"
+#include "mobilenet.h"
 
 void train_net()
 {
-	int batch_size = 32;
+	int batch_size = 64;
 
-	int max_iter = 10000;
+	int max_iter = 600000;
 
 
 	//set gpu device if training by gpu
@@ -51,19 +52,18 @@ void train_net()
 #endif
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/vgg16.log", ios::binary);
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/mobilenet.log", ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
-	network *net = create_vgg_16_net(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	network *net = create_mobilenet(batch_size,train);//create_res18net(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->output_blobs();
-
-	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/vgg16.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/mobilenet.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.001f);
-	sgd->set_weight_decay(0.00005f);
+	sgd->set_lr(0.01f);
+	sgd->set_weight_decay(0.0005f);
+	sgd->set_regularize(L2);
 
 	string datapath = "/home/seal/4T/imagenet/224X224_train/";
 	string trainlist = "/home/seal/4T/imagenet/train_list.txt";
@@ -106,10 +106,12 @@ void train_net()
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
-	clock_t start,end;
+	struct timeval start;
+	struct timeval end;
+	unsigned long diff;
 	for (int i = 1 ; i <= max_iter; ++i)
 	{
-		start = clock();
+		gettimeofday(&start,NULL);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == ALL_DATA_SIZE)
@@ -119,21 +121,26 @@ void train_net()
 			input_label->copy_data_io(full_label[step_index],j);
 			step_index += 1;
 		}
-		sgd->train_iter();
 		//net->predict();
-		end = clock();
+		sgd->train_iter();
+
+		gettimeofday(&end,NULL);
 
 		if(i % 1 == 0){
-			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),end - start);
+			diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),diff/1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
 		logger << ((softmax_with_loss_op*)net->get_op(net->op_count()-1))->loss() << endl;
 		logger.flush();
-		if(i % 20000 == 0)
+
+		if(i == 100000)
+			sgd->set_lr_iter(0.1f);
+		if(i == 550000)
 			sgd->set_lr_iter(0.1f);
 		if(i % 10000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/vgg_net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/mobilenet_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
@@ -141,16 +148,17 @@ void train_net()
 	logger.close();
 
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/vgg_net_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/mobilenet_" << max_iter << ".model";
 	net->save_weights(oss.str());
-
+	LOG_INFO("optimization is done!");
 	for(int i = 0; i < full_label.size(); ++i)
 	{
 		vec_i().swap(full_label[i]);
 	}
 	vector<string>().swap(full_data);
 
-
+	delete mean_;
+	delete net;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
