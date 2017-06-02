@@ -101,6 +101,10 @@ namespace mycnn{
 			return;
 		}
 
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
+		}
+
 	private:
 
 

@@ -67,7 +67,7 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_blob *rand_vect_ = (em_blob*)_rand_vect;
 
-			if(train == s_blob_->phrase())
+			if(train == _phrase)
 			{
 				for(int i = 0; i < s_blob_->num(); ++i)
 				{
@@ -83,7 +83,7 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			blob *rand_vect_ = (blob*)_rand_vect;
 
-			if(train == s_blob_->phrase())
+			if(train == _phrase)
 			{
 				rand_vector(rand_vect_->s_data(),rand_vect_->count(), 1 - _ratio);
 				cacu_ssx(rand_vect_->s_data(), o_blob_->count(), o_blob_->s_data());
@@ -101,7 +101,7 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_blob *rand_vect_ = (em_blob*)_rand_vect;
 
-			if(train == s_blob_->phrase())
+			if(train == _phrase)
 			{
 				for(int i = 0; i < s_blob_->num(); ++i){
 					//ratio's scale implementation
@@ -115,7 +115,7 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			blob *rand_vect_ = (blob*)_rand_vect;
 
-			if(train == s_blob_->phrase())
+			if(train == _phrase)
 			{
 				//ratio's scale implementation
 				cacu_ssx(rand_vect_->s_data(),s_blob_->count(),s_blob_->s_diff());
@@ -141,6 +141,10 @@ namespace mycnn{
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			_rand_vect->_RESET_DATA();
+		}
+
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
 		}
 
 		inline void set_ratio(float_t ratio_)

@@ -80,6 +80,10 @@ namespace mycnn{
 			return;
 		}
 
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
+		}
+
 		float_t _negative_slope = 0.01f;
 
 	private:

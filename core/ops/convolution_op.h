@@ -81,7 +81,7 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
 
-			if(_group != 1 && _phrase == train)
+			if(_group != 1)
 				cacu_group_alloc(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_data());
 
 			for (int i = 0; i < s_blob_->num(); ++i){
@@ -99,7 +99,7 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			blob *col_data_ = (blob*)_col_data;
 
-			if(_group != 1 && _phrase == train)
+			if(_group != 1)
 				cacu_group_alloc(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_data());
 
 			for (int i = 0; i < s_blob_->num(); ++i){
@@ -111,7 +111,6 @@ namespace mycnn{
 				if(_is_use_bias)
 					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 			}
-
 #endif
 		}
 
@@ -198,6 +197,10 @@ namespace mycnn{
 			if(_is_use_bias)
 				_bias->_RESET_DIFF();
 			_col_data->_RESET_DATA();
+		}
+
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
 		}
 
 		inline void set_weight_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _w, value);}

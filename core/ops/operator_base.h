@@ -110,6 +110,8 @@ namespace mycnn{
 
 		virtual const void LOOP_INIT_DATA_() = 0;
 
+		virtual const void set_phrase(phrase_type phrase_) = 0;
+
 		inline blobs *&out_datas(){ return o_blobs; }
 
 		template<typename BTYPE>
@@ -136,7 +138,7 @@ namespace mycnn{
 
 		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
 
-		inline void set_phrase(phrase_type phrase_){ _phrase = phrase_;}
+
 
 
 

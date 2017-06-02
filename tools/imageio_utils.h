@@ -120,6 +120,9 @@ namespace mycnn_tools{
 		static void imread_gpu(mycnn::float_t *p_data,string file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
+			if(!src.data)
+				LOG_FATAL("file %s cannot be opened!",file_path_.c_str());
+
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;
@@ -141,6 +144,8 @@ namespace mycnn_tools{
 		static void imread(mycnn::float_t *p_data,string file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
+			if(!src.data)
+				LOG_FATAL("file %s cannot be opened!",file_path_.c_str());
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;

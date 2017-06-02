@@ -125,6 +125,10 @@ namespace mycnn{
 			_index->_RESET_DATA();
 		}
 
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
+		}
+
 	private:
 
 		blob_base *_index;

@@ -135,6 +135,10 @@ namespace mycnn{
 			o_blob->_RESET_DATA();
 		}
 
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
+		}
+
 		float_t normalizer()
 		{
 			blob_base* blob_= s_blobs->at(0);

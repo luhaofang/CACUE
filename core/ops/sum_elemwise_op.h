@@ -121,6 +121,10 @@ namespace mycnn{
 			o_blob->_RESET_DATA();
 		}
 
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
+		}
+
 	private:
 
 		

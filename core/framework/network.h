@@ -89,14 +89,21 @@ namespace mycnn{
 		inline void set_inputdata(blob_base *&blob_){  layers(0)->get_head_op()->set_blob(blob_);}
 
 		inline void predict(){
-			set_phrase(test);
+			if(test != phrase()){
+				set_phrase(test);
+			}
+			for(unsigned int i = 0 ; i < _layers.size();++i){
+				_layers[i]->operate();
+			}
+		}
+
+		inline void forward_propagate(){
 			for(unsigned int i = 0 ; i < _layers.size();++i){
 				_layers[i]->operate();
 			}
 		}
 
 		inline void back_propagate(){
-			set_phrase(train);
 			for(int i = op_count() - 1 ; i >= 0; --i)
 			{
 				get_op(i)->grad();

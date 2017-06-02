@@ -81,6 +81,10 @@ namespace mycnn{
 			//caution: here we DON'T reset every data blob, reset will be done by math_op caller
 		}
 
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
+		}
+
 	protected:
 
 		math_args *_args;

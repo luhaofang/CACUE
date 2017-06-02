@@ -55,7 +55,7 @@ void test_net()
 
 	network *net = create_res18net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_20000.model");//vgg16net_100000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res18net_40000.model");//vgg16net_100000.model");
 
 	//net->check();
 	op_injector *injector = new op_injector(net->get_op(29));
@@ -91,6 +91,7 @@ void test_net()
 		unsigned int label = strtoul(vec[1].c_str(), NULL, 10);
 		full_label.push_back(label);
 	}
+	is.close();
 
 	/**
 	 * read data for testing

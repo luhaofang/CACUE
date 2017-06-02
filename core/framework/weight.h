@@ -127,7 +127,7 @@ namespace mycnn{
 			vec_t _v(length);
 			for(int n = 0 ; n < _num ; ++n){
 				p_data_ = p_data(n);
-				cuda_copy2host(&_v[0] + n * _channel_length, p_data_, _channel_length * (_channel / group));
+				cuda_copy2host(&_v[0] + n * _channel_length * (_channel / group), p_data_, _channel_length * (_channel / group));
 			}
 			for (auto w : _v) os.write((char*)(&w), sizeof(w));
 			vec_t().swap(_v);
@@ -136,7 +136,7 @@ namespace mycnn{
 			vec_t _v(length);
 			for(int n = 0 ; n < _num ; ++n){
 				p_data_ = p_data(n);
-				cacu_copy_cpu(p_data_, _channel_length * (channel / group), &_v[0] + n * _channel_length);
+				cacu_copy_cpu(p_data_, _channel_length * (channel / group), &_v[0] + n * _channel_length * (_channel / group));
 			}
 			for (auto w : _v) os.write((char*)(&w), sizeof(w));
 			vec_t().swap(_v);

@@ -87,7 +87,7 @@ namespace mycnn{
 
 			delete _dim_sum;
 
-			if(train == _phrase)
+			if(_x != NULL)
 				delete _x;
 		};
 
@@ -289,6 +289,7 @@ namespace mycnn{
 			//gradient of shift
 			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1, dim_sum_->s_data(), 0, o_blob_->length() / o_blob_->channel());
 			cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _shift->s_diff(), 0, s_blob_->channel());
+
 #endif
 		}
 
@@ -328,8 +329,10 @@ namespace mycnn{
 
 			_std->_RESET_DATA();
 
-			if(train == _phrase)
+			if(_x != NULL)
 				_x->_RESET_DATA();
+
+			_dim_sum->_RESET_DATA();
 
 		}
 
@@ -346,6 +349,14 @@ namespace mycnn{
 		float_t moving_average_fraction = 0.999f;
 
 		float_t epsilon = 0.00001f;
+
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
+			if(train == _phrase)
+				use_global_stats = false;
+			else
+				use_global_stats = true;
+		}
 
 	private:
 

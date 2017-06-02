@@ -27,10 +27,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "../../core/utils/data_defination.h"
+
 #if __CBLASTYPE__ == __OPENBLAS__
 
-
-#include "../../core/utils/data_defination.h"
 #include <cblas.h>
 
 inline void cacu_saxpy_oblas(const mycnn::float_t *x, const mycnn::float_t a, mycnn::float_t *y, int length)

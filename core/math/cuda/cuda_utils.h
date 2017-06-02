@@ -93,15 +93,9 @@ template<typename DTYPE>
 inline void cuda_setvalue(DTYPE *data_,DTYPE value, int length)
 {
 	vector<DTYPE> v(length,value);
-	res = cudaMemset((void*) (data_), (DTYPE)value ,length * sizeof(DTYPE));
-	//res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
+	res = cudaMemcpy((void*) (data_), (void*) (&v[0]),	length * sizeof(DTYPE), cudaMemcpyHostToDevice);
 	CUDA_CHECK(res);
-	res = cudaMemcpy((void*) (&v[0]), (void*) (data_),	length * sizeof(DTYPE), cudaMemcpyDeviceToHost);
-	CUDA_CHECK(res);
-	for(int i = 0; i < length ;++i)
-		cout<< v[i] << ",";
-	cout<<endl;
-	//vector<DTYPE>().swap(v);
+	vector<DTYPE>().swap(v);
 }
 
 template<typename DTYPE>

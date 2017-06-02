@@ -43,9 +43,9 @@ namespace mycnn{
 			for(int i = 0 ; i < split_count ; ++i)
 			{
 	#if __USEMBEDDING__ == ON
-				o_blobs->push_back(cacu_allocator::create_em_blob(data->num(),data->channel(),data->height(),data->width(), 0,data->phrase()));
+				o_blobs->push_back(cacu_allocator::create_em_blob(data->num(),data->channel(),data->height(),data->width(), 0,_phrase));
 	#else
-				o_blobs->push_back(cacu_allocator::create_blob(data->num(),data->channel(),data->height(),data->width(), 0,data->phrase()));
+				o_blobs->push_back(cacu_allocator::create_blob(data->num(),data->channel(),data->height(),data->width(), 0,_phrase));
 	#endif
 			}
 
@@ -53,7 +53,7 @@ namespace mycnn{
 		};
 
 		~split_op(){
-			delete o_blob;
+
 		};
 
 		virtual const void check() override{
@@ -118,6 +118,10 @@ namespace mycnn{
 		inline virtual const void LOOP_INIT_DATA_() override
 		{
 			o_blobs->_RESET_DATA();
+		}
+
+		inline virtual const void set_phrase(phrase_type phrase_) override {
+			_phrase = phrase_;
 		}
 
 	private:
