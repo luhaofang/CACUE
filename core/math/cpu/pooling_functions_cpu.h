@@ -37,11 +37,11 @@ namespace mycnn{
 	 *input_dim: width of input data
 	 *output_dim: width of output data
 	 */
-	inline void cacu_max_pooling_cpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
+	inline void cacu_max_pooling_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
 	{
 		int cout_length = output_dim*output_dim;
 		int cin_length = input_dim*input_dim;
-		float_t *xp, xd;
+		float_t xd;
 		int outset;
 		int in_start, out_start;
 		int i,j,c,ki,kj;
@@ -55,14 +55,13 @@ namespace mycnn{
 				{
 					out_start = (i * output_dim + j);
 					in_start = (i * input_dim + j) * stride;
-					xp = x + c*cin_length + in_start;
 					outset = c*cout_length + out_start;
-					y[outset] = xp[0];
+					y[outset] = x[c*cin_length + in_start];
 					index[outset] = (unsigned int)(in_start);
 					for (ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ++ki)
 						for (kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; ++kj)
 						{
-							xd = xp[ki * input_dim + kj];
+							xd = x[ki * input_dim + kj + c*cin_length + in_start];
 							if (y[outset] < xd)
 							{
 								y[outset] = xd;
@@ -80,7 +79,7 @@ namespace mycnn{
 	 *input_dim: width of input data
 	 *output_dim: width of output data
 	 */
-	inline void cacu_max_pooling_grad_cpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index)
+	inline void cacu_max_pooling_grad_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y,const unsigned int* index)
 	{
 		int sd_out;
 		unsigned int _index;
@@ -109,10 +108,10 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	inline void cacu_average_pooling_cpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
+	inline void cacu_average_pooling_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
 	{
 		int block_size = output_dim*output_dim;
-		float_t *xp, *yp;
+		float_t *yp;
 		int in_start, out_start;
 		int count;
 
@@ -123,7 +122,6 @@ namespace mycnn{
 #endif
 		for (c = 0; c < channel; ++c)
 		{
-			xp = x + c*input_dim*input_dim;
 			yp = y + c*block_size;
 			for (i = 0; i < output_dim; ++i)
 				for (j = 0; j < output_dim; ++j)
@@ -134,7 +132,7 @@ namespace mycnn{
 					for (ki = 0; ki < kernel_size && (ki + i*stride) < input_dim; ki++)
 						for (kj = 0; kj < kernel_size && (kj + j*stride) < input_dim; kj++)
 						{
-							yp[out_start] += xp[in_start + ki * input_dim + kj];
+							yp[out_start] += x[in_start + ki * input_dim + kj + c*input_dim*input_dim];
 							count++;
 						}
 					yp[out_start] /= count;
@@ -148,10 +146,10 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	inline void cacu_average_pooling_grad_cpu(float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
+	inline void cacu_average_pooling_grad_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y)
 	{
 		int sd_out, sn_out, param_w, param_h;
-		float_t *sd_out_cp, *sn_out_cp;
+		float_t *sn_out_cp;
 		float_t diff_data;
 		int flag = output_dim - 1;
 		int pad = abs(input_dim - (output_dim - 1) * stride - kernel_size);
@@ -169,10 +167,9 @@ namespace mycnn{
 				sd_out = (i * output_dim + j);
 				sn_out = (i * input_dim + j) * stride;
 				for (c = 0; c < channel; ++c) {
-					sd_out_cp = x + sd_out + c * cout_length;
 					//mean
 					if (pad == 0){
-						diff_data = *sd_out_cp / (float_t) (kernel_size * kernel_size);
+						diff_data = x[sd_out + c * cout_length] / (float_t) (kernel_size * kernel_size);
 						for (ki = 0; ki < kernel_size; ++ki)
 							for (kj = 0; kj < kernel_size; ++kj) {
 								sn_out_cp = y + sn_out + (ki * input_dim + kj) + c * cin_length;
@@ -185,7 +182,7 @@ namespace mycnn{
 							param_w = kernel_size - pad;
 						if (j == flag)
 							param_h = kernel_size - pad;
-						diff_data = *sd_out_cp / (float_t) (param_w * param_h);
+						diff_data = x[sd_out + c * cout_length] / (float_t) (param_w * param_h);
  						for (ki = 0; ki < param_w; ++ki)
 							for (kj = 0; kj < param_h; ++kj) {
 								sn_out_cp = y + sn_out + (ki * input_dim + kj) + c * cin_length;
@@ -235,12 +232,12 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	inline void cacu_img2col_cpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+	inline void cacu_img2col_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 		int cin_length = input_dim*input_dim;
 		int kernel_length = kernel_size*kernel_size;
 		int block_size = kernel_length * channel;
-		float_t *xp, *yp;
+		float_t *yp;
 		int in_start, out_start;
 		int i,j,c,ki,kj;
 
@@ -256,23 +253,22 @@ namespace mycnn{
 				for (c = 0; c < channel; ++c)
 				{
 					yp = y + out_start + c * kernel_length;
-					xp = x + in_start + c * cin_length;
 
 					for (ki = 0; ki < kernel_size; ki++)
 						for (kj = 0; kj < kernel_size; ++kj)
 						{
-							yp[ki * kernel_size + kj] = xp[ki * input_dim + kj];
+							yp[ki * kernel_size + kj] = x[in_start + c * cin_length];
 						}
 				}
 			}
 	}
 
-	inline void cacu_img2col_pad_cpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
+	inline void cacu_img2col_pad_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
 	{
 		int cin_length = input_dim*input_dim;
 		int kernel_length = kernel_size*kernel_size;
-		int block_size = kernel_length * channel;
-		float_t *xp,*yp;
+		int output_size = output_dim * output_dim;
+		float_t *yp;
 		int out_start;
 		int i,j,c,ki,kj;
 		int input_w,input_h,output_w,output_h;
@@ -283,21 +279,20 @@ namespace mycnn{
 		for (i = 0; i < output_dim; ++i)
 			for (j = 0; j < output_dim; ++j)
 			{
-				out_start = (i * output_dim + j) * block_size;
+				out_start = (i * output_dim + j);
 				output_h = i * stride;
 				output_w = j * stride;
 
 				for (c = 0; c < channel; ++c)
 				{
-					yp = y + out_start + c * kernel_length;
-					xp = x + c * cin_length;
-					for (ki = 0; ki < kernel_size; ki++)
+					yp = y + c * kernel_length * output_size;
+					for (ki = 0; ki < kernel_size; ++ki)
 						for (kj = 0; kj < kernel_size; ++kj)
 						{
 							input_h = output_h + ki;
 							input_w = output_w + kj;
 							if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
-								yp[ki * kernel_size + kj] = xp[(input_h-pad) * input_dim + input_w-pad];
+								yp[(ki * kernel_size + kj)*output_size + out_start] = x[(input_h-pad) * input_dim + input_w-pad + c * cin_length];
 						}
 				}
 			}
@@ -340,7 +335,7 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	inline void cacu_col2img_cpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+	inline void cacu_col2img_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 	{
 		int sd_out, sn_out;
 
@@ -348,7 +343,7 @@ namespace mycnn{
 		int k_size = kernel_size * kernel_size;
 		int cout_length = output_dim * output_dim;
 		int cin_length = input_dim * input_dim;
-		float_t *xp,*yp;
+		float_t *yp;
 
 		int row,col,c,ki,kj;
 
@@ -363,11 +358,10 @@ namespace mycnn{
 				sd_out = (row * output_dim + col) * block_size;
 				sn_out = (row * input_dim + col) * stride;
 				for (c = 0; c < channel; ++c) {
-					xp = x + sd_out + c * k_size;
 					yp = y + sn_out + c * cin_length;
 					for (ki = 0; ki < kernel_size; ++ki)
 						for (kj = 0; kj < kernel_size; ++kj) {
-							yp[ki * input_dim + kj] += xp[ki * kernel_size + kj];
+							yp[ki * input_dim + kj] += x[ki * kernel_size + kj + sd_out + c * k_size];
 					}
 				}
 			}
@@ -381,7 +375,7 @@ namespace mycnn{
 	*input_dim: width of input data
 	*output_dim: width of output data
 	*/
-	inline void cacu_col2img_pad_cpu(float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
+	inline void cacu_col2img_pad_cpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
 	{
 		int sd_out, sn_out;
 
@@ -389,7 +383,7 @@ namespace mycnn{
 		int k_size = kernel_size * kernel_size;
 		int cout_length = output_dim * output_dim;
 		int cin_length = input_dim * input_dim;
-		float_t *xp,*yp;
+		float_t *yp;
 
 		int row,col,c,ki,kj;
 		int input_h,input_w,output_h,output_w;
@@ -405,16 +399,15 @@ namespace mycnn{
 
 				output_h = row * stride;
 				output_w = col * stride;
-				sd_out = (row * output_dim + col) * block_size;
+				sd_out = (row * output_dim + col);
 				for (c = 0; c < channel; ++c) {
-					xp = x + sd_out + c * k_size;
 					yp = y + c * cin_length;
 					for (ki = 0; ki < kernel_size; ++ki)
 						for (kj = 0; kj < kernel_size; ++kj) {
 							input_h = output_h + ki;
 							input_w = output_w + kj;
 							if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
-								yp[(input_h - pad) * input_dim + input_w - pad] += xp[ki * kernel_size + kj];
+								yp[(input_h - pad) * input_dim + input_w - pad] += x[(ki * kernel_size + kj + c * k_size) * cout_length + sd_out];
 					}
 				}
 			}
@@ -444,7 +437,7 @@ namespace mycnn{
 		}
 	}
 
-	inline void cacu_row_max_pooling_grad_cpu(float_t *x, int output_length, float_t *y, unsigned int* index)
+	inline void cacu_row_max_pooling_grad_cpu(const float_t *x, int output_length, float_t *y,const unsigned int* index)
 	{
 		for(int i = 0 ; i < output_length; ++i)
 		{

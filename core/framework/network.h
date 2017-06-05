@@ -94,6 +94,7 @@ namespace mycnn{
 			}
 			for(unsigned int i = 0 ; i < _layers.size();++i){
 				_layers[i]->operate();
+				//LOG_DEBUG("layer: %d",i);
 			}
 		}
 

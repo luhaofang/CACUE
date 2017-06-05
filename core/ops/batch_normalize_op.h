@@ -43,6 +43,8 @@ namespace mycnn{
 			//save for train
 			if(train == _phrase)
 				_x = cacu_allocator::create_em_blob(data->num(), data->channel(), data->height(), data->width(), test);
+			else
+				_x = NULL;
 
 			_dim_sum = cacu_allocator::create_blob(1, data->channel(), data->height(), data->width(), test);
 #else
@@ -50,6 +52,8 @@ namespace mycnn{
 			//save for train
 			if(train == _phrase)
 				_x = cacu_allocator::create_blob(data->num(), data->channel(), data->height(),data->width(), test);
+			else
+				_x = NULL;
 
 			_dim_sum = cacu_allocator::create_blob(data->num(), data->channel(), 1, 1, test);
 #endif
@@ -209,6 +213,7 @@ namespace mycnn{
 
 			}
 			else{
+
 				//calculate unbiased estimate
 				cacu_cdxsize(_history_var->s_data(),_history_var->count(),_moving_scalar->s_data(),1,_var->s_data());
 				cacu_cdxsize(_history_mean->s_data(),_history_mean->count(),_moving_scalar->s_data(),1,_mean->s_data());
@@ -222,6 +227,15 @@ namespace mycnn{
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 			}
+			/*
+			if(_mean->count() == 32){
+				cacu_print(_mean->s_data(),32);
+				cacu_print(_var->s_data(),32);
+				cacu_print(_history_mean->s_data(),32);
+				cacu_print(_history_var->s_data(),32);
+				cacu_print(_moving_scalar->s_data(),1);
+			}
+			*/
 #endif
 		}
 

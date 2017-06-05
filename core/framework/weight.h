@@ -124,21 +124,21 @@ namespace mycnn{
 			int length = _length / group;
 	#if __PARALLELTYPE__ == __CUDA__
 			os.write((char*)(&length), sizeof(length));
-			vec_t _v(length);
+			vec_t _v(_channel_length * (_channel / group));
 			for(int n = 0 ; n < _num ; ++n){
-				p_data_ = p_data(n);
-				cuda_copy2host(&_v[0] + n * _channel_length * (_channel / group), p_data_, _channel_length * (_channel / group));
+				p_data_ = s_data() + n * _v.size();
+				cuda_copy2host(&_v[0], p_data_, _v.size());
+				for (auto w : _v) os.write((char*)(&w), sizeof(w));
 			}
-			for (auto w : _v) os.write((char*)(&w), sizeof(w));
 			vec_t().swap(_v);
 	#else
 			os.write((char*)(&length), sizeof(length));
-			vec_t _v(length);
+			vec_t _v(_channel_length * (_channel / group));
 			for(int n = 0 ; n < _num ; ++n){
-				p_data_ = p_data(n);
-				cacu_copy_cpu(p_data_, _channel_length * (channel / group), &_v[0] + n * _channel_length * (_channel / group));
+				p_data_ = s_data() + n * _v.size();
+				cacu_copy_cpu(p_data_, _v.size(), &_v[0]);
+				for (auto w : _v) os.write((char*)(&w), sizeof(w));
 			}
-			for (auto w : _v) os.write((char*)(&w), sizeof(w));
 			vec_t().swap(_v);
 	#endif
 		}
@@ -183,7 +183,7 @@ namespace mycnn{
 			for (int n = 0; n < _num; ++n){
 				for(int i = 0 ; i < _v.size(); ++i)
 					is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
-				p_data_ = p_data(n);
+				p_data_ = s_data() + n * _v.size();
 				cuda_copy2dev(p_data_, &_v[0], _v.size());
 			}
 			vec_t().swap(_v);
@@ -195,7 +195,7 @@ namespace mycnn{
 			for (int n = 0; n < _num; ++n){
 				for(int i = 0 ; i < _v.size(); ++i)
 					is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
-				p_data_ = p_data(n);
+				p_data_ = s_data() + n * _v.size();
 				cacu_copy_cpu(&_v[0], _v.size(), p_data_);
 			}
 			vec_t().swap(_v);

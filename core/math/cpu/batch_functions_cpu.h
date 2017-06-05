@@ -41,21 +41,19 @@ namespace mycnn{
 	 * warning: take seriously this function may create accumulated error when width is large enough
 	 */
 	template<typename DTYPE>
-	inline void cacu_sumbysize_cpu(SUM SUMTYPE ,DTYPE *x, int length,float_t alpha, DTYPE *y, float_t beta,int width)
+	inline void cacu_sumbysize_cpu(SUM SUMTYPE ,const DTYPE *x, int length,const float_t alpha, DTYPE *y,const float_t beta,int width)
 	{
 		int height = length / width;
 		int b,i;
 		DTYPE acc;
-		DTYPE *xp;
 		if (BYWIDTH == SUMTYPE){
 #if __OPENMP__ == ON
 			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < height; ++b){
-				xp = x + b*width;
 				acc = 0;
 				for (i = 0; i < width; ++i)
-					acc += xp[i];
+					acc += x[i + b*width];
 				y[b] = ((alpha * acc) + beta * y[b]);
 			}
 		}
@@ -78,10 +76,9 @@ namespace mycnn{
 	 * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
 	 */
 	template<typename DTYPE>
-	inline void cacu_cxsize_cpu(DTYPE *x, int length, DTYPE *a, int size,DTYPE *y)
+	inline void cacu_cxsize_cpu(const DTYPE *x, int length,const DTYPE *a, int size,DTYPE *y)
 	{
 		int block_size = length / size;
-		DTYPE *xp;
 		DTYPE *yp;
 		int b,j;
 #if __OPENMP__ == ON
@@ -89,10 +86,9 @@ namespace mycnn{
 #endif
 		for (b = 0; b < size; ++b)
 		{
-			xp = x + b*block_size;
 			yp = y + b*block_size;
 			for (j = 0; j < block_size; ++j)
-				yp[j] = xp[j] * a[b];
+				yp[j] = x[j + b*block_size] * a[b];
 		}
 	}
 
@@ -102,10 +98,9 @@ namespace mycnn{
 	 * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
 	 */
 	template<typename DTYPE>
-	inline void cacu_cdxsize_cpu(DTYPE *x, int length, DTYPE *a, int size, DTYPE *y)
+	inline void cacu_cdxsize_cpu(const DTYPE *x, int length,const DTYPE *a, int size, DTYPE *y)
 	{
 		int block_size = length / size;
-		DTYPE *xp;
 		DTYPE *yp;
 		int b,j;
 #if __OPENMP__ == ON
@@ -113,10 +108,9 @@ namespace mycnn{
 #endif
 		for (b = 0; b < size; ++b)
 		{
-			xp = x + b*block_size;
 			yp = y + b*block_size;
 			for (j = 0; j < block_size; ++j)
-				yp[j] = xp[j] / a[b];
+				yp[j] = x[j + b*block_size] / a[b];
 		}
 	}
 
@@ -143,19 +137,18 @@ namespace mycnn{
 	 * a & b are corresponding scalars for x, y
 	 */
 	template<typename DTYPE>
-	inline void cacu_ssxpy_cpu(DTYPE *x, DTYPE a, int size, DTYPE *y, DTYPE b, int length, DTYPE *z)
+	inline void cacu_ssxpy_cpu(const DTYPE *x, const DTYPE a, int size,const DTYPE *y,const DTYPE b, int length, DTYPE *z)
 	{
 		int block_size = length / size;
-		DTYPE *yp,*zp;
+		DTYPE *zp;
 		int i,j;
 #if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(i,j,yp,zp)
 #endif
 		for (i = 0; i < size; ++i){
-			yp = y + i*block_size;
 			zp = z + i*block_size;
 			for (j = 0; j < block_size; ++j)
-				zp[j] = a*x[i] + b*yp[j];
+				zp[j] = a*x[i] + b*y[j + i*block_size];
 		}
 	}
 
@@ -164,7 +157,7 @@ namespace mycnn{
 	 * math y[i] = x[i]^2 :
 	 */
 	template<typename DTYPE>
-	inline void cacu_sqr_cpu(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_sqr_cpu(const DTYPE *x, int length, DTYPE *y)
 	{
 		int j;
 #if __OPENMP__ == ON
@@ -179,7 +172,7 @@ namespace mycnn{
 	 * math y[i] = sqrt(x[i]) :
 	 */
 	template<typename DTYPE>
-	inline void cacu_root_cpu(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_root_cpu(const DTYPE *x, int length, DTYPE *y)
 	{
 		int j;
 #if __OPENMP__ == ON
@@ -194,7 +187,7 @@ namespace mycnn{
 	 * math std[i] = sqrt(varience[i] + epsilon) :
 	 */
 	template<typename DTYPE>
-	inline void cacu_stdbychannel_cpu(DTYPE *varience, int length, DTYPE *std, DTYPE epsilon)
+	inline void cacu_stdbychannel_cpu(const DTYPE *varience, int length, DTYPE *std,const DTYPE epsilon)
 	{
 		int j;
 #if __OPENMP__ == ON
@@ -215,7 +208,7 @@ namespace mycnn{
 	 * d_rou: gradient of batch's variance
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_rou_grad_cpu(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, int num, int length, int channel, DTYPE *d_rou)
+	inline void cacu_bn_rou_grad_cpu(const DTYPE *x,const DTYPE *d_x,const DTYPE *mean,const DTYPE *std, int num, int length, int channel, DTYPE *d_rou)
 	{
 		int cin_length = length / channel;
 
@@ -251,7 +244,7 @@ namespace mycnn{
 	 * d_mean: gradient of batch's mean
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_mu_grad_cpu(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, DTYPE *d_rou, int num, int length, int channel,DTYPE *d_mean)
+	inline void cacu_bn_mu_grad_cpu(const DTYPE *x,const DTYPE *d_x,const DTYPE *mean,const DTYPE *std,const DTYPE *d_rou, int num, int length, int channel,DTYPE *d_mean)
 	{
 		int cin_length = length / channel;
 
@@ -289,7 +282,7 @@ namespace mycnn{
 	 * dx: gradient of x
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_dx_grad_cpu(DTYPE *x, DTYPE *d_x, DTYPE *mean, DTYPE *std, DTYPE *d_rou, DTYPE *d_mean, int num, int length, int channel,DTYPE *dx)
+	inline void cacu_bn_dx_grad_cpu(const DTYPE *x,const DTYPE *d_x,const DTYPE *mean,const DTYPE *std,const DTYPE *d_rou,const DTYPE *d_mean, int num, int length, int channel,DTYPE *dx)
 	{
 		int cin_length = length / channel;
 
@@ -324,7 +317,7 @@ namespace mycnn{
 	 * d_gamma: gradient of gamma
 	 */
 	template<typename DTYPE>
-	inline void cacu_bn_gamma_grad_cpu(DTYPE *_x, DTYPE *d_y, int num, int length, int channel, DTYPE *d_gamma)
+	inline void cacu_bn_gamma_grad_cpu(const DTYPE *_x,const DTYPE *d_y, int num, int length, int channel, DTYPE *d_gamma)
 	{
 		int cin_length = length / channel;
 
@@ -356,7 +349,7 @@ namespace mycnn{
 	 * scale by element wise.
 	 */
 	template<typename DTYPE>
-	inline void cacu_ssx_cpu(DTYPE *x, int length, DTYPE *y)
+	inline void cacu_ssx_cpu(const DTYPE *x, int length, DTYPE *y)
 	{
 		int i;
 #if __OPENMP__ == ON

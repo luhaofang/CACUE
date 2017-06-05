@@ -249,7 +249,7 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_group_alloc_gpu(num, channel, channel_length, group, y);
 #else
-		cacu_group_alloc_cpu(x, length, y);
+		cacu_group_alloc_cpu(num, channel, channel_length, group, y);
 #endif
 	}
 
@@ -263,7 +263,7 @@ namespace mycnn{
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_group_combine_gpu(num, channel, channel_length, group, y);
 #else
-		cacu_group_combine_cpu(x, length, y);
+		cacu_group_combine_cpu(num, channel, channel_length, group, y);
 #endif
 	}
 

@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 32;
+	int batch_size = 64;
 
 	int max_iter = 200000;
 
@@ -49,24 +49,24 @@ void train_net()
 
 	//set gpu device if training by gpu
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/res50net.log", ios::binary);
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/mobilenet.log", ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
 	//log output
-	std::ofstream precious_logger("/home/seal/4T/cacue/imagenet/res50net_precious.log", ios::binary);
+	std::ofstream precious_logger("/home/seal/4T/cacue/imagenet/mobilenet_precious.log", ios::binary);
 	precious_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
-	network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	network *net = create_mobilenet(batch_size,train);//create_mobilenet(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/res18net.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/mobilenet.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.001f);
+	sgd->set_lr(0.00001f);
 	sgd->set_weight_decay(0.0005f);
 	sgd->set_regularize(L2);
 
@@ -211,7 +211,7 @@ void train_net()
 			sgd->set_lr_iter(0.1f);
 		if(i % 10000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/res50net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/mobilenet_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
@@ -220,7 +220,7 @@ void train_net()
 	precious_logger.close();
 
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/res50net_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/mobilenet_" << max_iter << ".model";
 	net->save_weights(oss.str());
 	LOG_INFO("optimization is done!");
 	for(int i = 0; i < full_label.size(); ++i)

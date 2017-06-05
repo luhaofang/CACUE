@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../math/cuda/cuda_utils.h"
 #include "../math/math_utils.h"
 #include "../math/math_functions.h"
+#include "../math/cpu_data_utils.h"
 
 
 using namespace std;
@@ -101,9 +102,9 @@ namespace mycnn{
 			if (train == _phrase)
 				cuda_refresh(s_diff_,_length);
 #else
-			cacu_memset(s_data_, 0 ,_length);
+			cacu_memset<float_t>(s_data_, 0 ,_length);
 			if (train == _phrase)
-				cacu_memset(s_diff_, 0 ,_length);
+				cacu_memset<float_t>(s_diff_, 0 ,_length);
 #endif
 		}
 
@@ -118,7 +119,7 @@ namespace mycnn{
 				cuda_refresh(s_diff_, _length);
 #else
 			if (train == _phrase)
-				cacu_memset(s_diff_, 0 ,_length);
+				cacu_memset<float_t>(s_diff_, 0 ,_length);
 #endif
 		}
 

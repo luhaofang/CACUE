@@ -83,8 +83,10 @@ namespace mycnn{
 
 		inline void operate()
 		{
-			for(unsigned int i =0 ; i < _ops.size() ; ++i)
+			for(unsigned int i =0 ; i < _ops.size() ; ++i){
 				_ops[i]->infer();
+				//LOG_DEBUG("op: %d", i);
+			}
 		}
 
 	protected:

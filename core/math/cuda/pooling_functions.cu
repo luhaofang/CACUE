@@ -432,7 +432,6 @@ __global__ void _k_CACU_IMG2COL_PAD_GPU(const mycnn::float_t *x, int kernel_size
 
 	for (int j = bid; j < output_size; j += BLOCKNUM) {
 
-		out_start = j * block_size;
 		output_h = (j / output_dim) * stride;
 		output_w = (j % output_dim) * stride;
 
@@ -450,7 +449,7 @@ __global__ void _k_CACU_IMG2COL_PAD_GPU(const mycnn::float_t *x, int kernel_size
 			input_h = output_h + k_row;
 			c = i / kernel_length;
 			if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
-				y[out_start + i] = x[(input_h - pad) * input_dim + (input_w - pad) + c * cin_length];
+				y[j + i * output_size] = x[(input_h - pad) * input_dim + (input_w - pad) + c * cin_length];
 		}
 	}
 }
@@ -594,8 +593,6 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(const mycnn::float_t *x, int kernel_size
 
 	int k_index, outset_index, inset_index;
 
-	int block_size = kernel_size * kernel_size * channel;
-
 	int input_dim_ = input_dim + 2 * pad;
 
 	int length = input_dim_ * input_dim_ * channel;
@@ -603,6 +600,8 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(const mycnn::float_t *x, int kernel_size
 	int cin_length = input_dim * input_dim;
 
 	int cin_length_ = input_dim_ * input_dim_;
+
+	int output_size = output_dim * output_dim;
 
 	int c;
 
@@ -652,9 +651,9 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(const mycnn::float_t *x, int kernel_size
 					k_index = ((startset_i - outset_i * stride) * kernel_size
 							+ (startset_j - outset_j * stride))
 							+ c * kernel_size * kernel_size;
-					outset_index = (outset_i * output_dim + outset_j) * block_size;
+					outset_index = (outset_i * output_dim + outset_j);
 
-					atomicAdd(y+inset_index,x[outset_index + k_index]);
+					atomicAdd(y+inset_index,x[outset_index + k_index * output_size]);
 				}
 		}
 	}
@@ -689,6 +688,8 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_GPU(const mycnn::float_t *x, int stride,
 
 	int cin_length_ = input_dim_ * input_dim_;
 
+	int output_size = output_dim * output_dim;
+
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
@@ -710,9 +711,9 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_GPU(const mycnn::float_t *x, int stride,
 
 			if(startset_i % stride == 0 && startset_j % stride == 0){
 
-				outset_index = (outset_si * output_dim + outset_sj) * channel;
+				outset_index = (outset_si * output_dim + outset_sj);
 
-				atomicAdd(y+inset_index,x[outset_index + c]);
+				atomicAdd(y+inset_index,x[outset_index + c * output_size]);
 
 			}
 		}
