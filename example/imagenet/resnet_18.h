@@ -86,7 +86,7 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	l3->get_op<convolution_op>(0)->set_is_use_bias(false);
 
 	layer *l4 = new layer(output_channel, kernel_size, stride, pad, l3->get_oblob()->height(), l3->get_oblob()->channel());
-	l4->op(CACU_CONVOLUTION, l3->get_oblob())->op(CACU_BATCH_NORMALIZE);
+	l4->op(CACU_CONVOLUTION, l3->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l4->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l4->get_op<convolution_op>(0)->set_is_use_bias(false);
 
@@ -95,7 +95,7 @@ layer_block* conv_block_shotcut(blob_base* data,int output_channel, int kernel_s
 	b1->push_back(l4->get_oblob());
 
 	layer *block_wise = new layer();
-	block_wise->op(CACU_SUM_ELEMWISE, b1)->op(activation_op);
+	block_wise->op(CACU_SUM_ELEMWISE, b1);
 
 	clock_t end = clock();
 	*lb << split << shortcut << l1 << l2 << element_wise << split1 << l3 << l4 << block_wise;

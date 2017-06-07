@@ -52,7 +52,7 @@ layer_block* conv_shortcut_block(blob_base* data,int output_channel, int output_
 	l1->get_op<convolution_op>(0)->set_is_use_bias(false);
 
 	layer *l2 = new layer(output_channel_s, 1, stride, 0, l1->get_oblob()->height(), l1->get_oblob()->channel());
-	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
+	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l2->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l2->get_op<convolution_op>(0)->set_is_use_bias(false);
 
@@ -66,7 +66,7 @@ layer_block* conv_shortcut_block(blob_base* data,int output_channel, int output_
 	b->push_back(l3->get_oblob());
 
 	layer *element_wise = new layer();
-	element_wise->op(CACU_SUM_ELEMWISE, b)->op(activation_op);
+	element_wise->op(CACU_SUM_ELEMWISE, b);
 
 	*lb << split << shortcut << l1 << l2 << l3 << element_wise;
 	return lb;
@@ -90,7 +90,7 @@ layer_block* identity_block(blob_base* data,int output_channel, int output_chann
 	l1->get_op<convolution_op>(0)->set_is_use_bias(false);
 
 	layer *l2 = new layer(output_channel_s, 1, stride, 0, l1->get_oblob()->height(), l1->get_oblob()->channel());
-	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
+	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	l2->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	l2->get_op<convolution_op>(0)->set_is_use_bias(false);
 
@@ -99,7 +99,7 @@ layer_block* identity_block(blob_base* data,int output_channel, int output_chann
 	b->push_back(l2->get_oblob());
 
 	layer *element_wise = new layer();
-	element_wise->op(CACU_SUM_ELEMWISE, b)->op(activation_op);
+	element_wise->op(CACU_SUM_ELEMWISE, b);
 
 	*lb << split << shortcut << l1 << l2 << element_wise;
 	return lb;

@@ -92,7 +92,7 @@ namespace mycnn{
 				cacu_img2col_pad(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
 				//forward convolution data
 				for (int g = 0 ; g < _group ; ++g)
-					cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->width()*o_blob_->height(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
+					cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->width()*o_blob_->height(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data_d(i) + out_offset * g,(float_t)0);
 				//add bias
 				if(_is_use_bias)
 					cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data_d(i), (float_t)(1), o_blob_->length(), o_blob_->p_data_d(i));
@@ -130,13 +130,16 @@ namespace mycnn{
 			for (int i = 0; i < s_blob_->num(); ++i){
 
 				//gradient propagation
-				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),o_blob_->p_diff_d(i),o_blob_->width()*o_blob_->height(),1 ,col_data_->s_diff(),0);
+				for (int g = 0 ; g < _group ; ++g)
+					//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);
+					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff_d(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
 				//col2img
 				//unpadded
 				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff_d(i));
 				//weights gradient
 				cacu_img2col_pad(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
-				cacu_sgemm(NOTRANS,NOTRANS,col_data_->s_data(),_w->length(),o_blob_->width()*o_blob_->height(),o_blob_->p_diff_d(i),_w->num(),1,_w->s_diff(),1);
+				for (int g = 0 ; g < _group ; ++g)
+					cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g,_w->length() / _group, o_blob_->width()*o_blob_->height(), o_blob_->p_diff_d(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
 				//bias gradient
 				if(_is_use_bias)
 					cacu_sumbysize(BYWIDTH,o_blob_->p_diff_d(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
