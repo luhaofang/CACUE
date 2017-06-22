@@ -52,6 +52,8 @@ namespace mycnn{
 		CACU_RELU,
 		CACU_LEAKY_RELU,
 		CACU_SOFTMAX,
+		CACU_TANH,
+		CACU_SIGMOID,
 
 		CACU_SOFTMAX_LOSS,
 		CACU_HINGE_LOSS,
@@ -129,6 +131,12 @@ namespace mycnn{
 			case CACU_ROW_MAX_POOLING:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new row_max_pooling_op(blob_->at(0), args_);
+			case CACU_TANH:
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
+				return new tanh_op(blob_->at(0), args_);
+			case CACU_SIGMOID:
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
+				return new sigmoid_op(blob_->at(0), args_);
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);
 				return NULL;

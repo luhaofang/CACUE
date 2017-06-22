@@ -62,7 +62,7 @@ namespace mycnn{
 			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
 			_shift->set_lr(2);
 
-			_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
+			//_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
 
 			_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1, _phrase);
 			_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
@@ -72,7 +72,7 @@ namespace mycnn{
 
 			_std = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
 
-			_one = cacu_allocator::create_blob(data->channel(), 1, 1, 1, 1,test);
+			//_one = cacu_allocator::create_blob(1, 1, 1, 1, 1,test);
 
 			echo();
 		};
@@ -84,8 +84,8 @@ namespace mycnn{
 
 			delete _history_mean;
 			delete _history_var;
-			delete _moving_scalar;
-			delete _one;
+			//delete _moving_scalar;
+			//delete _one;
 
 			delete _std;
 
@@ -135,8 +135,10 @@ namespace mycnn{
 				cacu_sumbysize(BYWIDTH, dim_sum_->s_data(), dim_sum_->count(), 1, _var->s_data(), 0, s_blob_->height() * s_blob_->width());
 				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
 
-				cacu_scalex(_moving_scalar->s_data(), 1, moving_average_fraction);
-				cacu_saxpy(_one->s_data(), 1, _moving_scalar->s_data(), 1);
+				//cacu_scalex(_moving_scalar->s_data(), 1, moving_average_fraction);
+				//cacu_saxpy(_one->s_data(), 1, _moving_scalar->s_data(), 1);
+				//cacu_saxpby(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), moving_average_fraction, _moving_scalar->count());
+
 				//update history
 				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
 				cacu_saxpby(_var->s_data(), 1.0 - moving_average_fraction, _history_var->s_data(), moving_average_fraction, _var->count());
@@ -155,8 +157,11 @@ namespace mycnn{
 			}
 			else{
 				//calculate unbiased estimate
-				cacu_cdxsize(_history_var->s_data(),_history_var->count(),_moving_scalar->s_data(),1,_var->s_data());
-				cacu_cdxsize(_history_mean->s_data(),_history_mean->count(),_moving_scalar->s_data(),1,_mean->s_data());
+				//cacu_cdxsize(_history_var->s_data(),_history_var->count(),_moving_scalar->s_data(),1,_var->s_data());
+				//cacu_cdxsize(_history_mean->s_data(),_history_mean->count(),_moving_scalar->s_data(),1,_mean->s_data());
+
+				cacu_copy(_history_var->s_data(),_history_var->count(),_var->s_data());
+				cacu_copy(_history_mean->s_data(),_history_var->count(),_mean->s_data());
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 				for (int i = 0; i < s_blob_->num(); ++i){
@@ -199,24 +204,29 @@ namespace mycnn{
 					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
 					cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
 					//save for train
-					cacu_copy(o_blob_->p_data(i),o_blob_->length(),x_->p_data(i));
+					cacu_copy(o_blob_->p_data(i),o_blob_->length(), x_->p_data(i));
 					cacu_cxsize(o_blob_->p_data(i), o_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 
-				cacu_scalex(_moving_scalar->s_data(), (float_t)(1), moving_average_fraction);
-				cacu_saxpy(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), 1);
+				//cacu_saxpby(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), moving_average_fraction, _moving_scalar->count());
 
 				//update history
-				cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
-				cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+				//cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
+				//cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+
+				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
+				cacu_saxpby(_var->s_data(), 1.0 - moving_average_fraction, _history_var->s_data(), moving_average_fraction, _var->count());
 
 			}
 			else{
 
 				//calculate unbiased estimate
-				cacu_cdxsize(_history_var->s_data(),_history_var->count(),_moving_scalar->s_data(),1,_var->s_data());
-				cacu_cdxsize(_history_mean->s_data(),_history_mean->count(),_moving_scalar->s_data(),1,_mean->s_data());
+				//cacu_cdxsize(_history_var->s_data(),_history_var->count(),_moving_scalar->s_data(),1,_var->s_data());
+				//cacu_cdxsize(_history_mean->s_data(),_history_mean->count(),_moving_scalar->s_data(),1,_mean->s_data());
+
+				cacu_copy(_history_var->s_data(),_history_var->count(),_var->s_data());
+				cacu_copy(_history_mean->s_data(),_history_var->count(),_mean->s_data());
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
@@ -311,7 +321,7 @@ namespace mycnn{
 
 			_history_mean->load(is);
 			_history_var->load(is);
-			_moving_scalar->load(is);
+			//_moving_scalar->load(is);
 			_scale->load(is);
 			_shift->load(is);
 		}
@@ -320,7 +330,7 @@ namespace mycnn{
 
 			_history_mean->serializa(os);
 			_history_var->serializa(os);
-			_moving_scalar->serializa(os);
+			//_moving_scalar->serializa(os);
 			_scale->serializa(os);
 			_shift->serializa(os);
 		}
@@ -392,9 +402,9 @@ namespace mycnn{
 
 		blob_base *_x;
 
-		blob *_moving_scalar;
+		//blob *_moving_scalar;
 
-		blob *_one;
+		//blob *_one;
 
 	};
 };

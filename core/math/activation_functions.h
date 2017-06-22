@@ -116,4 +116,72 @@ namespace mycnn{
 
 	}
 
+
+	/**
+	 * @cacu_tanh
+	 * math tanh;
+	 * for activation use tanh functions.
+	 */
+	inline void cacu_tanh(float_t *x, int length,float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_tanh_gpu(x, length, y);
+#else
+		cacu_tanh_cpu(x, length, y);
+#endif
+
+	}
+
+	/**
+	 * @cacu_tanh_grad
+	 * math tanh;
+	 * gradient for activation use tanh functions.
+	 */
+	inline void cacu_tanh_grad(float_t *x, float_t *g, int length, float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_tanh_grad_gpu(x, g, length, y);
+#else
+		cacu_tanh_grad_cpu(x, g, length, y);
+#endif
+
+	}
+
+
+	/**
+	 * @cacu_sigmoid
+	 * math sigmoid;
+	 * for activation use sigmoid functions.
+	 */
+	inline void cacu_sigmoid(float_t *x, int length,float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_sigmoid_gpu(x, length, y);
+#else
+		cacu_sigmoid_cpu(x, length, y);
+#endif
+
+	}
+
+	/**
+	 * @cacu_tanh_grad
+	 * math tanh;
+	 * gradient for activation use tanh functions.
+	 */
+	inline void cacu_sigmoid_grad(float_t *x, float_t *g, int length, float_t *y)
+	{
+
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_sigmoid_grad_gpu(x, g, length, y);
+#else
+		cacu_sigmoid_grad_cpu(x, g, length, y);
+#endif
+
+	}
+
+
+
 };

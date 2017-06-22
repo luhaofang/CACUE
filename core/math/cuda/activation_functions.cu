@@ -198,3 +198,102 @@ extern "C" void cacu_softmax_gpu(mycnn::float_t *x, int num ,int length,mycnn::f
 
 }
 
+
+__global__ void _k_CACU_TANH_GPU(mycnn::float_t *x, int length, mycnn::float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] = tanh(x[i]);
+	}
+
+}
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_tanh_gpu(mycnn::float_t *x, int length, mycnn::float_t *y)
+{
+	_k_CACU_TANH_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
+__global__ void _k_CACU_TANH_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g, int length, mycnn::float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = g[i] * (1 - x[i] * x[i]);
+	}
+
+}
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_tanh_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, int length, mycnn::float_t *y)
+{
+	_k_CACU_TANH_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
+__global__ void _k_CACU_SIGMOID_GPU(mycnn::float_t *x, int length, mycnn::float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] = 1.0 / (1.0 + exp(-x[i]));
+	}
+
+}
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_sigmoid_gpu(mycnn::float_t *x, int length, mycnn::float_t *y)
+{
+	_k_CACU_SIGMOID_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
+__global__ void _k_CACU_SIGMOID_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g, int length, mycnn::float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = g[i] * x[i] * (1 - x[i]);
+	}
+
+}
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_sigmoid_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, int length, mycnn::float_t *y)
+{
+	_k_CACU_SIGMOID_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+

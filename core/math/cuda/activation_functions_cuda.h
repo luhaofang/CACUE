@@ -54,4 +54,23 @@ extern "C" void cacu_leaky_relu_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, m
  */
 extern "C" void cacu_softmax_gpu(mycnn::float_t *x, int num , int length, mycnn::float_t *y);
 
+/**
+ * for activation use tanh functions in cuda
+ */
+extern "C" void cacu_tanh_gpu(mycnn::float_t *x, int length, mycnn::float_t *y);
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_tanh_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, int length, mycnn::float_t *y);
+
+/**
+ * for activation use sigmoid functions in cuda
+ */
+extern "C" void cacu_sigmoid_gpu(mycnn::float_t *x, int length, mycnn::float_t *y);
+
+/**
+ * gradient for activation use sigmoid functions in cuda
+ */
+extern "C" void cacu_sigmoid_grad_gpu(mycnn::float_t *x, mycnn::float_t *g, int length, mycnn::float_t *y);
 

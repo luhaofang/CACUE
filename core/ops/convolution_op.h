@@ -145,9 +145,6 @@ namespace mycnn{
 					cacu_sumbysize(BYWIDTH,o_blob_->p_diff_d(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 				s_blob_->_sync(i);
 			}
-
-			if(_group != 1)
-				cacu_group_combine(_w->num(), _w->channel(), _w->channel_length(), _group, _w->s_diff());
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;

@@ -140,3 +140,84 @@ network* create_mobilenet(int batch_size_,phrase_type phrase_)
 	return net;
 }
 
+
+
+network* create_mobilenet_without_fc(int batch_size_,phrase_type phrase_)
+{
+	blob *blob_ = cacu_allocator::create_blob(batch_size_, 3, 224, 224, phrase_);
+	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size_, 1, 1, 1,phrase_);
+
+	blobs *input_datas_ = cacu_allocator::create_blobs();
+	input_datas_->push_back(blob_);
+	input_datas_->push_back(label_);
+
+	network *net = new network(input_datas_);
+
+	layer_block *conv1 = conv_block_mobile(blob_, 32, 3, 2, 1);
+
+	*net << conv1;
+
+	layer_block *conv2_1dw = conv_block_mobile(conv1->get_oblob(), 32, 3, 1, 1, 32);
+	layer_block *conv2_1sep = conv_block_mobile(conv2_1dw->get_oblob(), 64, 1, 1, 0);
+	layer_block *conv2_2dw = conv_block_mobile(conv2_1sep->get_oblob(), 64, 3, 2, 1, 64);
+	layer_block *conv2_2sep = conv_block_mobile(conv2_2dw->get_oblob(), 128, 1, 1, 0);
+
+	*net << conv2_1dw << conv2_1sep << conv2_2dw << conv2_2sep;
+
+	layer_block *conv3_1dw = conv_block_mobile(conv2_2sep->get_oblob(), 128, 3, 1, 1, 128);
+	layer_block *conv3_1sep = conv_block_mobile(conv3_1dw->get_oblob(), 128, 1, 1, 0);
+	layer_block *conv3_2dw = conv_block_mobile(conv3_1sep->get_oblob(), 128, 3, 2, 1, 128);
+	layer_block *conv3_2sep = conv_block_mobile(conv3_2dw->get_oblob(), 256, 1, 1, 0);
+
+	*net << conv3_1dw << conv3_1sep << conv3_2dw << conv3_2sep;
+
+	layer_block *conv4_1dw = conv_block_mobile(conv3_2sep->get_oblob(), 256, 3, 1, 1, 256);
+	layer_block *conv4_1sep = conv_block_mobile(conv4_1dw->get_oblob(), 256, 1, 1, 0);
+	layer_block *conv4_2dw = conv_block_mobile(conv4_1sep->get_oblob(), 256, 3, 2, 1, 256);
+	layer_block *conv4_2sep = conv_block_mobile(conv4_2dw->get_oblob(), 512, 1, 1, 0);
+
+	*net << conv4_1dw << conv4_1sep << conv4_2dw << conv4_2sep;
+
+	layer_block *conv5_1dw = conv_block_mobile(conv4_2sep->get_oblob(), 512, 3, 1, 1, 512);
+	layer_block *conv5_1sep = conv_block_mobile(conv5_1dw->get_oblob(), 512, 1, 1, 0);
+
+	*net << conv5_1dw << conv5_1sep;
+
+	layer_block *conv5_2dw = conv_block_mobile(conv5_1sep->get_oblob(), 512, 3, 1, 1, 512);
+	layer_block *conv5_2sep = conv_block_mobile(conv5_2dw->get_oblob(), 512, 1, 1, 0);
+
+	*net << conv5_2dw << conv5_2sep;
+
+	layer_block *conv5_3dw = conv_block_mobile(conv5_2sep->get_oblob(), 512, 3, 1, 1, 512);
+	layer_block *conv5_3sep = conv_block_mobile(conv5_3dw->get_oblob(), 512, 1, 1, 0);
+
+	*net << conv5_3dw << conv5_3sep;
+
+	layer_block *conv5_4dw = conv_block_mobile(conv5_3sep->get_oblob(), 512, 3, 1, 1, 512);
+	layer_block *conv5_4sep = conv_block_mobile(conv5_4dw->get_oblob(), 512, 1, 1, 0);
+
+	*net << conv5_4dw << conv5_4sep;
+
+	layer_block *conv5_5dw = conv_block_mobile(conv5_4sep->get_oblob(), 512, 3, 1, 1, 512);
+	layer_block *conv5_5sep = conv_block_mobile(conv5_5dw->get_oblob(), 512, 1, 1, 0);
+
+	*net << conv5_5dw << conv5_5sep;
+
+	layer_block *conv5_6dw = conv_block_mobile(conv5_5sep->get_oblob(), 512, 3, 2, 1, 512);
+	layer_block *conv5_6sep = conv_block_mobile(conv5_6dw->get_oblob(), 1024, 1, 1, 0);
+
+	*net << conv5_6dw << conv5_6sep;
+
+	layer_block *conv6dw = conv_block_mobile(conv5_6sep->get_oblob(), 1024, 3, 1, 1, 1024);
+	layer_block *conv6sep = conv_block_mobile(conv6dw->get_oblob(), 1024, 1, 1, 0);
+
+	//*net << conv6dw << conv6sep;
+
+	layer *ave_pool = new layer(1024,7,1);
+	ave_pool->op(CACU_AVERAGE_POOLING,conv6sep->get_oblob());
+
+	//*net << ave_pool;
+
+	return net;
+}
+

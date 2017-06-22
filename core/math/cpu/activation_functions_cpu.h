@@ -136,4 +136,72 @@ namespace mycnn{
 		}
 	}
 
+	/**
+	 * @cacu_tanh
+	 * math tanh;
+	 * for activation use tanh functions.
+	 */
+	inline void cacu_tanh_cpu(float_t *x, int length,float_t *y)
+	{
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
+		{
+			y[i] = tanh(x[i]);
+		}
+	}
+
+	/**
+	 * @cacu_tanh_grad
+	 * math tanh;
+	 * for activation use tanh functions.
+	 */
+	inline void cacu_tanh_grad_cpu(float_t *x, float_t *g, int length, float_t *y)
+	{
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
+		{
+			y[i] = g[i] * (1 - x[i] * x[i]);
+		}
+	}
+
+	/**
+	 * @cacu_tanh
+	 * math tanh;
+	 * for activation use tanh functions.
+	 */
+	inline void cacu_sigmoid_cpu(float_t *x, int length,float_t *y)
+	{
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
+		{
+			y[i] = 1.0/(1.0 + exp(-x[i]));
+		}
+	}
+
+	/**
+	 * @cacu_tanh_grad
+	 * math tanh;
+	 * for activation use tanh functions.
+	 */
+	inline void cacu_sigmoid_grad_cpu(float_t *x, float_t *g, int length, float_t *y)
+	{
+		int i;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(i)
+#endif
+		for (i = 0; i < length; ++i)
+		{
+			y[i] = g[i] * x[i] * (1 - x[i]);
+		}
+	}
+
 };

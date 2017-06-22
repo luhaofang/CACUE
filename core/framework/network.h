@@ -121,6 +121,10 @@ namespace mycnn{
 			}
 		}
 
+		inline void set_weight(int op_id, param_init_type type_, float_t value = 0){
+			get_op(op_id)->get_weight(0)->set_init_type(type_,value);
+		}
+
 		inline operator_base *&get_op(int i)
 		{
 			return _ops[i];

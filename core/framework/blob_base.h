@@ -56,6 +56,7 @@ namespace mycnn{
 			_blob_type = type;
 			_s_data = NULL;
 			_s_diff = NULL;
+			_data_num = _num;
 			_REC_ = 0;
 			//check the input data dim
 			long c_length_ = channel*width*height;
@@ -98,13 +99,17 @@ namespace mycnn{
 
 		inline int height(){ return _height; }
 
-		inline int channel_length(){return _channel_length; }
+		inline int channel_length(){ return _channel_length; }
 
 		inline int length(){ return _cube_length; }
 
 		inline int count(){ return _length; }
 
+		inline int data_num(){ return _data_num; }
+
 		inline phrase_type phrase(){ return _phrase; }
+
+		inline void set_data_num(int num){ _data_num = num; };
 
 		virtual inline const int calculate_size() = 0;
 
@@ -144,6 +149,8 @@ namespace mycnn{
 		int _cube_length;
 		int _length;
 		int _channel_length;
+
+		int _data_num;
 		phrase_type _phrase;
 
 		inline void _SET_TYPE(blob_type blob_type_){_blob_type = blob_type_;};
