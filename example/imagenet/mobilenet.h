@@ -211,12 +211,12 @@ network* create_mobilenet_without_fc(int batch_size_,phrase_type phrase_)
 	layer_block *conv6dw = conv_block_mobile(conv5_6sep->get_oblob(), 1024, 3, 1, 1, 1024);
 	layer_block *conv6sep = conv_block_mobile(conv6dw->get_oblob(), 1024, 1, 1, 0);
 
-	//*net << conv6dw << conv6sep;
+	*net << conv6dw << conv6sep;
 
 	layer *ave_pool = new layer(1024,7,1);
 	ave_pool->op(CACU_AVERAGE_POOLING,conv6sep->get_oblob());
 
-	//*net << ave_pool;
+	*net << ave_pool;
 
 	return net;
 }
