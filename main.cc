@@ -27,6 +27,7 @@
 using namespace mycnn;
 using namespace mycnn_tools;
 
+
 int main(int argc, char** argv) {
 	//test_blob();
 	//test_op();
@@ -43,6 +44,7 @@ int main(int argc, char** argv) {
 	//string meanpath = "/home/seal/4T/imagenet/224X224_mean.binproto";
 	//make_mean(datapath,filelist,meanpath);
 	train_net();
+
 	//test_net();
 
 	//int result =  Catch::Session().run(argc,argv);

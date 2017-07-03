@@ -92,23 +92,29 @@ namespace mycnn{
 			if(test != phrase()){
 				set_phrase(test);
 			}
-			for(unsigned int i = 0 ; i < _layers.size();++i){
+			for(unsigned int i = 0; i < _layers.size(); ++i){
 				_layers[i]->operate();
 				//LOG_DEBUG("layer: %d",i);
 			}
 		}
 
 		inline void forward_propagate(){
-			for(unsigned int i = 0 ; i < _layers.size();++i){
+			for(unsigned int i = 0; i < _layers.size(); ++i){
 				_layers[i]->operate();
 			}
 		}
 
 		inline void back_propagate(){
+			for(int i = _layers.size() - 1; i >= 0; --i){
+				_layers[i]->grad();
+				//LOG_DEBUG("layer: %d",i);
+			}
+			/*
 			for(int i = op_count() - 1 ; i >= 0; --i)
 			{
 				get_op(i)->grad();
 			}
+			*/
 		}
 
 		inline void set_weights_type(param_init_type type_,float_t value = 0){

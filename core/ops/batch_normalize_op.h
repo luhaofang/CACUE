@@ -84,8 +84,6 @@ namespace mycnn{
 
 			delete _history_mean;
 			delete _history_var;
-			//delete _moving_scalar;
-			//delete _one;
 
 			delete _std;
 
@@ -237,15 +235,7 @@ namespace mycnn{
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 			}
-			/*
-			if(_mean->count() == 32){
-				cacu_print(_mean->s_data(),32);
-				cacu_print(_var->s_data(),32);
-				cacu_print(_history_mean->s_data(),32);
-				cacu_print(_history_var->s_data(),32);
-				cacu_print(_moving_scalar->s_data(),1);
-			}
-			*/
+
 #endif
 		}
 
@@ -321,7 +311,8 @@ namespace mycnn{
 
 			_history_mean->load(is);
 			_history_var->load(is);
-			//_moving_scalar->load(is);
+			blob_base *blob = cacu_allocator::create_blob(1, 1, 1, 1, test);
+			blob->load(is);
 			_scale->load(is);
 			_shift->load(is);
 		}
@@ -330,7 +321,7 @@ namespace mycnn{
 
 			_history_mean->serializa(os);
 			_history_var->serializa(os);
-			//_moving_scalar->serializa(os);
+
 			_scale->serializa(os);
 			_shift->serializa(os);
 		}
@@ -402,9 +393,6 @@ namespace mycnn{
 
 		blob_base *_x;
 
-		//blob *_moving_scalar;
-
-		//blob *_one;
 
 	};
 };

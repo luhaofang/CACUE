@@ -30,7 +30,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ostream>
 #include <vector>
+#include <queue>
 #include <map>
+
 #include <stdlib.h>
 #include <math.h>
 #include <algorithm>

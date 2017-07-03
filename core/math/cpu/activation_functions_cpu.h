@@ -204,4 +204,17 @@ namespace mycnn{
 		}
 	}
 
+	template<typename DTYPE>
+	inline DTYPE sigmoid(DTYPE data)
+	{
+		return 1.0 / (1.0 + exp(-data));
+	}
+
+	template <typename Dtype>
+	inline Dtype tanh(Dtype data)
+	{
+		return 2.0 * sigmoid(2.0 * data) - 1.;
+	}
+
+
 };

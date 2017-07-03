@@ -109,7 +109,7 @@ namespace mycnn{
 
 		inline phrase_type phrase(){ return _phrase; }
 
-		inline void set_data_num(int num){ _data_num = num; };
+		inline void set_data_num(int num){ _data_num = num; }
 
 		virtual inline const int calculate_size() = 0;
 
@@ -138,7 +138,8 @@ namespace mycnn{
 				_REC_ += 1;
 			else
 				LOG_WARNING("blob address %X has rec for %d times, but the max rec for cacu is %d",this,_REC_,__BLOBMAXREC__);
-		};
+		}
+
 
 	protected:		
 		

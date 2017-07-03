@@ -41,9 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void train_net()
 {
-	int batch_size = 30;
+	int batch_size = 128;
 
-	int max_iter = 600000;
+	int max_iter = 1000000;
 
 	int test_iter = 10;
 
@@ -53,20 +53,20 @@ void train_net()
 #endif
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/res50net.log", ios::binary);
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/res18net.log", ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
 	//log output
-	std::ofstream precious_logger("/home/seal/4T/cacue/imagenet/res50net_precious.log", ios::binary);
+	std::ofstream precious_logger("/home/seal/4T/cacue/imagenet/res18net_precious.log", ios::binary);
 	precious_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
-	network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	network *net = create_res18net(batch_size,train);//create_mobilenet(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_30000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/final_model/res18net.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.0001f);
+	sgd->set_lr(0.000001f);
 	sgd->set_weight_decay(0.0005f);
 	sgd->set_regularize(L2);
 
@@ -210,7 +210,7 @@ void train_net()
 
 		if(i % 10000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/res50net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/res18net_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
@@ -219,7 +219,7 @@ void train_net()
 	precious_logger.close();
 
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/res50net_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/res18net_" << max_iter << ".model";
 	net->save_weights(oss.str());
 	LOG_INFO("optimization is done!");
 	for(int i = 0; i < full_label.size(); ++i)

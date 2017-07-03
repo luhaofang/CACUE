@@ -420,8 +420,6 @@ __global__ void _k_CACU_IMG2COL_PAD_GPU(const mycnn::float_t *x, int kernel_size
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
-	int out_start;
-
 	int k_row, k_col, c;
 
 	int cin_length = input_dim * input_dim;

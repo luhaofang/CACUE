@@ -89,6 +89,15 @@ namespace mycnn{
 			}
 		}
 
+		inline void grad()
+		{
+			for(int i = _ops.size() - 1 ; i >= 0; --i)
+			{
+				_ops[i]->grad();
+				//LOG_DEBUG("op: %d", i);
+			}
+		}
+
 	protected:
 
 		vector<operator_base*> _ops;

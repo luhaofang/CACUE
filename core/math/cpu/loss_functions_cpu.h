@@ -33,7 +33,7 @@ namespace mycnn{
 
 	/**
 	 * @cacu_cross_entropy
-	 * math x[i] = max(0,x[i]) :
+	 * loss += -log(p(x)):
 	 * for loss use cross entropy functions.
 	 */
 	inline void cacu_cross_entropy_cpu(float_t *x, int num, int length,const unsigned int *label_, float_t *loss_)

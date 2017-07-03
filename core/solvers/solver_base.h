@@ -81,6 +81,7 @@ namespace mycnn{
 		{
 			_net->set_phrase(train);
 			_net->forward_propagate();
+
 			_net->back_propagate();
 
 			int weight_index_ = 0;
@@ -94,6 +95,7 @@ namespace mycnn{
 					weight_index_++;
 				}
 			}
+			//*/
 		}
 
 		/**

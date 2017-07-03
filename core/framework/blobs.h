@@ -73,6 +73,32 @@ namespace mycnn{
 			return *this;
 		}
 
+		inline void _DELETE_BLOBS()
+		{
+			for (unsigned int i = 0; i < size(); ++i)
+			{
+				switch(at(i)->_TYPE())
+				{
+					case __blob__:
+						delete (blob*)at(i);
+						break;
+					case __bin_blob__:
+						delete (bin_blob*)at(i);
+						break;
+					case __em_blob__:
+						delete (em_blob*)at(i);
+						break;
+					case __em_bin_blob__:
+						delete (em_bin_blob*)at(i);
+						break;
+					default:
+						LOG_FATAL("can't identify the type!");
+						break;
+				}
+			}
+			this->clear();
+		}
+
 		inline void _REC()
 		{
 			for(int i = 0 ; i < this->size(); ++i)

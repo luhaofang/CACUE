@@ -134,10 +134,11 @@ namespace mycnn{
 			op();
 		}
 
-		inline void set_blob(blob_base *&blob_){ s_blob = blob_;}
+		inline void set_blob(blob_base *&blob_){
+			s_blob->_CHECK_SIZE_EQ(blob_);
+			s_blob = blob_;}
 
 		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
-
 
 
 
