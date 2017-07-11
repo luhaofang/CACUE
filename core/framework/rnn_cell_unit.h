@@ -160,20 +160,20 @@ namespace mycnn{
 			for(unsigned int t = 0; t < _time_seq; ++t)
 			{
 				//forward input blob
-				copy2input();
+				copy2indata();
 				for(unsigned int i = 0 ; i < _ops.size() ; ++i){
 					_ops[i]->infer();
-					//LOG_DEBUG("op: %d", i);
 				}
 				//forward output blob
 				if(t == 0){
-					copy2output(op_oblob()->s_data());
+					copy2outdata();
 				}
 				else{
+					//get last time output data
 					mix_op->set_blob(get_lasttime_oblob());
 					mix_op->infer();
 					cacu_saxpy(((blob *)mix_op->out_data())->s_data(),1,op_oblob()->s_data(),op_oblob()->count());
-					copy2output();
+					copy2outdata();
 				}
 			}
 		}
@@ -181,11 +181,14 @@ namespace mycnn{
 		inline void grad() override
 		{
 			for(unsigned int t = 0; t < _time_seq; ++t){
+				copy2outdiff();
+
 				for(int i = _ops.size() - 1 ; i >= 0; --i)
 				{
 					_ops[i]->grad();
-					//LOG_DEBUG("op: %d", i);
 				}
+
+
 			}
 		}
 
@@ -230,7 +233,7 @@ namespace mycnn{
 
 	protected:
 
-		inline void copy2input()
+		inline void copy2indata()
 		{
 			blob *inblob = (blob*)in_blobs->front();
 			cacu_copy(inblob->s_data(), inblob->count(), op_iblob()->s_data());
@@ -240,10 +243,29 @@ namespace mycnn{
 		}
 
 
-		inline void copy2output()
+		inline void copy2outdata()
 		{
 			blob *outblob = (blob*)out_blobs->front();
 			cacu_copy(op_oblob()->s_data(), outblob->count(), outblob->s_data());
+			_it = out_blobs->begin();
+			out_blobs->erase(_it);
+			out_blobs->push_back(outblob);
+		}
+
+		inline void copy2indiff()
+		{
+			blob *inblob = (blob*)in_blobs->front();
+			cacu_copy(inblob->s_diff(), inblob->count(), op_iblob()->s_diff());
+			_it = in_blobs->begin();
+			in_blobs->erase(_it);
+			in_blobs->push_back(inblob);
+		}
+
+
+		inline void copy2outdiff()
+		{
+			blob *outblob = (blob*)out_blobs->front();
+			cacu_copy(op_oblob()->s_diff(), outblob->count(), outblob->s_diff());
 			_it = out_blobs->begin();
 			out_blobs->erase(_it);
 			out_blobs->push_back(outblob);

@@ -55,7 +55,7 @@ namespace mycnn{
 
 		virtual ~solver_base(){
 
-
+			delete _temp;
 		};
 
 		inline void set_weight_decay(float_t weight_decay_){ _global_weight_decay = weight_decay_;}

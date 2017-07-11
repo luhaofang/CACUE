@@ -138,8 +138,8 @@ namespace mycnn{
 				//cacu_saxpby(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), moving_average_fraction, _moving_scalar->count());
 
 				//update history
-				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
-				cacu_saxpby(_var->s_data(), 1.0 - moving_average_fraction, _history_var->s_data(), moving_average_fraction, _var->count());
+				cacu_saxpby(_mean->s_data(), moving_average_fraction, _history_mean->s_data(), 1.0 - moving_average_fraction, _mean->count());
+				cacu_saxpby(_var->s_data(), moving_average_fraction, _history_var->s_data(), 1.0 - moving_average_fraction, _var->count());
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 				for (int i = 0; i < s_blob_->num(); ++i){
@@ -213,8 +213,8 @@ namespace mycnn{
 				//cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
 				//cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
 
-				cacu_saxpby(_mean->s_data(), 1.0 - moving_average_fraction, _history_mean->s_data(), moving_average_fraction, _mean->count());
-				cacu_saxpby(_var->s_data(), 1.0 - moving_average_fraction, _history_var->s_data(), moving_average_fraction, _var->count());
+				cacu_saxpby(_mean->s_data(), moving_average_fraction, _history_mean->s_data(), 1.0 - moving_average_fraction, _mean->count());
+				cacu_saxpby(_var->s_data(), moving_average_fraction, _history_var->s_data(), 1.0 - moving_average_fraction, _var->count());
 
 			}
 			else{
@@ -311,8 +311,8 @@ namespace mycnn{
 
 			_history_mean->load(is);
 			_history_var->load(is);
-			blob_base *blob = cacu_allocator::create_blob(1, 1, 1, 1, test);
-			blob->load(is);
+			//blob_base *blob = cacu_allocator::create_blob(1, 1, 1, 1, test);
+			//blob->load(is);
 			_scale->load(is);
 			_shift->load(is);
 		}
@@ -361,9 +361,9 @@ namespace mycnn{
 
 		bool use_global_stats = true;
 
-		float_t moving_average_fraction = 0.999f;
+		float_t moving_average_fraction = 0.9f;
 
-		float_t epsilon = 0.00001f;
+		float_t epsilon = 0.001f;
 
 		inline virtual const void set_phrase(phrase_type phrase_) override {
 			_phrase = phrase_;
