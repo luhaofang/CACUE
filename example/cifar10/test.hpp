@@ -68,7 +68,7 @@ void test_net()
 
 	blob *output_data = net->output_blob();
 
-	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_sparse.model");
+	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
 
 	unsigned int max_index;
 	float_t count = 0;

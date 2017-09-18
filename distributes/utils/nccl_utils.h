@@ -39,15 +39,16 @@ namespace multi_gpu{
 
 	ncclComm_t *comm;
 
+	int nGPUs;
+
 	void initial_devices()
 	{
-		int nGPUs;
 		cudaGetDeviceCount(&nGPUs);
 		comm = (ncclComm_t *)malloc(sizeof(ncclComm_t)*nGPUs);
 		ncclCommInitAll(commsm,nGPUS);
 	}
 
-	void initial_data_blob(network *net)
+	void reduce_data_blob(network *net)
 	{
 
 	}

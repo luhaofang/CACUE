@@ -53,20 +53,22 @@ void train_net()
 #endif
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/res50net_196w.log", ios::binary);
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/vggnet_20w.log", ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
 	//log output
-	std::ofstream precious_logger("/home/seal/4T/cacue/imagenet/res50net_196w_precious.log", ios::binary);
+	std::ofstream precious_logger("/home/seal/4T/cacue/imagenet/vggnet_20w_precious.log", ios::binary);
 	precious_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
-	network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_vgg_16_net(batch_size,train);//create_alexnet(batch_size,train);
+	//network *net = create_mobilenet(batch_size,train);
+	network *net = create_vgg_16_net(batch_size,train);
+	//network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_210000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/vggnet_200000.model");	//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.00001f);
+	sgd->set_lr(0.0001f);
 	sgd->set_weight_decay(0.0001f);
 	sgd->set_regularize(L2);
 
@@ -77,11 +79,12 @@ void train_net()
 	string meanfile = "/home/seal/4T/imagenet/224X224_mean.binproto";
 
 	vector<string> full_data;
-	vector<vec_i> full_label;
 
 	vector<string> full_data_test;
 	vector<vec_i> full_label_test;
 
+	vector<string> vec;
+	vec_i label(1);
 	/**
 	 * load mean data
 	 */
@@ -100,13 +103,11 @@ void train_net()
 		LOG_FATAL("file %s cannot be opened!",trainlist.c_str());
 	string file_ = "";
 	while(getline(is,file_)){
-		vector<string> vec = split(file_," ");
-		full_data.push_back(datapath + vec[0]);
-		vec_i label(1);
-		label[0] = strtoul(vec[1].c_str(), NULL, 10);
-		full_label.push_back(label);
+		full_data.push_back(file_);
 	}
 	is.close();
+	random_shuffle(full_data.begin(),full_data.end());
+
 	/**
 	 * read test list data into local memory
 	 */
@@ -116,9 +117,8 @@ void train_net()
 		LOG_FATAL("file %s cannot be opened!",vallist.c_str());
 	file_ = "";
 	while(getline(is,file_)){
-		vector<string> vec = split(file_," ");
+		vec = split(file_," ");
 		full_data_test.push_back(valdatapath + vec[0]);
-		vec_i label(1);
 		label[0] = strtoul(vec[1].c_str(), NULL, 10);
 		full_label_test.push_back(label);
 	}
@@ -144,6 +144,7 @@ void train_net()
 
 	unsigned int max_index;
 	float_t count = 0;
+
 
 	vec_i compare_label(batch_size);
 	for (int i = 1 ; i <= max_iter; ++i)
@@ -185,10 +186,16 @@ void train_net()
 			for (int j = 0 ; j < batch_size ; ++j)
 			{
 				if (step_index == ALL_DATA_SIZE)
+				{
 					step_index = 0;
+					random_shuffle(full_data.begin(),full_data.end());
+				}
+				file_ = full_data[step_index];
+				vec = split(file_," ");
+				label[0] = strtoul(vec[1].c_str(), NULL, 10);
 				//load image data
-				readdata(full_data[step_index].c_str(),input_data->p_data(j),mean_->s_data());
-				input_label->copy_data_io(full_label[step_index],j);
+				readdata((datapath + vec[0]).c_str(),input_data->p_data(j),mean_->s_data());
+				input_label->copy_data_io(label,j);
 				step_index += 1;
 			}
 			//net->predict();
@@ -205,12 +212,12 @@ void train_net()
 		logger << ((softmax_with_loss_op*)net->get_op(net->op_count()-1))->loss() << endl;
 		logger.flush();
 
-		if(i == 500000)
+		if(i % 200000 == 0)
 			sgd->set_lr_iter(0.1f);
 
 		if(i % 10000 == 0){
 			ostringstream oss;
-			oss << "/home/seal/4T/cacue/imagenet/res50net_" << i << ".model";
+			oss << "/home/seal/4T/cacue/imagenet/vggnet_" << i << ".model";
 			net->save_weights(oss.str());
 		}
 	}
@@ -219,14 +226,10 @@ void train_net()
 	precious_logger.close();
 
 	ostringstream oss;
-	oss << "/home/seal/4T/cacue/imagenet/res50net_" << max_iter << ".model";
+	oss << "/home/seal/4T/cacue/imagenet/vggnet_" << max_iter << ".model";
 	net->save_weights(oss.str());
 	LOG_INFO("optimization is done!");
-	for(int i = 0; i < full_label.size(); ++i)
-	{
-		vec_i().swap(full_label[i]);
 
-	}
 	for(int i = 0; i < full_label_test.size(); ++i)
 	{
 		vec_i().swap(full_label_test[i]);

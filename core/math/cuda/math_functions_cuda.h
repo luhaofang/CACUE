@@ -85,7 +85,9 @@ extern "C" void cacu_saxpy_atomic_gpu(const mycnn::float_t *x, mycnn::float_t a,
  */
 extern "C" void cacu_isaxb_gpu(const mycnn::float_t *x, int length, const mycnn::float_t a ,const unsigned int *index_,const mycnn::float_t b, mycnn::float_t *y);
 
-extern "C" void cacu_argmax_gpu(const mycnn::float_t *x,int length, unsigned int *index_);
+extern "C" void cacu_argmax_gpu(const mycnn::float_t *x, int length, unsigned int *index_);
+
+extern "C" void cacu_transpose_gpu(mycnn::float_t *mtx, const int m, const int n);
 
 
 #endif

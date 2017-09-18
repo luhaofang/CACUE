@@ -92,6 +92,7 @@ public:
 			os << data[i] << endl;
 		}
 #else
+		LOG_DEBUG("%d",_op->in_data<blob>()->count());
 		for(int i = 0; i < _op->in_data<blob>()->count(); ++i)
 		{
 			os << _op->in_data<blob>()->s_diff()[i] << endl;

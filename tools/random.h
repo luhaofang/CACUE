@@ -56,9 +56,9 @@ namespace mycnn {
 
 		float_t urand(float_t min, float_t max) {
 
-			float_t pRandomValue = (float_t)(rand() / (float_t)RAND_MAX);
-			pRandomValue = pRandomValue * (max - min) + min;
-			return pRandomValue;
+			//float_t pRandomValue = (float_t)(rand() % (float_t)RAND_MAX);
+			//pRandomValue = pRandomValue * (max - min) + min;
+			return ((rand() % ( max - min + 1)) + min);
 		}
 
 	};

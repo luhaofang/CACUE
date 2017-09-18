@@ -71,7 +71,7 @@ namespace mycnn{
 			{
 				for(int i = 0; i < s_blob_->num(); ++i)
 				{
-					rand_vector(rand_vect_->p_data_d(i),rand_vect_->length(), 1 - _ratio);
+					rand_vector(rand_vect_->p_data_d(i),rand_vect_->length(), _ratio);
 					cacu_ssx(rand_vect_->p_data_d(i), o_blob_->length(), o_blob_->p_data_d(i));
 					cacu_scalex(o_blob_->p_data_d(i), o_blob_->length(), scale_);
 					o_blob_->_sync(i);
@@ -85,7 +85,7 @@ namespace mycnn{
 
 			if(train == _phrase)
 			{
-				rand_vector(rand_vect_->s_data(),rand_vect_->count(), 1 - _ratio);
+				rand_vector(rand_vect_->s_data(),rand_vect_->count(), _ratio);
 				cacu_ssx(rand_vect_->s_data(), o_blob_->count(), o_blob_->s_data());
 				cacu_scalex(o_blob_->s_data(), o_blob_->count(), scale_);
 			}

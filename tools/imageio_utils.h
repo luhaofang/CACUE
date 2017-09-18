@@ -116,12 +116,13 @@ namespace mycnn_tools{
 			GdiplusShutdown(gdiplustoken);
 		}
 #else
+
 #if __PARALLELTYPE__ == __CUDA__
-		static void imread_gpu(mycnn::float_t *p_data,string file_path_)
+		static void imread_gpu(mycnn::float_t *p_data,const char* file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_.c_str());
+				LOG_FATAL("file %s cannot be opened!",file_path_);
 
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
@@ -141,15 +142,17 @@ namespace mycnn_tools{
 			vec_t().swap(temp_);
 		}
 #endif
-		static void imread(mycnn::float_t *p_data,string file_path_)
+		static void imread(mycnn::float_t *p_data,const char* file_path_)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_.c_str());
+				LOG_FATAL("file %s cannot be opened!",file_path_);
+
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;
 
+			vec_t temp_(3*c_length);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
@@ -158,6 +161,7 @@ namespace mycnn_tools{
 					p_data[c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[1]);
 					p_data[2*c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
+
 		}
 
 

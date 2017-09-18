@@ -126,3 +126,8 @@ extern "C" void cacu_argmax_gpu(const mycnn::float_t *x,int length, unsigned int
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
+
+extern "C" void cacu_transpose_gpu(mycnn::float_t *mtx, const int m, const int n)
+{
+
+}

@@ -62,7 +62,7 @@ namespace mycnn{
 			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
 			_shift->set_lr(2);
 
-			//_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
+			_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
 
 			_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1, _phrase);
 			_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
@@ -72,7 +72,7 @@ namespace mycnn{
 
 			_std = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
 
-			//_one = cacu_allocator::create_blob(1, 1, 1, 1, 1,test);
+			_one = cacu_allocator::create_blob(1, 1, 1, 1, 1,test);
 
 			echo();
 		};
@@ -207,7 +207,7 @@ namespace mycnn{
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 
-				//cacu_saxpby(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), moving_average_fraction, _moving_scalar->count());
+				cacu_saxpby(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), moving_average_fraction, _moving_scalar->count());
 
 				//update history
 				//cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
@@ -310,7 +310,10 @@ namespace mycnn{
 		virtual const void load(std::ifstream& is) override {
 
 			_history_mean->load(is);
+			//_history_mean->set_data(0);
 			_history_var->load(is);
+			//_moving_scalar->load(is);
+			//_history_var->set_data(0);
 			//blob_base *blob = cacu_allocator::create_blob(1, 1, 1, 1, test);
 			//blob->load(is);
 			_scale->load(is);
@@ -321,6 +324,7 @@ namespace mycnn{
 
 			_history_mean->serializa(os);
 			_history_var->serializa(os);
+
 
 			_scale->serializa(os);
 			_shift->serializa(os);
@@ -393,6 +397,9 @@ namespace mycnn{
 
 		blob_base *_x;
 
+		blob *_moving_scalar;
+
+		blob *_one;
 
 	};
 };

@@ -204,7 +204,7 @@ network* create_res18net_without_fc(int batch_size_,phrase_type phrase_)
 	layer *ave_pool = new layer(512,7,1);
 	ave_pool->op(CACU_AVERAGE_POOLING,conv5->get_oblob());
 
-	layer_block *fc8 = fc_layer_nodropout(ave_pool->get_oblob(),1000);
+	layer_block *fc8 = fc_layer_nodropout(ave_pool->get_oblob(),5);
 	fc8->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
 	fc8->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc8->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);

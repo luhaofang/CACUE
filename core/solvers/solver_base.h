@@ -128,7 +128,7 @@ namespace mycnn{
 			switch(_regularize)
 			{
 			case L1 :
-				rand_vector(temp->s_data(),temp->count(),1);
+				rand_vector(temp->s_data(),temp->count(),0);
 				cacu_saxpy(temp->s_data(), weight_decay_, w_->s_diff(), w_->count());
 				break;
 			case L2 :

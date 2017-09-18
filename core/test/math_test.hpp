@@ -18,14 +18,10 @@ void test_math()
 	//average_pooling_op* op = layer_->get_op<average_pooling_op>(0);
 
 
-	network *net = create_alexnet();
-	weight *_b = new weight("test",1, 3, 227, 227,train);
+	weight *_b = new weight("test",1, 1, 5, 3,train);
 	_b->set_init_type(gaussian,1);
-	for(int i = 0 ; i < 1000; ++i){
-		clock_t start = clock();
-		net->predict();
-		clock_t end = clock();
-		LOG_INFO("time costs:%d",end - start);
-	}
+	cacu_print(_b->s_data(),_b->count());
+	cacu_transpose(_b->s_data(),5,3);
+	cacu_print(_b->s_data(),_b->count());
 
 }

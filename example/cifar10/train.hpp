@@ -50,7 +50,7 @@ void train_net()
 	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,train);
 	//net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
 	sgd_solver *sgd = new sgd_solver(net);
-	sgd->set_lr(0.01f);
+	sgd->set_lr(0.001f);
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
@@ -78,7 +78,7 @@ void train_net()
 		sgd->train_iter();
 		end = clock();
 
-		if(i % 1 == 0){
+		if(i % 10 == 0){
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),(end - start));
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
@@ -88,7 +88,7 @@ void train_net()
 
 	}
 	LOG_INFO("optimization is done!");
-	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_sparse.model");
+	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif
