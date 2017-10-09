@@ -42,7 +42,7 @@ const int KIMAGESIZE = 3 * 224 * 224;
 
 void readdata(const char* filename, mycnn::float_t *data_) {
 #if __PARALLELTYPE__ == __CUDA__
-	imageio_utils::imread_gpu(data_,filename);
+	imageio_utils::imread_gpu(data_,filename,KIMAGESIZE);
 #else
 	imageio_utils::imread(data_,filename);
 #endif
@@ -50,7 +50,7 @@ void readdata(const char* filename, mycnn::float_t *data_) {
 
 void readdata(const char* filename, mycnn::float_t *data_,mycnn::float_t *mean_) {
 #if __PARALLELTYPE__ == __CUDA__
-	imageio_utils::imread_gpu(data_,filename);
+	imageio_utils::imread_gpu(data_,filename,KIMAGESIZE);
 #else
 	imageio_utils::imread(data_,filename);
 #endif
@@ -70,7 +70,7 @@ vec_t compute_mean(chars_t &filepath, chars_t &filelist)
 	while( getline(is,file_) )
 	{
 		string filepath_ = filepath + file_;
-		imageio_utils::imread(&temp[0], filepath_.c_str());
+		imageio_utils::imread(&temp[0], filepath_.c_str(),KIMAGESIZE);
 #if __PARALLELTYPE__ == __OPENBLAS__
 		cacu_saxpy_oblas(&temp[0], 1, &mean[0],KIMAGESIZE);
 #elif __PARALLELTYPE__ == __MKL__

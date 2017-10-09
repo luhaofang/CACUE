@@ -65,9 +65,8 @@ namespace mycnn_tools{
 	public:
 #ifdef _WIN32
 #if __PARALLELTYPE__ == __CUDA__
-		static void imread_gpu(mycnn::float_t *p_data, string file_path_)
+		static void imread_gpu(mycnn::float_t *p_data, string file_path_,const int size)
 		{
-			vec_t temp_(3 * c_length);
 			GdiplusStartupInput gdiplusstartupinput;
 			ULONG_PTR gdiplustoken;
 			GdiplusStartup(&gdiplustoken, &gdiplusstartupinput, NULL);
@@ -76,6 +75,8 @@ namespace mycnn_tools{
 			unsigned int width = bmp->GetWidth();
 			Color color;
 			unsigned int c_length = height * width;
+			vec_t temp_(3 * c_length);
+			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++)
@@ -92,7 +93,7 @@ namespace mycnn_tools{
 			vec_t().swap(temp_);
 		}
 #endif
-		static void imread(mycnn::float_t *p_data, string file_path_)
+		static void imread(mycnn::float_t *p_data, string file_path_,const int size)
 		{
 			GdiplusStartupInput gdiplusstartupinput;
 			ULONG_PTR gdiplustoken;
@@ -102,6 +103,8 @@ namespace mycnn_tools{
 			unsigned int width = bmp->GetWidth();
 			Color color;
 			unsigned int c_length = height * width;
+			vec_t temp_(3 * c_length);
+			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++)
@@ -109,7 +112,7 @@ namespace mycnn_tools{
 					index = y * width + x;
 					bmp->GetPixel(x, y, &color);
 					p_data[index] = ((mycnn::float_t)color.GetRed());
-					p_data[c_length + index] = ((mycnn::float_t)color.GetGreen());
+					p_data[c_length + index] = ((mycnn::freinterpret_castloat_t)color.GetGreen());
 					p_data[2 * c_length + index] = ((mycnn::float_t)color.GetBlue());
 				}
 			delete bmp;
@@ -118,7 +121,7 @@ namespace mycnn_tools{
 #else
 
 #if __PARALLELTYPE__ == __CUDA__
-		static void imread_gpu(mycnn::float_t *p_data,const char* file_path_)
+		static void imread_gpu(mycnn::float_t *p_data, const char* file_path_, const int size)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -129,6 +132,7 @@ namespace mycnn_tools{
 			unsigned int c_length = height * width;
 
 			vec_t temp_(3*c_length);
+			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
@@ -141,8 +145,35 @@ namespace mycnn_tools{
 			cuda_copy2dev(p_data,&temp_[0],temp_.size());
 			vec_t().swap(temp_);
 		}
+
+		static void imread_resize_gpu(mycnn::float_t *p_data, const char* file_path_, int resize_h,int resize_w)
+		{
+			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
+			if(!src.data)
+				LOG_FATAL("file %s cannot be opened!",file_path_);
+
+			unsigned int height = resize_h;
+			unsigned int width = resize_w;
+			unsigned int c_length = height * width;
+			cv::Mat dst;
+			cv::resize(src,dst,cv::Size(resize_w,resize_h),(0,0),(0,0),cv::INTER_LINEAR);
+
+			vec_t temp_(3*c_length);
+			unsigned int index;
+			for (unsigned int y = 0; y < height; y++)
+				for (unsigned int x = 0; x < width; x++) {
+					index = y * width + x;
+					temp_[index] = ((mycnn::float_t) dst.at<cv::Vec3b>(y, x)[0]);
+					temp_[c_length + index] = ((mycnn::float_t) dst.at<cv::Vec3b>(y, x)[1]);
+					temp_[2*c_length + index] = ((mycnn::float_t) dst.at<cv::Vec3b>(y, x)[2]);
+				}
+
+			cuda_copy2dev(p_data,&temp_[0],temp_.size());
+			vec_t().swap(temp_);
+		}
+
 #endif
-		static void imread(mycnn::float_t *p_data,const char* file_path_)
+		static void imread(mycnn::float_t *p_data, const char* file_path_, const int size)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -153,6 +184,7 @@ namespace mycnn_tools{
 			unsigned int c_length = height * width;
 
 			vec_t temp_(3*c_length);
+			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
@@ -164,6 +196,30 @@ namespace mycnn_tools{
 
 		}
 
+
+		static void imread_resize(mycnn::float_t *p_data, const char* file_path_, int resize_h, int resize_w)
+		{
+			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
+			if(!src.data)
+				LOG_FATAL("file %s cannot be opened!",file_path_);
+
+			unsigned int height = resize_h;
+			unsigned int width = resize_w;
+			unsigned int c_length = height * width;
+
+			cv::Mat dst;
+			cv::resize(src,dst,cv::Size(resize_w,resize_h),(0,0),(0,0),cv::INTER_LINEAR);
+
+			vec_t temp_(3*c_length);
+			unsigned int index;
+			for (unsigned int y = 0; y < height; y++)
+				for (unsigned int x = 0; x < width; x++) {
+					index = y * width + x;
+					p_data[index] = ((mycnn::float_t) dst.at<cv::Vec3b>(y, x)[0]);
+					p_data[c_length + index] = ((mycnn::float_t) dst.at<cv::Vec3b>(y, x)[1]);
+					p_data[2*c_length + index] = ((mycnn::float_t) dst.at<cv::Vec3b>(y, x)[2]);
+				}
+		}
 
 #endif
 		static void save_mean_file(mycnn::float_t *p_data, string mean_file_ , int length_)
