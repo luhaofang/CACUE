@@ -34,5 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ops/test_convolution.hpp"
 #include "ops/test_innerproduct.hpp"
 #include "ops/test_ave_pooling.hpp"
+#include "ops/test_max_pooling.hpp"
 
-#include "math/test_math_function.hpp"
+//#include "math/test_math_function.hpp"

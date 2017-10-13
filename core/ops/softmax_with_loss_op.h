@@ -142,7 +142,7 @@ namespace mycnn{
 		float_t normalizer()
 		{
 			blob_base* blob_= s_blobs->at(0);
-			return _loss_weight * ((float_t)1/blob_->num());
+			return _loss_weight * ((float_t)(1)/blob_->num());
 		}
 
 		inline float_t loss(){return _loss[0];}

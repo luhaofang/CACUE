@@ -38,7 +38,7 @@ __global__ void _k_CACU_RELU_GPU(mycnn::float_t *x, int length) {
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
 		if(x[i] <= 0)
-			x[i] = 0;
+			x[i] = 0.0;
 	}
 }
 
@@ -64,7 +64,7 @@ __global__ void _k_CACU_RELU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g, int 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
 		if(x[i] <= 0)
-			g[i] = 0;
+			g[i] = 0.0;
 
 	}
 }
@@ -158,10 +158,10 @@ __global__ void _k_CACU_SOFTMAX_GPU(mycnn::float_t *x, int num, int length,mycnn
 		//bank conflict
 		max_data[tid] = max_data[0];
 
-		sum[tid] = 0;
+		sum[tid] = 0.0;
 		for (int i = tid; i < length; i += THREADNUM) {
 			yp[i] = exp(xp[i] - max_data[tid]);
-			atomicAdd(sum + tid, yp[i]);
+			sum[tid] += yp[i];
 		}
 
 		__syncthreads();
@@ -169,7 +169,7 @@ __global__ void _k_CACU_SOFTMAX_GPU(mycnn::float_t *x, int num, int length,mycnn
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				atomicAdd(sum+tid, sum[tid + acc_length]);
+				sum[tid] += sum[tid + acc_length];
 			acc_length /= 2;
 			__syncthreads();
 		}
@@ -281,7 +281,7 @@ __global__ void _k_CACU_SIGMOID_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g, i
 	int threadid = bid * THREADNUM + tid;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = g[i] * x[i] * (1 - x[i]);
+		y[i] = g[i] * x[i] * (1.0 - x[i]);
 	}
 
 }

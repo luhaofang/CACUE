@@ -48,11 +48,14 @@ namespace mycnn{
 			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
 			_bias ->set_lr(2);
 
+			_bias_multiplier = cacu_allocator::create_blob(1, data->num(), 1, 1, (float_t)(1), _phrase);
+
 			echo();
 		};
 
 		~inner_product_op(){
 
+			delete _bias_multiplier;
 		};
 
 		virtual const void check() override{
@@ -62,6 +65,8 @@ namespace mycnn{
 
 		virtual const void op() override {
 
+			blob *bias_multiplier = (blob*)_bias_multiplier;
+
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
 			em_blob *s_blob_ = (em_blob*)s_blob;
@@ -70,7 +75,8 @@ namespace mycnn{
 				cacu_sgemm(TRANS, NOTRANS, _w->s_data(),_w->num(), _w->length(),s_blob_->p_data_d(i),1, 1 ,o_blob_->p_data_d(i),0);
 				//bias added
 				if(_is_use_bias)
-					cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data_d(i),(float_t)1,o_blob_->length(),o_blob_->p_data_d(i));
+					cacu_saxpby(_bias->s_data(),(float_t)(1),o_blob_->p_data_d(i),(float_t)(1),_bias->count());
+					//cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data_d(i),(float_t)1,o_blob_->length(),o_blob_->p_data_d(i));
 				o_blob_->_sync(i);
 			}
 #else
@@ -82,12 +88,15 @@ namespace mycnn{
 			if(_is_use_bias)
 				for(int i = 0 ; i < s_blob_->num(); ++i)
 				{
-					cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data(i),(float_t)1,o_blob_->length(),o_blob_->p_data(i));
+					cacu_saxpby(_bias->s_data(),(float_t)(1),o_blob_->p_data(i),(float_t)(1),_bias->count());
+					//cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data(i),(float_t)1,o_blob_->length(),o_blob_->p_data(i));
 				}
 #endif
 		}
 
 		virtual const void grad() override{
+
+			blob *bias_multiplier = (blob*)_bias_multiplier;
 
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
@@ -113,7 +122,8 @@ namespace mycnn{
 			cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(),1,_w->s_diff(),1);
 			if(_is_use_bias)
 				//bias gradient
-				cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),1,_bias->count());
+				cacu_sgemv(NOTRANS,o_blob_->s_diff(),o_blob_->channel(),bias_multiplier->s_data(),bias_multiplier->count(),(float_t)(1),_bias->s_diff(),(float_t)(1));
+				//cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),1,_bias->count());
 #endif
 
 		}
@@ -164,5 +174,7 @@ namespace mycnn{
 
 		weight *_bias;
 		
+		blob_base *_bias_multiplier;
+
 	};
 };

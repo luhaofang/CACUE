@@ -74,6 +74,8 @@ namespace mycnn{
 
 			_one = cacu_allocator::create_blob(1, 1, 1, 1, 1,test);
 
+			_mutipler = cacu_allocator::create_blob(data->channel(),1,1,1,1.,test);
+
 			echo();
 		};
 
@@ -384,7 +386,7 @@ namespace mycnn{
 		weight *_shift;
 
 		blob *_mean;
-		
+
 		blob *_var;
 
 		blob *_std;
@@ -400,6 +402,7 @@ namespace mycnn{
 		blob *_moving_scalar;
 
 		blob *_one;
+		blob *_mutipler;
 
 	};
 };

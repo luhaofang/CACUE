@@ -51,7 +51,7 @@ namespace mycnn{
 			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < height; ++b){
-				acc = 0;
+				acc = 0.0;
 				for (i = 0; i < width; ++i)
 					acc += x[i + b*width];
 				y[b] = ((alpha * acc) + beta * y[b]);
@@ -62,7 +62,7 @@ namespace mycnn{
 			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < width; ++b){
-				acc = 0;
+				acc = 0.0;
 				for (i = 0; i < height; ++i)
 					acc += x[i * width + b];
 				y[b] = ((alpha * acc) + beta * y[b]);

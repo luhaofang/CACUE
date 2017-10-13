@@ -145,7 +145,7 @@ namespace mycnn{
 		 */
 		void __NORMALIZE__(weight *w_)
 		{
-			float_t normalizer_ = (float_t)1 ;
+			float_t normalizer_ = (float_t)(1) ;
 			cacu_scalex(w_->s_diff(), w_->count(), normalizer_);
 		}
 

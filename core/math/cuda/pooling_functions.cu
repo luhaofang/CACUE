@@ -125,7 +125,7 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(const mycnn::float_t *x, int kernel
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = 0;
+		y[i] = 0.0;
 
 		startset_i = (i % cin_length) / input_dim;
 		startset_j = (i % cin_length) % input_dim;
@@ -169,7 +169,7 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(const mycnn::float_t *x, int kernel
 
 					if (index[(outset_i * output_dim + outset_j) + c * cout_length]
 							== (unsigned int)(offset_i * widthx + offset_j)) {
-						atomicAdd(y+i, x[(outset_i * output_dim + outset_j) + c * cout_length]);
+						y[i] += (x[(outset_i * output_dim + outset_j) + c * cout_length]);
 					}
 				}
 			}
@@ -216,7 +216,7 @@ __global__ void _k_CACU_AVERAGE_POOLING_GPU(const mycnn::float_t *x, int kernel_
 
 		start_in = (data_row*input_dim + data_col) + c* cin_length;
 
-		sum = 0;
+		sum = 0.0;
 		count = 0;
 
 		for(int ki = 0 ; ki < kernel_size && data_row + ki < input_dim ; ++ki)
@@ -269,7 +269,7 @@ __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(const mycnn::float_t *x, int ke
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = 0;
+		y[i] = 0.0;
 
 		startset_i = (i % cin_length) / input_dim;
 		startset_j = (i % cin_length) % input_dim;
@@ -315,7 +315,7 @@ __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(const mycnn::float_t *x, int ke
 					if (outset_j == output_dim - 1)
 						pw = kernel_size - pad;
 
-					atomicAdd(y+i,(x[(outset_i * output_dim + outset_j) + c*cout_length] / (mycnn::float_t) (ph * pw)));
+					y[i] += (x[(outset_i * output_dim + outset_j) + c*cout_length] / (mycnn::float_t) (ph * pw));
 				}
 			}
 	}
@@ -521,7 +521,7 @@ __global__ void _k_CACU_COL2IMG_GPU(const mycnn::float_t *x, int kernel_size, in
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = 0;
+		y[i] = 0.0;
 		//row
 		startset_i = (i % cin_length) / input_dim;
 		//col
@@ -562,7 +562,7 @@ __global__ void _k_CACU_COL2IMG_GPU(const mycnn::float_t *x, int kernel_size, in
 						+ c * kernel_size * kernel_size;
 				outset_index = (outset_i * output_dim + outset_j) * block_size;
 
-				atomicAdd(y+i,x[outset_index + k_index]);
+				y[i] += x[outset_index + k_index];
 
 			}
 	}
@@ -616,7 +616,7 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(const mycnn::float_t *x, int kernel_size
 			c = i / cin_length_;
 
 			inset_index = ((startset_i - pad) * input_dim  + (startset_j - pad)) + c * cin_length;
-			y[inset_index] = 0;
+			y[inset_index] = 0.0;
 
 			outset_si = startset_i / stride;
 			outset_sj = startset_j / stride;
@@ -651,7 +651,7 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(const mycnn::float_t *x, int kernel_size
 							+ c * kernel_size * kernel_size;
 					outset_index = (outset_i * output_dim + outset_j);
 
-					atomicAdd(y+inset_index,x[outset_index + k_index * output_size]);
+					y[inset_index] += x[outset_index + k_index * output_size];
 				}
 		}
 	}
@@ -711,7 +711,7 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_GPU(const mycnn::float_t *x, int stride,
 
 				outset_index = (outset_si * output_dim + outset_sj);
 
-				atomicAdd(y+inset_index,x[outset_index + c * output_size]);
+				y[inset_index] += x[outset_index + c * output_size];
 
 			}
 		}

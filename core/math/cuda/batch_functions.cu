@@ -37,16 +37,16 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(const mycnn::float_t *x, int heigt
 	extern __shared__ mycnn::float_t shared_data[];
 
 	for (int i = bid; i < heigth; i += BLOCKNUM) {
-		shared_data[tid] = 0;
+		shared_data[tid] = 0.0;
 		for(int j = tid ;  j < width; j += THREADNUM){
-			atomicAdd(shared_data + tid,x[i * width + j]);
+			shared_data[tid] += x[i * width + j];
 		}
 		__syncthreads();
 
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
+				shared_data[tid] += shared_data[tid + acc_length];
 			acc_length /= 2;
 			__syncthreads();
 		}
@@ -64,10 +64,10 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(const mycnn::float_t *x, int heig
 	extern __shared__ mycnn::float_t shared_data[];
 
 	for (int i = bid; i < width; i += BLOCKNUM) {
-		shared_data[tid] = 0;
+		shared_data[tid] = 0.0;
 		for(int j = tid ;j < height; j += THREADNUM)
 		{
-			atomicAdd(shared_data + tid , x[j*width + i]);
+			shared_data[tid] += x[j*width + i];
 		}
 		__syncthreads();
 
@@ -75,7 +75,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(const mycnn::float_t *x, int heig
 		while(acc_length > 0){
 
 			if(tid < acc_length)
-				atomicAdd(shared_data + tid, shared_data[tid + acc_length]);
+				shared_data[tid] += shared_data[tid + acc_length];
 			acc_length /= 2;
 			__syncthreads();
 		}
@@ -266,13 +266,13 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(const mycnn::float_t *x,const mycnn::flo
 
 	for (int i = bid; i < channel; i += BLOCKNUM)
 	{
-		shared_data[tid] = 0;
+		shared_data[tid] = 0.0;
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{
 			data_row = j / cin_length;
 			data_col = j % cin_length;
 			set = data_row * length + data_col + i*cin_length;
-			atomicAdd(shared_data+tid ,
+			shared_data[tid] += (
 					(x[set] - mean[i])
 							* d_x[set]
 							* (-0.5	/ (std[i] * std[i] * std[i])));
@@ -283,7 +283,7 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(const mycnn::float_t *x,const mycnn::flo
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
+				shared_data[tid] += shared_data[tid + acc_length];
 			acc_length /= 2;
 			__syncthreads();
 		}
@@ -327,13 +327,13 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(const mycnn::float_t *x,const mycnn::floa
 
 	for (int i = bid; i < channel; i += BLOCKNUM)
 	{
-		shared_data[tid] = 0;
+		shared_data[tid] = 0.0;
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{
 			data_row = j / cin_length;
 			data_col = j % cin_length;
 			set = data_row * length + data_col + i * cin_length;
-			atomicAdd(shared_data+tid,((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (-2.0 * (x[set] - mean[i])))));
+			shared_data[tid] += ((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (-2.0 * (x[set] - mean[i]))));
 		}
 
 		__syncthreads();
@@ -341,7 +341,7 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(const mycnn::float_t *x,const mycnn::floa
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
+				shared_data[tid] += shared_data[tid + acc_length];
 			acc_length /= 2;
 			__syncthreads();
 		}
@@ -421,14 +421,14 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(const mycnn::float_t *_x,const mycnn::
 
 	for (int i = bid; i < channel; i += BLOCKNUM)
 	{
-		shared_data[tid] = 0;
+		shared_data[tid] = 0.0;
 
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{
 			data_row = j / cin_length;
 			data_col = j % cin_length;
 			set = data_row * length + data_col + i * cin_length;
-			atomicAdd(shared_data+tid,(_x[set] * d_y[set]));
+			shared_data[tid] += (_x[set] * d_y[set]);
 		}
 
 		__syncthreads();
@@ -436,7 +436,7 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(const mycnn::float_t *_x,const mycnn::
 		int acc_length = THREADNUM / 2;
 		while(acc_length > 0){
 			if(tid < acc_length)
-				atomicAdd(shared_data+tid,shared_data[tid + acc_length]);
+				shared_data[tid] += shared_data[tid + acc_length];
 			acc_length /= 2;
 			__syncthreads();
 		}

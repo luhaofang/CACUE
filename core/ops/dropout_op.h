@@ -105,7 +105,7 @@ namespace mycnn{
 			{
 				for(int i = 0; i < s_blob_->num(); ++i){
 					//ratio's scale implementation
-					cacu_ssx(rand_vect_->p_data_d(i),s_blob_->length(),s_blob_->p_diff_d(i));
+					cacu_ssx(rand_vect_->p_data_d(i), s_blob_->length(), s_blob_->p_diff_d(i));
 					cacu_scalex(s_blob_->p_diff_d(i), o_blob_->length(), scale_);
 					s_blob_->_sync(i);
 				}
@@ -118,7 +118,7 @@ namespace mycnn{
 			if(train == _phrase)
 			{
 				//ratio's scale implementation
-				cacu_ssx(rand_vect_->s_data(),s_blob_->count(),s_blob_->s_diff());
+				cacu_ssx(rand_vect_->s_data(), s_blob_->count(), s_blob_->s_diff());
 				cacu_scalex(s_blob_->s_diff(), o_blob_->count(), scale_);
 			}
 #endif
