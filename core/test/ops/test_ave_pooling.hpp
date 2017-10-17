@@ -16,21 +16,21 @@ TEST_CASE("average_pooling")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(1, 3, 224, 224, test);
-		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/feature_map.txt");
+		blob *b = cacu_allocator::create_blob(1, 64, 224, 224, test);
+		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial convolution op
-		args *args_ = new args(3,3,2,0,0,0);
+		args *args_ = new args(64,2,2,0,0,0);
 		average_pooling_op *op = (average_pooling_op *)operator_factory::create_op(CACU_AVERAGE_POOLING,input,args_);
 
 		for(int i =0;i < 1000;++i)
 			op->infer();
 
-		blob *validate_ = cacu_allocator::create_blob(1, 3, 112, 112, test);
-		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/conv_result.txt");
+		blob *validate_ = cacu_allocator::create_blob(1, 64, 112, 112, test);
+		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_conv_result.txt");
 
 		blob *output = op->out_data<blob>();
 
@@ -74,18 +74,18 @@ TEST_CASE("average_pooling_grad")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(1, 3, 224, 224,train);
-		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/feature_map.txt");
+		blob *b = cacu_allocator::create_blob(1, 64, 224, 224,train);
+		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial average_pooing op
-		args *args_ = new args(3,3,2,0,224,3);
+		args *args_ = new args(64,2,2,0,224,64);
 		average_pooling_op *op = (average_pooling_op *)operator_factory::create_op(CACU_AVERAGE_POOLING,input,args_);
 
 		blob *output = op->out_data<blob>();
-		blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/grad_map.txt");
+		blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_grad_map.txt");
 
 		for(int i = 0 ; i < 1; ++i){
 			b->_RESET_DIFF();
@@ -93,8 +93,8 @@ TEST_CASE("average_pooling_grad")
 			op->grad();
 		}
 
-		blob *validate_ = cacu_allocator::create_blob(1, 3, 224, 224,test);
-		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/conv_grad_result.txt");
+		blob *validate_ = cacu_allocator::create_blob(1, 64, 224, 224,test);
+		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_conv_grad_result.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
 		cacu_saxpby(b->s_diff(),-1.0,validate_->s_data(),1.0,validate_->count());

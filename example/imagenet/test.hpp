@@ -50,12 +50,12 @@ void test_net()
 	int max_iter = 1000;
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(0);
+	cuda_set_device(1);
 #endif
 
-	network *net = create_res50net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_40000.model");//vgg16net_100000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/vggnet_10000.model");//vggnet_40000.model");
 
 	//net->check();
 	op_injector *injector = new op_injector(net->get_op(29));
@@ -109,19 +109,22 @@ void test_net()
 	unsigned long diff;
 	for (int i = 0 ; i < max_iter; ++i)
 	{
-		gettimeofday(&start,NULL);
 
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == ALLIMAGE)
 				break;
 			//load image data
-			readdata(full_data[step_index],input_data->p_data(j),mean_->s_data());
+			readdata(full_data[step_index].c_str(),input_data->p_data(j),mean_->s_data());
 			//readdata("/home/seal/4T/imagenet/test1.JPEG",input_data->p_data(j));//,mean_->s_data());
 			step_index += 1;
 		}
 
+		gettimeofday(&start,NULL);
+
 		net->predict();
+
+		gettimeofday(&end,NULL);
 
 		//injector->get_outblob_count();
 		for(int j = 0 ; j < batch_size ; ++j)
@@ -132,8 +135,6 @@ void test_net()
 				count += 1.0;
 			}
 		}
-
-		gettimeofday(&end,NULL);
 
 		if(i % 1 == 0){
 			diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;

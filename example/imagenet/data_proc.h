@@ -54,7 +54,7 @@ void readdata(const char* filename, mycnn::float_t *data_,mycnn::float_t *mean_)
 #else
 	imageio_utils::imread(data_,filename);
 #endif
-	cacu_saxpy(mean_,(mycnn::float_t)-1,data_,KIMAGESIZE);
+	cacu_saxpy(mean_,(mycnn::float_t)(-1),data_,KIMAGESIZE);
 }
 
 vec_t compute_mean(chars_t &filepath, chars_t &filelist)

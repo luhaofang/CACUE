@@ -100,7 +100,9 @@ namespace mycnn {
 
 	typedef vector<float_t*> vec_f;
 
-	rand_t cacu_rand();
+	//rand_t cacu_rand();
+
+	//rand_t *rand;
 
 
 };

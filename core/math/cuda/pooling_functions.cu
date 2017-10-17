@@ -448,6 +448,8 @@ __global__ void _k_CACU_IMG2COL_PAD_GPU(const mycnn::float_t *x, int kernel_size
 			c = i / kernel_length;
 			if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
 				y[j + i * output_size] = x[(input_h - pad) * input_dim + (input_w - pad) + c * cin_length];
+			else
+				y[j + i * output_size] = 0.0;
 		}
 	}
 }

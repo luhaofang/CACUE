@@ -53,7 +53,7 @@ namespace mycnn {
 				data_.push_back(fp_);
 			}
 			is.close();
-
+			//LOG_DEBUG("data size : %d",data_.size());
 			b->copy_data_io(data_);
 		}
 

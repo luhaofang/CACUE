@@ -9,7 +9,7 @@
 
 using namespace mycnn;
 
-TEST_CASE("inner_product")
+TEST_CASE("batch_normalize")
 {
 
 
@@ -17,23 +17,23 @@ TEST_CASE("inner_product")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(1, 4096, 1, 1,test);
-		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/feature_map.txt");
+		blob *b = cacu_allocator::create_blob(1, 3, 224, 224,train);
+		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial convolution op
-		args *args_ = new args(1000,0,0,0,0,0);
-		inner_product_op *op = (inner_product_op *)operator_factory::create_op(CACU_INNERPRODUCT,input,args_);
-		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/kernel.txt");
-		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bias.txt");
+		args *args_ = new args(3,0,0,0,0,0);
+		batch_normalize_op *op = (batch_normalize_op *)operator_factory::create_op(CACU_BATCH_NORMALIZE,input,args_);
+		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/bias.txt");
 
 		for(int i = 0 ; i<10; ++i)
 			op->infer();
 
-		blob *validate_ = cacu_allocator::create_blob(1, 1000, 1, 1,test);
-		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/conv_result.txt");
+		blob *validate_ = cacu_allocator::create_blob(1, 3, 224, 224,test);
+		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/conv_result.txt");
 
 		blob *output = op->out_data<blob>();
 
@@ -68,7 +68,7 @@ TEST_CASE("inner_product")
 }
 
 
-TEST_CASE("inner_product_multidata")
+TEST_CASE("batch_normalize_multidata")
 {
 
 
@@ -76,25 +76,25 @@ TEST_CASE("inner_product_multidata")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(100, 4096, 1, 1,test);
+		blob *b = cacu_allocator::create_blob(100, 3, 224, 224,train);
 		for(int i = 0 ; i< 100; ++i)
-			blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/feature_map.txt",i);
+			blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/feature_map.txt",i);
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial convolution op
-		args *args_ = new args(1000,0,0,0,0,0);
-		inner_product_op *op = (inner_product_op *)operator_factory::create_op(CACU_INNERPRODUCT,input,args_);
-		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/kernel.txt");
-		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bias.txt");
+		args *args_ = new args(3,0,0,0,0,0);
+		batch_normalize_op *op = (batch_normalize_op *)operator_factory::create_op(CACU_BATCH_NORMALIZE,input,args_);
+		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/bias.txt");
 
 		for(int i = 0 ; i<10; ++i)
 			op->infer();
 
-		blob *validate_ = cacu_allocator::create_blob(100, 1000, 1, 1,test);
+		blob *validate_ = cacu_allocator::create_blob(100, 3, 224, 224,test);
 		for(int i = 0 ; i< 100; ++i)
-			blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/conv_result.txt",i);
+			blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/conv_result.txt",i);
 
 		blob *output = op->out_data<blob>();
 
@@ -128,7 +128,7 @@ TEST_CASE("inner_product_multidata")
 	}
 }
 
-TEST_CASE("inner_product_grad")
+TEST_CASE("batch_normalize_grad")
 {
 
 
@@ -137,20 +137,20 @@ TEST_CASE("inner_product_grad")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(1, 4096, 1, 1,train);
-		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/feature_map.txt");
+		blob *b = cacu_allocator::create_blob(1, 3, 224, 224,train);
+		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial convolution op
-		args *args_ = new args(1000,0,0,0,0,0);
-		inner_product_op *op = (inner_product_op *)operator_factory::create_op(CACU_INNERPRODUCT,input,args_);
-		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/kernel.txt");
-		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bias.txt");
+		args *args_ = new args(3,0,0,0,0,0);
+		batch_normalize_op *op = (batch_normalize_op *)operator_factory::create_op(CACU_BATCH_NORMALIZE,input,args_);
+		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/bias.txt");
 
 		blob *output = op->out_data<blob>();
-		blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/grad_map.txt");
+		blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/grad_map.txt");
 
 		for(int i = 0 ; i < 10; ++i){
 			b->_RESET_DIFF();
@@ -160,13 +160,13 @@ TEST_CASE("inner_product_grad")
 			op->grad();
 		}
 
-		blob *validate_ = cacu_allocator::create_blob(1, 4096, 1, 1,test);
-		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/conv_grad_result.txt");
+		blob *validate_ = cacu_allocator::create_blob(1, 3, 224, 224,test);
+		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/conv_grad_result.txt");
 
-		blob *validate_k = cacu_allocator::create_blob(1000, 4096, 1, 1,test);
-		blob_ops::read_data2blob(validate_k,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/fgrad.txt");
-		blob *validate_b = cacu_allocator::create_blob(1000, 1, 1, 1,test);
-		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bgrad.txt");
+		blob *validate_k = cacu_allocator::create_blob(3, 1, 1, 1,test);
+		blob_ops::read_data2blob(validate_k,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/fgrad.txt");
+		blob *validate_b = cacu_allocator::create_blob(3, 1, 1, 1,test);
+		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/bgrad.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
 
@@ -237,7 +237,7 @@ TEST_CASE("inner_product_grad")
 }
 
 
-TEST_CASE("inner_product_grad_multidata")
+TEST_CASE("batch_normalize_grad_multidata")
 {
 
 
@@ -246,22 +246,22 @@ TEST_CASE("inner_product_grad_multidata")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(100, 4096, 1, 1,train);
+		blob *b = cacu_allocator::create_blob(100, 3, 224, 224,train);
 		for(int i = 0 ; i< 100; ++i)
-			blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/feature_map.txt",i);
+			blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/feature_map.txt",i);
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial convolution op
-		args *args_ = new args(1000,0,0,0,0,0);
-		inner_product_op *op = (inner_product_op *)operator_factory::create_op(CACU_INNERPRODUCT,input,args_);
-		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/kernel.txt");
-		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bias.txt");
+		args *args_ = new args(3,0,0,0,0,0);
+		batch_normalize_op *op = (batch_normalize_op *)operator_factory::create_op(CACU_BATCH_NORMALIZE,input,args_);
+		blob_ops::read_data2blob(op->get_weight(0),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/kernel.txt");
+		blob_ops::read_data2blob(op->get_weight(1),"/home/seal/cuda-workspace/CACUE/core/test/python/bn/bias.txt");
 
 		blob *output = op->out_data<blob>();
 		for(int i = 0 ; i< 100; ++i)
-			blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/grad_map.txt",i);
+			blob_ops::read_diff2blob(output,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/grad_map.txt",i);
 
 		for(int i = 0 ; i < 1; ++i){
 			b->_RESET_DIFF();
@@ -271,14 +271,14 @@ TEST_CASE("inner_product_grad_multidata")
 			op->grad();
 		}
 
-		blob *validate_ = cacu_allocator::create_blob(100, 4096, 1, 1,test);
+		blob *validate_ = cacu_allocator::create_blob(100, 3, 224, 224,test);
 		for(int i = 0 ; i< 100; ++i)
-			blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/conv_grad_result.txt",i);
+			blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/conv_grad_result.txt",i);
 
-		blob *validate_k = cacu_allocator::create_blob(1000, 4096, 1, 1,test);
-		blob_ops::read_data2blob(validate_k,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/fgrad.txt");
-		blob *validate_b = cacu_allocator::create_blob(1000, 1, 1, 1,test);
-		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bgrad.txt");
+		blob *validate_k = cacu_allocator::create_blob(3, 1, 1, 1,test);
+		blob_ops::read_data2blob(validate_k,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/fgrad.txt");
+		blob *validate_b = cacu_allocator::create_blob(3, 1, 1, 1,test);
+		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/bgrad.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
 

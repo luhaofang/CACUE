@@ -74,7 +74,8 @@ namespace mycnn{
 
 			_one = cacu_allocator::create_blob(1, 1, 1, 1, 1,test);
 
-			_mutipler = cacu_allocator::create_blob(data->channel(),1,1,1,1.,test);
+			_mutipler = cacu_allocator::create_blob(1,data->channel_length(),1,1,1.0,test);
+			_num_mutipler = cacu_allocator::create_blob(1,data->num(),1,1,1.0,test);
 
 			echo();
 		};
@@ -90,6 +91,9 @@ namespace mycnn{
 			delete _std;
 
 			delete _dim_sum;
+
+			delete _mutipler;
+			delete _num_mutipler;
 
 			if(_x != NULL)
 				delete _x;
@@ -183,10 +187,13 @@ namespace mycnn{
 			{
 				float_t bias_correction_factor = m > 1.0 ? (m) / (m - 1.0) : 1.0;
 
-				cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, dim_sum_->s_data(),0, s_blob_->length()/s_blob_->channel());
-				cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _mean->s_data(), 0, s_blob_->channel());
-
-				cacu_scalex(_mean->s_data(), _mean->count(), ((float_t)1.0 / m));
+				//cacu_print(_mean->s_data(), _mean->count());
+				//cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, dim_sum_->s_data(),0, s_blob_->length()/s_blob_->channel());
+				cacu_sgemv(TRANS, s_blob_->s_data(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(),0);
+				//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _mean->s_data(), 0, s_blob_->channel());
+				cacu_sgemv(NOTRANS, dim_sum_->s_data(), _mean->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _mean->s_data(), 0);
+				//cacu_print(_mean->s_data(), _mean->count());
+				cacu_scalex(_mean->s_data(), _mean->count(), (1.0 / m));
 
 				for (int i = 0; i < s_blob_->num(); ++i)
 					cacu_ssxpy(_mean->s_data(),(float_t)(-1),_mean->count(),s_blob_->p_data(i),(float_t)(1),s_blob_->length(),o_blob_->p_data(i));
@@ -194,9 +201,11 @@ namespace mycnn{
 				//for saving space here we use x_ for container calculate x^2
 				cacu_sqr(o_blob_->s_data(), o_blob_->count(), x_->s_data());
 
-				cacu_sumbysize(BYWIDTH, x_->s_data(), o_blob_->count(), 1,dim_sum_->s_data(), 0, o_blob_->length()/o_blob_->channel());
-				cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), o_blob_->channel() * o_blob_->num(), 1, _var->s_data(), 0, o_blob_->channel());
-				cacu_scalex(_var->s_data(), _var->count(), ((float_t)1.0 / m));
+				//cacu_sumbysize(BYWIDTH, x_->s_data(), o_blob_->count(), 1,dim_sum_->s_data(), 0, o_blob_->length()/o_blob_->channel());
+				cacu_sgemv(TRANS, x_->s_data(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(), (float_t)(0));
+				//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), o_blob_->channel() * o_blob_->num(), 1, _var->s_data(), 0, o_blob_->channel());
+				cacu_sgemv(NOTRANS, dim_sum_->s_data(), _var->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _var->s_data(), (float_t)(0));
+				cacu_scalex(_var->s_data(), _var->count(), (1.0 / m));
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
@@ -369,7 +378,7 @@ namespace mycnn{
 
 		float_t moving_average_fraction = 0.9f;
 
-		float_t epsilon = 0.001f;
+		float_t epsilon = 0.00001f;
 
 		inline virtual const void set_phrase(phrase_type phrase_) override {
 			_phrase = phrase_;
@@ -403,6 +412,7 @@ namespace mycnn{
 
 		blob *_one;
 		blob *_mutipler;
+		blob *_num_mutipler;
 
 	};
 };

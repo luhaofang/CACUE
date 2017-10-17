@@ -105,14 +105,14 @@ namespace mycnn{
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-
+			//cacu_print(s_blob_->s_data(),1000);
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
 				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
 				//forward convolution data
 				for (int g = 0 ; g < _group ; ++g)
 					cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->width()*o_blob_->height(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
-
+				//cacu_print(o_blob_->p_data(i),1000);
 				//add bias
 				if(_is_use_bias)
 					cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_data(), _bias->count(),(float_t)(1),o_blob_->p_data(i),(float_t)(1));

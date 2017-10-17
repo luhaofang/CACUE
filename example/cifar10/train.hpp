@@ -46,6 +46,8 @@ void train_net()
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(1);
 #endif
+	//set random seed
+	set_rand_seed();
 
 	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,train);
 	//net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");

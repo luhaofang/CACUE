@@ -29,36 +29,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 
 
-namespace mycnn_tools {
+namespace mycnn {
 
-	class rand_t {
+	void set_rand_seed(){
+		srand((unsigned int)time(NULL));
+	}
 
-	public:
+	float_t gaussrand(float_t std) {
+		float_t u = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
+		float_t v = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
+		float_t r = u * u + v * v;
+		if (r == 0 || r > 1)
+			return gaussrand(std);
+		float_t c = sqrt(-2 * log(r) / r);
+		return u * c * std;
+	}
 
-		rand_t() {
-			srand((unsigned int)time(NULL));
-		}
+	float_t urand(float_t min, float_t max) {
 
-		~rand_t() {
-		}
-
-		float_t gaussrand(float_t std) {
-			float_t u = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t v = ((float_t)rand() / (RAND_MAX)) * 2 - 1;
-			float_t r = u * u + v * v;
-			if (r == 0 || r > 1)
-				return gaussrand(std);
-			float_t c = sqrt(-2 * log(r) / r);
-			return u * c * std;
-		}
-
-		float_t urand(float_t min, float_t max) {
-
-			float_t pRandomValue = ((float_t)rand() / (float_t)RAND_MAX);
-			pRandomValue = pRandomValue * (max - min) + min;
-			return pRandomValue;
-		}
-
-	};
-
+		float_t pRandomValue = ((float_t)rand() / (float_t)RAND_MAX);
+		pRandomValue = pRandomValue * (max - min) + min;
+		return pRandomValue;
+	}
 };

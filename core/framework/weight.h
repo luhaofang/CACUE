@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../tools/rand_t.h"
+//#include "../../tools/rand_t.h"
 #include "../math/cuda/cuda_utils.h"
 
 namespace mycnn{
@@ -58,7 +58,7 @@ namespace mycnn{
 		inline void set_init_type(param_init_type type, float_t value = 0)
 		{
 			vec_t w(_length);
-			rand_t *rand = new rand_t();
+			//rand_t *rand = new rand_t();
 			switch (type)
 			{
 			case mycnn::constant:
@@ -68,16 +68,16 @@ namespace mycnn{
 			case mycnn::xavier:
 				value = sqrt((float_t) 3.0/ (num() * height() * width()));
 				for (int i = 0; i < _length; ++i)
-					w[i] = rand->urand(-value, value);
+					w[i] = urand(-value, value);
 				break;
 			case mycnn::gaussian:
 				for (int i = 0; i < _length; ++i)
-					w[i] = rand->gaussrand(value);
+					w[i] = gaussrand(value);
 				break;
 			case mycnn::msra:
 				value = sqrt((float_t) 2.0/ (num() * height() * width()));
 				for (int i = 0; i < _length; ++i)
-					w[i] = rand->gaussrand(value);
+					w[i] = gaussrand(value);
 				break;
 			default:
 				LOG_FATAL("unknown weight type for [%s]!",_name.c_str());
@@ -92,7 +92,7 @@ namespace mycnn{
 				s_data_[i] = w[i];
 #endif
 			vec_t().swap(w);
-			delete rand;
+			//delete rand;
 		}
 
 

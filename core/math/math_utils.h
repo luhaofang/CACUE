@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 #include "math_config.h"
 #include "cuda/cuda_utils.h"
-#include "../../tools/rand_t.h"
+//#include "../../tools/rand_t.h"
 
 using namespace std;
 #ifdef _WIN32

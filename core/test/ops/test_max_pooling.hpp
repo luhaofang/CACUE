@@ -16,20 +16,20 @@ TEST_CASE("max_pooling")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(1, 3, 224, 224, test);
+		blob *b = cacu_allocator::create_blob(1, 64, 224, 224, test);
 		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/m_feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial convolution op
-		args *args_ = new args(3,3,2,0,0,0);
+		args *args_ = new args(64,2,2,0,0,0);
 		max_pooling_op *op = (max_pooling_op *)operator_factory::create_op(CACU_MAX_POOLING,input,args_);
 
 		for(int i =0;i < 1000;++i)
 			op->infer();
 
-		blob *validate_ = cacu_allocator::create_blob(1, 3, 112, 112, test);
+		blob *validate_ = cacu_allocator::create_blob(1, 64, 112, 112, test);
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/m_conv_result.txt");
 
 		blob *output = op->out_data<blob>();
@@ -74,14 +74,14 @@ TEST_CASE("max_pooling_grad")
 #if  __PARALLELTYPE__ == __CUDA__
 		cublasCreate_v2(&handle);
 #endif
-		blob *b = cacu_allocator::create_blob(1, 3, 224, 224,train);
+		blob *b = cacu_allocator::create_blob(1, 64, 224, 224,train);
 		blob_ops::read_data2blob(b,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/m_feature_map.txt");
 
 		blobs *input = cacu_allocator::create_blobs();
 		input->push_back(b);
 
 		//initial max_pooing op
-		args *args_ = new args(3,3,2,0,224,3);
+		args *args_ = new args(64,2,2,0,224,64);
 		max_pooling_op *op = (max_pooling_op *)operator_factory::create_op(CACU_MAX_POOLING,input,args_);
 
 		blob *output = op->out_data<blob>();
@@ -93,7 +93,7 @@ TEST_CASE("max_pooling_grad")
 			op->grad();
 		}
 
-		blob *validate_ = cacu_allocator::create_blob(1, 3, 224, 224,test);
+		blob *validate_ = cacu_allocator::create_blob(1, 64, 224, 224,test);
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/m_conv_grad_result.txt");
 
 #if __PARALLELTYPE__ == __CUDA__

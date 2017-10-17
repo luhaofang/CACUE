@@ -32,11 +32,13 @@
 #include "math_function_openmp.h"
 #include "math_function_oblas.h"
 #include "math_function_mkl.h"
+#include "rand_t.h"
 
 #include "cuda/math_functions_cuda.h"
 
 #include "../utils/configs.h"
 #include "../utils/data_defination.h"
+
 
 namespace mycnn {
 
@@ -93,7 +95,7 @@ inline void cacu_scalex(float *x, int length, const float a) {
 
 /**
  * @cacu_sgemv
- * math z = X*y:
+ * math z = a*X*y + b*z:
  * trans_: whether x is needed to transpose
  */
 inline void cacu_sgemv(TRANSPOSE trans_, const float *x, int x_height,
@@ -189,23 +191,23 @@ inline void cacu_saxpy_atomic(const float_t *x, float_t a, float_t *y,
  * length: the input data's size
  */
 inline void rand_vector(float_t *vector_, int length, const float_t ratio_) {
-	rand_t *rand = new rand_t();
+
 #if __PARALLELTYPE__ == __CUDA__
 	vec_t v_(length);
 
 	for (int i = 0; i < length; ++i) {
-		if (rand->urand(0, 1) >= ratio_)
+		if (urand(0, 1) >= ratio_)
 		v_[i] = 1.0;
 	}
 	cuda_copy2dev(vector_, &v_[0], length);
 	vec_t().swap(v_);
 #else
 	for (int i = 0; i < length; ++i) {
-		if (rand->urand(0, 1) >= ratio_)
+		if (urand(0, 1) >= ratio_)
 			vector_[i] = 1.0;
 	}
 #endif
-	delete rand;
+
 }
 
 /**

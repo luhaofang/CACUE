@@ -49,15 +49,17 @@ void train_net() {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(1);
 #endif
+	//set random seed
+	set_rand_seed();
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/vggnet_73w.log",
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/vggnet_79w.log",
 			ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
 	//log output
 	std::ofstream precious_logger(
-			"/home/seal/4T/cacue/imagenet/vggnet_73w_precious.log",
+			"/home/seal/4T/cacue/imagenet/vggnet_79w_precious.log",
 			ios::binary);
 	precious_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
@@ -65,11 +67,11 @@ void train_net() {
 	network *net = create_vgg_16_net(batch_size, train);
 	//network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/vggnet_20000.model");//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/vggnet_60000.model");//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.0001f);
+	sgd->set_lr(0.00001f);
 	sgd->set_weight_decay(0.0005f);
 	sgd->set_regularize(L2);
 
