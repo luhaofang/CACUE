@@ -44,7 +44,7 @@ void readdata(const char* filename, mycnn::float_t *data_) {
 #if __PARALLELTYPE__ == __CUDA__
 	imageio_utils::imread_gpu(data_,filename,KIMAGESIZE);
 #else
-	imageio_utils::imread(data_,filename);
+	imageio_utils::imread(data_,filename,KIMAGESIZE);
 #endif
 }
 
@@ -52,7 +52,7 @@ void readdata(const char* filename, mycnn::float_t *data_,mycnn::float_t *mean_)
 #if __PARALLELTYPE__ == __CUDA__
 	imageio_utils::imread_gpu(data_,filename,KIMAGESIZE);
 #else
-	imageio_utils::imread(data_,filename);
+	imageio_utils::imread(data_,filename,KIMAGESIZE);
 #endif
 	cacu_saxpy(mean_,(mycnn::float_t)(-1),data_,KIMAGESIZE);
 }

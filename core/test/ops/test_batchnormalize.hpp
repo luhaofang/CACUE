@@ -38,6 +38,8 @@ TEST_CASE("batch_normalize")
 		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __CUDA__
+		//cacu_print(output->s_data(),100);
+		//cacu_print(validate_->s_data(),100);
 		cacu_saxpby(output->s_data(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());

@@ -73,6 +73,7 @@ namespace mycnn{
 			bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
 			cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
+			//cacu_print(o_blob_->s_data(),o_blob_->count());
 			cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 #endif
 

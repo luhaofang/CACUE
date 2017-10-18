@@ -26,7 +26,7 @@ TEST_CASE("max_pooling")
 		args *args_ = new args(64,2,2,0,0,0);
 		max_pooling_op *op = (max_pooling_op *)operator_factory::create_op(CACU_MAX_POOLING,input,args_);
 
-		for(int i =0;i < 1000;++i)
+		for(int i =0;i < 1;++i)
 			op->infer();
 
 		blob *validate_ = cacu_allocator::create_blob(1, 64, 112, 112, test);
@@ -35,6 +35,8 @@ TEST_CASE("max_pooling")
 		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __CUDA__
+		//cacu_print(output->s_data(),1000);
+		//cacu_print(validate_->s_data(),1000);
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -97,6 +99,7 @@ TEST_CASE("max_pooling_grad")
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/m_conv_grad_result.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
+
 		cacu_saxpby(b->s_diff(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());

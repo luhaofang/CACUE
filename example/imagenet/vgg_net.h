@@ -34,8 +34,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace mycnn;
 
 
+layer_block* vgg_conv_relu(blob_base* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
+{
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	l->op(CACU_CONVOLUTION, data)->op(activation_op);
+	clock_t end = clock();
+	*lb << l;
+	return lb;
+}
 
+layer_block* vgg_conv_relu_maxpooling(blob_base* data,int output_channel, int kernel_size, int stride = 1, int pad = 0,op_name activation_op = CACU_RELU)
+{
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+	l->op(CACU_CONVOLUTION, data)->op(activation_op);
+	layer *al = new layer(output_channel, 2, 2);
+	al->op(CACU_MAX_POOLING, l->get_oblob());
+	clock_t end = clock();
+	*lb << l << al;
+	return lb;
+}
 
+layer_block* vgg_fc(blob_base* data, int output_channel, int kernel_size = 0, int stride = 0, int pad = 0, op_name activation_op = CACU_RELU)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel);
+		l->op(CACU_INNERPRODUCT, data)->op(activation_op)->op(CACU_DROPOUT);
+		clock_t end = clock();
+		*lb << l;
+		return lb;
+	}
 
 network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 {
@@ -48,67 +80,67 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 
 	network *net = new network(input_datas_);
 
-	layer_block *conv1_1 = conv_layer_nopooling(blob_, 64, 3, 1, 1);
+	layer_block *conv1_1 = vgg_conv_relu(blob_, 64, 3, 1, 1);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv1_2 = conv_layer_maxpooling_relu_first(conv1_1->get_oblob(), 64, 3, 1, 1);
+	layer_block *conv1_2 = vgg_conv_relu_maxpooling(conv1_1->get_oblob(), 64, 3, 1, 1);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv2_1 = conv_layer_nopooling(conv1_2->get_oblob(), 128, 3, 1, 1);
+	layer_block *conv2_1 = vgg_conv_relu(conv1_2->get_oblob(), 128, 3, 1, 1);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv2_2 = conv_layer_maxpooling_relu_first(conv2_1->get_oblob(), 128, 3, 1, 1);
+	layer_block *conv2_2 = vgg_conv_relu_maxpooling(conv2_1->get_oblob(), 128, 3, 1, 1);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv3_1 = conv_layer_nopooling(conv2_2->get_oblob(), 256, 3, 1, 1);
+	layer_block *conv3_1 = vgg_conv_relu(conv2_2->get_oblob(), 256, 3, 1, 1);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv3_2 = conv_layer_nopooling(conv3_1->get_oblob(), 256, 3, 1, 1);
+	layer_block *conv3_2 = vgg_conv_relu(conv3_1->get_oblob(), 256, 3, 1, 1);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv3_3 = conv_layer_maxpooling_relu_first(conv3_2->get_oblob(), 256, 3, 1, 1);
+	layer_block *conv3_3 = vgg_conv_relu_maxpooling(conv3_2->get_oblob(), 256, 3, 1, 1);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv4_1 = conv_layer_nopooling(conv3_3->get_oblob(), 512, 3, 1, 1);
+	layer_block *conv4_1 = vgg_conv_relu(conv3_3->get_oblob(), 512, 3, 1, 1);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv4_2 = conv_layer_nopooling(conv4_1->get_oblob(), 512, 3, 1, 1);
+	layer_block *conv4_2 = vgg_conv_relu(conv4_1->get_oblob(), 512, 3, 1, 1);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv4_3 = conv_layer_maxpooling_relu_first(conv4_2->get_oblob(), 512, 3, 1, 1);
+	layer_block *conv4_3 = vgg_conv_relu_maxpooling(conv4_2->get_oblob(), 512, 3, 1, 1);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv5_1 = conv_layer_nopooling(conv4_3->get_oblob(), 512, 3, 1, 1);
+	layer_block *conv5_1 = vgg_conv_relu(conv4_3->get_oblob(), 512, 3, 1, 1);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv5_2 = conv_layer_nopooling(conv5_1->get_oblob(), 512, 3, 1, 1);
+	layer_block *conv5_2 = vgg_conv_relu(conv5_1->get_oblob(), 512, 3, 1, 1);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *conv5_3 = conv_layer_maxpooling_relu_first(conv5_2->get_oblob(), 512, 3, 1, 1);
+	layer_block *conv5_3 = vgg_conv_relu_maxpooling(conv5_2->get_oblob(), 512, 3, 1, 1);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
@@ -224,7 +256,7 @@ network* create_vgg_16_net_without_fc(int batch_size,phrase_type phrase_)
 	conv5_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer *al = new layer(512,2,2);
-	al->op(CACU_AVERAGE_POOLING, conv5_3->get_oblob());
+	al->op(CACU_MAX_POOLING, conv5_3->get_oblob());
 
 	layer_block *fc6 = fc_layer(al->get_oblob(),4096);
 	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
@@ -241,7 +273,7 @@ network* create_vgg_16_net_without_fc(int batch_size,phrase_type phrase_)
 	fc8->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc8->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	*net << conv1_1 << conv1_2 << conv2_1 << conv2_2 << conv3_1 << conv3_2 << conv3_3 << conv4_1 << conv4_2 << conv4_3 << conv5_1 << conv5_2 << conv5_3 << al ;//<< fc6 << fc7 << fc8;
+	*net << conv1_1 << conv1_2 << conv2_1 << conv2_2 << conv3_1 << conv3_2 << conv3_3 << conv4_1 << conv4_2 << conv4_3 << conv5_1 << conv5_2 << conv5_3 << al << fc6 << fc7 << fc8;
 
 	return net;
 }

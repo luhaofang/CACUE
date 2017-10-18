@@ -44,7 +44,7 @@ void train_net()
 	int max_iter = 5000;
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 	//set random seed
 	set_rand_seed();

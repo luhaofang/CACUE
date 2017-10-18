@@ -35,6 +35,8 @@ TEST_CASE("average_pooling")
 		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __CUDA__
+		//cacu_print(output->s_data(),1000);
+		//cacu_print(validate_->s_data(),1000);
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -89,7 +91,7 @@ TEST_CASE("average_pooling_grad")
 
 		for(int i = 0 ; i < 1; ++i){
 			b->_RESET_DIFF();
-			op->op();
+			//op->op();
 			op->grad();
 		}
 
@@ -97,6 +99,8 @@ TEST_CASE("average_pooling_grad")
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/a_conv_grad_result.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
+		//cacu_print(b->s_diff(),1000);
+		//cacu_print(validate_->s_data(),1000);
 		cacu_saxpby(b->s_diff(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
