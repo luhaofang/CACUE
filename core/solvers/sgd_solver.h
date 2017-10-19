@@ -71,9 +71,9 @@ namespace mycnn{
 			//add regular
 			__REGULARIZE__(w_ ,weight_index_);
 			//history_v update
-			cacu_saxpby(w_->s_diff(), learn_rate_, history_->s_data(), _momentum, w_->count());
+			cacu_saxpby(w_->s_diff(), (float_t)(-1)*learn_rate_, history_->s_data(), _momentum, w_->count());
 			//update to weight
-			cacu_saxpy(history_->s_data(), (float_t)(-1), w_->s_data(), w_->count());
+			cacu_saxpy(history_->s_data(), (float_t)(1), w_->s_data(), w_->count());
 
 			//cacu_print(w_->s_data(),w_->count());
 			//cout<<endl<<endl;
