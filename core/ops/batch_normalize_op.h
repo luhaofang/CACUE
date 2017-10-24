@@ -312,9 +312,10 @@ namespace mycnn{
 			//gradient of scale
 			cacu_bn_gamma_grad(x_->s_data(), o_blob_->s_diff(),o_blob_->num(), o_blob_->length(), o_blob_->channel(),_scale->s_diff());
 			//gradient of shift
-			cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1, dim_sum_->s_data(), 0, o_blob_->length() / o_blob_->channel());
-			cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _shift->s_diff(), 0, s_blob_->channel());
-
+			//cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1, dim_sum_->s_data(), 0, o_blob_->length() / o_blob_->channel());
+			//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _shift->s_diff(), 0, s_blob_->channel());
+			cacu_sgemv(TRANS, o_blob_->s_diff(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(),0);
+			cacu_sgemv(NOTRANS, dim_sum_->s_data(), _shift->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _shift->s_diff(), 0);
 #endif
 		}
 

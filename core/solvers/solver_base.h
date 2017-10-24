@@ -95,7 +95,6 @@ namespace mycnn{
 					weight_index_++;
 				}
 			}
-			//*/
 		}
 
 		/**

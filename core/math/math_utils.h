@@ -127,6 +127,3 @@ inline void cacu_print(DTYPE *data, int length)
 #endif
 }
 
-
-
-

@@ -37,6 +37,8 @@ TEST_CASE("max_pooling")
 #if __PARALLELTYPE__ == __CUDA__
 		//cacu_print(output->s_data(),1000);
 		//cacu_print(validate_->s_data(),1000);
+		cacu_output(output->s_data(),validate_->count(),"/home/seal/1.txt");
+		cacu_output(validate_->s_data(),validate_->count(),"/home/seal/2.txt");
 		cacu_saxpby(output->s_data(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -99,7 +101,10 @@ TEST_CASE("max_pooling_grad")
 		blob_ops::read_data2blob(validate_,"/home/seal/cuda-workspace/CACUE/core/test/python/pooling/m_conv_grad_result.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
-
+		//cacu_print(validate_->s_data(),1000);
+		//cacu_print(b->s_diff(),1000);
+		//cacu_output(b->s_diff(),validate_->count(),"/home/seal/1.txt");
+		//cacu_output(validate_->s_data(),validate_->count(),"/home/seal/2.txt");
 		cacu_saxpby(b->s_diff(),-1.0,validate_->s_data(),1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());

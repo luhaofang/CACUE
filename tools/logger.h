@@ -35,22 +35,23 @@ using namespace std;
 
 namespace mycnn_tools{
 
-class logger{
-
-public:
-
-	logger(){};
-
-	~logger(){};
-
-	void operator <<(format);
-
-private:
-
-	std::ofstream _os;
-
-	string _log_path;
-
-};
+template<typename DTYPE>
+inline void cacu_output(DTYPE *data, int length, string path)
+{
+	vector<DTYPE> _d(length);
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_copy2host(&_d[0],data,length);
+#else
+	cacu_copy(data,length,&_d[0]);
+#endif
+	std::ofstream logger(path,ios::binary);
+	for(int i = 0; i < length; ++i)
+	{
+		logger << _d[i] << endl;
+		logger.flush();
+	}
+	logger.close();
+	vector<DTYPE>().swap(_d);
+}
 
 };

@@ -66,7 +66,7 @@ namespace mycnn{
 					w[i] = value;
 				break;
 			case mycnn::xavier:
-				value = sqrt((float_t) 3.0/ (num() * height() * width()));
+				value = sqrt((float_t) 3.0 / (channel() * height() * width()));
 				for (int i = 0; i < _length; ++i)
 					w[i] = urand(-value, value);
 				break;
@@ -75,7 +75,7 @@ namespace mycnn{
 					w[i] = gaussrand(value);
 				break;
 			case mycnn::msra:
-				value = sqrt((float_t) 2.0/ (num() * height() * width()));
+				value = sqrt((float_t) 2.0 / (channel() * height() * width()));
 				for (int i = 0; i < _length; ++i)
 					w[i] = gaussrand(value);
 				break;

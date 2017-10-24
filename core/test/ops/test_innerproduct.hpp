@@ -4,10 +4,12 @@
 
 #define CATCH_CONFIG_MAIN
 #include "../../../3rd_party/catch.hpp"
+#include "../../../tools/logger.h"
 
 #include "../../utils/blob_ops.h"
 
 using namespace mycnn;
+using namespace mycnn_tools;
 
 TEST_CASE("inner_product")
 {
@@ -38,6 +40,10 @@ TEST_CASE("inner_product")
 		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __CUDA__
+		//cacu_print(validate_->s_data(), 1000);
+		//cacu_print(output->s_data(), 1000);
+		cacu_output(output->s_data(),validate_->count(),"/home/seal/1.txt");
+		cacu_output(validate_->s_data(),validate_->count(),"/home/seal/2.txt");
 		cacu_saxpby(output->s_data(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -169,7 +175,10 @@ TEST_CASE("inner_product_grad")
 		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/innerproduct/bgrad.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
-
+		//cacu_print(validate_->s_data(), 1000);
+		//cacu_print(b->s_diff(), 1000);
+		cacu_output(b->s_diff(),validate_->count(),"/home/seal/1.txt");
+		cacu_output(validate_->s_data(),validate_->count(),"/home/seal/2.txt");
 		cacu_saxpby(b->s_diff(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());

@@ -81,84 +81,84 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 	network *net = new network(input_datas_);
 
 	layer_block *conv1_1 = vgg_conv_relu(blob_, 64, 3, 1, 1);
-	conv1_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv1_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv1_2 = vgg_conv_relu_maxpooling(conv1_1->get_oblob(), 64, 3, 1, 1);
-	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv2_1 = vgg_conv_relu(conv1_2->get_oblob(), 128, 3, 1, 1);
-	conv2_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv2_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv2_2 = vgg_conv_relu_maxpooling(conv2_1->get_oblob(), 128, 3, 1, 1);
-	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_1 = vgg_conv_relu(conv2_2->get_oblob(), 256, 3, 1, 1);
-	conv3_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_2 = vgg_conv_relu(conv3_1->get_oblob(), 256, 3, 1, 1);
-	conv3_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_3 = vgg_conv_relu_maxpooling(conv3_2->get_oblob(), 256, 3, 1, 1);
-	conv3_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_1 = vgg_conv_relu(conv3_3->get_oblob(), 512, 3, 1, 1);
-	conv4_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_2 = vgg_conv_relu(conv4_1->get_oblob(), 512, 3, 1, 1);
-	conv4_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_3 = vgg_conv_relu_maxpooling(conv4_2->get_oblob(), 512, 3, 1, 1);
-	conv4_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_1 = vgg_conv_relu(conv4_3->get_oblob(), 512, 3, 1, 1);
-	conv5_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_2 = vgg_conv_relu(conv5_1->get_oblob(), 512, 3, 1, 1);
-	conv5_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_3 = vgg_conv_relu_maxpooling(conv5_2->get_oblob(), 512, 3, 1, 1);
-	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *fc6 = fc_layer(conv5_3->get_oblob(),4096);
-	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	layer_block *fc6 = vgg_fc(conv5_3->get_oblob(),4096);
+	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.005f);
 	fc6->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc6->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
-	layer_block *fc7 = fc_layer(fc6->get_oblob(),4096);
-	fc7->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	layer_block *fc7 = vgg_fc(fc6->get_oblob(),4096);
+	fc7->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.005f);
 	fc7->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc7->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
 
 	if(phrase_ == train){
 		layer_block *loss_ = loss_layer(fc7->get_oblob(), label_, 1000);
-		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.005f);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 		loss_->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
@@ -167,7 +167,7 @@ network* create_vgg_16_net(int batch_size,phrase_type phrase_)
 	else
 	{
 		layer_block *predict_ = predict_layer(fc7->get_oblob(), 1000);
-		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.01f);
 		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 
 		*net << conv1_1 << conv1_2 << conv2_1 << conv2_2 << conv3_1 << conv3_2 << conv3_3 << conv4_1 << conv4_2 << conv4_3 << conv5_1 << conv5_2 << conv5_3 << fc6 << fc7 << predict_;
@@ -191,67 +191,67 @@ network* create_vgg_16_net_without_fc(int batch_size,phrase_type phrase_)
 	network *net = new network(input_datas_);
 
 	layer_block *conv1_1 = conv_layer_nopooling(blob_, 64, 3, 1, 1);
-	conv1_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv1_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv1_2 = conv_layer_maxpooling_relu_first(conv1_1->get_oblob(), 64, 3, 1, 1);
-	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv2_1 = conv_layer_nopooling(conv1_2->get_oblob(), 128, 3, 1, 1);
-	conv2_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv2_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv2_2 = conv_layer_maxpooling_relu_first(conv2_1->get_oblob(), 128, 3, 1, 1);
-	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_1 = conv_layer_nopooling(conv2_2->get_oblob(), 256, 3, 1, 1);
-	conv3_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_2 = conv_layer_nopooling(conv3_1->get_oblob(), 256, 3, 1, 1);
-	conv3_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_3 = conv_layer_maxpooling_relu_first(conv3_2->get_oblob(), 256, 3, 1, 1);
-	conv3_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_1 = conv_layer_nopooling(conv3_3->get_oblob(), 512, 3, 1, 1);
-	conv4_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_2 = conv_layer_nopooling(conv4_1->get_oblob(), 512, 3, 1, 1);
-	conv4_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_3 = conv_layer_maxpooling_relu_first(conv4_2->get_oblob(), 512, 3, 1, 1);
-	conv4_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_1 = conv_layer_nopooling(conv4_3->get_oblob(), 512, 3, 1, 1);
-	conv5_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_2 = conv_layer_nopooling(conv5_1->get_oblob(), 512, 3, 1, 1);
-	conv5_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_3 = conv_layer_nopooling(conv5_2->get_oblob(), 512, 3, 1, 1);
-	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
@@ -259,17 +259,17 @@ network* create_vgg_16_net_without_fc(int batch_size,phrase_type phrase_)
 	al->op(CACU_MAX_POOLING, conv5_3->get_oblob());
 
 	layer_block *fc6 = fc_layer(al->get_oblob(),4096);
-	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	fc6->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc6->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *fc7 = fc_layer_nodropout(fc6->get_oblob(),4096);
-	fc7->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	fc7->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	fc7->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc7->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *fc8 = fc_layer_nodropout(fc7->get_oblob(),1000);
-	fc8->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	fc8->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	fc8->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc8->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
@@ -290,84 +290,84 @@ network* create_vgg_16_dy_net(int batch_size,phrase_type phrase_)
 	network *net = new network(input_datas_);
 
 	layer_block *conv1_1 = conv_layer_nopooling(blob_, 64, 3, 1, 1);
-	conv1_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv1_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv1_2 = conv_layer_maxpooling_relu_first(conv1_1->get_oblob(), 64, 3, 1, 1);
-	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv1_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv1_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv2_1 = conv_layer_nopooling(conv1_2->get_oblob(), 128, 3, 1, 1);
-	conv2_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv2_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv2_2 = conv_layer_maxpooling_relu_first(conv2_1->get_oblob(), 128, 3, 1, 1);
-	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv2_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv2_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_1 = conv_layer_nopooling(conv2_2->get_oblob(), 256, 3, 1, 1);
-	conv3_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_2 = conv_layer_nopooling(conv3_1->get_oblob(), 256, 3, 1, 1);
-	conv3_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv3_3 = conv_layer_maxpooling_relu_first(conv3_2->get_oblob(), 256, 3, 1, 1);
-	conv3_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv3_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv3_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_1 = conv_layer_nopooling(conv3_3->get_oblob(), 512, 3, 1, 1);
-	conv4_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_2 = conv_layer_nopooling(conv4_1->get_oblob(), 512, 3, 1, 1);
-	conv4_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv4_3 = conv_layer_maxpooling_relu_first(conv4_2->get_oblob(), 512, 3, 1, 1);
-	conv4_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv4_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv4_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_1 = conv_layer_nopooling(conv4_3->get_oblob(), 512, 3, 1, 1);
-	conv5_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_1->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_1->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_2 = conv_layer_nopooling(conv5_1->get_oblob(), 512, 3, 1, 1);
-	conv5_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_2->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_2->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *conv5_3 = conv_layer_maxpooling_relu_first(conv5_2->get_oblob(), 512, 3, 1, 1);
-	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(msra);
+	conv5_3->layers(0)->get_op<convolution_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->set_bias_init_type(constant);
 	conv5_3->layers(0)->get_op<convolution_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *fc6 = fc_layer(conv5_3->get_oblob(),4096);
-	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	fc6->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	fc6->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc6->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
 	layer_block *fc7 = fc_layer(fc6->get_oblob(),4096);
-	fc7->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
+	fc7->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.01f);
 	fc7->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 	fc7->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 
 
 	if(phrase_ == train){
 		layer_block *loss_ = loss_layer(fc7->get_oblob(), label_, 1000);
-		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian,0.01);
+		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(gaussian, 0.01f);
 		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
 		loss_->layers(0)->get_op<inner_product_op>(0)->get_weight(1)->set_decay(0);
 

@@ -164,6 +164,7 @@ namespace mycnn{
 		{
 			CHECK_EQ_OP(blob_->count(),_length,"blob size must be equal! %d vs %d",blob_->count(),_length);
 			cacu_copy(blob_->s_data(),_length, (float_t*)_s_data);
+			CHECK_EQ_OP(blob_->phrase(),_phrase, "blob phase must be the same! %d vs %d", blob_->phrase(), _phrase);
 			if(train == _phrase && train == blob_->phrase()){
 				cacu_copy(blob_->s_diff(),_length, (float_t*)_s_diff);
 			}

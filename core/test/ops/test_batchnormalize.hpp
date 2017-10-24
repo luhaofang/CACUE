@@ -38,8 +38,8 @@ TEST_CASE("batch_normalize")
 		blob *output = op->out_data<blob>();
 
 #if __PARALLELTYPE__ == __CUDA__
-		//cacu_print(output->s_data(),100);
-		//cacu_print(validate_->s_data(),100);
+		cacu_print(output->s_data(),1000);
+		cacu_print(validate_->s_data(),1000);
 		cacu_saxpby(output->s_data(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -171,7 +171,8 @@ TEST_CASE("batch_normalize_grad")
 		blob_ops::read_data2blob(validate_b,"/home/seal/cuda-workspace/CACUE/core/test/python/bn/bgrad.txt");
 
 #if __PARALLELTYPE__ == __CUDA__
-
+		cacu_print(b->s_diff(),1000);
+		cacu_print(validate_->s_data(),1000);
 		cacu_saxpby(b->s_diff(),(mycnn::float_t)-1.0,validate_->s_data(),(mycnn::float_t)1.0,validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -183,6 +184,8 @@ TEST_CASE("batch_normalize_grad")
 		LOG_DEBUG("gradient error : %f",acc_error);
 		REQUIRE(acc_error < 0.0001);
 
+		cacu_print(op->get_weight(0)->s_diff(),validate_k->count());
+		cacu_print(validate_k->s_data(),validate_k->count());
 		cacu_saxpby(op->get_weight(0)->s_diff(),(mycnn::float_t)-1.0,validate_k->s_data(),(mycnn::float_t)1.0,validate_k->count());
 		test.resize(validate_k->count());
 		cuda_copy2host(&test[0],validate_k->s_data(),test.size());
@@ -194,6 +197,8 @@ TEST_CASE("batch_normalize_grad")
 		LOG_DEBUG("w gradient error : %f",acc_error);
 		REQUIRE(acc_error < 0.00001);
 
+		cacu_print(op->get_weight(1)->s_diff(),validate_b->count());
+		cacu_print(validate_b->s_data(),validate_b->count());
 		cacu_saxpby(op->get_weight(1)->s_diff(),(mycnn::float_t)-1.0,validate_b->s_data(),(mycnn::float_t)1.0,validate_b->count());
 		test.resize(validate_b->count());
 		cuda_copy2host(&test[0],validate_b->s_data(),test.size());
