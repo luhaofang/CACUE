@@ -34,12 +34,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../math/batch_functions.h"
 #include "../math/pooling_functions.h"
 #include "../math/loss_functions.h"
+#include "../math/norm_functions.h"
 
 #include "../math/device_data_utils.h"
 #include "../math/cpu_data_utils.h"
 
 #include "operator_base.h"
-#include "math_operator_base.h"
 
 #include "inner_product_op.h"
 #include "convolution_op.h"
@@ -70,6 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "injector_op.h"
 
-#include "axpby_op.h"
+#include "primary_vector_op.h"
+
 
 #include "operation.h"

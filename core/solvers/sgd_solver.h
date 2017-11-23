@@ -99,7 +99,7 @@ namespace mycnn{
 
 	private:
 
-		float_t _momentum = 0.9f;
+		float_t _momentum = 0.9;
 
 		blobs* _history_v;
 

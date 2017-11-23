@@ -35,7 +35,7 @@ namespace mycnn{
 	public:
 
 		//output_channel, kernel_size, stride, pad, input_dim, channel
-		deconvolution_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		deconvolution_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_DECONVOLUTION){
 
 			check();
 			int input_dim = data->width();
@@ -54,7 +54,7 @@ namespace mycnn{
 			_w = create_param("w", data->channel(), _args->output_channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
 
 			_bias = create_param("bias", data->channel(), 1, 1, 1, _phrase);
-			_bias ->set_lr(2);
+			_bias ->set_lr(2.0);
 
 			_col_data = cacu_allocator::create_blob(1, _args->output_channel(), input_dim * _args->kernel_size(), input_dim*_args->kernel_size(), _phrase);
 			echo();

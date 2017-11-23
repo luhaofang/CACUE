@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		row_max_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		row_max_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_ROW_MAX_POOLING){
 			check();
 
 			int input_dim = data->width();

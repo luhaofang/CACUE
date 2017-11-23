@@ -197,14 +197,16 @@ inline void rand_vector(float_t *vector_, int length, const float_t ratio_) {
 
 	for (int i = 0; i < length; ++i) {
 		if (urand(0, 1) >= ratio_)
-		v_[i] = 1.0;
+		v_[i] = 1;
 	}
 	cuda_copy2dev(vector_, &v_[0], length);
 	vec_t().swap(v_);
 #else
 	for (int i = 0; i < length; ++i) {
 		if (urand(0, 1) >= ratio_)
-			vector_[i] = 1.0;
+			vector_[i] = 1;
+		else
+			vector_[i] = 0;
 	}
 #endif
 
@@ -221,7 +223,7 @@ inline void mask_vector(float_t *vector_, int length, float_t *mask) {
 	cuda_copy2host(&v_[0], vector_, length);
 	for (int i = 0; i < length; ++i) {
 		if (v_[i] > 0)
-		v_[i] = 1.0;
+			v_[i] = 1.0;
 	}
 	cuda_copy2dev(mask, &v_[0], length);
 	vec_t().swap(v_);

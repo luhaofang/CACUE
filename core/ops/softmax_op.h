@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_SOFTMAX){
 			check();
 
 #if __USEMBEDDING__ == ON

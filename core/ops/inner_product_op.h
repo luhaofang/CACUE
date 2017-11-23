@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		inner_product_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		inner_product_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_INNERPRODUCT){
 			check();
 
 #if __USEMBEDDING__ == ON

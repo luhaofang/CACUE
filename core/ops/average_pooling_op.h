@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		average_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		average_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_AVERAGE_POOLING){
 
 			check();
 

@@ -74,6 +74,14 @@ namespace mycnn {
 		L2, L1
 	};
 
+	/*
+	 * regularization type for weights update in optimization methods.
+	 *
+	 */
+	enum normalize_type {
+		norm_l2, norm_l1
+	};
+
 	typedef struct{
 			int x;
 			int y;

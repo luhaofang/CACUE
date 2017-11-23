@@ -25,69 +25,52 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#include "cuda_log.h"
+#include "../../utils/data_defination.h"
 
-namespace mycnn{
+/*
+ *channel: channel of input data
+ *kernel_size: pooling window size
+ *input_dim: width of input data
+ *output_dim: width of output data
+ */
+__global__ void _k_CACU_NORM_L1_GPU(mycnn::float_t *x, int num, int length, unsigned int *label_, mycnn::float_t *loss_) {
 
-	class leaky_relu_op : public operator_base
+	int tid = threadIdx.x;
+
+	extern __shared__ mycnn::float_t shared_data[];
+
+	mycnn::float_t *xp;
+
+	shared_data[tid] = 0;
+
+	for (int i = tid; i < num; i+=THREADNUM)
 	{
+		xp = x + i * length;
+		shared_data[tid] -= log(xp[label_[i]]);
+	}
 
-	public:
+	__syncthreads();
 
-		leaky_relu_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_LEAKY_RELU){
-			check();
+	int acc_length = THREADNUM / 2;
+	while(acc_length > 0){
+		if(tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
 
-			o_blob = data;
-
-			echo();
-		};
-
-		~leaky_relu_op(){
-
-		};
-
-		virtual const void check() override{
-			return;
-		}
-
-		virtual const void op() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
-		}
-
-		virtual const void grad() override{
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			cacu_leaky_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), _negative_slope, s_blob_->count());
-		}
-
-		virtual const void load(std::ifstream& is) override{
-			return;
-		}
-
-		virtual const void save(std::ostream& os) override{
-			return;
-		}
-
-		virtual const void echo() override{
-			LOG_INFO("create leaky_relu op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
-		}
-
-		inline virtual const void LOOP_INIT_DATA_() override
-		{
-			return;
-		}
-
-		inline virtual const void set_phrase(phrase_type phrase_) override {
-			_phrase = phrase_;
-		}
-
-		float_t _negative_slope = 0.01f;
-
-	private:
+	if(tid == 0)
+		loss_[0] += shared_data[0];
+}
 
 
-	};
-};
+extern "C" void cacu_norm_l1_gpu(mycnn::float_t *x, int num, int length, unsigned int *label_, mycnn::float_t *loss_){
+
+	_k_CACU_NORM_L1_GPU<<<1, THREADNUM, THREADNUM * sizeof(mycnn::float_t)>>>(x, num, length, label_,loss_);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+
+
+

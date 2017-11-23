@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		dropout_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		dropout_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_DROPOUT){
 			check();
 
 			int input_dim = data->width();
@@ -86,7 +86,9 @@ namespace mycnn{
 			if(train == _phrase)
 			{
 				rand_vector(rand_vect_->s_data(),rand_vect_->count(), _ratio);
+				//cacu_output(o_blob_->s_data(),o_blob_->count(),"/home/seal/1.txt");
 				cacu_ssx(rand_vect_->s_data(), o_blob_->count(), o_blob_->s_data());
+				//cacu_output(o_blob_->s_data(),o_blob_->count(),"/home/seal/2.txt");
 				cacu_scalex(o_blob_->s_data(), o_blob_->count(), scale_);
 			}
 #endif
@@ -159,6 +161,6 @@ namespace mycnn{
 
 		blob_base *_rand_vect;
 
-		float_t _ratio = 0.5f;
+		float_t _ratio = 0.5;
 	};
 };

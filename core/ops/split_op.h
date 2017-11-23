@@ -35,7 +35,7 @@ namespace mycnn{
 
 	public:
 
-		split_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		split_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_SPLIT){
 			check();
 
 			int split_count = args_->at(0);

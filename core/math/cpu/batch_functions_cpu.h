@@ -51,7 +51,7 @@ namespace mycnn{
 			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < height; ++b){
-				acc = 0.0;
+				acc = DTYPE(0);
 				for (i = 0; i < width; ++i)
 					acc += x[i + b*width];
 				y[b] = ((alpha * acc) + beta * y[b]);
@@ -62,7 +62,7 @@ namespace mycnn{
 			#pragma omp parallel for default(shared) private(b,i,acc,xp,alpha,beta)
 #endif
 			for (b = 0; b < width; ++b){
-				acc = 0.0;
+				acc = DTYPE(0);
 				for (i = 0; i < height; ++i)
 					acc += x[i * width + b];
 				y[b] = ((alpha * acc) + beta * y[b]);
@@ -226,7 +226,7 @@ namespace mycnn{
 				//iteration for feature map
 				for (f = 0; f < cin_length; f++) {
 
-					d_rou[c] += (d_x[set + f] * (x[set + f] - mean[c]) * (-0.5f / pow(std[c], 3)));
+					d_rou[c] += (d_x[set + f] * (x[set + f] - mean[c]) * (DTYPE(-0.5) / pow(std[c], 3)));
 				}
 			}
 		}
@@ -263,7 +263,7 @@ namespace mycnn{
 				set = n * length + cin_length * c;
 				//iteration for feature map
 				for (f = 0; f < cin_length; f++) {
-					d_mean[c] += ((d_x[set + f] / (-std[c])) + d_rou[c] * (-2.0f * (x[set + f] - mean[c]) / m));
+					d_mean[c] += ((d_x[set + f] / (-std[c])) + d_rou[c] * (DTYPE(-2) * (x[set + f] - mean[c]) / m));
 				}
 			}
 		}
@@ -302,7 +302,7 @@ namespace mycnn{
 				//iteration for feature map
 				for (f = 0; f < cin_length; f++) {
 
-					dx[set + f] = ((d_x[set + f]/ std[c]) + d_rou[c] * (2.0f * (x[set + f] - mean[c]) / m) + (d_mean[c] / m));
+					dx[set + f] = ((d_x[set + f]/ std[c]) + d_rou[c] * (DTYPE(2) * (x[set + f] - mean[c]) / m) + (d_mean[c] / m));
 				}
 			}
 		}

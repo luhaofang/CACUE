@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		feature_combine_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		feature_combine_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_FEATURE_COMBINE){
 			check();
 			_units_count = args_->at(0);
 #if __USEMBEDDING__ == ON

@@ -125,7 +125,7 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(const mycnn::float_t *x, int kernel
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = 0.0;
+		y[i] = 0;
 
 		startset_i = (i % cin_length) / input_dim;
 		startset_j = (i % cin_length) % input_dim;
@@ -216,7 +216,7 @@ __global__ void _k_CACU_AVERAGE_POOLING_GPU(const mycnn::float_t *x, int kernel_
 
 		start_in = (data_row*input_dim + data_col) + c* cin_length;
 
-		sum = 0.0;
+		sum = 0;
 		count = 0;
 
 		for(int ki = 0 ; ki < kernel_size && data_row + ki < input_dim ; ++ki)
@@ -269,7 +269,7 @@ __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(const mycnn::float_t *x, int ke
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = 0.0;
+		y[i] = 0;
 
 		startset_i = (i % cin_length) / input_dim;
 		startset_j = (i % cin_length) % input_dim;
@@ -360,9 +360,9 @@ __global__ void _k_CACU_PADDED_DATA_GPU(const mycnn::float_t *x, int channel,int
 				in_start = ((row - pad) * input_dim + (col - pad)) + c * cin_length;
 				y[i] = x[in_start];
 			} else
-				y[i] = 0.0;
+				y[i] = 0;
 		} else
-			y[i] = 0.0;
+			y[i] = 0;
 	}
 }
 
@@ -449,7 +449,7 @@ __global__ void _k_CACU_IMG2COL_PAD_GPU(const mycnn::float_t *x, int kernel_size
 			if(input_w >= pad && input_w < input_dim + pad && input_h >= pad && input_h < input_dim + pad)
 				y[j + i * output_size] = x[(input_h - pad) * input_dim + (input_w - pad) + c * cin_length];
 			else
-				y[j + i * output_size] = 0.0;
+				y[j + i * output_size] = 0;
 		}
 	}
 }
@@ -523,7 +523,7 @@ __global__ void _k_CACU_COL2IMG_GPU(const mycnn::float_t *x, int kernel_size, in
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = 0.0;
+		y[i] = 0;
 		//row
 		startset_i = (i % cin_length) / input_dim;
 		//col
@@ -618,7 +618,7 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(const mycnn::float_t *x, int kernel_size
 			c = i / cin_length_;
 
 			inset_index = ((startset_i - pad) * input_dim  + (startset_j - pad)) + c * cin_length;
-			y[inset_index] = 0.0;
+			y[inset_index] = 0;
 
 			outset_si = startset_i / stride;
 			outset_sj = startset_j / stride;

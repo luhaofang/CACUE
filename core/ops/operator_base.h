@@ -27,7 +27,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+
+#include "ops_defination.h"
 #include "../utils/cacu_allocator.h"
+
 
 namespace mycnn{
 
@@ -36,7 +39,7 @@ namespace mycnn{
 
 	public:
 
-		operator_base(blob_base *&data, args *&args_){
+		operator_base(blob_base *&data, args *&args_, op_name type_){
 
 			s_blob = data;
 			s_blobs = NULL;
@@ -44,10 +47,11 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = args_;
 			_phrase = data->phrase();
+			_OP_TYPE = type_;
 			data->_REC();
 		};
 
-		operator_base(blob_base *&data){
+		operator_base(blob_base *&data, op_name type_){
 
 			s_blob = data;
 			s_blobs = NULL;
@@ -55,10 +59,11 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = NULL;
 			_phrase = data->phrase();
+			_OP_TYPE = type_;
 			data->_REC();
 		};
 
-		operator_base(blobs *&data, args *&args_){
+		operator_base(blobs *&data, args *&args_, op_name type_){
 
 			s_blob = NULL;
 			s_blobs = data;
@@ -66,10 +71,11 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = args_;
 			_phrase = data->at(0)->phrase();
+			_OP_TYPE = type_;
 			data->_REC();
 		};
 
-		operator_base(blobs *&data){
+		operator_base(blobs *&data, op_name type_){
 
 			s_blob = NULL;
 			s_blobs = data;
@@ -77,6 +83,7 @@ namespace mycnn{
 			o_blobs = NULL;
 			_args = NULL;
 			_phrase = data->at(0)->phrase();
+			_OP_TYPE = type_;
 			data->_REC();
 		};
 
@@ -140,7 +147,7 @@ namespace mycnn{
 
 		inline void set_blobs(blobs *&blobs_){ s_blobs = blobs_;}
 
-
+		inline op_name _TYPE(){ return _OP_TYPE;}
 
 
 	protected:
@@ -158,6 +165,8 @@ namespace mycnn{
 		phrase_type _phrase;
 
 		vector<weight*> _weights;
+
+		op_name _OP_TYPE;
 
 		//create weight push_back to weights container
 		inline weight* const create_param(chars_t name,int num,int channel,int width,int height,phrase_type phrase)

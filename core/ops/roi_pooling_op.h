@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		roi_pooling_op(blobs *&data, args *&args_) : operator_base(data, args_){
+		roi_pooling_op(blobs *&data, args *&args_) : operator_base(data, args_, CACU_ROI_POOLING){
 			check();
 
 			blob_base *data_ = data->at(0);

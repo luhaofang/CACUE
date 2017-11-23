@@ -35,7 +35,7 @@ namespace mycnn{
 	public:
 
 		//output_channel, kernel_size, stride, pad, input_dim, channel
-		local_conv_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		local_conv_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_LOCAL_CONV){
 
 			check();
 			int input_dim = data->width();

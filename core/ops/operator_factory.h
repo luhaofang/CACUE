@@ -35,36 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	enum op_name
-	{
-		CACU_INNERPRODUCT,
-		CACU_CONVOLUTION,
-		CACU_BATCH_NORMALIZE,
-		CACU_DROPOUT,
-		CACU_P_INNERPRODUCT,
-		CACU_DECONVOLUTION,
-
-		CACU_ROW_MAX_POOLING,
-		CACU_MAX_POOLING,
-		CACU_AVERAGE_POOLING,
-		CACU_ROI_POOLING,
-
-		CACU_RELU,
-		CACU_LEAKY_RELU,
-		CACU_SOFTMAX,
-		CACU_TANH,
-		CACU_SIGMOID,
-
-		CACU_SOFTMAX_LOSS,
-		CACU_HINGE_LOSS,
-
-		CACU_SUM_ELEMWISE,
-		CACU_FEATURE_COMBINE,
-		CACU_SPLIT,
-
-		CACU_INJECTOR
-	};
-
 	class operator_factory
 	{
 
@@ -137,8 +107,67 @@ namespace mycnn{
 			case CACU_SIGMOID:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new sigmoid_op(blob_->at(0), args_);
+			case CACU_PRIMARY_VECTOR:
+				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
+				return new primary_vector_op(blob_->at(0), args_);
 			default:
 				LOG_FATAL("No op is founded as: %d", op_name_);
+				return NULL;
+			}
+			return NULL;
+		}
+
+		template<class OPTYPE>
+		static OPTYPE *& trans_op(operator_base *&op_){
+
+			switch (op_->_TYPE())
+			{
+			case CACU_INNERPRODUCT:
+				return (inner_product_op*&)op_;
+			case CACU_CONVOLUTION:
+				return (convolution_op*&)op_;
+			case CACU_SUM_ELEMWISE:
+				return (sum_elemwise_op*&)op_;
+			case CACU_RELU:
+				return (relu_op*&)op_;
+			case CACU_BATCH_NORMALIZE:
+				return (batch_normalize_op*&)op_;
+			case CACU_MAX_POOLING:
+				return (max_pooling_op*&)op_;
+			case CACU_AVERAGE_POOLING:
+				return (average_pooling_op*&)op_;
+			case CACU_DROPOUT:
+				return (dropout_op*&)op_;
+			case CACU_LEAKY_RELU:
+				return (leaky_relu_op*&)op_;
+			case CACU_SOFTMAX:
+				return (softmax_op*&)op_;
+			case CACU_SOFTMAX_LOSS:
+				return (softmax_with_loss_op*&)op_;
+			case CACU_FEATURE_COMBINE:
+				return (feature_combine_op*&)op_;
+			case CACU_SPLIT:
+				return (split_op*&)op_;
+			case CACU_HINGE_LOSS:
+				return (hinge_loss_op*&)op_;
+			case CACU_ROI_POOLING:
+				return (roi_pooling_op*&)op_;
+			case CACU_P_INNERPRODUCT:
+				return (p_innerproduct_op*&)op_;
+			case CACU_DECONVOLUTION:
+				return (deconvolution_op)op_;
+			case CACU_INJECTOR:
+				return (injector_op*&)op_;
+			case CACU_ROW_MAX_POOLING:
+				return (row_max_pooling_op*&)op_;
+			case CACU_TANH:
+				return (tanh_op*&)op_;
+			case CACU_SIGMOID:
+				return (sigmoid_op*&)op_;
+			case CACU_PRIMARY_VECTOR:
+				return (primary_vector_op*&)op_;
+			default:
+				LOG_FATAL("No op is founded as: %d", op_->_TYPE());
 				return NULL;
 			}
 			return NULL;

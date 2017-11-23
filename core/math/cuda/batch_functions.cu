@@ -37,7 +37,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYWIDTH_GPU(const mycnn::float_t *x, int heigt
 	extern __shared__ mycnn::float_t shared_data[];
 
 	for (int i = bid; i < heigth; i += BLOCKNUM) {
-		shared_data[tid] = 0.0;
+		shared_data[tid] = 0;
 		for(int j = tid ;  j < width; j += THREADNUM){
 			shared_data[tid] += x[i * width + j];
 		}
@@ -64,7 +64,7 @@ __global__ void _k_CACU_SUMBYSIZE_BYHEIGHT_GPU(const mycnn::float_t *x, int heig
 	extern __shared__ mycnn::float_t shared_data[];
 
 	for (int i = bid; i < width; i += BLOCKNUM) {
-		shared_data[tid] = 0.0;
+		shared_data[tid] = 0;
 		for(int j = tid ;j < height; j += THREADNUM)
 		{
 			shared_data[tid] += x[j*width + i];
@@ -266,7 +266,7 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(const mycnn::float_t *x,const mycnn::flo
 
 	for (int i = bid; i < channel; i += BLOCKNUM)
 	{
-		shared_data[tid] = 0.0;
+		shared_data[tid] = 0;
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{
 			data_row = j / cin_length;
@@ -275,7 +275,7 @@ __global__ void _k_CACU_BN_ROU_GRAD_GPU(const mycnn::float_t *x,const mycnn::flo
 			shared_data[tid] += (
 					(x[set] - mean[i])
 							* d_x[set]
-							* (-0.5	/ (std[i] * std[i] * std[i])));
+							* (mycnn::float_t(-0.5)	/ (std[i] * std[i] * std[i])));
 		}
 
 		__syncthreads();
@@ -327,13 +327,13 @@ __global__ void _k_CACU_BN_MU_GRAD_GPU(const mycnn::float_t *x,const mycnn::floa
 
 	for (int i = bid; i < channel; i += BLOCKNUM)
 	{
-		shared_data[tid] = 0.0;
+		shared_data[tid] = 0;
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{
 			data_row = j / cin_length;
 			data_col = j % cin_length;
 			set = data_row * length + data_col + i * cin_length;
-			shared_data[tid] += ((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (-2.0 * (x[set] - mean[i]))));
+			shared_data[tid] += ((d_x[set] / (-std[i])) + ((d_rou[i] / m) * (mycnn::float_t(-2) * (x[set] - mean[i]))));
 		}
 
 		__syncthreads();
@@ -384,7 +384,7 @@ __global__ void _k_CACU_BN_DX_GRAD_GPU(const mycnn::float_t *x,const mycnn::floa
 	for (int i = threadid; i < num * length; i += BLOCKNUM * THREADNUM) {
 
 		c = (i % length) / cin_length;
-		dx[i] = ((d_x[i]/ std[c]) + d_rou[c] * (2.0 * (x[i] - mean[c]) / m) + (d_mean[c] / m));
+		dx[i] = ((d_x[i]/ std[c]) + d_rou[c] * (mycnn::float_t(2) * (x[i] - mean[c]) / m) + (d_mean[c] / m));
 	}
 }
 
@@ -421,7 +421,7 @@ __global__ void _k_CACU_BN_GAMMA_GRAD_GPU(const mycnn::float_t *_x,const mycnn::
 
 	for (int i = bid; i < channel; i += BLOCKNUM)
 	{
-		shared_data[tid] = 0.0;
+		shared_data[tid] = 0;
 
 		for (int j = tid; j < cin_length * num; j += THREADNUM)
 		{

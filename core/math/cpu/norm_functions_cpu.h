@@ -27,67 +27,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "../../utils/data_defination.h"
+
 namespace mycnn{
 
-	class leaky_relu_op : public operator_base
+	/**
+	 * @cacu_cross_entropy
+	 * loss += -log(p(x)):
+	 * for loss use cross entropy functions.
+	 */
+	inline void cacu_norm_l1_cpu(float_t *x, int channel_length, int length, float_t *y)
 	{
 
-	public:
+		float *xp;
 
-		leaky_relu_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_LEAKY_RELU){
-			check();
+		int n;
 
-			o_blob = data;
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(n,xp)
+#endif
 
-			echo();
-		};
+	}
 
-		~leaky_relu_op(){
+	/**
+	 * @cacu_cross_entropy
+	 * loss += -log(p(x)):
+	 * for loss use cross entropy functions.
+	 */
+	inline void cacu_norm_l2_cpu(float_t *x, int channel_length, int length, float_t *y)
+	{
 
-		};
+		float *xp;
 
-		virtual const void check() override{
-			return;
-		}
+		int n;
 
-		virtual const void op() override {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
-		}
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(n,xp)
+#endif
 
-		virtual const void grad() override{
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
-			cacu_leaky_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), _negative_slope, s_blob_->count());
-		}
-
-		virtual const void load(std::ifstream& is) override{
-			return;
-		}
-
-		virtual const void save(std::ostream& os) override{
-			return;
-		}
-
-		virtual const void echo() override{
-			LOG_INFO("create leaky_relu op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blob->channel(),o_blob->height());
-		}
-
-		inline virtual const void LOOP_INIT_DATA_() override
-		{
-			return;
-		}
-
-		inline virtual const void set_phrase(phrase_type phrase_) override {
-			_phrase = phrase_;
-		}
-
-		float_t _negative_slope = 0.01f;
-
-	private:
+	}
 
 
-	};
 };

@@ -35,7 +35,7 @@ namespace mycnn{
 
 	public:
 
-		batch_normalize_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		batch_normalize_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_BATCH_NORMALIZE){
 
 			check();
 #if __USEMBEDDING__ == ON
@@ -91,6 +91,8 @@ namespace mycnn{
 			delete _std;
 
 			delete _dim_sum;
+
+			delete _moving_scalar;
 
 			delete _mutipler;
 			delete _num_mutipler;
@@ -377,9 +379,9 @@ namespace mycnn{
 
 		bool use_global_stats = true;
 
-		float_t moving_average_fraction = 0.9f;
+		float_t moving_average_fraction = 0.9;
 
-		float_t epsilon = 0.00001f;
+		float_t epsilon = 0.00001;
 
 		inline virtual const void set_phrase(phrase_type phrase_) override {
 			_phrase = phrase_;

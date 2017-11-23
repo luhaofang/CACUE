@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		relu_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		relu_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_RELU){
 			check();
 
 			o_blob = data;

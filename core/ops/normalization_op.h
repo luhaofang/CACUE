@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		normalization_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		normalization_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_NORM){
 
 			check();
 
@@ -73,23 +73,23 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			blob *temp_ = (blob*)_temp;
 
-			/*
+
 			switch(_NORMALIZER)
 			{
 				case L1:
 					for(int i = 0 ; i < s_blob_->num(); ++i){
-						cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
+						//cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
 					}
 					break;
 				case L2:
 					for(int i = 0 ; i < s_blob_->num(); ++i){
-						cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
+						//cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
 					}
 					break;
 				default:
 					break;
 			}
-			*/
+
 #endif
 
 		}
@@ -101,7 +101,7 @@ namespace mycnn{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_bin_blob *temp_ = (em_bin_blob*)_temp;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
-				//cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff_d(i), index_->p_data_d(i));
+				cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff_d(i), index_->p_data_d(i));
 				s_blob_->_sync(i);
 			}
 #else
@@ -109,10 +109,10 @@ namespace mycnn{
 			blob *s_blob_ = (blob*)s_blob;
 			bin_blob *temp_ = (bin_blob*)_temp;
 
-			/*
-			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
-			*/
+
+			//for(int i = 0 ; i < s_blob_->num(); ++i)
+				//cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
+
 #endif
 		}
 
@@ -142,7 +142,7 @@ namespace mycnn{
 
 		blob_base *_temp;
 
-		//normalize_type _NORMALIZER = L2;
+		normalize_type _NORMALIZER = norm_l2;
 
 	};
 };

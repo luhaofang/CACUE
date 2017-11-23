@@ -45,8 +45,7 @@ namespace mycnn{
 #endif
 		for (i = 0; i < length; ++i)
 		{
-			if (x[i] < 0)
-				x[i] = 0.0;
+			x[i] = max(x[i], float_t(0));
 		}
 	}
 
@@ -64,7 +63,7 @@ namespace mycnn{
 		for (i = 0; i < length; ++i)
 		{
 			if (x[i] <= 0)
-				g[i] = 0.0;
+				g[i] = float_t(0);
 		}
 	}
 
@@ -166,7 +165,7 @@ namespace mycnn{
 #endif
 		for (i = 0; i < length; ++i)
 		{
-			y[i] = g[i] * (1 - x[i] * x[i]);
+			y[i] = g[i] * (float_t(1) - x[i] * x[i]);
 		}
 	}
 
@@ -183,7 +182,7 @@ namespace mycnn{
 #endif
 		for (i = 0; i < length; ++i)
 		{
-			y[i] = 1.0/(1.0 + exp(-x[i]));
+			y[i] = float_t(1)/(float_t(1) + exp(-x[i]));
 		}
 	}
 
@@ -200,20 +199,20 @@ namespace mycnn{
 #endif
 		for (i = 0; i < length; ++i)
 		{
-			y[i] = g[i] * x[i] * (1 - x[i]);
+			y[i] = g[i] * x[i] * (float_t(1) - x[i]);
 		}
 	}
 
 	template<typename DTYPE>
 	inline DTYPE sigmoid(DTYPE data)
 	{
-		return 1.0 / (1.0 + exp(-data));
+		return float_t(1) / (float_t(1) + exp(-data));
 	}
 
 	template <typename Dtype>
 	inline Dtype tanh(Dtype data)
 	{
-		return 2.0 * sigmoid(2.0 * data) - 1.;
+		return float_t(2) * sigmoid(float_t(2) * data) - float_t(1);
 	}
 
 

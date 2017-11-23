@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #pragma once
+#include "../../tools/logger.h"
 
 namespace mycnn{
 
@@ -35,7 +36,7 @@ namespace mycnn{
 	public:
 
 		//output_channel, kernel_size, stride, pad, input_dim, channel
-		convolution_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		convolution_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_CONVOLUTION){
 
 			check();
 			int input_dim = data->width();
@@ -109,6 +110,7 @@ namespace mycnn{
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
 				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
+				//mycnn_tools::cacu_output(col_data_->s_data(),col_data_->count(),"/home/seal/1.txt");
 				//forward convolution data
 				for (int g = 0 ; g < _group ; ++g)
 					cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->width()*o_blob_->height(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);

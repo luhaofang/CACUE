@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		softmax_with_loss_op(blobs *&data, args *&args_) : operator_base(data, args_){
+		softmax_with_loss_op(blobs *&data, args *&args_) : operator_base(data, args_, CACU_SOFTMAX_LOSS){
 			check();
 
 			blob_base *_blob = data->at(0);

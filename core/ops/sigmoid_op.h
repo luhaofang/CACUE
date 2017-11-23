@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		sigmoid_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		sigmoid_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_SIGMOID){
 			check();
 
 #if __USEMBEDDING__ == ON

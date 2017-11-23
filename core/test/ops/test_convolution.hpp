@@ -172,8 +172,8 @@ TEST_CASE("convolution_grad")
 		//cacu_print(b->s_diff(),100);
 
 #if __PARALLELTYPE__ == __CUDA__
-		cacu_output(b->s_diff(),validate_->count(),"/home/seal/1.txt");
-		cacu_output(validate_->s_data(),validate_->count(),"/home/seal/2.txt");
+		//cacu_output(b->s_diff(),validate_->count(),"/home/seal/1.txt");
+		//cacu_output(validate_->s_data(),validate_->count(),"/home/seal/2.txt");
 		cacu_saxpy(b->s_diff(),-1.0,validate_->s_data(),validate_->count());
 		vec_t test(validate_->count());
 		cuda_copy2host(&test[0],validate_->s_data(),test.size());
@@ -185,6 +185,8 @@ TEST_CASE("convolution_grad")
 		LOG_DEBUG("gradient error : %f",acc_error);
 		REQUIRE(acc_error < 0.00001);
 
+		//cacu_output(op->get_weight(0)->s_diff(),validate_k->count(),"/home/seal/1.txt");
+		//cacu_output(validate_k->s_data(),validate_k->count(),"/home/seal/2.txt");
 		cacu_saxpy(op->get_weight(0)->s_diff(),-1.0,validate_k->s_data(),validate_k->count());
 		test = vec_t(validate_k->count());
 		cuda_copy2host(&test[0],validate_k->s_data(),test.size());
@@ -197,6 +199,8 @@ TEST_CASE("convolution_grad")
 		LOG_DEBUG("w gradient error : %f",acc_error);
 		REQUIRE(acc_error < 0.00001);
 
+		cacu_output(op->get_weight(1)->s_diff(),validate_b->count(),"/home/seal/1.txt");
+		cacu_output(validate_b->s_data(),validate_b->count(),"/home/seal/2.txt");
 		cacu_saxpy(op->get_weight(1)->s_diff(),-1.0,validate_b->s_data(),validate_b->count());
 		test = vec_t(validate_b->count());
 		cuda_copy2host(&test[0],validate_b->s_data(),test.size());

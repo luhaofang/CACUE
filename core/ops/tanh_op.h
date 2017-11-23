@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		tanh_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		tanh_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_TANH){
 			check();
 
 #if __USEMBEDDING__ == ON

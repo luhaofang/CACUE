@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		hinge_loss_op(blobs *&data, args *&args_) : operator_base(data, args_){
+		hinge_loss_op(blobs *&data, args *&args_) : operator_base(data, args_, CACU_HINGE_LOSS){
 			check();
 
 			blob_base *_blob = data->at(0);

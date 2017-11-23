@@ -34,7 +34,7 @@ namespace mycnn{
 
 	public:
 
-		injector_op(blob_base *&data, args *&args_) : operator_base(data, args_){
+		injector_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_INJECTOR){
 			check();
 
 			o_blob = data;

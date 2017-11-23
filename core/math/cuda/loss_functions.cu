@@ -42,7 +42,7 @@ __global__ void _k_CACU_CROSS_ENTROPY_GPU(mycnn::float_t *x, int num, int length
 
 	mycnn::float_t *xp;
 
-	shared_data[tid] = 0.0;
+	shared_data[tid] = 0;
 
 	for (int i = tid; i < num; i+=THREADNUM)
 	{
