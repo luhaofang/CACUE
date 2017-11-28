@@ -49,7 +49,7 @@ namespace mycnn{
 		for (int n = 0; n < num ; ++n)
 		{
 			xp = x + n * length;
-			loss_[0] -= log(xp[label_[n]]);
+			loss_[0] -= log(max(xp[label_[n]], float_t(_MIN_FLT_)));
 		}
 	}
 

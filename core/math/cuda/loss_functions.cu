@@ -47,7 +47,7 @@ __global__ void _k_CACU_CROSS_ENTROPY_GPU(mycnn::float_t *x, int num, int length
 	for (int i = tid; i < num; i+=THREADNUM)
 	{
 		xp = x + i * length;
-		shared_data[tid] -= log(xp[label_[i]]);
+		shared_data[tid] -= log(max(xp[label_[i]], mycnn::float_t(_MIN_FLT_)));
 	}
 
 	__syncthreads();
