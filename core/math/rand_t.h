@@ -51,4 +51,9 @@ namespace mycnn {
 		pRandomValue = pRandomValue * (max - min) + min;
 		return pRandomValue;
 	}
+
+	unsigned int randint(int max)
+	{
+		return (unsigned int)(rand() % max);
+	}
 };

@@ -87,7 +87,29 @@ namespace mycnn{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
-		l->op(CACU_CONVOLUTION, data)->op(activation_op);
+		l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
+		clock_t end = clock();
+		*lb << l;
+		return lb;
+	}
+
+	layer_block* conv_layer(blob_base* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+		l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE);//->op(activation_op);
+		clock_t end = clock();
+		*lb << l;
+		return lb;
+	}
+
+	layer_block* conv_layer_nopooling_norelu(blob_base* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel, kernel_size, stride, pad, data->height(), data->channel());
+		l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(CACU_SIGMOID);
 		clock_t end = clock();
 		*lb << l;
 		return lb;
@@ -98,7 +120,7 @@ namespace mycnn{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(output_channel);
-		l->op(CACU_INNERPRODUCT, data)->op(activation_op)->op(CACU_DROPOUT);
+		l->op(CACU_INNERPRODUCT, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);//->op(CACU_DROPOUT);
 		clock_t end = clock();
 		*lb << l;
 		return lb;
@@ -114,6 +136,18 @@ namespace mycnn{
 		*lb << l;
 		return lb;
 	}
+
+	layer_block* pfc_layer_nodropout(blob_base* data, int output_channel, int kernel_size = 0, int stride = 0, int pad = 0)
+	{
+		layer_block *lb = new layer_block();
+		clock_t start = clock();
+		layer *l = new layer(output_channel);
+		l->op(CACU_P_INNERPRODUCT, data);//->op(CACU_RELU);
+		clock_t end = clock();
+		*lb << l;
+		return lb;
+	}
+
 
 	layer_block* loss_layer(blob_base* data, blob_base* label, int output_channel)
 	{
@@ -137,6 +171,7 @@ namespace mycnn{
 		l->op(CACU_SOFTMAX_LOSS, data_);
 		clock_t end = clock();
 		*lb << l;
+		LOG_DEBUG("test!");
 		return lb;
 	}
 

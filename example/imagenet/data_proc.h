@@ -57,6 +57,15 @@ void readdata(const char* filename, mycnn::float_t *data_,mycnn::float_t *mean_)
 	cacu_saxpy(mean_,(mycnn::float_t)(-1),data_,KIMAGESIZE);
 }
 
+void clipreaddata(const char* filename, mycnn::float_t *data_,mycnn::float_t *mean_) {
+#if __PARALLELTYPE__ == __CUDA__
+	imageio_utils::clip_imread_gpu(data_, filename, 224, 224);
+#else
+	imageio_utils::clip_imread(data_, filename, 224, 224);
+#endif
+	cacu_saxpy(mean_,(mycnn::float_t)(-1),data_,KIMAGESIZE);
+}
+
 vec_t compute_mean(chars_t &filepath, chars_t &filelist)
 {
 	vec_t mean(KIMAGESIZE);

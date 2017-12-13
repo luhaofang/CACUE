@@ -51,6 +51,7 @@ using namespace mycnn_tools;
 namespace mycnn {
 
 #define _MAX_INT_ INT_MAX
+#define _MIN_FLT_ FLT_MIN
 
 	/**
 	 * definition of weights parameter initialization type.

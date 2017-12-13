@@ -45,7 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "convolution_op.h"
 #include "batch_normalize_op.h"
 #include "dropout_op.h"
-#include "p_innerproduct_op.h"
+#include "p_inner_product_op.h"
 #include "deconvolution_op.h"
 #include "row_max_pooling_op.h"
 #include "local_conv_op.h"

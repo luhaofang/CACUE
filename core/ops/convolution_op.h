@@ -223,7 +223,7 @@ namespace mycnn{
 		inline void set_bias_init_type(param_init_type _type,float_t value = 0.0){set_param_init_type(_type, _bias, value);}
 
 		inline void set_group(int group){
-			CHECK_GT_OP(group, 0,"group must > 0 vs %d",group);
+			CHECK_GT_OP(group, 0, "group must > 0 vs %d", group);
 			CHECK_LE_OP(group, _args->channel(),"group must <= %d vs %d", _args->channel(), group);
 			CHECK_EQ_OP(_args->channel() % group, 0,"channel mod group must == 0 vs %d", _args->channel() % group);
 			this->_group = group;

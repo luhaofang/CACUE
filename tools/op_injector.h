@@ -41,6 +41,7 @@ public:
 
 		_neural_count = new map<unsigned int,unsigned int>();
 		_op = op_;
+
 	};
 
 	~op_injector(){
@@ -58,7 +59,7 @@ public:
 			(*_neural_count)[index_] = 1;
 	}
 
-	void o_blob_serializa(string output_path)
+	void s_data_serializa(string output_path)
 	{
 		std::ofstream os(output_path, ios::binary);
 		os.precision(std::numeric_limits<float_t>::digits10);
@@ -74,6 +75,27 @@ public:
 		for(int i = 0; i < _op->out_data<blob>()->count(); ++i)
 		{
 			os << _op->out_data<blob>()->s_data()[i] << endl;
+		}
+#endif
+		os.close();
+	}
+
+	void p_data_serializa(string output_path, int start, int length)
+	{
+		std::ofstream os(output_path, ios::binary);
+		os.precision(std::numeric_limits<float_t>::digits10);
+#if __PARALLELTYPE__ == __CUDA__
+		vec_t data(length);
+		cuda_copy2host(&data[0],_op->out_data<blob>()->s_data() + start,data.size());
+
+		for(int j = 0; j < length; ++j)
+		{
+			os << data[j] << endl;
+		}
+#else
+		for(int j = 0; j < length; ++j)
+		{
+			os << _op->out_data<blob>()->s_data()[start + j] << endl;
 		}
 #endif
 		os.close();

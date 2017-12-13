@@ -54,4 +54,25 @@ namespace mycnn{
 
 
 
+
+	/**
+	 * @cacu_multi_label_trans
+	 * transform the softmax label to multi sigmoid labels
+	 */
+	inline void cacu_multi_label_trans(int num, int output_num, const unsigned int *label_, unsigned int *trans_labels_)
+	{
+
+#if __PARALLELTYPE__ == __CUDA__
+		cacu_multi_label_trans_gpu(num, output_num, label_,trans_labels_);
+#else
+
+		for (int n = 0; n < num ; ++n)
+		{
+			for(int i = 0; i < output_num; ++i)
+				trans_labels_[n * output_num + i] = 0;
+			trans_labels_[n * output_num + label_[n]] = 1;
+		}
+#endif
+	}
+
 };

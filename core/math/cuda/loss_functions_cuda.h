@@ -35,3 +35,8 @@ extern "C" void cacu_cross_entropy_gpu(mycnn::float_t *x, int num, int length,co
 
 
 
+/**
+ * @cacu_multi_label_trans
+ * transform the softmax label to multi sigmoid labels
+ */
+extern "C" void cacu_multi_label_trans_gpu(int num, int output_num,const unsigned int *label_, const unsigned int *trans_labels_);

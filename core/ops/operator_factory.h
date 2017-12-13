@@ -91,7 +91,7 @@ namespace mycnn{
 				return new roi_pooling_op(blob_, args_);
 			case CACU_P_INNERPRODUCT:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
-				return new p_innerproduct_op(blob_->at(0), args_);
+				return new p_inner_product_op(blob_->at(0), args_);
 			case CACU_DECONVOLUTION:
 				CHECK_EQ_OP(blob_->size(), 1 , "blobs size must == 1 vs %d",blob_->size());
 				return new deconvolution_op(blob_->at(0), args_);
@@ -153,7 +153,7 @@ namespace mycnn{
 			case CACU_ROI_POOLING:
 				return (roi_pooling_op*&)op_;
 			case CACU_P_INNERPRODUCT:
-				return (p_innerproduct_op*&)op_;
+				return (p_inner_product_op*&)op_;
 			case CACU_DECONVOLUTION:
 				return (deconvolution_op)op_;
 			case CACU_INJECTOR:

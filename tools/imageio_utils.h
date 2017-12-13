@@ -146,7 +146,7 @@ namespace mycnn_tools{
 			vec_t().swap(temp_);
 		}
 
-		static void imread_resize_gpu(mycnn::float_t *p_data, const char* file_path_, int resize_h,int resize_w)
+		static void resize_imread_gpu(mycnn::float_t *p_data, const char* file_path_, int resize_h,int resize_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -172,8 +172,42 @@ namespace mycnn_tools{
 			vec_t().swap(temp_);
 		}
 
+		static void clip_imread_gpu(mycnn::float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
+		{
+			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
+			if(!src.data)
+				LOG_FATAL("file %s cannot be opened!",file_path_);
+
+			unsigned int height = src.rows;
+			unsigned int width = src.cols;
+			unsigned int c_length = clip_size_w * clip_size_h;
+			cv::Mat dst = src;
+
+			CHECK_LT_OP(clip_size_h, height, "clip height %d must less than the image height %d!", clip_size_h, height);
+			CHECK_LT_OP(clip_size_w, width, "clip width %d must less than the image width %d!", clip_size_w, width);
+
+			vec_t temp_(3*c_length);
+			unsigned int index;
+			unsigned int start_w,start_h;
+			start_w = randint(src.cols - clip_size_w);
+			start_h = randint(src.rows - clip_size_h);
+			cout << start_w << "," << start_h << endl;
+			cv::Vec3b setdata;
+			for (unsigned int y = 0; y < clip_size_h; y++)
+				for (unsigned int x = 0; x < clip_size_w; x++) {
+					index = y * clip_size_w + x;
+					setdata = dst.at<cv::Vec3b>(y + start_h, x + start_w);
+					temp_[index] = ((mycnn::float_t) setdata[0]);
+					temp_[c_length + index] = ((mycnn::float_t) setdata[1]);
+					temp_[2 * c_length + index] = ((mycnn::float_t) setdata[2]);
+				}
+			cuda_copy2dev(p_data, &temp_[0], temp_.size());
+			vec_t().swap(temp_);
+		}
+
+
 #endif
-		static void imread(mycnn::float_t *p_data, const char* file_path_, const int size)
+		static void imread(mycnn::float_t *p_data, const char* file_path_, const int p_size)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -184,7 +218,7 @@ namespace mycnn_tools{
 			unsigned int c_length = height * width;
 
 			vec_t temp_(3*c_length);
-			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
+			CHECK_EQ_OP(p_size, temp_.size(), "image size %d must equal to the blob size %d!",temp_.size(), p_size);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
@@ -193,11 +227,9 @@ namespace mycnn_tools{
 					p_data[c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[1]);
 					p_data[2*c_length + index] = ((mycnn::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
-
 		}
 
-
-		static void imread_resize(mycnn::float_t *p_data, const char* file_path_, int resize_h, int resize_w)
+		static void resize_imread(mycnn::float_t *p_data, const char* file_path_, int resize_h, int resize_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -220,6 +252,40 @@ namespace mycnn_tools{
 					p_data[2*c_length + index] = ((mycnn::float_t) dst.at<cv::Vec3b>(y, x)[2]);
 				}
 		}
+
+		static void clip_imread(mycnn::float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
+		{
+			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
+			if(!src.data)
+				LOG_FATAL("file %s cannot be opened!",file_path_);
+
+			unsigned int height = src.rows;
+			unsigned int width = src.cols;
+			unsigned int c_length = clip_size_w * clip_size_h;
+			cv::Mat dst = src;
+
+			CHECK_LT_OP(clip_size_h, height, "clip height %d must less than the image height %d!", clip_size_h, height);
+			CHECK_LT_OP(clip_size_w, width, "clip width %d must less than the image width %d!", clip_size_w, width);
+
+			vec_t temp_(3*c_length);
+			unsigned int index;
+			unsigned int start_w,start_h;
+			start_w = randint(src.cols - clip_size_w);
+			start_h = randint(src.rows - clip_size_h);
+			cout << start_w << "," << start_h << endl;
+			cv::Vec3b setdata;
+			for (unsigned int y = 0; y < clip_size_h; y++)
+				for (unsigned int x = 0; x < clip_size_w; x++) {
+					index = y * clip_size_w + x;
+					setdata = dst.at<cv::Vec3b>(y + start_h, x + start_w);
+					temp_[index] = ((mycnn::float_t) setdata[0]);
+					temp_[c_length + index] = ((mycnn::float_t) setdata[1]);
+					temp_[2 * c_length + index] = ((mycnn::float_t) setdata[2]);
+				}
+			memcpy(p_data, &temp_[0], temp_.size());
+			vec_t().swap(temp_);
+		}
+
 
 #endif
 		static void save_mean_file(mycnn::float_t *p_data, string mean_file_ , int length_)

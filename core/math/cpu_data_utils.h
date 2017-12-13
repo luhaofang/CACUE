@@ -72,4 +72,13 @@ namespace mycnn{
 		}
 	}
 
+	template<typename DTYPE>
+	inline void cacu_print_cpu(DTYPE *data, int length)
+	{
+		for(int i = 0; i < length ;++i)
+			cout << data[i] << ",";
+		cout << endl;
+	}
+
+
 };

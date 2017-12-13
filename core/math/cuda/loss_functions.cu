@@ -73,4 +73,27 @@ extern "C" void cacu_cross_entropy_gpu(mycnn::float_t *x, int num, int length, u
 
 
 
+/*
+ *num: num of samples inputs
+ *output_num: num of the output class
+ *label_: multi label for softmax
+ *trans_labels_: sigmoid labels
+ */
+__global__ void _k_CACU_MULTI_LABEL_TRANS_GPU(int num, int output_num, const unsigned int *label_, unsigned int *trans_labels_) {
+
+	int bid = blockIdx.x;
+	int tid = threadIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < num * output_num; i += THREADNUM * BLOCKNUM)
+	{
+		trans_labels_[i] = 0;
+		if(i == ((i / output_num) * output_num + label_[i % output_num]))
+			trans_labels_[i] = 1;
+	}
+}
+
+extern "C" void cacu_multi_label_trans_gpu(int num, int output_num,const unsigned int *label_, unsigned int *trans_labels_);
+
 

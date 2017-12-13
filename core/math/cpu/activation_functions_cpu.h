@@ -187,9 +187,9 @@ namespace mycnn{
 	}
 
 	/**
-	 * @cacu_tanh_grad
-	 * math tanh;
-	 * for activation use tanh functions.
+	 * @cacu_sigmoid_grad
+	 * math sigmoid;
+	 * for activation use sigmoid functions.
 	 */
 	inline void cacu_sigmoid_grad_cpu(float_t *x, float_t *g, int length, float_t *y)
 	{

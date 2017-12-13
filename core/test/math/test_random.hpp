@@ -50,3 +50,18 @@ TEST_CASE("random_vector")
 	}
 
 }
+
+
+TEST_CASE("random_int")
+{
+
+
+	SECTION("random_int"){
+
+		set_rand_seed();
+
+		for(int i = 0 ; i < 10 ; ++i)
+			cout << randint(10) << endl;
+	}
+
+}

@@ -89,6 +89,7 @@ namespace mycnn{
 		}
 
 		layer* op(op_name op_, blobs *blobs_) {
+
 			if(blobs_ == NULL)
 				LOG_FATAL("input data is NULL!");
 			refresh_layer_param(blobs_->at(0));
