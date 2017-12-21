@@ -62,8 +62,7 @@ __global__ void _k_CACU_RELU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g, int 
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		if(x[i] <= 0)
-			g[i] = mycnn::float_t(0);
+		g[i] = g[i] * (x[i] > 0);
 
 	}
 }
@@ -89,8 +88,7 @@ __global__ void _k_CACU_LEAKY_RELU_GPU(mycnn::float_t *x,mycnn::float_t a, int l
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		if(x[i] < 0)
-			x[i] *= a;
+		x[i] = x[i] * a * (x[i] <= 0) + x[i] * (x[i] > 0);
 	}
 
 }
@@ -115,8 +113,7 @@ __global__ void _k_CACU_LEAKY_RELU_GRAD_GPU(mycnn::float_t *x, mycnn::float_t *g
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		if(x[i] <= 0)
-			g[i] *= a;
+		g[i] = g[i] * a * (x[i] <= 0) + g[i] * (x[i] > 0);
 	}
 
 }

@@ -131,3 +131,26 @@ extern "C" void cacu_transpose_gpu(mycnn::float_t *mtx, const int m, const int n
 {
 
 }
+
+
+__global__ void _k_CACU_CLIP_VEC_GPU(mycnn::float_t *data, const mycnn::float_t threshold, const int length) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		data[i] = data[i] * (abs(data[i]) >= threshold);
+	}
+}
+
+extern "C" void cacu_clip_vec_gpu(mycnn::float_t *data, const mycnn::float_t threshold, const int length)
+{
+	_k_CACU_CLIP_VEC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(data, threshold, length);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+

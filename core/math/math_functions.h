@@ -299,5 +299,18 @@ inline void cacu_transpose(float_t *mtx, const int m, const int n) {
 #endif
 }
 
+
+inline void cacu_clip_vec(float_t *data, const float_t threshold, const int length) {
+
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_clip_vec_gpu(data, threshold, length);
+#else
+	for(int i = 0; i < length ; ++i)
+		data[i] = data[i] * (abs(data[i]) >= threshold);
+#endif
+}
+
+
+
 }
 ;

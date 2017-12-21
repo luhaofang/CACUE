@@ -191,7 +191,6 @@ namespace mycnn_tools{
 			unsigned int start_w,start_h;
 			start_w = randint(src.cols - clip_size_w);
 			start_h = randint(src.rows - clip_size_h);
-			cout << start_w << "," << start_h << endl;
 			cv::Vec3b setdata;
 			for (unsigned int y = 0; y < clip_size_h; y++)
 				for (unsigned int x = 0; x < clip_size_w; x++) {
@@ -272,7 +271,6 @@ namespace mycnn_tools{
 			unsigned int start_w,start_h;
 			start_w = randint(src.cols - clip_size_w);
 			start_h = randint(src.rows - clip_size_h);
-			cout << start_w << "," << start_h << endl;
 			cv::Vec3b setdata;
 			for (unsigned int y = 0; y < clip_size_h; y++)
 				for (unsigned int x = 0; x < clip_size_w; x++) {

@@ -89,5 +89,7 @@ extern "C" void cacu_argmax_gpu(const mycnn::float_t *x, int length, unsigned in
 
 extern "C" void cacu_transpose_gpu(mycnn::float_t *mtx, const int m, const int n);
 
+extern "C" void cacu_clip_vec_gpu(mycnn::float_t *data, const mycnn::float_t threshold, const int length);
+
 
 #endif
