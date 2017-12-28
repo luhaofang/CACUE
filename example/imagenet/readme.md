@@ -2,7 +2,7 @@
 
 pre-trained [res18net](https://pan.baidu.com/s/1c1BgMXi)
 
-pre-trained [res50net](https://pan.baidu.com/s/1hswvJQc)
+pre-trained [res50net](https://pan.baidu.com/s/1bptuG95)
 
 pre-trained [vgg16net](https://pan.baidu.com/s/1eR8tGLO)
 
