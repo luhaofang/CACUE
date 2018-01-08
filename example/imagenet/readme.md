@@ -12,7 +12,3 @@ pre-trained [mobilenet](https://pan.baidu.com/s/1c1IAAE8)
 ![image](https://github.com/luhaofang/CACUE/blob/master/example/imagenet/img/pic.JPEG)
 ![image](https://github.com/luhaofang/CACUE/blob/master/example/imagenet/img/test.jpg)
 
-Res50:
-
-![image](https://github.com/luhaofang/CACUE/blob/master/example/imagenet/img/precision.jpg)
-![image](https://github.com/luhaofang/CACUE/blob/master/example/imagenet/img/loss_curve.jpg)
