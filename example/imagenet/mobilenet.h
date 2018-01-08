@@ -218,6 +218,11 @@ network* create_mobilenet_without_fc(int batch_size_,phrase_type phrase_)
 
 	*net << ave_pool;
 
+	layer_block *fc = fc_layer_nodropout((blob*)ave_pool->get_oblob(), 1000);
+	LOG_DEBUG("fc");
+
+	//*net << fc;
+
 	return net;
 }
 

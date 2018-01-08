@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include <time.h>
+#include <sys/time.h>
 
 #include "../../mycnn.h"
 
@@ -41,7 +42,7 @@ void train_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 5000;
+	int max_iter = 10000;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
@@ -49,10 +50,10 @@ void train_net()
 	//set random seed
 	set_rand_seed();
 
-	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,train);
-	//net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	network *net = create_cifar_quick_test_net(batch_size,train);//create_cifar_test_net(batch_size,train);
+	//net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
 	sgd_solver *sgd = new sgd_solver(net);
-	sgd->set_lr(0.001f);
+	sgd->set_lr(0.01f);
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
@@ -65,10 +66,12 @@ void train_net()
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
-	clock_t start,end;
-	for (int i = 0 ; i < max_iter; ++i)
+	struct timeval start;
+	struct timeval end;
+	unsigned long diff;
+	for (int i = 1 ; i < max_iter; ++i)
 	{
-		start = clock();
+		gettimeofday(&start, NULL);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARDataCount)
@@ -78,19 +81,21 @@ void train_net()
 			step_index += 1;
 		}
 		sgd->train_iter();
-		end = clock();
+		gettimeofday(&end, NULL);
 
 		if(i % 10 == 0){
-			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),(end - start));
+			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
+										- start.tv_usec;
+			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), diff / 1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
 
-		if(i == 4000)
+		if(i % 8000 == 0)
 			sgd->set_lr_iter(0.1f);
 
 	}
 	LOG_INFO("optimization is done!");
-	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif

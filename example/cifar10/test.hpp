@@ -46,12 +46,12 @@ void test_net()
 	int max_iter = 100;
 
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(1);
+	cuda_set_device(0);
 #endif
 
-	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,test);
+	network *net = create_cifar_quick_test_net(batch_size,train);//create_cifar_test_net(batch_size,test);
 
-	op_injector *injector = new op_injector(net->get_op(8));
+	op_injector *injector = new op_injector(net->get_op(9));
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
@@ -68,7 +68,7 @@ void test_net()
 
 	blob *output_data = net->output_blob();
 
-	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
 
 	unsigned int max_index;
 	float_t count = 0;

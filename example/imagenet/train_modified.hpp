@@ -41,7 +41,7 @@
 void train_net() {
 	int batch_size = 32;
 
-	int max_iter = 1600000;
+	int max_iter = 600000;
 
 	int test_iter = 100;
 	int train_test_iter = 100;
@@ -54,18 +54,18 @@ void train_net() {
 	set_rand_seed();
 
 	//log output
-	std::ofstream logger("/home/seal/4T/cacue/imagenet/resnet.log",
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/resnet_21w.log",
 			ios::binary);
 	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
 	//log output
 	std::ofstream precious_logger(
-			"/home/seal/4T/cacue/imagenet/resnet_precious.log",
+			"/home/seal/4T/cacue/imagenet/resnet_precious_21w.log",
 			ios::binary);
 	precious_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 	//log output
 	std::ofstream precious_train_logger(
-			"/home/seal/4T/cacue/imagenet/resnet_train_precious.log",
+			"/home/seal/4T/cacue/imagenet/resnet_train_precious_21w.log",
 			ios::binary);
 	precious_train_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
 
@@ -73,12 +73,12 @@ void train_net() {
 	//network *net = create_vgg_16_net(batch_size, train);
 	network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_alexnet(batch_size,train);
 
-	net->load_weights("/home/seal/4T/cacue/imagenet/res50net.model");//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
-	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/mobilenet.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net.model");//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_210000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.1);
+	sgd->set_lr(0.001);
 	sgd->set_weight_decay(0.0001);
 	sgd->set_regularize(L2);
 
@@ -269,7 +269,7 @@ void train_net() {
 				<< endl;
 		logger.flush();
 
-		if (i % 400000 == 0)
+		if (i % 200000 == 0)
 			sgd->set_lr_iter(0.1);
 
 		if (i % 10000 == 0) {

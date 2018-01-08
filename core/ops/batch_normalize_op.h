@@ -326,6 +326,7 @@ namespace mycnn{
 			_history_mean->load(is);
 			//_history_mean->set_data(0);
 			_history_var->load(is);
+
 			//_moving_scalar->load(is);
 			//_history_var->set_data(0);
 			//blob_base *blob = cacu_allocator::create_blob(1, 1, 1, 1, test);

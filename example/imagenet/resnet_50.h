@@ -164,3 +164,52 @@ network* create_res50net(int batch_size_,phrase_type phrase_)
 	}
 	return net;
 }
+
+
+network* create_res50net_nofc(int batch_size_,phrase_type phrase_)
+{
+	blob *blob_ = cacu_allocator::create_blob(batch_size_, 3, 224, 224, phrase_);
+	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size_, 1, 1, 1,phrase_);
+
+	blobs *input_datas_ = cacu_allocator::create_blobs();
+	input_datas_->push_back(blob_);
+	input_datas_->push_back(label_);
+
+	network *net = new network(input_datas_);
+
+	layer_block *conv1 = conv_block_top(blob_, 64, 7, 2, 3, false);
+	layer_block *conv2a = conv_shortcut_block(conv1->get_oblob(),64,256,3,1,1,1);
+	layer_block *conv2b = identity_block(conv2a->get_oblob(),64,256,3,1,1,1);
+	layer_block *conv2c = identity_block(conv2b->get_oblob(),64,256,3,1,1,1);
+
+	*net << conv1 << conv2a << conv2b << conv2c;
+
+	layer_block *conv3a = conv_shortcut_block(conv2c->get_oblob(),128,512,3,1,2,1);
+	layer_block *conv3b = identity_block(conv3a->get_oblob(),128,512,3,1,1,1);
+	layer_block *conv3c = identity_block(conv3b->get_oblob(),128,512,3,1,1,1);
+	layer_block *conv3d = identity_block(conv3c->get_oblob(),128,512,3,1,1,1);
+
+	*net << conv3a << conv3b << conv3c << conv3d;
+
+	layer_block *conv4a = conv_shortcut_block(conv3d->get_oblob(),256,1024,3,1,2,1);
+	layer_block *conv4b = identity_block(conv4a->get_oblob(),256,1024,3,1,1,1);
+	layer_block *conv4c = identity_block(conv4b->get_oblob(),256,1024,3,1,1,1);
+	layer_block *conv4d = identity_block(conv4c->get_oblob(),256,1024,3,1,1,1);
+	layer_block *conv4e = identity_block(conv4d->get_oblob(),256,1024,3,1,1,1);
+	layer_block *conv4f = identity_block(conv4e->get_oblob(),256,1024,3,1,1,1);
+
+	*net << conv4a << conv4b << conv4c << conv4d << conv4e << conv4f;
+
+	layer_block *conv5a = conv_shortcut_block(conv4f->get_oblob(),512,2048,3,1,2,1);
+	layer_block *conv5b = identity_block(conv5a->get_oblob(),512,2048,3,1,1,1);
+	layer_block *conv5c = identity_block(conv5b->get_oblob(),512,2048,3,1,1,1);
+
+	*net << conv5a << conv5b << conv5c;
+
+	layer *ave_pool = new layer(conv5c->get_oblob()->channel(),conv5c->get_oblob()->height(),1);
+	ave_pool->op(CACU_AVERAGE_POOLING, conv5c->get_oblob());
+
+	*net << ave_pool;
+
+	return net;
+}

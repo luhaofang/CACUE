@@ -54,9 +54,9 @@ void test_net()
 #endif
 
 	network *net = create_res50net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
-
-	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_10000.model");//vggnet_40000.model");
-
+	//network *net = create_mobilenet(batch_size,test);
+	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_150000.model");//vggnet_40000.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/mobilenet.model");
 	//net->check();
 	op_injector *injector = new op_injector(net->get_op(29));
 
