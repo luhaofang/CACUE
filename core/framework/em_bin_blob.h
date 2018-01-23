@@ -323,6 +323,11 @@ namespace mycnn{
 			}
 		}
 
+		inline virtual const void resize(int num, int channel, int weight, int height) override
+		{
+
+		}
+
 	protected:
 
 

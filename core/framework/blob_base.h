@@ -121,6 +121,8 @@ namespace mycnn{
 
 		virtual const void load(std::ifstream& is) = 0;
 
+		virtual inline const void resize(int num, int channel, int weight, int height) = 0;
+
 		inline void _CHECK_SIZE_EQ(blob_base* blob_)
 		{
 			CHECK_EQ_OP(_channel,blob_->_channel,"_channel check does NOT match! ( %d vs %d )",_channel,blob_->_channel);
