@@ -31,7 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 using namespace std;
-using namespace mycnn_tools;
 
 namespace mycnn {
 

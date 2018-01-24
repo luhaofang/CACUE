@@ -43,10 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <limits.h>
 
-#include "../../tools/rand_t.h"
-
 using namespace std;
-using namespace mycnn_tools;
 
 namespace mycnn {
 

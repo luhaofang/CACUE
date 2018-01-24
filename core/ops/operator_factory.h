@@ -155,7 +155,7 @@ namespace mycnn{
 			case CACU_P_INNERPRODUCT:
 				return (p_inner_product_op*&)op_;
 			case CACU_DECONVOLUTION:
-				return (deconvolution_op)op_;
+				return (deconvolution_op*&)op_;
 			case CACU_INJECTOR:
 				return (injector_op*&)op_;
 			case CACU_ROW_MAX_POOLING:

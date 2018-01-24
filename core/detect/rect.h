@@ -27,41 +27,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-using namespace std;
+namespace mycnn_detection{
 
-namespace mycnn{
+	struct rect{
 
+	public:
 
-	class rect{
+		rect(int l_,int t_,int r_,int b_,float_t score_){
+			l = l_;
+			t = t_;
+			r = r_;
+			b = b_;
+			score = score_;
+		}
 
-	public :
-
-		rect(int l, int t, int r, int b, float_t score = 0){
-			_left = l;
-			_top = t;
-			_right = r;
-			_bottom = b;
-			_score = score;
-		};
-
-		~rect(){};
-
-		inline int left(){return _left;}
-		inline int top(){return _top;}
-		inline int right(){return _right;}
-		inline int bottom(){return _bottom;}
-		inline int score(){return _score;}
-
-
-	private:
-
-		int _left;
-		int _top;
-		int _right;
-		int _bottom;
+		int l;
+		int t;
+		int r;
+		int b;
 
 		//confidence scores
-		float_t _score;
+		float_t score;
 	};
 
 };
