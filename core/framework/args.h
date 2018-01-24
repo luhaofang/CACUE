@@ -56,17 +56,17 @@ namespace mycnn{
 
 		}
 
-		inline const int output_channel()	{return this->at(0);}
+		inline int output_channel()	const{return this->at(0);}
 
-		inline const int kernel_size(){return this->at(1);}
+		inline int kernel_size() const{return this->at(1);}
 
-		inline const int stride(){return this->at(2);}
+		inline int stride() const{return this->at(2);}
 
-		inline const int pad(){return this->at(3);}
+		inline int pad() const{return this->at(3);}
 
-		inline const int input_dim(){return this->at(4);}
+		inline int input_dim() const{return this->at(4);}
 
-		inline const int channel(){return this->at(5);}
+		inline int channel() const{return this->at(5);}
 
 
 	private:

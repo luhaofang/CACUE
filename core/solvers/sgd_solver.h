@@ -85,7 +85,7 @@ namespace mycnn{
 
 		inline void set_momentum(float_t momentum_){ _momentum = momentum_ ;}
 
-		inline float_t momentum(){ return _momentum; }
+		inline float_t momentum() const{ return _momentum; }
 
 		void echo()
 		{

@@ -80,7 +80,7 @@ namespace mycnn{
 		/**
 		 * return the piece probe in blob data
 		 */
-		inline float_t* p_data(int n) {
+		inline float_t* p_data(int n) const{
 			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
 			return (float_t*)_s_data + n *_cube_length;
 		}
@@ -88,7 +88,7 @@ namespace mycnn{
 		/**
 		 * return the piece probe in blob diff
 		 */
-		inline float_t* p_diff(int n) {
+		inline float_t* p_diff(int n) const{
 			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
 			return (float_t*)_s_diff + n *_cube_length;
 		}
@@ -96,20 +96,20 @@ namespace mycnn{
 		/**
 		 * return the source probe in blob data
 		 */
-		inline float_t* s_data(){ return (float_t*)_s_data; }
+		inline float_t* s_data() const{ return (float_t*)_s_data; }
 
 		/**
 		 * return the source probe in blob diff
 		 */
-		inline float_t* s_diff(){ return (float_t*)_s_diff; }
+		inline float_t* s_diff() const{ return (float_t*)_s_diff; }
 
 
-		inline float_t* s_data_d()
+		inline float_t* s_data_d() const
 		{
 			return _d_p_data;
 		}
 
-		inline float_t* s_diff_d()
+		inline float_t* s_diff_d() const
 		{
 			return _d_p_diff;
 		}
@@ -189,7 +189,7 @@ namespace mycnn{
 		/**
 		 * set input diff data to constant value
 		 */
-		inline const void set_data(float_t value_)
+		inline void set_data(float_t value_)
 		{
 			float_t* s_data_ = (float_t*)_s_data;
 
@@ -200,7 +200,7 @@ namespace mycnn{
 		/**
 		 * set input diff data to constant value
 		 */
-		inline const void set_diff(float_t value_)
+		inline void set_diff(float_t value_)
 		{
 			float_t* s_diff_ = (float_t*)_s_diff;
 
@@ -214,7 +214,7 @@ namespace mycnn{
 		 * copy data into blob, if blob is established in gpu, io op is needed
 		 * where i is the start index in blob
 		 */
-		inline const void copy_data_io(vec_t &data_, int i)
+		inline void copy_data_io(vec_t &data_, int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 			cacu_copy_cpu(&data_[0],_cube_length, p_data(i));
@@ -224,7 +224,7 @@ namespace mycnn{
 		/*
 		 * copy data into blob, if blob is established in gpu, io op is needed
 		 */
-		inline const void copy_data_io(vec_t &data_)
+		inline void copy_data_io(vec_t &data_)
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
 			cacu_copy_cpu(&data_[0],_length, s_data());
@@ -235,7 +235,7 @@ namespace mycnn{
 		 * copy data into blob, if blob is established in gpu, io op is needed
 		 * where i is the start index in blob
 		 */
-		inline const void copy_diff_io(vec_t &data_, int i)
+		inline void copy_diff_io(vec_t &data_, int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 			cacu_copy_cpu(&data_[0],_cube_length, p_diff(i));
@@ -245,7 +245,7 @@ namespace mycnn{
 		/*
 		 * copy data into blob's diff, if blob is established in gpu, io op is needed
 		 */
-		inline const void copy_diff_io(vec_t &data_)
+		inline void copy_diff_io(vec_t &data_)
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
 			cacu_copy_cpu(&data_[0],_length, s_diff());

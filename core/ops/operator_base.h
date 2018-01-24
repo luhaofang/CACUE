@@ -122,16 +122,16 @@ namespace mycnn{
 		inline blobs *&out_datas(){ return o_blobs; }
 
 		template<typename BTYPE>
-		inline BTYPE *&out_data(){ return (BTYPE *&)o_blob; }
+		inline BTYPE *&out_data() const{ return (BTYPE *&)o_blob; }
 
 		inline blobs *&in_datas(){ return s_blobs; }
 
 		template<typename BTYPE>
-		inline BTYPE *&in_data(){return (BTYPE *&)s_blob;}
+		inline BTYPE *&in_data() const{return (BTYPE *&)s_blob;}
 
-		inline int weights_size(){ return _weights.size(); }
+		inline int weights_size() const{ return _weights.size(); }
 
-		inline weight* get_weight(int i){ return _weights[i]; }
+		inline weight* get_weight(int i) const{ return _weights[i]; }
 
 		inline void infer()
 		{

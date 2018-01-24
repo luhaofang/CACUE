@@ -84,7 +84,7 @@ namespace mycnn{
 
 		inline layer_base *&layer_bases(int i){ return _layers[i]; }
 
-		inline int layer_count(){ return _layers.size(); }
+		inline int layer_count() const{ return _layers.size(); }
 
 		inline void set_inputdata(blob_base *&blob_){  layers(0)->get_head_op()->set_blob(blob_);}
 
@@ -136,7 +136,7 @@ namespace mycnn{
 			return _ops[i];
 		}
 
-		inline int op_count(){ return _ops.size(); }
+		inline int op_count() const{ return _ops.size(); }
 
 		inline blobs *& input_blobs(){ return _input_blobs; }
 

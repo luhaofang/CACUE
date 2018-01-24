@@ -77,9 +77,9 @@ namespace mycnn{
 		//stride size
 		int _stride = 0;
 
-		inline int op_count(){ return _ops.size(); }
+		inline int op_count() const{ return _ops.size(); }
 
-		inline operator_base *&op(int i){ return _ops[i]; }
+		inline operator_base *&op(int i) { return _ops[i]; }
 
 		inline void operate()
 		{

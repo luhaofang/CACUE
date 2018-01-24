@@ -47,7 +47,7 @@ namespace mycnn {
 	}
 
 	inline float_t urand(float_t min, float_t max) {
-		assert(min <= max);
+		assert(min < max);
 		float_t pRandomValue = ((float_t)rand() / (float_t)RAND_MAX);
 		pRandomValue = pRandomValue * (max - min) + min;
 		return pRandomValue;
@@ -55,7 +55,7 @@ namespace mycnn {
 
 	inline unsigned int urandint(unsigned int min, unsigned int max) {
 
-		assert(min <= max);
+		assert(min < max);
 		float_t pRandomValue = (float_t)(rand() % max) / max;
 		pRandomValue = pRandomValue * (max - min) + min;
 		return (unsigned int)pRandomValue;

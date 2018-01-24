@@ -81,13 +81,13 @@ namespace mycnn{
 			return NULL;
 		}
 	
-		inline layer *layers(int i){ return (layer*&)_layers[i]; };
+		inline layer *layers(int i) const{ return (layer*&)_layers[i]; };
 
-		inline layer_base *pop_layer(){ return _layers[ length() - 1]; };
+		inline layer_base *pop_layer() const{ return _layers[ length() - 1]; };
 
-		inline layer_base *layer_bases(int i){ return _layers[i]; };
+		inline layer_base *layer_bases(int i) const{ return _layers[i]; };
 
-		inline int length(){ return _layers.size(); };
+		inline int length() const{ return _layers.size(); };
 
 	protected:
 

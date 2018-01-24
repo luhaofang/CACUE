@@ -61,19 +61,19 @@ namespace mycnn{
 
 		}
 
-		inline unsigned int* p_data(int n) {
+		inline unsigned int* p_data(int n) const{
 			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
 			return (unsigned int*)_s_data + n*_cube_length;
 		}
 
-		inline float_t* p_diff(int n) {
+		inline float_t* p_diff(int n) const{
 			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
 			return (float_t*)_s_diff + n*_cube_length;
 		}
 
-		inline unsigned int* s_data(){ return (unsigned int*)_s_data; }
+		inline unsigned int* s_data() const{ return (unsigned int*)_s_data; }
 
-		inline float_t* s_diff(){ return (float_t*)_s_diff; }
+		inline float_t* s_diff() const{ return (float_t*)_s_diff; }
 
 		virtual inline const void _RESET_DATA() override
 		{
@@ -105,7 +105,7 @@ namespace mycnn{
 #endif
 		}
 
-		const void set_data(unsigned int value_)
+		inline void set_data(unsigned int value_)
 		{
 			unsigned int* s_data_ = (unsigned int*)_s_data;
 #if __PARALLELTYPE__ == __CUDA__
@@ -116,7 +116,7 @@ namespace mycnn{
 #endif
 		}
 
-		inline const void set_diff(float_t value_)
+		inline void set_diff(float_t value_)
 		{
 			float_t* s_diff_ = (float_t*)_s_diff;
 			if (train == _phrase){
@@ -133,7 +133,7 @@ namespace mycnn{
 			return test == _phrase ? _length*sizeof(unsigned int) : _length*sizeof(unsigned int) + _length*sizeof(float_t);
 		}
 
-		inline const void copy_data_io(vec_i &data_ , int i)
+		inline void copy_data_io(vec_i &data_ , int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 #if __PARALLELTYPE__ == __CUDA__
@@ -143,7 +143,7 @@ namespace mycnn{
 #endif
 		}
 
-		inline const void copy_data_io(vec_i &data_)
+		inline void copy_data_io(vec_i &data_)
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
 #if __PARALLELTYPE__ == __CUDA__
@@ -153,7 +153,7 @@ namespace mycnn{
 #endif
 		}
 
-		inline const void copy_data_io(vec_t &data_, int i)
+		inline void copy_data_io(vec_t &data_, int i)
 		{
 			CHECK_EQ_OP(data_.size(),_cube_length,"blob size must be equal! %d vs %d",data_.size(),_cube_length);
 #if __PARALLELTYPE__ == __CUDA__
@@ -166,7 +166,7 @@ namespace mycnn{
 		/*
 		 * copy data into blob's diff, if blob is established in gpu, io op is needed
 		 */
-		inline const void copy_diff_io(vec_t &data_)
+		inline void copy_diff_io(vec_t &data_)
 		{
 			CHECK_EQ_OP(data_.size(),_length,"blob size must be equal! %d vs %d",data_.size(),_length);
 #if __PARALLELTYPE__ == __CUDA__

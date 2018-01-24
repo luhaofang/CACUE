@@ -85,29 +85,31 @@ namespace mycnn{
 			return c*_cube_length + x*_width + y;
 		}
 
+		/*
 		inline const spatial3D index3D(int i)
 		{
 			spatial3D s = { i / _cube_length, (i % _cube_length) / _width, (i % _cube_length) % _width };
 			return s;
 		}
+		*/
 
-		inline int num(){ return _num; }
+		inline int num() const{ return _num; }
 
-		inline int channel(){ return _channel; }
+		inline int channel() const{ return _channel; }
 
-		inline int width(){ return _width; }
+		inline int width() const{ return _width; }
 
-		inline int height(){ return _height; }
+		inline int height() const{ return _height; }
 
-		inline int channel_length(){ return _channel_length; }
+		inline int channel_length() const{ return _channel_length; }
 
-		inline int length(){ return _cube_length; }
+		inline int length() const{ return _cube_length; }
 
-		inline int count(){ return _length; }
+		inline int count() const{ return _length; }
 
-		inline int data_num(){ return _data_num; }
+		inline int data_num() const{ return _data_num; }
 
-		inline phrase_type phrase(){ return _phrase; }
+		inline phrase_type phrase() const{ return _phrase; }
 
 		inline void set_data_num(int num){ _data_num = num; }
 
@@ -131,9 +133,9 @@ namespace mycnn{
 			CHECK_EQ_OP(_width,blob_->_width,"_width check does NOT match! ( %d vs %d )",_width,blob_->_width);
 		}
 
-		inline blob_type _TYPE(){return _blob_type;};
+		inline blob_type _TYPE() const {return _blob_type;};
 
-		inline bool is_output() {return _REC_ == 0;}
+		inline bool is_output() const {return _REC_ == 0;}
 
 		inline void _REC(){
 			if(_REC_ < __BLOBMAXREC__)

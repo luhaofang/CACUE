@@ -113,7 +113,7 @@ namespace mycnn{
 		}
 
 		template<class OPTYPE>
-		inline OPTYPE *& get_op(int i)
+		inline OPTYPE *& get_op(int i) const
 		{
 			return (OPTYPE*&)_ops[i];
 		}
@@ -128,7 +128,7 @@ namespace mycnn{
 			return out_blob;
 		}
 
-		inline blobs *&get_oblobs()
+		inline blobs *&get_oblobs() const
 		{
 			return _ops.back()->out_datas();
 		}

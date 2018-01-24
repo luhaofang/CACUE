@@ -55,17 +55,17 @@ namespace mycnn{
 
 
 		template<class OPTYPE>
-		inline OPTYPE *& get_op(int i)
+		inline OPTYPE *& get_op(int i) const
 		{
 			return (OPTYPE*&)_ops[i];
 		}
 
-		inline operator_base * get_head_op()
+		inline operator_base * get_head_op() const
 		{
 			return _ops[0];
 		}
 
-		inline blob_base * get_oblob()
+		inline blob_base * get_oblob() const
 		{
 			return out_blob;
 		}

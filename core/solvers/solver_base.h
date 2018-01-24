@@ -64,11 +64,11 @@ namespace mycnn{
 
 		inline void set_regularize(regularize_type type_){_regularize = type_;}
 
-		inline float_t weight_decay(){ return _global_weight_decay;}
+		inline float_t weight_decay() const{ return _global_weight_decay;}
 
-		inline float_t lr(){ return _global_lr;}
+		inline float_t lr() const{ return _global_lr;}
 
-		inline regularize_type regularize(){ return _regularize;}
+		inline regularize_type regularize() const{ return _regularize;}
 
 		/*
 		 * where weight_index denote the weight's id in sovler's vector

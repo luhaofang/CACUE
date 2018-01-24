@@ -43,15 +43,15 @@ namespace mycnn{
 			_decay_mult = 1.0;
 		};
 
-		inline chars_t name(){ return _name; }
+		inline chars_t name() const{ return _name; }
 
 		inline void set_lr(float_t lr_){ _update_lr = lr_; }
 
-		inline float_t lr(){ return _update_lr; }
+		inline float_t lr() const{ return _update_lr; }
 
 		inline void set_decay(float_t decay_mult_){_decay_mult = decay_mult_; }
 
-		inline float_t decay(){ return _decay_mult; }
+		inline float_t decay() const{ return _decay_mult; }
 
 		~weight(){};
 
