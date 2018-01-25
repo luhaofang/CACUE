@@ -36,7 +36,17 @@ namespace mycnn{
 
 		p_inner_product_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_P_INNERPRODUCT){
 			check();
+			initial(data,args_);
+			init_weights(data,args_);
+			echo();
 
+		};
+
+		~p_inner_product_op(){
+			delete _temp;
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(data->num(), data->channel(), 1, 1, _phrase);
 			_temp =  create_oblob(1, data->channel(), data->height(), data->width(), _phrase);
@@ -44,17 +54,15 @@ namespace mycnn{
 			o_blob = create_oblob(data->num(), data->channel(), 1, 1, _phrase);
 			_temp =  create_oblob(1, data->channel(), data->height(), data->width(), _phrase);
 #endif
+
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
 			_w = create_param("w", data->channel(), 1, data->width(), data->height(), _phrase);
 
 			_bias = create_param("bias", data->channel(), 1, 1, 1, _phrase);
 			_bias ->set_lr(2);
-
-			echo();
-		};
-
-		~p_inner_product_op(){
-			delete _temp;
-		};
+		}
 
 		virtual const void check() override{
 			return;

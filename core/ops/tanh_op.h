@@ -36,20 +36,27 @@ namespace mycnn{
 
 		tanh_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_TANH){
 			check();
+			initial(data,args_);
+			init_weights(data,args_);
+			echo();
+		};
 
+		~tanh_op(){
+
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(data->num(), data->channel(), data->height(), data->width(), _phrase);
 #else
 			o_blob = create_oblob(data->num(), data->channel(), data->height(), data->width(), _phrase);
 #endif
 
-			echo();
+		}
 
-		};
-
-		~tanh_op(){
-
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			return;

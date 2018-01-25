@@ -23,5 +23,5 @@ void test_math()
 	cacu_print(_b->s_data(),_b->count());
 	cacu_transpose(_b->s_data(),5,3);
 	cacu_print(_b->s_data(),_b->count());
-
+	delete _b;
 }

@@ -37,20 +37,32 @@ namespace mycnn{
 		multi_ce_loss_op(blobs *&data, args *&args_) : operator_base(data, args_, CACU_SOFTMAX_LOSS){
 			check();
 
-			blob_base *_blob = data->at(0);
+			initial(data,args_);
+			init_weights(data,args_);
 
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(_blob->num(),args_->output_channel(),1,1,train);
-#else
-			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
-#endif
-			_trans_labels = cacu_allocator::create_bin_blob(num, args_->output_channel(), 1, 1, test);
 			_loss = (float_t*)malloc(sizeof(float_t));
+
+
+			echo();
 		};
 
 		~multi_ce_loss_op(){
 			free(_loss);
 		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(),args_->output_channel(),1,1,train);
+#else
+			o_blob = create_oblob(data->num(),args_->output_channel(),1,1,train);
+#endif
+			_trans_labels = cacu_allocator::create_bin_blob(data->num(), args_->output_channel(), 1, 1, test);
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			CHECK_GT_OP(_args->output_channel(),0,"loss num must > 0 vs %d !",_args->output_channel());

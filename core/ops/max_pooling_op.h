@@ -35,8 +35,19 @@ namespace mycnn{
 	public:
 
 		max_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_MAX_POOLING){
-			check();
 
+			check();
+			initial(data,args_);
+			init_weights(data,args_);
+			echo();
+
+		};
+
+		~max_pooling_op(){
+			delete _index;
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
@@ -53,12 +64,11 @@ namespace mycnn{
 			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
 #endif
 
-			echo();
-		};
+		}
 
-		~max_pooling_op(){
-			delete _index;
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			//kernel_size > 0

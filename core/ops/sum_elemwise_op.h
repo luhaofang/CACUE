@@ -37,20 +37,28 @@ namespace mycnn{
 
 		sum_elemwise_op(blobs *&data, args *&args_) : operator_base(data, args_, CACU_SUM_ELEMWISE){
 			check();
-
-			blob_base *_blob = data->at(0);
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
-#else
-			o_blob = create_oblob(_blob->num(), _blob->channel(), _blob->width(), _blob->height(), _phrase);
-#endif
-
+			initial(data->at(0),args_);
+			init_weights(data->at(0),args_);
 			echo();
 		};
 
 		~sum_elemwise_op(){
 
 		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(), data->channel(), data->width(), data->height(), _phrase);
+#else
+			o_blob = create_oblob(data->num(), data->channel(), data->width(), data->height(), _phrase);
+#endif
+
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 

@@ -37,7 +37,17 @@ namespace mycnn{
 		normalization_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_NORM){
 
 			check();
+			initial(data,args_);
+			init_weights(data,args_);
+			echo();
 
+		};
+
+		~normalization_op(){
+
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(data->num(), data->channel(), data->height(),data->width(), _phrase);
 			_temp = cacu_allocator::create_em_blob(1, data->channel(), data->height(),data->width(), 1.0, _phrase);
@@ -45,13 +55,11 @@ namespace mycnn{
 			o_blob = create_oblob(data->num(), data->channel(), data->height(), data->width(), _phrase);
 			_temp = cacu_allocator::create_blob(1, data->channel(), data->height(),data->width(), 1.0, _phrase);
 #endif
+		}
 
-			echo();
-		};
-
-		~normalization_op(){
-
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 

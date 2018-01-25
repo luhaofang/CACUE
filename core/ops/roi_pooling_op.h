@@ -36,11 +36,21 @@ namespace mycnn{
 
 		roi_pooling_op(blobs *&data, args *&args_) : operator_base(data, args_, CACU_ROI_POOLING){
 			check();
+			initial(data->at(0),args_);
+			init_weights(data->at(0),args_);
+			echo();
 
-			blob_base *data_ = data->at(0);
-			int input_dim = data_->width();
-			int channel = data_->channel();
-			int num = data_->num();
+		};
+
+		~roi_pooling_op(){
+
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+
+			int input_dim = data->width();
+			int channel = data->channel();
+			int num = data->num();
 			int output_dim = (input_dim - _args->kernel_size()) / _args->stride() + 1;
 			int pad = abs(input_dim - (output_dim - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
@@ -51,13 +61,11 @@ namespace mycnn{
 #else
 			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
 #endif
+		}
 
-			echo();
-		};
-
-		~roi_pooling_op(){
-
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			//kernel_size > 0

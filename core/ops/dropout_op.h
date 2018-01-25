@@ -36,7 +36,16 @@ namespace mycnn{
 
 		dropout_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_DROPOUT){
 			check();
+			initial(data, args_);
+			init_weights(data,args_);
+			echo();
+		};
 
+		~dropout_op(){
+			delete _rand_vect;
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
@@ -47,12 +56,11 @@ namespace mycnn{
 			o_blob = data;
 			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
 #endif
-			echo();
-		};
+		}
 
-		~dropout_op(){
-			delete _rand_vect;
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			return;

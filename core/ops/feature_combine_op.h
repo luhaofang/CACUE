@@ -36,6 +36,16 @@ namespace mycnn{
 
 		feature_combine_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_FEATURE_COMBINE){
 			check();
+			initial(data, args_);
+			init_weights(data,args_);
+			echo();
+		};
+
+		~feature_combine_op(){
+
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			_units_count = args_->at(0);
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phrase);
@@ -43,12 +53,11 @@ namespace mycnn{
 			o_blob = create_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phrase);
 #endif
 			o_blob->_CHECK_SIZE_EQ(s_blob);
-			echo();
-		};
+		}
 
-		~feature_combine_op(){
-
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			int mod = s_blob->num() % _args->at(0);

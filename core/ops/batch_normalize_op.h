@@ -38,45 +38,8 @@ namespace mycnn{
 		batch_normalize_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_BATCH_NORMALIZE){
 
 			check();
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), data->channel(), data->height(),data->width(), _phrase);
-			//save for train
-			if(train == _phrase)
-				_x = cacu_allocator::create_em_blob(data->num(), data->channel(), data->height(), data->width(), test);
-			else
-				_x = NULL;
-
-			_dim_sum = cacu_allocator::create_blob(1, data->channel(), data->height(), data->width(), test);
-#else
-			o_blob = create_oblob(data->num(), data->channel(), data->height(), data->width(), _phrase);
-			//save for train
-			if(train == _phrase)
-				_x = cacu_allocator::create_blob(data->num(), data->channel(), data->height(),data->width(), test);
-			else
-				_x = NULL;
-
-			_dim_sum = cacu_allocator::create_blob(data->num(), data->channel(), 1, 1, test);
-#endif
-			_scale = create_param("scale", data->channel(), 1, 1, 1, _phrase);
-			_scale->set_init_type(constant,1);
-			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
-			_shift->set_lr(2);
-
-			_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
-
-			_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1, _phrase);
-			_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
-
-			_history_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1,test);
-			_history_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,test);
-
-			_std = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
-
-			_one = cacu_allocator::create_blob(1, 1, 1, 1, 1,test);
-
-			_mutipler = cacu_allocator::create_blob(1,data->channel_length(),1,1,1.0,test);
-			_num_mutipler = cacu_allocator::create_blob(1,data->num(),1,1,1.0,test);
-
+			initial(data,args_);
+			init_weights(data,args_);
 			echo();
 		};
 
@@ -100,6 +63,51 @@ namespace mycnn{
 			if(_x != NULL)
 				delete _x;
 		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(), data->channel(), data->height(),data->width(), _phrase);
+			//save for train
+			if(train == _phrase)
+				_x = cacu_allocator::create_em_blob(data->num(), data->channel(), data->height(), data->width(), test);
+			else
+				_x = NULL;
+
+			_dim_sum = cacu_allocator::create_blob(1, data->channel(), data->height(), data->width(), test);
+#else
+			o_blob = create_oblob(data->num(), data->channel(), data->height(), data->width(), _phrase);
+			//save for train
+			if(train == _phrase)
+				_x = cacu_allocator::create_blob(data->num(), data->channel(), data->height(),data->width(), test);
+			else
+				_x = NULL;
+
+			_dim_sum = cacu_allocator::create_blob(data->num(), data->channel(), 1, 1, test);
+#endif
+
+
+			_moving_scalar = cacu_allocator::create_blob(1, 1, 1, 1, test);
+
+			_one = cacu_allocator::create_blob(1, 1, 1, 1, 1,test);
+
+			_mutipler = cacu_allocator::create_blob(1,data->channel_length(),1,1,1.0,test);
+			_num_mutipler = cacu_allocator::create_blob(1,data->num(),1,1,1.0,test);
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			_scale = create_param("scale", data->channel(), 1, 1, 1, _phrase);
+			_scale->set_init_type(constant,1);
+			_shift = create_param("shift", data->channel(), 1, 1, 1, _phrase);
+			_shift->set_lr(2);
+
+			_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1, _phrase);
+			_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
+
+			_history_mean = cacu_allocator::create_blob(data->channel(), 1, 1, 1,test);
+			_history_var = cacu_allocator::create_blob(data->channel(), 1, 1, 1,test);
+
+			_std = cacu_allocator::create_blob(data->channel(), 1, 1, 1,_phrase);
+		}
 
 		virtual const void check() override{
 			//training for batch_size

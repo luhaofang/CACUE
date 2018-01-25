@@ -277,9 +277,33 @@ namespace mycnn{
 #endif
 		}
 
-		inline virtual const void resize(int num, int channel, int weight, int height) override
+		inline virtual const void resize(int num, int channel, int width, int height) override
 		{
+			_width = width;
+			_height = height;
+			_channel = channel;
+			_num = num;
+			_channel_length = width*height;
+			_cube_length = channel*width*height;
+			_length = _num * _cube_length;
 
+#if __PARALLELTYPE__ == __CUDA__
+			cuda_free(_s_data);
+			_s_data = cuda_malloc_v<unsigned int>(_num,_cube_length, 0);
+			if (train == _phrase){
+				cuda_free(_s_diff);
+				_s_diff = cuda_malloc_v<float_t>(_num,_cube_length, 0);
+			}
+#else
+			free(_s_data);
+			_s_data = (unsigned int*)malloc(_length * sizeof(unsigned int));
+			set_data(0);
+			if (train == _phrase){
+				free(_s_diff);
+				_s_diff = (float_t*)malloc(_length * sizeof(float_t));
+				set_diff(0);
+			}
+#endif
 		}
 
 

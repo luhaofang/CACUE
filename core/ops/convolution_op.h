@@ -39,6 +39,18 @@ namespace mycnn{
 		convolution_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_CONVOLUTION){
 
 			check();
+			initial(data, args_);
+			init_weights(data,args_);
+			echo();
+		};
+
+		~convolution_op(){
+
+			delete _col_data;
+			delete _bias_multiplier;
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
@@ -52,21 +64,18 @@ namespace mycnn{
 #else
 			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 #endif
+
+
+			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
+			_bias_multiplier = cacu_allocator::create_blob(1, 1, output_dim, output_dim, (float_t)(1), _phrase);
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
 			_w = create_param("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
 
 			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
 			_bias ->set_lr(2);
-
-			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
-			_bias_multiplier = cacu_allocator::create_blob(1, 1, output_dim, output_dim, (float_t)(1), _phrase);
-			echo();
-		};
-
-		~convolution_op(){
-
-			delete _col_data;
-			delete _bias_multiplier;
-		};
+		}
 
 		virtual const void check() override{
 			//output_channel > 0

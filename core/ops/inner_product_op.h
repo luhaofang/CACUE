@@ -36,20 +36,8 @@ namespace mycnn{
 
 		inner_product_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_INNERPRODUCT){
 			check();
-
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
-#else
-			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
-#endif
-
-			_w = create_param("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
-
-			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
-			_bias ->set_lr(2);
-
-			_bias_multiplier = cacu_allocator::create_blob(1, data->num(), 1, 1, (float_t)(1), _phrase);
-
+			initial(data, args_);
+			init_weights(data,args_);
 			echo();
 		};
 
@@ -57,6 +45,24 @@ namespace mycnn{
 
 			delete _bias_multiplier;
 		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
+#else
+			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
+#endif
+
+			_bias_multiplier = cacu_allocator::create_blob(1, data->num(), 1, 1, (float_t)(1), _phrase);
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+
+			_w = create_param("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phrase);
+
+			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phrase);
+			_bias ->set_lr(2);
+		}
 
 		virtual const void check() override{
 			//output_channel > 0

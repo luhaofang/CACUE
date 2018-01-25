@@ -135,6 +135,7 @@ namespace mycnn{
 
 		inline void infer()
 		{
+
 			//reset the data's values
 			LOOP_INIT_DATA_();
 			//forward propagation
@@ -198,9 +199,18 @@ namespace mycnn{
 			return new blobs();
 		}
 
+		virtual const void initial(blob_base *&data, args *&args_) = 0;
+
+		virtual const void init_weights(blob_base *&data, args *&args_) = 0;
+
 	private:
 
 		bool _IS_ALLOC_OUTPUT = false;
+
+		inline bool CHECK_BLOB_SIZE_()
+		{
+
+		}
 
 	};
 }

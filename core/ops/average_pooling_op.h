@@ -37,7 +37,17 @@ namespace mycnn{
 		average_pooling_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_AVERAGE_POOLING){
 
 			check();
+			initial(data,args_);
+			init_weights(data,args_);
+			echo();
 
+		};
+
+		~average_pooling_op(){
+
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
@@ -51,13 +61,11 @@ namespace mycnn{
 #else
 			o_blob = create_oblob(num, channel, output_dim, output_dim, _phrase);
 #endif
-			echo();
+		}
 
-		};
-
-		~average_pooling_op(){
-
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			//kernel_size > 0

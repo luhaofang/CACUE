@@ -100,6 +100,7 @@ namespace mycnn{
 
 		inline void forward_propagate(){
 			for(unsigned int i = 0; i < _layers.size(); ++i){
+				//LOG_DEBUG("layer: %d",i);
 				_layers[i]->operate();
 			}
 		}

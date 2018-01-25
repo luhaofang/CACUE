@@ -37,7 +37,17 @@ namespace mycnn{
 
 		split_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_SPLIT){
 			check();
+			initial(data,args_);
+			init_weights(data,args_);
+			echo();
 
+		};
+
+		~split_op(){
+
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			int split_count = args_->at(0);
 			o_blobs = create_oblobs();
 			for(int i = 0 ; i < split_count ; ++i)
@@ -48,13 +58,11 @@ namespace mycnn{
 				o_blobs->push_back(cacu_allocator::create_blob(data->num(),data->channel(),data->height(),data->width(), 0,_phrase));
 	#endif
 			}
+		}
 
-			echo();
-		};
-
-		~split_op(){
-
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			//split count > 0

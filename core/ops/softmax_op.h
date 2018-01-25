@@ -36,18 +36,27 @@ namespace mycnn{
 
 		softmax_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_SOFTMAX){
 			check();
-
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
-#else
-			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
-#endif
+			initial(data,args_);
+			init_weights(data,args_);
 			echo();
+
 		};
 
 		~softmax_op(){
 
 		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
+#else
+			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phrase);
+#endif
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			return;

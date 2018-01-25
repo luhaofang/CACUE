@@ -36,15 +36,22 @@ namespace mycnn{
 
 		leaky_relu_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_LEAKY_RELU){
 			check();
-
-			o_blob = data;
-
+			initial(data, args_);
+			init_weights(data,args_);
 			echo();
 		};
 
 		~leaky_relu_op(){
 
 		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+			o_blob = data;
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			return;

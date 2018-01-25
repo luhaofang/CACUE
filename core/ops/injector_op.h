@@ -36,16 +36,24 @@ namespace mycnn{
 
 		injector_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_INJECTOR){
 			check();
-
-			o_blob = data;
-			_mean = cacu_allocator::create_blob(1,o_blob->channel(),1,1,test);
-			_mask = cacu_allocator::create_blob(1,o_blob->channel(),o_blob->height(),o_blob->width(),test);
+			initial(data,args_);
+			init_weights(data,args_);
 			echo();
 		};
 
 		~injector_op(){
 
 		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
+			o_blob = data;
+			_mean = cacu_allocator::create_blob(1,o_blob->channel(),1,1,test);
+			_mask = cacu_allocator::create_blob(1,o_blob->channel(),o_blob->height(),o_blob->width(),test);
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			return;
@@ -117,7 +125,7 @@ namespace mycnn{
 
 	private:
 
-		blob* _mean;
-		blob* _mask;
+		blob* _mean = NULL;
+		blob* _mask = NULL;
 	};
 };

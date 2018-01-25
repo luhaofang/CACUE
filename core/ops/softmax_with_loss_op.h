@@ -37,21 +37,32 @@ namespace mycnn{
 		softmax_with_loss_op(blobs *&data, args *&args_) : operator_base(data, args_, CACU_SOFTMAX_LOSS){
 			check();
 
-			blob_base *_blob = data->at(0);
+			initial(data->at(0),args_);
+			init_weights(data->at(0),args_);
 
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(_blob->num(),args_->output_channel(),1,1,train);
-#else
-			o_blob = create_oblob(_blob->num(),args_->output_channel(),1,1,train);
-#endif
 			_loss = (float_t*)malloc(sizeof(float_t));
+
+			echo();
 		};
 
 		~softmax_with_loss_op(){
 			free(_loss);
 		};
 
+		virtual const void initial(blob_base *&data, args *&args_) override{
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(data->num(),args_->output_channel(),1,1,train);
+#else
+			o_blob = create_oblob(data->num(),args_->output_channel(),1,1,train);
+#endif
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
+
 		virtual const void check() override{
+			//check blob size
 			CHECK_GT_OP(_args->output_channel(),0,"source data must > 0 vs %d !",_args->output_channel());
 		}
 

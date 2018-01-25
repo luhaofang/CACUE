@@ -18,7 +18,11 @@ void test_iotools()
 	struct timeval end;
 	gettimeofday(&start, NULL);
 	for(int i = 0; i < 100; ++i)
+#if __PARALLELTYPE__ == __CUDA__
 		imageio_utils::clip_imread_gpu(_b->s_data(), "/home/seal/n01440764_18.JPEG", 224, 224);
+#else
+		imageio_utils::clip_imread(_b->s_data(), "/home/seal/n01440764_18.JPEG", 224, 224);
+#endif
 	gettimeofday(&end, NULL);
 	long diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
 						- start.tv_usec;
@@ -26,7 +30,11 @@ void test_iotools()
 
 	gettimeofday(&start, NULL);
 	for(int i = 0; i < 100; ++i)
+#if __PARALLELTYPE__ == __CUDA__
 		imageio_utils::imread_gpu(_b->s_data(), "/home/seal/n01440764_18_.JPEG", 224*224*3);
+#else
+		imageio_utils::imread(_b->s_data(), "/home/seal/n01440764_18_.JPEG", 224*224*3);
+#endif
 	gettimeofday(&end, NULL);
 	diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
 						- start.tv_usec;

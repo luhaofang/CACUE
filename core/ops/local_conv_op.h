@@ -38,6 +38,18 @@ namespace mycnn{
 		local_conv_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_LOCAL_CONV){
 
 			check();
+			initial(data,args_);
+			init_weights(data,args_);
+			echo();
+
+		};
+
+		~local_conv_op(){
+
+			delete _col_data;
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
@@ -55,16 +67,13 @@ namespace mycnn{
 
 			_bias = create_param("bias", _args->output_channel() * output_dim * output_dim, 1, 1, 1, _phrase);
 			_bias ->set_lr(2);
-
 			_col_data = cacu_allocator::create_blob(1, data->channel(), output_dim * _args->kernel_size(), output_dim*_args->kernel_size(), _phrase);
 
-			echo();
-		};
+		}
 
-		~local_conv_op(){
-
-			delete _col_data;
-		};
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
+			return;
+		}
 
 		virtual const void check() override{
 			//output_channel > 0

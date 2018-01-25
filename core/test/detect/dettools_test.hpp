@@ -12,7 +12,7 @@ void test_tools()
 {
 	vector<rect *> rects;
 	set_rand_seed();
-	for(int i = 0;i < 10; ++i){
+	for(int i = 0;i < 50; ++i){
 		rect *r1 = new rect(urandint(0,100),urandint(0,300),urandint(50,150),urandint(200,400), urand(0,1));
 		LOG_INFO("%d,%d,%d,%d,%f", r1->l,r1->t,r1->r,r1->b,r1->score);
 		rects.push_back(r1);
@@ -20,7 +20,7 @@ void test_tools()
 	struct timeval start;
 	struct timeval end;
 	gettimeofday(&start, NULL);
-	NMS(rects,0.7,nms_iou);
+	NMS(rects,0.6,nms_iou);
 	gettimeofday(&end, NULL);
 	unsigned long diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
 						- start.tv_usec;

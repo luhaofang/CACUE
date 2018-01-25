@@ -38,6 +38,17 @@ namespace mycnn{
 		deconvolution_op(blob_base *&data, args *&args_) : operator_base(data, args_, CACU_DECONVOLUTION){
 
 			check();
+			initial(data, args_);
+			init_weights(data,args_);
+			echo();
+		};
+
+		~deconvolution_op(){
+
+			delete _col_data;
+		};
+
+		virtual const void initial(blob_base *&data, args *&args_) override{
 			int input_dim = data->width();
 			int channel = data->channel();
 			int num = data->num();
@@ -51,19 +62,16 @@ namespace mycnn{
 #else
 			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phrase);
 #endif
+			_col_data = cacu_allocator::create_blob(1, _args->output_channel(), input_dim * _args->kernel_size(), input_dim*_args->kernel_size(), _phrase);
+
+		}
+
+		virtual const void init_weights(blob_base *&data, args *&args_) override{
 			_w = create_param("w", data->channel(), _args->output_channel(), _args->kernel_size(), _args->kernel_size(), _phrase);
 
 			_bias = create_param("bias", data->channel(), 1, 1, 1, _phrase);
 			_bias ->set_lr(2.0);
-
-			_col_data = cacu_allocator::create_blob(1, _args->output_channel(), input_dim * _args->kernel_size(), input_dim*_args->kernel_size(), _phrase);
-			echo();
-		};
-
-		~deconvolution_op(){
-
-			delete _col_data;
-		};
+		}
 
 		virtual const void check() override{
 			//output_channel > 0

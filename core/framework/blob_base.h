@@ -123,7 +123,7 @@ namespace mycnn{
 
 		virtual const void load(std::ifstream& is) = 0;
 
-		virtual inline const void resize(int num, int channel, int weight, int height) = 0;
+		virtual inline const void resize(int num, int channel, int width, int height) = 0;
 
 		inline void _CHECK_SIZE_EQ(blob_base* blob_)
 		{
