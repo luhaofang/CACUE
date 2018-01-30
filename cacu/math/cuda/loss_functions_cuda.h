@@ -29,26 +29,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../config.h"
 
-#ifdef __CBLASTYPE__
-#if __CBLASTYPE__ == __OPENBLAS__
+#ifdef __PARALLELTYPE__
+#if __PARALLELTYPE__ == __CUDA__
 
-#include <cblas.h>
+#include "../../definition.h"
 
 namespace cacu{
 
-inline void cacu_saxpy_oblas(float *x, const float a, float *y, const int length);
+/**
+ * for cross entropy use loss functions in cuda
+ */
+extern "C" void cacu_cross_entropy_gpu(float_t *x, int num, int length,const unsigned int *label_, float_t *loss_);
 
-inline void cacu_saxpby_oblas(float *x, const float a, float *y,const float b, const int length);
 
-inline void cacu_scalex_oblas(float *x,const float a, const int length);
 
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float *x, const int x_height,float *y, const int x_width, const float alpha,float *z, const float beta);
+/**
+ * @cacu_multi_label_trans
+ * transform the softmax label to multi sigmoid labels
+ */
+extern "C" void cacu_multi_label_trans_gpu(int num, int output_num,const unsigned int *label_, const unsigned int *trans_labels_);
 
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy,float *x, const int x_height, const int x_width,float *y, const int y_width,const float alpha,float *z,const float beta);
-
-inline void cacu_copy_oblas(float *x, const int x_length,float *y);
 
 }
+
 
 #endif
 #endif

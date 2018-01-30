@@ -25,36 +25,29 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
-
-#include "../../definition.h"
+#include "loss_functions_cpu.h"
 
 namespace cacu {
 
-
 /**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
+ * @cacu_cross_entropy
+ * loss += -log(p(x)):
+ * for loss use cross entropy functions.
  */
-template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const size_t length, DTYPE *y) {
-	memcpy(y, x, length * sizeof(DTYPE));
-}
+inline void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
+		const unsigned int *label_, float_t *loss_) {
 
-template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
-	for (int i = 0; i < length; ++i) {
-		x[i] = value;
+	float *xp;
+
+	int n;
+
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(n,xp)
+#endif
+	for (int n = 0; n < num; ++n) {
+		xp = x + n * length;
+		loss_[0] -= log(max(xp[label_[n]], float_t(_MIN_FLT_)));
 	}
-}
-
-template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const size_t length) {
-	for (int i = 0; i < length; ++i)
-		cout << data[i] << ",";
-	cout << endl;
 }
 
 }

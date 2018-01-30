@@ -26,13 +26,14 @@
  */
 
 
-#include "math_functions_cuda.h"
+#include "../../config.h"
 
 #ifdef __PARALLELTYPE__
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../tensor/cuda/cuda_log.h"
 
+namespace cacu{
 
 __global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,const int length){
 
@@ -156,6 +157,8 @@ extern "C" void cacu_clip_vec_gpu(float *data, const float threshold, const int 
 	_k_CACU_CLIP_VEC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(data, threshold, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
+}
+
 }
 
 #endif

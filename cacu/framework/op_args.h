@@ -27,34 +27,62 @@
 
 #pragma once
 
-#include "../../definition.h"
+#include "args_base.h"
+
+using namespace std;
 
 namespace cacu {
 
+class args: public args_base<float_t> {
 
-/**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
- */
-template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const size_t length, DTYPE *y) {
-	memcpy(y, x, length * sizeof(DTYPE));
-}
+public:
 
-template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
-	for (int i = 0; i < length; ++i) {
-		x[i] = value;
+	args(float_t _output_channel, int _kernel_size, int _stride, int _pad,
+			int _input_dim, int _channel) :
+			args_base<float_t>(_output_channel, _kernel_size, _stride, _pad, _input_dim,
+					_channel, _ARGSEND) {
+
 	}
-}
 
-template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const size_t length) {
-	for (int i = 0; i < length; ++i)
-		cout << data[i] << ",";
-	cout << endl;
-}
+	args(int arg) :
+			args_base<int>(arg, _ARGSEND) {
 
+	}
+
+	args(int arg1, int arg2) :
+			args_base<int>(arg1, arg2, _ARGSEND) {
+
+	}
+
+	~args() {
+
+	}
+
+	inline int output_channel() const {
+		return this->at(0);
+	}
+
+	inline int kernel_size() const {
+		return this->at(1);
+	}
+
+	inline int stride() const {
+		return this->at(2);
+	}
+
+	inline int pad() const {
+		return this->at(3);
+	}
+
+	inline int input_dim() const {
+		return this->at(4);
+	}
+
+	inline int channel() const {
+		return this->at(5);
+	}
+
+private:
+
+};
 }

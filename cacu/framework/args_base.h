@@ -27,34 +27,37 @@
 
 #pragma once
 
-#include "../../definition.h"
+#include <vector>
+#include <stdarg.h>
+
+using namespace std;
 
 namespace cacu {
 
+#define _ARGSEND 0xFF12FACE
 
-/**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
- */
-template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const size_t length, DTYPE *y) {
-	memcpy(y, x, length * sizeof(DTYPE));
-}
+template<class DTYPE>
+class args_base : public vector<DTYPE> {
 
-template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
-	for (int i = 0; i < length; ++i) {
-		x[i] = value;
-	}
-}
+public:
 
-template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const size_t length) {
-	for (int i = 0; i < length; ++i)
-		cout << data[i] << ",";
-	cout << endl;
+	args_base(DTYPE arg1, ...);
+
+	~args_base(){};
+
+private:
+
+};
+
+template<class DTYPE>
+args_base<DTYPE>::args_base(DTYPE arg1, ...) {
+	va_list arg_ptr;
+	va_start(arg_ptr, arg1);
+	while (arg1 != _ARGSEND) {
+		this->push_back(arg1);
+		arg1 = va_arg(arg_ptr, DTYPE);
+	};
+	va_end(arg_ptr);
 }
 
 }

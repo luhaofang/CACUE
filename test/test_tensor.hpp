@@ -20,8 +20,10 @@ TEST_CASE("tensor")
 		vec_t a(1,3);
 		t.copy2data(&a[0]);
 		cacu_print(t.pdata(),1);
+		LOG_DEBUG("p initial: %d",t.pdata());
 
 		t.resize(3);
+		LOG_DEBUG("p resize: %d",t.pdata());
 		LOG_DEBUG("tensor length:%d", t.length());
 		a.resize(3,2);
 		cacu_print_cpu(&a[0],3);
@@ -38,7 +40,7 @@ TEST_CASE("tensor")
 		unsigned long diff;
 		tensor<float> t(3*3*224*224);
 		gettimeofday(&start, NULL);
-		for(int i = 1 ; i < 100; i++)
+		for(int i = 1 ; i < 1; i++)
 		{
 			t.resize(i*3*224*224);
 		}

@@ -27,28 +27,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../config.h"
+#include "../../utils/data_defination.h"
 
-#ifdef __CBLASTYPE__
-#if __CBLASTYPE__ == __OPENBLAS__
+namespace mycnn{
 
-#include <cblas.h>
+	/**
+	 * @cacu_cross_entropy
+	 * loss += -log(p(x)):
+	 * for loss use cross entropy functions.
+	 */
+	inline void cacu_norm_l1_cpu(float_t *x, int channel_length, int length, float_t *y)
+	{
 
-namespace cacu{
+		float *xp;
 
-inline void cacu_saxpy_oblas(float *x, const float a, float *y, const int length);
+		int n;
 
-inline void cacu_saxpby_oblas(float *x, const float a, float *y,const float b, const int length);
-
-inline void cacu_scalex_oblas(float *x,const float a, const int length);
-
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float *x, const int x_height,float *y, const int x_width, const float alpha,float *z, const float beta);
-
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy,float *x, const int x_height, const int x_width,float *y, const int y_width,const float alpha,float *z,const float beta);
-
-inline void cacu_copy_oblas(float *x, const int x_length,float *y);
-
-}
-
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(n,xp)
 #endif
+
+	}
+
+	/**
+	 * @cacu_cross_entropy
+	 * loss += -log(p(x)):
+	 * for loss use cross entropy functions.
+	 */
+	inline void cacu_norm_l2_cpu(float_t *x, int channel_length, int length, float_t *y)
+	{
+
+		float *xp;
+
+		int n;
+
+#if __OPENMP__ == ON
+		#pragma omp parallel for default(shared) private(n,xp)
 #endif
+
+	}
+
+
+};

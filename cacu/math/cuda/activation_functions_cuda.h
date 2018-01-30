@@ -29,24 +29,57 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../config.h"
 
-#ifdef __CBLASTYPE__
-#if __CBLASTYPE__ == __OPENBLAS__
+#ifdef __PARALLELTYPE__
+#if __PARALLELTYPE__ == __CUDA__
 
-#include <cblas.h>
+#include "../../definition.h"
 
 namespace cacu{
 
-inline void cacu_saxpy_oblas(float *x, const float a, float *y, const int length);
+/**
+ * for activation use relu functions in cuda
+ */
+extern "C" void cacu_relu_gpu(float_t *x, int length);
 
-inline void cacu_saxpby_oblas(float *x, const float a, float *y,const float b, const int length);
+/**
+ * gradient for activation use relu functions in cuda
+ */
+extern "C" void cacu_relu_grad_gpu(float_t *x, float_t *g, int length);
 
-inline void cacu_scalex_oblas(float *x,const float a, const int length);
+/**
+ * for activation use leaky_relu functions in cuda
+ */
+extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length);
 
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float *x, const int x_height,float *y, const int x_width, const float alpha,float *z, const float beta);
+/**
+ * gradient for activation use leaky_relu functions in cuda
+ */
+extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int length);
 
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy,float *x, const int x_height, const int x_width,float *y, const int y_width,const float alpha,float *z,const float beta);
+/**
+ * for activation use softmax functions in cuda
+ */
+extern "C" void cacu_softmax_gpu(float_t *x, int num , int length, float_t *y);
 
-inline void cacu_copy_oblas(float *x, const int x_length,float *y);
+/**
+ * for activation use tanh functions in cuda
+ */
+extern "C" void cacu_tanh_gpu(float_t *x, int length, float_t *y);
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_tanh_grad_gpu(float_t *x, float_t *g, int length, float_t *y);
+
+/**
+ * for activation use sigmoid functions in cuda
+ */
+extern "C" void cacu_sigmoid_gpu(float_t *x, int length, float_t *y);
+
+/**
+ * gradient for activation use sigmoid functions in cuda
+ */
+extern "C" void cacu_sigmoid_grad_gpu(float_t *x, float_t *g, int length, float_t *y);
 
 }
 

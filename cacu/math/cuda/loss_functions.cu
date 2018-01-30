@@ -25,28 +25,59 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
-
 #include "../../config.h"
 
-#ifdef __CBLASTYPE__
-#if __CBLASTYPE__ == __OPENBLAS__
 
-#include <cblas.h>
+#ifdef __PARALLELTYPE__
+#if __PARALLELTYPE__ == __CUDA__
+
+#include "../../definition.h"
+#include "../../tensor/cuda/cuda_log.h"
 
 namespace cacu{
 
-inline void cacu_saxpy_oblas(float *x, const float a, float *y, const int length);
+/*
+ *channel: channel of input data
+ *kernel_size: pooling window size
+ *input_dim: width of input data
+ *output_dim: width of output data
+ */
+__global__ void _k_CACU_CROSS_ENTROPY_GPU(float_t *x, int num, int length, unsigned int *label_, float_t *loss_) {
 
-inline void cacu_saxpby_oblas(float *x, const float a, float *y,const float b, const int length);
+	int tid = threadIdx.x;
 
-inline void cacu_scalex_oblas(float *x,const float a, const int length);
+	extern __shared__ float_t shared_data[];
 
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float *x, const int x_height,float *y, const int x_width, const float alpha,float *z, const float beta);
+	float_t *xp;
 
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy,float *x, const int x_height, const int x_width,float *y, const int y_width,const float alpha,float *z,const float beta);
+	shared_data[tid] = 0;
 
-inline void cacu_copy_oblas(float *x, const int x_length,float *y);
+	for (int i = tid; i < num; i+=THREADNUM)
+	{
+		xp = x + i * length;
+		shared_data[tid] -= log(max(xp[label_[i]], float_t(_MIN_FLT_)));
+	}
+
+	__syncthreads();
+
+	int acc_length = THREADNUM / 2;
+	while(acc_length > 0){
+		if(tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+
+	if(tid == 0)
+		loss_[0] += shared_data[0];
+}
+
+
+extern "C" void cacu_cross_entropy_gpu(float_t *x, int num, int length, unsigned int *label_, float_t *loss_){
+
+	_k_CACU_CROSS_ENTROPY_GPU<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, num, length, label_,loss_);
+	CUDA_CHECK(cudaThreadSynchronize());
+}
 
 }
 

@@ -25,36 +25,45 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
-
-#include "../../definition.h"
+#include "tools.h"
 
 namespace cacu {
 
+void NMS(vector<rect *> &rects, float_t threshold, nms_type type) {
 
-/**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
- */
-template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const size_t length, DTYPE *y) {
-	memcpy(y, x, length * sizeof(DTYPE));
-}
+	if (rects.size() == 0)
+		return;
+	sort(rects.begin(), rects.end(), comp);
+	vector<size_t> areas(rects.size());
+	vector<rect *> input_rects(rects);
+	rects.clear();
 
-template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
-	for (int i = 0; i < length; ++i) {
-		x[i] = value;
+	rect *pRect = NULL;
+
+	while (input_rects.size() > 0) {
+		pRect = input_rects[0];
+		//LOG_DEBUG("%d,%d,%d,%d,%f", pRect->l,pRect->t,pRect->r,pRect->b,pRect->score);
+		rects.push_back(pRect);
+		input_rects.erase(input_rects.begin());
+		for (int i = 0; i < input_rects.size(); ++i) {
+			switch (type) {
+			case nms_iou:
+				if (IOU(pRect, input_rects[i]) >= threshold) {
+					input_rects.erase(input_rects.begin() + i);
+					i--;
+				}
+				break;
+			case nms_iom:
+				if (IOM(pRect, input_rects[i]) >= threshold) {
+					input_rects.erase(input_rects.begin() + i);
+					i--;
+				}
+				break;
+			default:
+				break;
+			}
+		}
 	}
-}
-
-template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const size_t length) {
-	for (int i = 0; i < length; ++i)
-		cout << data[i] << ",";
-	cout << endl;
 }
 
 }

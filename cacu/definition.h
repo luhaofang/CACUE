@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 #include <vector>
+#include <map>
 #include <string>
 
 #include <iosfwd>
@@ -48,7 +49,7 @@ typedef float float_t;
 
 typedef string chars_t;
 
-typedef vector<int> CACU_ARGS;
+typedef map<chars_t, float_t> CACU_ARGS;
 
 typedef vector<float_t> vec_t;
 

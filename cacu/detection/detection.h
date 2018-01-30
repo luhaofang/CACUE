@@ -27,28 +27,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../config.h"
-
-#ifdef __CBLASTYPE__
-#if __CBLASTYPE__ == __OPENBLAS__
-
-#include <cblas.h>
-
-namespace cacu{
-
-inline void cacu_saxpy_oblas(float *x, const float a, float *y, const int length);
-
-inline void cacu_saxpby_oblas(float *x, const float a, float *y,const float b, const int length);
-
-inline void cacu_scalex_oblas(float *x,const float a, const int length);
-
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float *x, const int x_height,float *y, const int x_width, const float alpha,float *z, const float beta);
-
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy,float *x, const int x_height, const int x_width,float *y, const int y_width,const float alpha,float *z,const float beta);
-
-inline void cacu_copy_oblas(float *x, const int x_length,float *y);
-
-}
-
-#endif
-#endif
+#include "rect.h"
+#include "tools.h"

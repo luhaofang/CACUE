@@ -60,6 +60,11 @@ void cuda_release() {
 	//CUBLAS_CHECK(cublasDestroy(handle));
 }
 
+void cuda_free(void* data_) {
+	cudaFree(data_);
+}
+
+
 }
 
 #endif

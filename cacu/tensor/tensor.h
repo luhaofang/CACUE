@@ -50,22 +50,39 @@ public:
 		return _length;
 	}
 
+	/*
+	 * resize tensor size
+	 */
 	void resize(size_t length);
 
+	/*
+	 * copy data from host RAM to tensor memory
+	 */
 	void copy2data(DTYPE* data_);
-
+	/*
+	 * copy data from host RAM to tensor memory
+	 */
 	void copy2data(size_t sp, size_t length, DTYPE* data_);
 
 	void set_value(DTYPE value);
 
 	void set_value(size_t sp, size_t length, DTYPE value);
 
+	/*
+	 * refresh data
+	 */
 	void refresh();
 
 	void serializa(std::ostream& os);
 
+	/*
+	 * load tensor data from iostream
+	 */
 	void load(std::ifstream& is);
 
+	/*
+	 * memcopy data, host2host dev2dev
+	 */
 	void _memcopy(DTYPE* data_);
 
 private:
@@ -182,9 +199,6 @@ void tensor<DTYPE>::serializa(std::ostream& os) {
 #endif
 }
 
-/*
- * load tensor data from iostream
- */
 template<typename DTYPE>
 void tensor<DTYPE>::load(std::ifstream& is) {
 #if __USE_DEVICE__ == ON

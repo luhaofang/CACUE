@@ -36,17 +36,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cacu{
 
-void cacu_saxpy_cublas(float *x, const float a, float *y, const int length);
+inline void cacu_saxpy_cublas(float *x, const float a, float *y, const int length);
 
-void cacu_saxpby_cublas(float *x, const float a, float *y, const float b, const int length);
+inline void cacu_saxpby_cublas(float *x, const float a, float *y, const float b, const int length);
 
-void cacu_scalex_cublas(float *x, const float a, const int length);
+inline void cacu_scalex_cublas(float *x, const float a, const int length);
 
-void cacu_sgemv_cublas(cublasOperation_t trans,float *x, const int x_height,float *y, const int x_width,const float alpha, float *z ,const float beta);
+inline void cacu_sgemv_cublas(cublasOperation_t trans,float *x, const int x_height,float *y, const int x_width,const float alpha, float *z ,const float beta);
 
-void cacu_sgemm_cublas(cublasOperation_t transx, cublasOperation_t transy, float *x, const int x_height, const int x_width,float *y, const int y_width, const float alpha, float *z,const float beta);
+inline void cacu_sgemm_cublas(cublasOperation_t transx, cublasOperation_t transy, float *x, const int x_height, const int x_width,float *y, const int y_width, const float alpha, float *z,const float beta);
 
-void cacu_copy_cublas(const float *x, int length, float *y);
+inline void cacu_copy_cublas(const float *x, int length, float *y);
 
 }
 

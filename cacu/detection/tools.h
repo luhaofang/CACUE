@@ -27,34 +27,37 @@
 
 #pragma once
 
-#include "../../definition.h"
+#include <vector>
+
+#include "rect.h"
+#include "detection_definition.h"
+
+using namespace std;
 
 namespace cacu {
 
-
-/**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
- */
-template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const size_t length, DTYPE *y) {
-	memcpy(y, x, length * sizeof(DTYPE));
+inline bool comp(const rect *a, const rect *b) {
+	return a->score >= b->score;
 }
 
-template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
-	for (int i = 0; i < length; ++i) {
-		x[i] = value;
-	}
+inline float_t IOU(rect* rect1, rect* rect2) {
+	size_t intersection = max(0,
+			min(rect1->r, rect2->r) - max(rect1->l, rect2->l))
+			* max(0, min(rect1->b, rect2->b) - max(rect1->t, rect2->t));
+	size_t _union = (rect1->r - rect1->l) * (rect1->b - rect1->t)
+			+ (rect2->r - rect2->l) * (rect2->b - rect2->t) - intersection;
+	return _union == 0 ? 0 : (float_t) (intersection) / _union;
 }
 
-template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const size_t length) {
-	for (int i = 0; i < length; ++i)
-		cout << data[i] << ",";
-	cout << endl;
+inline float_t IOM(rect* rect1, rect* rect2) {
+	size_t intersection = max(0,
+			min(rect1->r, rect2->r) - max(rect1->l, rect2->l))
+			* max(0, min(rect1->b, rect2->b) - max(rect1->t, rect2->t));
+	size_t min_area = min((rect1->r - rect1->l) * (rect1->b - rect1->t),
+			(rect2->r - rect2->l) * (rect2->b - rect2->t));
+	return (float_t) (intersection) / min_area;
 }
+
+void NMS(vector<rect *> &rects, float_t threshold, nms_type type);
 
 }

@@ -131,6 +131,8 @@ namespace cacu{
 			_length = _num * _cube_length;
 
 			_tdata->resize(_length);
+			if(train == _phase)
+				_tdiff->resize(_length);
 		}
 
 

@@ -27,34 +27,27 @@
 
 #pragma once
 
-#include "../../definition.h"
-
 namespace cacu {
 
+struct rect {
 
-/**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
- */
-template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const size_t length, DTYPE *y) {
-	memcpy(y, x, length * sizeof(DTYPE));
-}
+public:
 
-template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
-	for (int i = 0; i < length; ++i) {
-		x[i] = value;
+	rect(int l_, int t_, int r_, int b_, float_t score_) {
+		l = l_;
+		t = t_;
+		r = r_;
+		b = b_;
+		score = score_;
 	}
-}
 
-template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const size_t length) {
-	for (int i = 0; i < length; ++i)
-		cout << data[i] << ",";
-	cout << endl;
-}
+	int l;
+	int t;
+	int r;
+	int b;
+
+	//confidence scores
+	float_t score;
+};
 
 }

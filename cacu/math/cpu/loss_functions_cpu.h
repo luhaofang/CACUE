@@ -25,22 +25,18 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#pragma once
+
 #include "../../definition.h"
 
-#include "cpu_data_utils.h"
-
-namespace cacu {
+namespace mycnn {
 
 /**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
+ * @cacu_cross_entropy
+ * loss += -log(p(x)):
+ * for loss use cross entropy functions.
  */
-void cacu_copy_cpu(float_t *x,const size_t length, float_t *y) {
-	memcpy(y, x, length * sizeof(float_t));
-}
-
-
+inline void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
+		const unsigned int *label_, float_t *loss_);
 
 }
