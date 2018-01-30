@@ -34,7 +34,7 @@
 #include "../../tensor/cuda/cuda_log.h"
 
 
-__global__ void _k_CACU_SAXPY_ATOMIC_GPU(const float *x, float a, float *y,int length){
+__global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,const int length){
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -48,7 +48,7 @@ __global__ void _k_CACU_SAXPY_ATOMIC_GPU(const float *x, float a, float *y,int l
 
 }
 
-extern "C" void cacu_saxpy_atomic_gpu(const float *x, float a, float *y,int length)
+extern "C" void cacu_saxpy_atomic_gpu(float *x, float a, float *y, const int length)
 {
 	_k_CACU_SAXPY_ATOMIC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a ,y,length);
 
@@ -56,7 +56,7 @@ extern "C" void cacu_saxpy_atomic_gpu(const float *x, float a, float *y,int leng
 }
 
 
-__global__ void _k_CACU_ISAXB_GPU(const float *x, int length,const float a ,const unsigned int *index_, const float b, float *y) {
+__global__ void _k_CACU_ISAXB_GPU(float *x, const int length,const float a ,unsigned int *index_, const float b, float *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -77,7 +77,7 @@ __global__ void _k_CACU_ISAXB_GPU(const float *x, int length,const float a ,cons
  * @cacu_isaxdb_gpu
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_gpu(const float *x, int length,const float a ,const unsigned int *index_,const float b, float *y) {
+extern "C" void cacu_isaxb_gpu(float *x, const int length,const float a ,unsigned int *index_,const float b, float *y) {
 
 	_k_CACU_ISAXB_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length,a ,index_,b,y);
 
@@ -85,7 +85,7 @@ extern "C" void cacu_isaxb_gpu(const float *x, int length,const float a ,const u
 
 }
 
-__global__ void _k_ARGMAX_GPU(const float *x, int length, unsigned int *index_) {
+__global__ void _k_ARGMAX_GPU(float *x, const int length, unsigned int *index_) {
 
 	__shared__ float shared_data[THREADNUM];
 
@@ -125,7 +125,7 @@ __global__ void _k_ARGMAX_GPU(const float *x, int length, unsigned int *index_) 
 	}
 }
 
-extern "C" void cacu_argmax_gpu(const float *x,int length, unsigned int *index_)
+extern "C" void cacu_argmax_gpu(float *x,const int length, unsigned int *index_)
 {
 	_k_ARGMAX_GPU<<<1, THREADNUM, 0>>>(x, length, index_);
 

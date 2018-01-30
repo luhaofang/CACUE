@@ -108,14 +108,14 @@ inline void mask_vector(float *vector_, const int length, float *mask);
  * math y = x:
  * length: the input data's size
  */
-void cacu_copy(const float *x, int length, float *y);
+void cacu_copy(float *x, const int length, float *y);
 
 /**
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
 inline void cacu_isaxb(float *x, const int length, const float a,
-		const unsigned int *index_, const float b, float *y);
+		unsigned int *index_, const float b, float *y);
 
 inline unsigned int argmax(float *data, const int length);
 

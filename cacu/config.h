@@ -51,7 +51,7 @@ namespace cacu {
 
 
 /***********************************/
-/*        user config party	       */
+/*        user config part	       */
 /***********************************/
 
 #ifndef __USE_DEVICE__

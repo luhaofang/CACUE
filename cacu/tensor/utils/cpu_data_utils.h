@@ -37,12 +37,12 @@ namespace cacu {
  * math y = x:
  * length: the input data's size
  */
-inline void cacu_copy_cpu(float_t *x, int length, float_t *y);
+inline void cacu_copy_cpu(float_t *x, const size_t length, float_t *y);
 
 template<typename DTYPE>
-void cacu_memset(DTYPE *x, DTYPE value, int length);
+void cacu_memset(DTYPE *x, DTYPE value, const size_t length);
 
 template<typename DTYPE>
-void cacu_print_cpu(DTYPE *data, int length);
+void cacu_print_cpu(DTYPE *data,const size_t length);
 
 }

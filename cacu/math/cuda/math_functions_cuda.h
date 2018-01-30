@@ -40,7 +40,7 @@ extern "C" void cacu_saxpy_atomic_gpu(float *x, const float a, float *y, const i
  * @cacu_isaxdb_gpu
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_gpu(float *x, const int length, const float a ,const unsigned int *index_,const float b, float *y);
+extern "C" void cacu_isaxb_gpu(float *x, const int length, const float a ,unsigned int *index_,const float b, float *y);
 
 extern "C" void cacu_argmax_gpu(float *x, const int length, unsigned int *index_);
 

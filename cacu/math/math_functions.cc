@@ -241,7 +241,7 @@ inline void mask_vector(float *vector_, const int length, float *mask) {
  * y[index] = x[index]*a + b
  */
 inline void cacu_isaxb(float *x, const int length, const float a,
-		const unsigned int *index_, const float b, float *y) {
+		unsigned int *index_, const float b, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_isaxb_gpu(x, length, a, index_, b, y);
@@ -253,7 +253,7 @@ inline void cacu_isaxb(float *x, const int length, const float a,
 #endif
 }
 
-inline unsigned int argmax(float *data, const size_t length) {
+inline unsigned int argmax(float *data, const int length) {
 
 	unsigned int index;
 #if __USE_DEVICE__ == ON
@@ -311,7 +311,7 @@ inline void cacu_transpose(float *mtx, const int m, const int n) {
  * math y = x:
  * length: the input data's size
  */
-inline void cacu_copy(const float *x, int length, float *y) {
+inline void cacu_copy(float *x, const int length, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_copy_cublas(x,length,y);

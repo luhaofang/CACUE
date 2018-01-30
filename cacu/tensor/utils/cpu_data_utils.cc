@@ -35,19 +35,19 @@ namespace cacu {
  * math y = x:
  * length: the input data's size
  */
-inline void cacu_copy_cpu(float_t *x, int length, float_t *y) {
+inline void cacu_copy_cpu(float_t *x,const size_t length, float_t *y) {
 	memcpy(y, x, length * sizeof(float_t));
 }
 
 template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value, int length) {
+inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
 	for (int i = 0; i < length; ++i) {
 		x[i] = value;
 	}
 }
 
 template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data, int length) {
+inline void cacu_print_cpu(DTYPE *data,const size_t length) {
 	for (int i = 0; i < length; ++i)
 		cout << data[i] << ",";
 	cout << endl;

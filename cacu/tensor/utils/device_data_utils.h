@@ -35,27 +35,27 @@ namespace cacu {
 void device_release();
 
 template<typename DTYPE>
-DTYPE* device_malloc(size_t length);
+DTYPE* device_malloc(const size_t length);
 
 template<typename DTYPE>
-DTYPE* device_malloc_v(size_t length, DTYPE value);
+DTYPE* device_malloc_v(const size_t length, DTYPE value);
 
 template<typename DTYPE>
-void device_setvalue(DTYPE *data_, DTYPE value, int length);
+void device_setvalue(DTYPE *data_, DTYPE value, const size_t length);
 
 template<typename DTYPE>
-void device_refresh(DTYPE *data_, int length);
+void device_refresh(DTYPE *data_, const size_t length);
 
 template<typename DTYPE>
-void device_copy2dev(DTYPE *d_data_, DTYPE* s_values, int length);
+void device_copy2dev(DTYPE *d_data_, DTYPE* s_values, const size_t length);
 
 template<typename DTYPE>
-void device_copy2host(DTYPE *d_data_, DTYPE* s_values, int length);
+void device_copy2host(DTYPE *d_data_, DTYPE* s_values, const size_t length);
 
 template<typename DTYPE>
 void device_free(DTYPE* data_);
 
 template<typename DTYPE>
-void device_print(DTYPE* data_, int length);
+void device_print(DTYPE* data_, const size_t length);
 
 }
