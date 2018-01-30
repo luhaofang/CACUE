@@ -58,7 +58,7 @@ blob_base::~blob_base() {
 	_s_diff = NULL;
 }
 
-inline void blob_base::_CHECK_SIZE_EQ(blob_base* blob_) {
+void blob_base::_CHECK_SIZE_EQ(blob_base* blob_) {
 	CHECK_EQ_OP(_channel, blob_->_channel,
 			"_channel check does NOT match! ( %d vs %d )", _channel,
 			blob_->_channel);
@@ -71,7 +71,7 @@ inline void blob_base::_CHECK_SIZE_EQ(blob_base* blob_) {
 			"_width check does NOT match! ( %d vs %d )", _width, blob_->_width);
 }
 
-inline void blob_base::_REC() {
+void blob_base::_REC() {
 	if (_REC_ < __BLOBMAXREC__)
 		_REC_ += 1;
 	else

@@ -1,8 +1,8 @@
-#include "cacu/cacu.h"
+#include "test/test_cases.h"
 
-using namespace cacu;
 
 int main(int argc, char** argv) {
-	LOG_DEBUG("ok!");
+
+	int result =  Catch::Session().run(argc,argv);
 }
 

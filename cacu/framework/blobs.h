@@ -27,30 +27,95 @@
 
 #pragma once
 
-#include "../../definition.h"
+#include <vector>
+
+#include "blob_base.h"
+
+using namespace std;
 
 namespace cacu {
 
-/**
- * @cacu_ram_copy
- * copy ram data
- * math y = x:
- * length: the input data's size
- */
-void cacu_copy_cpu(float_t *x, const size_t length, float_t *y);
+class blobs: public vector<blob_base*> {
 
-template<typename DTYPE>
-inline void cacu_memset(DTYPE *x, DTYPE value,const size_t length) {
-	for (int i = 0; i < length; ++i) {
-		x[i] = value;
+public:
+
+	blobs() {
+
 	}
-}
 
-template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const size_t length) {
-	for (int i = 0; i < length; ++i)
-		cout << data[i] << ",";
-	cout << endl;
-}
+	~blobs() {
+		for (unsigned int i = 0; i < size(); ++i) {
+			switch (at(i)->_TYPE()) {
+			case __blob__:
+				delete (blob*) at(i);
+				break;
+			case __bin_blob__:
+				delete (bin_blob*) at(i);
+				break;
+			case __em_blob__:
+				delete (em_blob*) at(i);
+				break;
+			case __em_bin_blob__:
+				delete (em_bin_blob*) at(i);
+				break;
+			default:
+				LOG_FATAL("can't identify the type!")
+				;
+				break;
+			}
+		}
+	}
 
+	inline blobs& operator <<(blob_base* blob_base_) {
+		this->push_back(blob_base_);
+		return *this;
+	}
+
+	inline void _DELETE_BLOBS() {
+		for (unsigned int i = 0; i < size(); ++i) {
+			switch (at(i)->_TYPE()) {
+			case __blob__:
+				delete (blob*) at(i);
+				break;
+			case __bin_blob__:
+				delete (bin_blob*) at(i);
+				break;
+			case __em_blob__:
+				delete (em_blob*) at(i);
+				break;
+			case __em_bin_blob__:
+				delete (em_bin_blob*) at(i);
+				break;
+			default:
+				LOG_FATAL("can't identify the type!");
+				break;
+			}
+		}
+		this->clear();
+	}
+
+	inline void _REC() {
+		for (int i = 0; i < this->size(); ++i)
+			at(i)->_REC();
+	}
+
+	/**
+	 * reset all data (data & diff) in this blobs
+	 */
+	inline void _RESET_DATA() {
+		for (int i = 0; i < this->size(); ++i)
+			at(i)->_RESET_DATA();
+	}
+
+	/**
+	 * reset diff data (diff) in this blobs
+	 */
+	inline void _RESET_DIFF() {
+		for (int i = 0; i < this->size(); ++i)
+			at(i)->_RESET_DIFF();
+	}
+
+private:
+
+};
 }

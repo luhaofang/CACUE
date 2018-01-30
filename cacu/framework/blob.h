@@ -75,43 +75,63 @@ namespace cacu{
 		/**
 		 * copy dest blob data to local blob
 		 */
-		inline void copy_blob(blob* blob_);
+		void copy_blob(blob* blob_);
 
-		inline blob* copy_create(phase_type phase_, float_t value_) const;
-
-		/*
-		 * copy data size_to blob, if blob is established in gpu, io op is needed
-		 * where i is the start piece index in blob
-		 */
-		inline void copy2data(vec_t &data_, size_t i);
-
-		/*
-		 * copy data size_to blob, if blob is established in gpu, io op is needed
-		 */
-		inline void copy2data(vec_t &data_);
+		blob* copy_create(phase_type phase_, float_t value_) const;
 
 		/*
 		 * copy data size_to blob, if blob is established in gpu, io op is needed
 		 * where i is the start piece index in blob
 		 */
-		inline void copy2diff(vec_t &data_, size_t i);
+		void copy2data(vec_t &data_, size_t i);
+
+		/*
+		 * copy data size_to blob, if blob is established in gpu, io op is needed
+		 */
+		void copy2data(vec_t &data_);
+
+		/*
+		 * copy data size_to blob, if blob is established in gpu, io op is needed
+		 * where i is the start piece index in blob
+		 */
+		void copy2diff(vec_t &data_, size_t i);
 
 		/*
 		 * copy data size_to blob's diff, if blob is established in gpu, io op is needed
 		 */
-		inline void copy2diff(vec_t &data_);
+		void copy2diff(vec_t &data_);
 
-		virtual inline size_t calculate_size() = 0;
+		inline size_t calculate_size(){
+			return test == _phase ?
+						_length * sizeof(float_t) : 2 * _length * sizeof(float_t);
+		}
 
-		virtual inline const void _RESET_DATA() = 0;
+		inline void _RESET_DATA(){
+			_tdata->refresh();
+			if (train == _phase)
+				_tdiff->refresh();
+		}
 
-		virtual inline const void _RESET_DIFF() = 0;
+		inline void _RESET_DIFF(){
+			_tdiff->refresh();
+		}
 
-		virtual const void serializa(std::ostream& os) = 0;
+		void serializa(std::ostream& os);
 
-		virtual const void load(std::ifstream& is) = 0;
+		void load(std::ifstream& is);
 
-		virtual inline const void resize(size_t num, size_t channel, size_t width, size_t height) = 0;
+		inline void resize(size_t num, size_t channel, size_t width, size_t height)
+		{
+			_width = width;
+			_height = height;
+			_channel = channel;
+			_num = num;
+			_channel_length = width * height;
+			_cube_length = channel * width * height;
+			_length = _num * _cube_length;
+
+			_tdata->resize(_length);
+		}
 
 
 	private:

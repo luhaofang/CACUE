@@ -27,20 +27,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../config.h"
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+#include <stdio.h>
+#include <iostream>
+#include <ostream>
 
-#include "cublas_v2.h"
+using namespace std;
 
 namespace cacu{
 
-void create_cublas_handle(){CUBLAS_CHECK(cublasCreate(&handle));}
 
-void release_cublas_handle() {CUBLAS_CHECK(cublasDestroy(handle));}
-
+template<typename DTYPE>
+inline void cacu_print(DTYPE *data, size_t length)
+{
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	device_print(data,length);
+#endif
+#else
+	cacu_print_cpu(data, length);
+#endif
 }
 
-#endif
-#endif
+
+}

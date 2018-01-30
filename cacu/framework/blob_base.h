@@ -87,15 +87,15 @@ public:
 
 	virtual size_t calculate_size() = 0;
 
-	virtual const void _RESET_DATA() = 0;
+	virtual void _RESET_DATA() = 0;
 
-	virtual const void _RESET_DIFF() = 0;
+	virtual void _RESET_DIFF() = 0;
 
-	virtual const void serializa(std::ostream& os) = 0;
+	virtual void serializa(std::ostream& os) = 0;
 
-	virtual const void load(std::ifstream& is) = 0;
+	virtual void load(std::ifstream& is) = 0;
 
-	virtual const void resize(size_t num, size_t channel, size_t width,
+	virtual void resize(size_t num, size_t channel, size_t width,
 			size_t height) = 0;
 
 	inline size_t index(size_t c, size_t x, size_t y) const {

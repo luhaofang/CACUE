@@ -108,7 +108,7 @@ inline void mask_vector(float *vector_, const int length, float *mask);
  * math y = x:
  * length: the input data's size
  */
-void cacu_copy(float *x, const int length, float *y);
+inline void cacu_copy(float *x, const int length, float *y);
 
 /**
  * @cacu_isaxdb

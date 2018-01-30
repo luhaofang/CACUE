@@ -1,7 +1,6 @@
 /*
  Copyright (c) 2016, David lu
  All rights reserved.
-
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  * Redistributions of source code must retain the above copyright
@@ -12,7 +11,6 @@
  * Neither the name of the <organization> nor the
  names of its contributors may be used to endorse or promote products
  derived from this software without specific prior written permission.
-
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -68,6 +66,8 @@ public:
 
 	void load(std::ifstream& is);
 
+	void _memcopy(DTYPE* data_);
+
 private:
 
 	DTYPE *_pdata;
@@ -82,11 +82,9 @@ tensor<DTYPE>::tensor(size_t length) {
 	_length = length;
 #if __USE_DEVICE__ == ON
 	_pdata = device_malloc_v<DTYPE>(length, 0);
-	LOG_DEBUG("faker");
 #else
 	_pdata = (DTYPE*)malloc(length * sizeof(DTYPE));
 	set_value(0);
-	LOG_DEBUG("white");
 #endif
 
 }
@@ -103,7 +101,14 @@ tensor<DTYPE>::~tensor() {
 }
 
 template<typename DTYPE>
+inline void tensor<DTYPE>::_memcopy(DTYPE* data_)
+{
+	cacu_copy(data_, _length, _pdata);
+}
+
+template<typename DTYPE>
 inline void tensor<DTYPE>::resize(size_t length) {
+	_length = length;
 #if __USE_DEVICE__ == ON
 	device_free(_pdata);
 	_pdata = device_malloc_v<DTYPE>(length, 0);

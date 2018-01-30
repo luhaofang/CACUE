@@ -29,22 +29,27 @@
 
 namespace cacu {
 
+//openblas
 #ifndef __OPENBLAS__
 #define __OPENBLAS__  0XA
 #endif
 
+//mkl
 #ifndef __MKL__
 #define __MKL__ 0XB
 #endif
 
+//cudnn
 #ifndef __CUDNN__
 #define __CUDNN__ 0XC
 #endif
 
+//cuda & cublas
 #ifndef __CUDA__
 #define __CUDA__ 0XD
 #endif
 
+//opencl
 #ifndef __OPENCL__
 #define __OPENCL__ 0XE
 #endif
@@ -55,7 +60,7 @@ namespace cacu {
 /***********************************/
 
 #ifndef __USE_DEVICE__
-#define __USE_DEVICE__  ON
+#define __USE_DEVICE__  OFF
 #endif
 
 #ifndef __PARALLELTYPE__
