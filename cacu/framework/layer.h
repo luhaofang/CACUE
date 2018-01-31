@@ -27,99 +27,62 @@
 
 #pragma once
 
-#include <vector>
+#include "../ops/ops_defination.h"
 
-#include "blob_base.h"
-
-#include "bin_blob.h"
-
-using namespace std;
+#include "layer_base.h"
 
 namespace cacu {
 
-class blobs: public vector<blob_base*> {
+class layer: public layer_base {
 
 public:
 
-	blobs() {
+	layer(size_t output_channel, size_t kernel_size, size_t stride, size_t pad, size_t input_dim, size_t channel);
 
+	~layer(){};
+
+	int caculate_data_space() {
+		return 0;
 	}
 
-	~blobs() {
-		for (unsigned int i = 0; i < size(); ++i) {
-			switch (at(i)->_TYPE()) {
-			case __blob__:
-				delete (blob*) at(i);
-				break;
-			case __bin_blob__:
-				delete (bin_blob*) at(i);
-				break;
-			/*
-			case __em_blob__:
-				delete (em_blob*) at(i);
-				break;
-			case __em_bin_blob__:
-				delete (em_bin_blob*) at(i);
-				break;
-			*/
-			default:
-				LOG_FATAL("can't identify the type!")
-				;
-				break;
-			}
-		}
+	layer* op(op_name op_);
+
+	layer* op(op_name op_, blob_base *blob_);
+
+	layer* op(op_name op_, blob_base *blob_, data_args *args_);
+
+	layer* op(op_name op_, blobs *blobs_);
+
+	layer* op(op_name op_, blobs *blobs_, data_args *args_);
+
+	template<class OPTYPE>
+	inline OPTYPE *& get_op(int i) const {
+		return (OPTYPE*&) _ops->at(i);
 	}
 
-	inline blobs& operator <<(blob_base* blob_base_) {
-		this->push_back(blob_base_);
-		return *this;
+	inline operator_base *&get_head_op() {
+		return _ops->at(0);
 	}
 
-	inline void _DELETE_BLOBS() {
-		for (unsigned int i = 0; i < size(); ++i) {
-			switch (at(i)->_TYPE()) {
-			case __blob__:
-				delete (blob*) at(i);
-				break;
-			case __bin_blob__:
-				delete (bin_blob*) at(i);
-				break;
-			/*
-			case __em_blob__:
-				delete (em_blob*) at(i);
-				break;
-			case __em_bin_blob__:
-				delete (em_bin_blob*) at(i);
-				break;
-			*/
-			default:
-				LOG_FATAL("can't identify the type!");
-				break;
-			}
-		}
-		this->clear();
+	inline blob_base *&get_oblob() {
+		return out_blob;
 	}
 
-	inline void _REC() {
-		for (int i = 0; i < this->size(); ++i)
-			at(i)->_REC();
+	inline blobs *&get_oblobs() const {
+		return _ops->back()->out_datas();
 	}
 
-	/**
-	 * reset all data (data & diff) in this blobs
-	 */
-	inline void _RESET_DATA() {
-		for (int i = 0; i < this->size(); ++i)
-			at(i)->_RESET_DATA();
-	}
 
-	/**
-	 * reset diff data (diff) in this blobs
-	 */
-	inline void _RESET_DIFF() {
-		for (int i = 0; i < this->size(); ++i)
-			at(i)->_RESET_DIFF();
+private:
+
+	blob_base* out_blob = NULL;
+
+	//args refresh by input blob
+	inline void refresh_layer_param(blob_base *blob_) {
+		_args->at(4) = blob_->height();
+		_args->at(5) = blob_->channel();
 	}
 
 };
+
 }

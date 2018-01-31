@@ -29,97 +29,71 @@
 
 #include <vector>
 
-#include "blob_base.h"
-
-#include "bin_blob.h"
+#include "layer_base.h"
+#include "layer.h"
 
 using namespace std;
 
 namespace cacu {
 
-class blobs: public vector<blob_base*> {
+class layer_block {
 
 public:
 
-	blobs() {
+	layer_block(size_t output_channel = 0, size_t kernel_size = 0, size_t stride = 0,
+			size_t pad = 0, size_t input_dim = 0, size_t channel = 0);
 
+	~layer_block();
+
+	inline blob_base* get_oblob() {
+		if (_layers->size() != 0)
+			return layers(length() - 1)->get_oblob();
+		return NULL;
 	}
 
-	~blobs() {
-		for (unsigned int i = 0; i < size(); ++i) {
-			switch (at(i)->_TYPE()) {
-			case __blob__:
-				delete (blob*) at(i);
-				break;
-			case __bin_blob__:
-				delete (bin_blob*) at(i);
-				break;
-			/*
-			case __em_blob__:
-				delete (em_blob*) at(i);
-				break;
-			case __em_bin_blob__:
-				delete (em_bin_blob*) at(i);
-				break;
-			*/
-			default:
-				LOG_FATAL("can't identify the type!")
-				;
-				break;
-			}
-		}
+	inline layer *layers(int i) const {
+		return (layer*) _layers->at(i);
 	}
 
-	inline blobs& operator <<(blob_base* blob_base_) {
-		this->push_back(blob_base_);
-		return *this;
+	inline layer_base *pop_layer() const {
+		return _layers->at(length() - 1);
 	}
 
-	inline void _DELETE_BLOBS() {
-		for (unsigned int i = 0; i < size(); ++i) {
-			switch (at(i)->_TYPE()) {
-			case __blob__:
-				delete (blob*) at(i);
-				break;
-			case __bin_blob__:
-				delete (bin_blob*) at(i);
-				break;
-			/*
-			case __em_blob__:
-				delete (em_blob*) at(i);
-				break;
-			case __em_bin_blob__:
-				delete (em_bin_blob*) at(i);
-				break;
-			*/
-			default:
-				LOG_FATAL("can't identify the type!");
-				break;
-			}
-		}
-		this->clear();
+	inline layer_base *layer_bases(int i) const {
+		return _layers->at(i);
 	}
 
-	inline void _REC() {
-		for (int i = 0; i < this->size(); ++i)
-			at(i)->_REC();
+	inline int length() const {
+		return _layers->size();
 	}
 
-	/**
-	 * reset all data (data & diff) in this blobs
-	 */
-	inline void _RESET_DATA() {
-		for (int i = 0; i < this->size(); ++i)
-			at(i)->_RESET_DATA();
-	}
+	layer_block& operator <<(layer_block* const &layer_block_);
 
-	/**
-	 * reset diff data (diff) in this blobs
-	 */
-	inline void _RESET_DIFF() {
-		for (int i = 0; i < this->size(); ++i)
-			at(i)->_RESET_DIFF();
-	}
+	layer_block& operator <<(layer_block &layer_block_);
+
+	layer_block& operator <<(layer_base* const &layer_);
+
+	layer_block& operator <<(layer_base &layer_);
+
+private:
+
+	vector<layer_base*> *_layers;
+
+	//feature map output dim
+	size_t _output_dim = 0;
+	//input feature map channel
+	size_t _channel = 0;
+	//input dim
+	size_t _input_dim = 0;
+	//output feature map channel
+	size_t _output_channel = 0;
+	//kernel size
+	size_t _kernel_size = 0;
+	//padding size
+	size_t _pad = 0;
+	//stride size
+	size_t _stride = 0;
 
 };
+
 }

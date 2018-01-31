@@ -25,40 +25,53 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
-
-#include "args_base.h"
-
-using namespace std;
+#include "layer_block.h"
 
 namespace cacu {
 
-class op_args: public args_base<float_t> {
+layer_block::layer_block(size_t output_channel, size_t kernel_size,
+		size_t stride, size_t pad, size_t input_dim, size_t channel) {
+	_output_dim = 0;
+	_channel = channel;
+	_input_dim = input_dim;
+	_output_channel = channel;
+	_kernel_size = kernel_size;
+	_stride = stride;
+	_pad = pad;
 
-public:
+	_layers = new vector<layer_base*>();
+}
 
-	op_args(float_t _output_channel, int _kernel_size, int _stride, int _pad,
-			int _input_dim, int _channel) :
-			args_base<float_t>(_output_channel, _kernel_size, _stride, _pad,
-					_input_dim, _channel, _ARGSEND) {
+layer_block::~layer_block() {
+	delete _layers;
+}
 
-	}
+layer_block& layer_block::operator <<(layer_block* const &layer_block_) {
+	for (int i = 0; i < layer_block_->length(); ++i)
+		_layers->push_back(layer_block_->layer_bases(i));
+	_output_dim = pop_layer()->_output_dim;
+	return *this;
+}
 
-	op_args(int arg) :
-			args_base<float_t>(arg, _ARGSEND) {
+layer_block& layer_block::operator <<(layer_block &layer_block_) {
+	for (int i = 0; i < layer_block_.length(); ++i)
+		_layers->push_back(layer_block_.layer_bases(i));
+	_output_dim = pop_layer()->_output_dim;
+	return *this;
+}
 
-	}
+layer_block& layer_block::operator <<(layer_base* const &layer_) {
 
-	op_args(int arg1, int arg2) :
-			args_base<float_t>(arg1, arg2, _ARGSEND) {
+	_layers->push_back(layer_);
+	_output_dim = layer_->_output_dim;
+	return *this;
+}
 
-	}
+layer_block& layer_block::operator <<(layer_base &layer_) {
 
-	~op_args() {
+	_layers->push_back(&layer_);
+	_output_dim = layer_._output_dim;
+	return *this;
+}
 
-	}
-
-private:
-
-};
 }

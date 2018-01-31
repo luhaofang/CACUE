@@ -27,38 +27,46 @@
 
 #pragma once
 
-#include "args_base.h"
-
-using namespace std;
-
 namespace cacu {
 
-class op_args: public args_base<float_t> {
 
-public:
+/**
+ * op defination
+ * every operation is defined here and regedit in operator_factory.h
+ */
 
-	op_args(float_t _output_channel, int _kernel_size, int _stride, int _pad,
-			int _input_dim, int _channel) :
-			args_base<float_t>(_output_channel, _kernel_size, _stride, _pad,
-					_input_dim, _channel, _ARGSEND) {
+enum op_name {
+	CACU_INNERPRODUCT,
+	CACU_CONVOLUTION,
+	CACU_BATCH_NORMALIZE,
+	CACU_DROPOUT,
+	CACU_P_INNERPRODUCT,
+	CACU_DECONVOLUTION,
+	CACU_LOCAL_CONV,
+	CACU_NORM,
 
-	}
+	CACU_ROW_MAX_POOLING,
+	CACU_MAX_POOLING,
+	CACU_AVERAGE_POOLING,
+	CACU_ROI_POOLING,
 
-	op_args(int arg) :
-			args_base<float_t>(arg, _ARGSEND) {
+	CACU_RELU,
+	CACU_LEAKY_RELU,
+	CACU_SOFTMAX,
+	CACU_TANH,
+	CACU_SIGMOID,
 
-	}
+	CACU_SOFTMAX_LOSS,
+	CACU_HINGE_LOSS,
+	CACU_MULTI_CE_LOSS,
 
-	op_args(int arg1, int arg2) :
-			args_base<float_t>(arg1, arg2, _ARGSEND) {
+	CACU_SUM_ELEMWISE,
+	CACU_FEATURE_COMBINE,
+	CACU_SPLIT,
 
-	}
+	CACU_INJECTOR,
 
-	~op_args() {
-
-	}
-
-private:
-
+	CACU_PRIMARY_VECTOR
 };
+
 }
