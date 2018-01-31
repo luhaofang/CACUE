@@ -27,57 +27,88 @@
 
 #pragma once
 
+#include "../math/math_definition.h"
+#include "../framework/weight.h"
+#include "../framework/network.h"
+
+
 namespace cacu {
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
-#endif
+class solver_base {
 
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
-#endif
+public:
 
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
-#endif
+	solver_base(network *&net_);
 
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
-#endif
+	virtual ~solver_base();
 
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
+	inline void set_weight_decay(float_t weight_decay_) {
+		_global_weight_decay = weight_decay_;
+	}
 
+	inline void set_lr(float_t lr_) {
+		_global_lr = lr_;
+	}
 
-/***********************************/
-/*        user config part	       */
-/***********************************/
+	inline void set_regularize(regularize_type type_) {
+		_regularize = type_;
+	}
 
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  OFF
-#endif
+	inline float_t weight_decay() const {
+		return _global_weight_decay;
+	}
 
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
+	inline float_t lr() const {
+		return _global_lr;
+	}
 
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __MKL__
-#endif
+	inline regularize_type regularize() const {
+		return _regularize;
+	}
 
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
+	/*
+	 * where weight_index denote the weight's id in sovler's vector
+	 */
+	virtual void update_weight(weight* w_, int weight_index_) = 0;
 
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
-#endif
+	void crop_grad(blob* g_);
 
+	inline void train_iter();
+
+	/**
+	 * change global_lr by rate after several training iterations
+	 *
+	 */
+	inline void set_lr_iter(float_t lr_rate_) {
+		this->_global_lr *= lr_rate_;
+	}
+
+protected:
+
+	float_t _global_lr = 1.0;
+
+	float_t _global_weight_decay = 0.004;
+
+	regularize_type _regularize = L2;
+
+	network *_net;
+
+	/**
+	 * add regular to gradient
+	 * where i is the index of _w
+	 */
+	void __REGULARIZE__(weight *w_, int weight_index_);
+	/**
+	 * normalize gradient
+	 * where i is the index of _w
+	 */
+	void __NORMALIZE__(weight *w_);
+
+private:
+
+	blobs* _temp;
+
+	int _batch_size;
+
+};
 }

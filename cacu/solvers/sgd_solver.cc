@@ -25,59 +25,45 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "sgd_solver.h"
 
 namespace cacu {
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
-#endif
+sgd_solver::sgd_solver(network *&net_) :
+		solver_base(net_) {
+	_history_v = cacu_allocator::create_blobs();
+	for (int i = 0; i < _net->op_count(); ++i) {
+		operator_base* op_ = _net->get_op(i);
+		for (int j = 0; j < op_->weights_size(); ++j) {
+			blob *history_w = op_->get_weight(j)->copy_create(test, 0);
+			_history_v->push_back(history_w);
+		}
+	}
+}
 
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
-#endif
+sgd_solver::~sgd_solver() {
 
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
-#endif
+	delete _history_v;
 
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
-#endif
+}
 
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
+/**
+ * update weight value
+ * where weight_index_ is the weight index in _history_v
+ */
+void sgd_solver::update_weight(weight* w_, int weight_index_) {
 
-
-/***********************************/
-/*        user config part	       */
-/***********************************/
-
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  OFF
-#endif
-
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
-
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __MKL__
-#endif
-
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
-
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
-#endif
+	blob* history_ = (blob*) _history_v->at(weight_index_);
+	float_t learn_rate_ = w_->lr() * _global_lr;
+	//normalization
+	__NORMALIZE__(w_);
+	//add regular
+	__REGULARIZE__(w_, weight_index_);
+	//history_v update
+	cacu_saxpby(w_->s_diff(), (float_t) (-1) * learn_rate_, history_->s_data(),
+			_momentum, w_->count());
+	//update to weight
+	cacu_saxpy(history_->s_data(), (float_t) (1), w_->s_data(), w_->count());
+}
 
 }

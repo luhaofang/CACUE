@@ -43,6 +43,11 @@ layer_block::layer_block(size_t output_channel, size_t kernel_size,
 }
 
 layer_block::~layer_block() {
+	for(int i = 0; i < _layers->size(); ++i)
+	{
+		delete _layers->at(i);
+		_layers->at(i)= NULL;
+	}
 	delete _layers;
 }
 

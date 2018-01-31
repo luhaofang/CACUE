@@ -120,7 +120,7 @@ protected:
 
 	data_args* _args;
 
-private:
+	blob_base* out_blob = NULL;
 
 };
 

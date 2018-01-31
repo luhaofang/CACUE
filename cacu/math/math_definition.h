@@ -41,4 +41,22 @@ typedef enum {
 
 } SUM;
 
+/*
+ * regularization type for weights update in optimization methods.
+ *
+ */
+enum regularize_type {
+	L1 = 30,
+	L2 = 31
+};
+
+/*
+ * regularization type for weights update in optimization methods.
+ *
+ */
+enum normalize_type {
+	norm_l1 = 40,
+	norm_l2 = 41
+};
+
 }

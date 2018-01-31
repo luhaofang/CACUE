@@ -27,57 +27,43 @@
 
 #pragma once
 
+#include "solver_base.h"
+
 namespace cacu {
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
-#endif
+class sgd_solver: public solver_base {
 
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
-#endif
+public:
 
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
-#endif
+	sgd_solver(network *&net_);
 
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
-#endif
+	~sgd_solver();
 
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
+	/**
+	 * update weight value
+	 * where weight_index_ is the weight index in _history_v
+	 */
+	void update_weight(weight* w_, int weight_index_);
 
+	inline void set_momentum(float_t momentum_) {
+		_momentum = momentum_;
+	}
 
-/***********************************/
-/*        user config part	       */
-/***********************************/
+	inline float_t momentum() const {
+		return _momentum;
+	}
 
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  OFF
-#endif
+	inline void echo() {
 
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
+	}
 
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __MKL__
-#endif
+protected:
 
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
+private:
 
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
-#endif
+	float_t _momentum = 0.9;
 
+	blobs* _history_v;
+
+};
 }

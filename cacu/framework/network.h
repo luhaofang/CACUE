@@ -27,59 +27,95 @@
 
 #pragma once
 
-#include "../ops/ops_defination.h"
-
 #include "layer_base.h"
+#include "layer.h"
+#include "layer_block.h"
 
 namespace cacu {
 
-class layer: public layer_base {
+class network {
 
 public:
+	network(blobs *&datas_);
 
-	layer(size_t output_channel, size_t kernel_size, size_t stride, size_t pad,
-			size_t input_dim, size_t channel);
+	~network();
 
-	~layer(){}
+	/*
+	 * Class network unlike layer & layer_block,
+	 * it maintains the abstract layer's operator entity.
+	 *
+	 */
+	network& operator <<(layer_block* const &layer_block_);
 
-	int caculate_data_space() {
-		return 0;
+	network& operator <<(layer_block &layer_block_);
+
+	network& operator <<(layer_base* const &layer_);
+
+	network& operator <<(layer_base &layer_);
+
+	inline layer *&layers(int i) {
+		return (layer*&) _layers->at(i);
 	}
 
-	layer* op(op_name op_);
-
-	layer* op(op_name op_, blob_base *blob_);
-
-	layer* op(op_name op_, blob_base *blob_, data_args *args_);
-
-	layer* op(op_name op_, blobs *blobs_);
-
-	layer* op(op_name op_, blobs *blobs_, data_args *args_);
-
-	template<class OPTYPE>
-	inline OPTYPE *& get_op(int i) const {
-		return (OPTYPE*&) _ops->at(i);
+	inline layer_base *&layer_bases(int i) {
+		return _layers->at(i);
 	}
 
-	inline operator_base *&get_head_op() {
-		return _ops->at(0);
+	inline int layer_count() const {
+		return _layers->size();
 	}
 
-	inline blob_base *&get_oblob() {
-		return out_blob;
+	inline void set_inputdata(blob_base *&blob_);
+
+	void predict();
+
+	void forward_propagate();
+
+	void back_propagate();
+
+	void set_weights_type(param_init_type type_, float_t value);
+
+	inline void set_weight(int op_id, param_init_type type_, float_t value) {
+		get_op(op_id)->get_weight(0)->set_init_type(type_, value);
 	}
 
-	inline blobs *&get_oblobs() const {
-		return _ops->back()->out_datas();
+	inline operator_base *&get_op(int i) {
+		return _ops->at(i);
 	}
+
+	inline int op_count() const {
+		return _ops->size();
+	}
+
+	inline blobs *& input_blobs() {
+		return _input_blobs;
+	}
+
+	inline blob *& output_blob() {
+		return _ops->at(_ops->size() - 1)->out_data<blob>();
+	}
+
+	void output_blobs();
+
+	inline phase_type phase() {
+		return _input_blobs->at(0)->phase();
+	}
+
+	void load_weights(chars_t modelpath);
+
+	void save_weights(chars_t modelpath);
+
+	void check();
+
+	void set_phase(phase_type phase_);
 
 private:
 
-	//args refresh by input blob
-	inline void refresh_layer_param(blob_base *blob_) {
-		_args->at(4) = blob_->height();
-		_args->at(5) = blob_->channel();
-	}
+	vector<layer_base*> *_layers;
+
+	vector<operator_base*> *_ops;
+
+	blobs* _input_blobs;
 
 };
 

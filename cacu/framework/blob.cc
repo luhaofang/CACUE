@@ -63,7 +63,6 @@ void blob::copy_blob(blob* blob_) {
 }
 
 blob* blob::copy_create(phase_type phase_, float_t value_) const {
-	//return NULL;
 	return new blob(_num, _channel, _width, _height, value_, phase_);
 }
 

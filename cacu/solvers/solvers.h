@@ -27,47 +27,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-namespace cacu{
 
-#ifndef __BLOBMAXREC__
-#define __BLOBMAXREC__ 0XFFFFFFFF
-#endif
-
-/**
- * blob type definition, every blob_base maintains a blob type in order to turn back
- * original data maintaining type.
- */
-enum blob_type{
-	__blob__,
-	__bin_blob__,
-	__em_blob__,
-	__em_bin_blob__
-};
-
-
-/**
- * definition of weights parameter initialization type.
- */
-enum param_init_type {
-	constant = 10,
-	xavier = 11,
-	gaussian = 12,
-	msra = 13
-};
-
-/**
- * blob/network running mode.
- */
-enum phase_type {
-	test = 20,
-	train = 21
-};
-
-typedef struct{
-		int x;
-		int y;
-		int z;
-}spatial3D;
-
-
-}
+#include "solver_base.h"
+#include "sgd_solver.h"

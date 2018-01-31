@@ -36,7 +36,7 @@ namespace cacu {
  * math vector_[i] = (rand()>=ratio_)
  * length: the input data's size
  */
-inline void rand_vector(float *vector_, const int length, const float ratio_) {
+void rand_vector(float *vector_, const int length, const float ratio_) {
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -65,7 +65,7 @@ inline void rand_vector(float *vector_, const int length, const float ratio_) {
  * math vector_[i] = (vector_[i]>0)
  * length: the input data's size
  */
-inline void mask_vector(float *vector_, const int length, float *mask) {
+void mask_vector(float *vector_, const int length, float *mask) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	vec_t v_(length);
@@ -89,7 +89,7 @@ inline void mask_vector(float *vector_, const int length, float *mask) {
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-inline void cacu_isaxb(float *x, const int length, const float a,
+void cacu_isaxb(float *x, const int length, const float a,
 		unsigned int *index_, const float b, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -102,7 +102,7 @@ inline void cacu_isaxb(float *x, const int length, const float a,
 #endif
 }
 
-inline unsigned int argmax(float *data, const int length) {
+unsigned int argmax(float *data, const int length) {
 
 	unsigned int index;
 #if __USE_DEVICE__ == ON
@@ -127,7 +127,7 @@ inline unsigned int argmax(float *data, const int length) {
 #endif
 }
 
-inline void cacu_transpose(float *mtx, const int m, const int n) {
+void cacu_transpose(float *mtx, const int m, const int n) {
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -160,7 +160,7 @@ inline void cacu_transpose(float *mtx, const int m, const int n) {
  * math y = x:
  * length: the input data's size
  */
-inline void cacu_copy(float *x, const int length, float *y) {
+void cacu_copy(float *x, const int length, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_copy_cublas(x,length,y);
@@ -170,7 +170,7 @@ inline void cacu_copy(float *x, const int length, float *y) {
 #endif
 }
 
-inline void cacu_clip_vec(float *data, const float threshold,
+void cacu_clip_vec(float *data, const float threshold,
 		const int length) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
