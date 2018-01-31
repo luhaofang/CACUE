@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../utils/data_defination.h"
+#include "../../definition.h"
 
 namespace mycnn{
 

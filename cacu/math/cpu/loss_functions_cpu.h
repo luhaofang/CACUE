@@ -36,7 +36,7 @@ namespace mycnn {
  * loss += -log(p(x)):
  * for loss use cross entropy functions.
  */
-inline void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
+void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
 		const unsigned int *label_, float_t *loss_);
 
 }

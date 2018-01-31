@@ -31,7 +31,7 @@ void set_rand_seed() {
 	srand((unsigned int) time(NULL));
 }
 
-inline float_t gaussrand(float_t std) {
+float_t gaussrand(float_t std) {
 	float_t u = ((float_t) rand() / (RAND_MAX)) * 2 - 1;
 	float_t v = ((float_t) rand() / (RAND_MAX)) * 2 - 1;
 	float_t r = u * u + v * v;
@@ -41,14 +41,14 @@ inline float_t gaussrand(float_t std) {
 	return u * c * std;
 }
 
-inline float_t urand(float_t min, float_t max) {
+float_t urand(float_t min, float_t max) {
 	assert(min < max);
 	float_t pRandomValue = ((float_t) rand() / (float_t) RAND_MAX);
 	pRandomValue = pRandomValue * (max - min) + min;
 	return pRandomValue;
 }
 
-inline unsigned int urandint(unsigned int min, unsigned int max) {
+unsigned int urandint(unsigned int min, unsigned int max) {
 
 	assert(min < max);
 	float_t pRandomValue = (float_t) (rand() % max) / max;
@@ -56,7 +56,7 @@ inline unsigned int urandint(unsigned int min, unsigned int max) {
 	return (unsigned int) pRandomValue;
 }
 
-inline unsigned int randint(int max) {
+unsigned int randint(int max) {
 	return (unsigned int) (rand() % max);
 }
 

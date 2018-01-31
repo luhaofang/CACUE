@@ -136,7 +136,7 @@ namespace cacu{
 		}
 
 
-	private:
+	protected:
 
 		tensor<float_t>* _tdata;
 

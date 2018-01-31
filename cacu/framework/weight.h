@@ -19,22 +19,70 @@
  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS size_tERRUPTION) HOWEVER CAUSED AND
  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "device_data_utils.h"
+#pragma once
 
 
+#include "blob.h"
+
+#include "../tensor/cuda/cuda_utils.h"
 
 namespace cacu {
 
-void device_release() {
-#if __PARALLELTYPE__ == __CUDA__
-	cuda_release();
-#endif
-}
+class weight: public blob {
+
+public:
+
+	weight(chars_t name, size_t num, size_t channel, size_t width, size_t height,
+			phase_type phase);
+
+	~weight();
+
+	inline chars_t name() const {
+		return _name;
+	}
+
+	inline void set_lr(float_t lr_) {
+		_update_lr = lr_;
+	}
+
+	inline float_t lr() const {
+		return _update_lr;
+	}
+
+	inline void set_decay(float_t decay_mult_) {
+		_decay_mult = decay_mult_;
+	}
+
+	inline float_t decay() const {
+		return _decay_mult;
+	}
+
+	void set_init_type(param_init_type type, float_t value);
+
+	/*
+	 * serializa blob data, output data to model file
+	 */
+	inline void serializa_group(std::ostream& os, int group);
+
+	/*
+	 * loads blob data from model file
+	 */
+	inline void load_group(std::ifstream& is, int group);
+
+private:
+
+	chars_t _name;
+
+	float_t _update_lr;
+
+	float_t _decay_mult;
+
+};
 
 }

@@ -24,49 +24,48 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#pragma once
 
-#include "math_function_cublas.h"
-#include "cublas_utils.h"
+#ifdef __CBLASTYPE__
+#if __CBLASTYPE__ == __MKL__
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+#include <mkl.h>
 
 namespace cacu{
 
-inline void cacu_saxpy_cublas(float *x, const float a, float *y, const int length) {
-
-	CUBLAS_CHECK(cublasSaxpy_v2(handle, length, &a, x, 1, y, 1));
-}
-
-inline void cacu_saxpby_cublas(float *x, const float a, float *y, const float b, const int length)
+inline void cacu_saxpy_mkl(float *x,const float a, float *y, const int length)
 {
-	CUBLAS_CHECK(cublasSscal_v2(handle, length, &b, y, 1));
-	CUBLAS_CHECK(cublasSaxpy_v2(handle, length, &a, x, 1, y, 1));
+	cblas_saxpy(length, a, x, 1, y, 1);
 }
 
-inline void cacu_scalex_cublas(float *x, const float a, const int length)
+inline void cacu_saxpby_mkl(float *x,const float a, float *y,const float b, const int length)
 {
-	CUBLAS_CHECK(cublasSscal_v2(handle, length, &a, x, 1));
+	cblas_saxpby(length, a, x, 1, b, y, 1);
 }
 
-inline void cacu_sgemv_cublas(cublasOperation_t trans,float *x, const int x_height,float *y, const int x_width,const float alpha, float *z ,const float beta)
+inline void cacu_scalex_mkl(float *x,const float a, const int length)
+{
+	cblas_sscal(length, a, x, 1);
+}
+
+inline void cacu_sgemv_mkl(CBLAS_TRANSPOSE trans, float *x, const int x_height, float *y, const int x_width,const float alpha,float *z,const float beta)
 {
 	int m = x_height,n = x_width;
-	CUBLAS_CHECK(cublasSgemv_v2(handle, trans, m, n, &alpha, x, m, y, 1, &beta, z, 1));
+	cblas_sgemv(CBLAS_LAYOUT::CblasColMajor, trans, m, n, alpha, x, m, y, 1, beta, z, 1);
 }
 
-inline void cacu_sgemm_cublas(cublasOperation_t transx, cublasOperation_t transy, float *x, const int x_height, const int x_width,float *y, const int y_width, const float alpha, float *z,const float beta)
+inline void cacu_sgemm_mkl(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float *x, const int x_height, const int x_width, float *y, const int y_width, const float alpha,float *z,const float beta)
 {
 	int m = x_height,n = y_width,k = x_width;
-	int lda = (transx == CUBLAS_OP_N) ? m : k;
-	int ldb = (transy == CUBLAS_OP_N) ? k : n;
-	CUBLAS_CHECK(cublasSgemm_v2(handle, transx, transy, m, n, k, &alpha, x, lda, y, ldb, &beta, z, m));
+	int lda = (transx == CBLAS_TRANSPOSE::CblasNoTrans) ? m : k;
+	int ldb = (transy == CBLAS_TRANSPOSE::CblasNoTrans) ? k : n;
+	cblas_sgemm(CBLAS_LAYOUT::CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
 }
 
-inline void cacu_copy_cublas(const float *x, int length, float *y){
-	CUBLAS_CHECK(cublasScopy_v2(handle, length, x, 1, y, 1));
+inline void cacu_copy_mkl(float *x, const int x_length,float *y)
+{
+	cblas_scopy(x_length,x,1,y,1);
 }
-
 
 }
 

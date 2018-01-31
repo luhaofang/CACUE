@@ -115,7 +115,5 @@ public:
 			at(i)->_RESET_DIFF();
 	}
 
-private:
-
 };
 }

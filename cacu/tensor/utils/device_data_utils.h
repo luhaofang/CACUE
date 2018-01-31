@@ -33,7 +33,11 @@
 
 namespace cacu {
 
-void device_release();
+inline void device_release() {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_release();
+#endif
+}
 
 template<typename DTYPE>
 inline DTYPE* device_malloc(const size_t length) {

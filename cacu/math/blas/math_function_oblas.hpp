@@ -27,8 +27,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include "../../config.h"
-
 #ifdef __CBLASTYPE__
 #if __CBLASTYPE__ == __OPENBLAS__
 
@@ -36,17 +34,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cacu{
 
-inline void cacu_saxpy_oblas(float *x, const float a, float *y, const int length);
+void cacu_saxpy_oblas(float *x, const float a, float *y,const int length)
+{
+	cblas_saxpy(length, a, x, 1, y, 1);
+}
 
-inline void cacu_saxpby_oblas(float *x, const float a, float *y,const float b, const int length);
+void cacu_saxpby_oblas(float *x, const float a, float *y,const float b,const int length)
+{
+	cblas_saxpby(length, a, x, 1, b, y, 1);
+}
 
-inline void cacu_scalex_oblas(float *x,const float a, const int length);
+void cacu_scalex_oblas(float *x,const float a,const int length)
+{
+	cblas_sscal(length, a, x, 1);
+}
 
-inline void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float *x, const int x_height,float *y, const int x_width, const float alpha,float *z, const float beta);
+void cacu_sgemv_oblas(CBLAS_TRANSPOSE trans, float *x,const int x_height,float *y,const int x_width, const float alpha,float *z, const float beta)
+{
+	int m = x_height,n = x_width;
+	cblas_sgemv(CblasColMajor, trans, m, n, alpha, x, m, y, 1, beta, z, 1);
+}
 
-inline void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy,float *x, const int x_height, const int x_width,float *y, const int y_width,const float alpha,float *z,const float beta);
+void cacu_sgemm_oblas(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy,float *x,const int x_height,const int x_width,float *y,const int y_width,const float alpha,float *z,const float beta)
+{
+	int m = x_height,n = y_width,k = x_width;
+	int lda = (transx == CblasNoTrans) ? m : k;
+	int ldb = (transy == CblasNoTrans) ? k : n;
+	cblas_sgemm(CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
+}
 
-inline void cacu_copy_oblas(float *x, const int x_length,float *y);
+void cacu_copy_oblas(float *x, const int x_length,float *y)
+{
+	cblas_scopy(x_length,x,1,y,1);
+}
 
 }
 

@@ -36,28 +36,28 @@ namespace cacu {
  * math x[i] = max(0,x[i]) :
  * for activation use relu functions.
  */
-inline void cacu_relu_cpu(float_t *x,const int length);
+void cacu_relu_cpu(float_t *x,const int length);
 
 /**
  * @cacu_relu_grad
  * math if(x[i]<0)?g[i] = g[i]:g[i] = 0;
  * gradient for activation use relu functions.
  */
-inline void cacu_relu_grad_cpu(float_t *x, float_t *g,const int length);
+void cacu_relu_grad_cpu(float_t *x, float_t *g,const int length);
 
 /**
  * @cacu_leaky_relu
  * math if(x[i]<0)?x[i] = x[i]:x[i] *= a;
  * for activation use leaky_relu functions.
  */
-inline void cacu_leaky_relu_cpu(float_t *x,const float_t a,const int length);
+void cacu_leaky_relu_cpu(float_t *x,const float_t a,const int length);
 
 /**
  * @cacu_leaky_relu_grad
  * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
  * gradient for activation use leaky_relu functions.
  */
-inline void cacu_leaky_relu_grad_cpu(float_t *x, float_t *g,const float_t a,
+void cacu_leaky_relu_grad_cpu(float_t *x, float_t *g,const float_t a,
 		const int length);
 
 /**
@@ -65,39 +65,39 @@ inline void cacu_leaky_relu_grad_cpu(float_t *x, float_t *g,const float_t a,
  * math softmax;
  * for activation use softmax functions.
  */
-inline void cacu_softmax_cpu(float_t *x,const int num,const int length, float_t *y);
+void cacu_softmax_cpu(float_t *x,const int num,const int length, float_t *y);
 
 /**
  * @cacu_tanh
  * math tanh;
  * for activation use tanh functions.
  */
-inline void cacu_tanh_cpu(float_t *x, const int length, float_t *y);
+void cacu_tanh_cpu(float_t *x, const int length, float_t *y);
 
 /**
  * @cacu_tanh_grad
  * math tanh;
  * for activation use tanh functions.
  */
-inline void cacu_tanh_grad_cpu(float_t *x, float_t *g,const int length, float_t *y);
+void cacu_tanh_grad_cpu(float_t *x, float_t *g,const int length, float_t *y);
 
 /**
  * @cacu_tanh
  * math tanh;
  * for activation use tanh functions.
  */
-inline void cacu_sigmoid_cpu(float_t *x,const int length, float_t *y);
+void cacu_sigmoid_cpu(float_t *x,const int length, float_t *y);
 
 /**
  * @cacu_sigmoid_grad
  * math sigmoid;
  * for activation use sigmoid functions.
  */
-inline void cacu_sigmoid_grad_cpu(float_t *x, float_t *g,const int length,
+void cacu_sigmoid_grad_cpu(float_t *x, float_t *g,const int length,
 		float_t *y);
 
-inline float_t sigmoid(float_t data);
+float_t sigmoid(float_t data);
 
-inline float_t tanh(float_t data);
+float_t tanh(float_t data);
 
 }

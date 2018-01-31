@@ -36,7 +36,7 @@ namespace cacu {
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_max_pooling_cpu(const float_t *x, const int kernel_size,
+void cacu_max_pooling_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_dim, const int output_dim,
 		const int channel, float_t *y, unsigned int* index) {
 	int cout_length = output_dim * output_dim;
@@ -78,7 +78,7 @@ inline void cacu_max_pooling_cpu(const float_t *x, const int kernel_size,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_max_pooling_grad_cpu(const float_t *x, const int kernel_size,
+void cacu_max_pooling_grad_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_dim, const int output_dim,
 		const int channel, float_t *y, const unsigned int* index) {
 	int sd_out;
@@ -108,7 +108,7 @@ inline void cacu_max_pooling_grad_cpu(const float_t *x, const int kernel_size,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_average_pooling_cpu(const float_t *x, const int kernel_size,
+void cacu_average_pooling_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_dim, const int output_dim,
 		const int channel, float_t *y) {
 	int block_size = output_dim * output_dim;
@@ -148,7 +148,7 @@ inline void cacu_average_pooling_cpu(const float_t *x, const int kernel_size,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_average_pooling_grad_cpu(const float_t *x,
+void cacu_average_pooling_grad_cpu(const float_t *x,
 		const int kernel_size, const int stride, const int input_dim,
 		const int output_dim, const int channel, float_t *y) {
 	int sd_out, sn_out, param_w, param_h;
@@ -207,7 +207,7 @@ inline void cacu_average_pooling_grad_cpu(const float_t *x,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_img2col_cpu(const float_t *x, const int kernel_size,
+void cacu_img2col_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_dim, const int channel,
 		const int output_dim, float_t *y) {
 	int cin_length = input_dim * input_dim;
@@ -237,7 +237,7 @@ inline void cacu_img2col_cpu(const float_t *x, const int kernel_size,
 		}
 }
 
-inline void cacu_img2col_pad_cpu(const float_t *x, const int kernel_size,
+void cacu_img2col_pad_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_dim, const int channel,
 		const int output_dim, const int pad, float_t *y) {
 	int cin_length = input_dim * input_dim;
@@ -280,7 +280,7 @@ inline void cacu_img2col_pad_cpu(const float_t *x, const int kernel_size,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_col2img_cpu(const float_t *x, const int kernel_size,
+void cacu_col2img_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_dim, const int channel,
 		const int output_dim, float_t *y) {
 	int sd_out, sn_out;
@@ -320,7 +320,7 @@ inline void cacu_col2img_cpu(const float_t *x, const int kernel_size,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_col2img_pad_cpu(const float_t *x, const int kernel_size,
+void cacu_col2img_pad_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_dim, const int channel,
 		const int output_dim, const int pad, float_t *y) {
 	int sd_out, sn_out;
@@ -361,7 +361,7 @@ inline void cacu_col2img_pad_cpu(const float_t *x, const int kernel_size,
 	}
 }
 
-inline void cacu_row_max_pooling_cpu(float_t *x, const int input_length,
+void cacu_row_max_pooling_cpu(float_t *x, const int input_length,
 		const int output_length, float_t *y) {
 	sort(x, x + input_length);
 	for (int i = 0; i < output_length; ++i) {
@@ -369,7 +369,7 @@ inline void cacu_row_max_pooling_cpu(float_t *x, const int input_length,
 	}
 }
 
-inline void cacu_row_max_pooling_index_cpu(float_t *x, const int input_length,
+void cacu_row_max_pooling_index_cpu(float_t *x, const int input_length,
 		const int output_length, float_t *y, unsigned int* index) {
 	for (int i = 0; i < output_length; ++i) {
 		for (int j = 0; j < input_length; ++j)
@@ -380,7 +380,7 @@ inline void cacu_row_max_pooling_index_cpu(float_t *x, const int input_length,
 	}
 }
 
-inline void cacu_row_max_pooling_grad_cpu(const float_t *x,
+void cacu_row_max_pooling_grad_cpu(const float_t *x,
 		const int output_length, float_t *y, const unsigned int* index) {
 	for (int i = 0; i < output_length; ++i) {
 		y[index[i]] = x[i];
