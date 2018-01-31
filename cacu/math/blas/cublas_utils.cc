@@ -25,20 +25,22 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
-
-#include "../../config.h"
+#include "cublas_utils.h"
 
 #ifdef __PARALLELTYPE__
 #if __PARALLELTYPE__ == __CUDA__
 
-#include "cublas_v2.h"
-
 namespace cacu{
 
-void create_cublas_handle(){CUBLAS_CHECK(cublasCreate(&handle));}
+cublasHandle_t handle = NULL;
 
-void release_cublas_handle() {CUBLAS_CHECK(cublasDestroy(handle));}
+void create_cublas_handle(){
+	CUBLAS_CHECK(cublasCreate_v2(&handle));
+}
+
+void release_cublas_handle() {
+	CUBLAS_CHECK(cublasDestroy_v2(handle));
+}
 
 }
 

@@ -35,7 +35,7 @@
 
 namespace cacu{
 
-__global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,const int length){
+__global__ void _k_CACU_SAXPY_ATOMIC_CUDA(float *x, float a, float *y,const int length){
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -49,15 +49,15 @@ __global__ void _k_CACU_SAXPY_ATOMIC_GPU(float *x, float a, float *y,const int l
 
 }
 
-extern "C" void cacu_saxpy_atomic_gpu(float *x, float a, float *y, const int length)
+extern "C" void cacu_saxpy_atomic_cuda(float *x, float a, float *y, const int length)
 {
-	_k_CACU_SAXPY_ATOMIC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a ,y,length);
+	_k_CACU_SAXPY_ATOMIC_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a ,y,length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 
-__global__ void _k_CACU_ISAXB_GPU(float *x, const int length,const float a ,unsigned int *index_, const float b, float *y) {
+__global__ void _k_CACU_ISAXB_CUDA(float *x, const int length,const float a ,unsigned int *index_, const float b, float *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -75,18 +75,18 @@ __global__ void _k_CACU_ISAXB_GPU(float *x, const int length,const float a ,unsi
 }
 
 /**
- * @cacu_isaxdb_gpu
+ * @cacu_isaxdb_cuda
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_gpu(float *x, const int length,const float a ,unsigned int *index_,const float b, float *y) {
+extern "C" void cacu_isaxb_cuda(float *x, const int length,const float a ,unsigned int *index_,const float b, float *y) {
 
-	_k_CACU_ISAXB_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length,a ,index_,b,y);
+	_k_CACU_ISAXB_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length,a ,index_,b,y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 
-__global__ void _k_ARGMAX_GPU(float *x, const int length, unsigned int *index_) {
+__global__ void _k_ARGMAX_CUDA(float *x, const int length, unsigned int *index_) {
 
 	__shared__ float shared_data[THREADNUM];
 
@@ -126,20 +126,20 @@ __global__ void _k_ARGMAX_GPU(float *x, const int length, unsigned int *index_) 
 	}
 }
 
-extern "C" void cacu_argmax_gpu(float *x,const int length, unsigned int *index_)
+extern "C" void cacu_argmax_cuda(float *x,const int length, unsigned int *index_)
 {
-	_k_ARGMAX_GPU<<<1, THREADNUM, 0>>>(x, length, index_);
+	_k_ARGMAX_CUDA<<<1, THREADNUM, 0>>>(x, length, index_);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-extern "C" void cacu_transpose_gpu(float *mtx, const int m, const int n)
+extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n)
 {
 
 }
 
 
-__global__ void _k_CACU_CLIP_VEC_GPU(float *data, const float threshold, const int length) {
+__global__ void _k_CACU_CLIP_VEC_CUDA(float *data, const float threshold, const int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -152,9 +152,9 @@ __global__ void _k_CACU_CLIP_VEC_GPU(float *data, const float threshold, const i
 	}
 }
 
-extern "C" void cacu_clip_vec_gpu(float *data, const float threshold, const int length)
+extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int length)
 {
-	_k_CACU_CLIP_VEC_GPU<<<BLOCKNUM, THREADNUM, 0>>>(data, threshold, length);
+	_k_CACU_CLIP_VEC_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(data, threshold, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }

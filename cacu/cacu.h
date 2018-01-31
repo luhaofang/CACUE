@@ -37,8 +37,6 @@
 #include "tensor/cuda/cuda_log.h"
 #include "tensor/cuda/cuda_utils.h"
 
-#include "tensor/utils/cpu_data_utils.h"
-#include "tensor/utils/device_data_utils.h"
 //*/
 
 #include "math.h"

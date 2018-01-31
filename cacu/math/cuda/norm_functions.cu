@@ -41,7 +41,7 @@ namespace cacu{
  *input_dim: width of input data
  *output_dim: width of output data
  */
-__global__ void _k_CACU_NORM_L1_GPU(float_t *x, int num, int length, unsigned int *label_, float_t *loss_) {
+__global__ void _k_CACU_NORM_L1_CUDA(float_t *x, int num, int length, unsigned int *label_, float_t *loss_) {
 
 	int tid = threadIdx.x;
 
@@ -72,9 +72,9 @@ __global__ void _k_CACU_NORM_L1_GPU(float_t *x, int num, int length, unsigned in
 }
 
 
-extern "C" void cacu_norm_l1_gpu(float_t *x, int num, int length, unsigned int *label_, float_t *loss_){
+extern "C" void cacu_norm_l1_cuda(float_t *x, int num, int length, unsigned int *label_, float_t *loss_){
 
-	_k_CACU_NORM_L1_GPU<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, num, length, label_,loss_);
+	_k_CACU_NORM_L1_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, num, length, label_,loss_);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 

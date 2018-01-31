@@ -36,7 +36,7 @@
 
 namespace cacu{
 
-__global__ void _k_CACU_RELU_GPU(float_t *x, int length) {
+__global__ void _k_CACU_RELU_CUDA(float_t *x, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -52,15 +52,15 @@ __global__ void _k_CACU_RELU_GPU(float_t *x, int length) {
 /**
  * for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_gpu(float_t *x, int length) {
+extern "C" void cacu_relu_cuda(float_t *x, int length) {
 
-	_k_CACU_RELU_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length);
+	_k_CACU_RELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 
-__global__ void _k_CACU_RELU_GRAD_GPU(float_t *x, float_t *g, int length) {
+__global__ void _k_CACU_RELU_GRAD_CUDA(float_t *x, float_t *g, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -77,15 +77,15 @@ __global__ void _k_CACU_RELU_GRAD_GPU(float_t *x, float_t *g, int length) {
 /**
  * gradient for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_grad_gpu(float_t *x, float_t *g, int length) {
+extern "C" void cacu_relu_grad_cuda(float_t *x, float_t *g, int length) {
 
-	_k_CACU_RELU_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length);
+	_k_CACU_RELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 
-__global__ void _k_CACU_LEAKY_RELU_GPU(float_t *x, float_t a, int length) {
+__global__ void _k_CACU_LEAKY_RELU_CUDA(float_t *x, float_t a, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -102,15 +102,15 @@ __global__ void _k_CACU_LEAKY_RELU_GPU(float_t *x, float_t a, int length) {
 /**
  * for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length) {
+extern "C" void cacu_leaky_relu_cuda(float_t *x, float_t a, int length) {
 
-	_k_CACU_LEAKY_RELU_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, a, length);
+	_k_CACU_LEAKY_RELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 
-__global__ void _k_CACU_LEAKY_RELU_GRAD_GPU(float_t *x, float_t *g, float_t a,
+__global__ void _k_CACU_LEAKY_RELU_GRAD_CUDA(float_t *x, float_t *g, float_t a,
 		int length) {
 
 	int tid = threadIdx.x;
@@ -128,16 +128,16 @@ __global__ void _k_CACU_LEAKY_RELU_GRAD_GPU(float_t *x, float_t *g, float_t a,
 /**
  * gradient for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a,
+extern "C" void cacu_leaky_relu_grad_cuda(float_t *x, float_t *g, float_t a,
 		int length) {
 
-	_k_CACU_LEAKY_RELU_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, a, length);
+	_k_CACU_LEAKY_RELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, a, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 
-__global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length,
+__global__ void _k_CACU_SOFTMAX_CUDA(float_t *x, int num, int length,
 		float_t *y) {
 
 	int tid = threadIdx.x;
@@ -195,15 +195,15 @@ __global__ void _k_CACU_SOFTMAX_GPU(float_t *x, int num, int length,
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_gpu(float_t *x, int num, int length, float_t *y) {
+extern "C" void cacu_softmax_cuda(float_t *x, int num, int length, float_t *y) {
 
-	_k_CACU_SOFTMAX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, num, length, y);
+	_k_CACU_SOFTMAX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, num, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 
-__global__ void _k_CACU_TANH_GPU(float_t *x, int length, float_t *y) {
+__global__ void _k_CACU_TANH_CUDA(float_t *x, int length, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -220,13 +220,13 @@ __global__ void _k_CACU_TANH_GPU(float_t *x, int length, float_t *y) {
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_gpu(float_t *x, int length, float_t *y) {
-	_k_CACU_TANH_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+extern "C" void cacu_tanh_cuda(float_t *x, int length, float_t *y) {
+	_k_CACU_TANH_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_TANH_GRAD_GPU(float_t *x, float_t *g, int length,
+__global__ void _k_CACU_TANH_GRAD_CUDA(float_t *x, float_t *g, int length,
 		float_t *y) {
 
 	int tid = threadIdx.x;
@@ -243,14 +243,14 @@ __global__ void _k_CACU_TANH_GRAD_GPU(float_t *x, float_t *g, int length,
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_grad_gpu(float_t *x, float_t *g, int length,
+extern "C" void cacu_tanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
-	_k_CACU_TANH_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
+	_k_CACU_TANH_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_SIGMOID_GPU(float_t *x, int length, float_t *y) {
+__global__ void _k_CACU_SIGMOID_CUDA(float_t *x, int length, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -267,13 +267,13 @@ __global__ void _k_CACU_SIGMOID_GPU(float_t *x, int length, float_t *y) {
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_sigmoid_gpu(float_t *x, int length, float_t *y) {
-	_k_CACU_SIGMOID_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+extern "C" void cacu_sigmoid_cuda(float_t *x, int length, float_t *y) {
+	_k_CACU_SIGMOID_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_SIGMOID_GRAD_GPU(float_t *x, float_t *g, int length,
+__global__ void _k_CACU_SIGMOID_GRAD_CUDA(float_t *x, float_t *g, int length,
 		float_t *y) {
 
 	int tid = threadIdx.x;
@@ -290,9 +290,9 @@ __global__ void _k_CACU_SIGMOID_GRAD_GPU(float_t *x, float_t *g, int length,
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_sigmoid_grad_gpu(float_t *x, float_t *g, int length,
+extern "C" void cacu_sigmoid_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
-	_k_CACU_SIGMOID_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
+	_k_CACU_SIGMOID_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }

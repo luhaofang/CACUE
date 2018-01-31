@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
-#include "blob_definition.h"
-
-#include "blob_base.h"
+//#include "blob_definition.h"
+//#include "blob_base.h"
 //#include "blob.h"

@@ -68,12 +68,12 @@ public:
 	/*
 	 * serializa blob data, output data to model file
 	 */
-	inline void serializa_group(std::ostream& os, int group);
+	void serializa_group(std::ostream& os, int group);
 
 	/*
 	 * loads blob data from model file
 	 */
-	inline void load_group(std::ifstream& is, int group);
+	void load_group(std::ifstream& is, int group);
 
 private:
 

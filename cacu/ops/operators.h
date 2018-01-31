@@ -27,6 +27,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "../utils/check_utils.h"
+#include "../utils/log.h"
+
+#include "../math/math_functions.hpp"
+#include "../math/activation_functions.hpp"
+#include "../math/batch_functions.hpp"
+#include "../math/pooling_functions.hpp"
+#include "../math/loss_functions.hpp"
+#include "../math/norm_functions.hpp"
+
+#include "../tensor/utils/device_data_utils.hpp"
+#include "../tensor/utils/cpu_data_utils.hpp"
 
 #include "operator_base.h"
 
+#include "inner_product_op.h"
+#include "convolution_op.h"
+#include "batch_normalize_op.h"
+#include "dropout_op.h"
+
+#include "sum_elemwise_op.h"
+#include "feature_combine_op.h"
+#include "split_op.h"
+
+#include "average_pooling_op.h"
+#include "max_pooling_op.h"
+
+#include "relu_op.h"
+#include "leaky_relu_op.h"
+#include "softmax_op.h"
+#include "tanh_op.h"
+#include "sigmoid_op.h"
+
+#include "softmax_with_loss_op.h"
+#include "hinge_loss_op.h"
+
+/***********************************/
+/*        user operators	       */
+/***********************************/
+
+#include "../user_ops/p_inner_product_op.h"
+#include "../user_ops/deconvolution_op.h"
+#include "../user_ops/row_max_pooling_op.h"
+#include "../user_ops/local_conv_op.h"
+#include "../user_ops/normalization_op.h"
+
+#include "../user_ops/roi_pooling_op.h"
+#include "../user_ops/injector_op.h"
+#include "../user_ops/primary_vector_op.h"

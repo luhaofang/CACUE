@@ -37,9 +37,11 @@ class layer: public layer_base {
 
 public:
 
-	layer(size_t output_channel, size_t kernel_size, size_t stride, size_t pad, size_t input_dim, size_t channel);
+	layer(size_t output_channel, size_t kernel_size, size_t stride, size_t pad,
+			size_t input_dim, size_t channel);
 
-	~layer(){};
+	~layer() {
+	}
 
 	int caculate_data_space() {
 		return 0;
@@ -71,7 +73,6 @@ public:
 	inline blobs *&get_oblobs() const {
 		return _ops->back()->out_datas();
 	}
-
 
 private:
 

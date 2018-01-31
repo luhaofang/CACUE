@@ -187,7 +187,7 @@ inline void cacu_saxpy_atomic(float *x, const float a, float *y,
 #endif
 #else
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_saxpy_atomic_gpu(x, a, y, length);
+	cacu_saxpy_atomic_cuda(x, a, y, length);
 #endif
 #endif
 }
@@ -197,33 +197,33 @@ inline void cacu_saxpy_atomic(float *x, const float a, float *y,
  * math vector_[i] = (rand()>=ratio_)
  * length: the input data's size
  */
-inline void rand_vector(float *vector_, const int length, const float ratio_);
+void rand_vector(float *vector_, const int length, const float ratio_);
 
 /**
  * @mask_vector
  * math vector_[i] = (vector_[i]>0)
  * length: the input data's size
  */
-inline void mask_vector(float *vector_, const int length, float *mask);
+void mask_vector(float *vector_, const int length, float *mask);
 
 /**
  * @cacu_copy
  * math y = x:
  * length: the input data's size
  */
-inline void cacu_copy(float *x, const int length, float *y);
+void cacu_copy(float *x, const int length, float *y);
 
 /**
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-inline void cacu_isaxb(float *x, const int length, const float a,
+void cacu_isaxb(float *x, const int length, const float a,
 		unsigned int *index_, const float b, float *y);
 
-inline unsigned int argmax(float *data, const int length);
+unsigned int argmax(float *data, const int length);
 
-inline void cacu_transpose(float *mtx, const int m, const int n);
+void cacu_transpose(float *mtx, const int m, const int n);
 
-inline void cacu_clip_vec(float *data, const float threshold, const int length);
+void cacu_clip_vec(float *data, const float threshold, const int length);
 
 }

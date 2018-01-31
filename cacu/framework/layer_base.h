@@ -39,8 +39,8 @@ class layer_base {
 
 public:
 
-	layer_base(size_t output_channel, size_t kernel_size, size_t stride, size_t pad,
-			size_t input_dim, size_t channel) {
+	layer_base(size_t output_channel, size_t kernel_size, size_t stride,
+			size_t pad, size_t input_dim, size_t channel) {
 
 		//_output_dim = _output_dim;
 		_channel = channel;
@@ -66,10 +66,9 @@ public:
 	virtual ~layer_base() {
 
 		delete _args;
-		for(int i =0 ; i < _ops->size(); ++i)
-		{
+		for (int i = 0; i < _ops->size(); ++i) {
 			delete _ops->at(i);
-			_ops->at(i)= NULL;
+			_ops->at(i) = NULL;
 		}
 		delete _ops;
 	}

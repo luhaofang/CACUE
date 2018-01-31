@@ -39,47 +39,47 @@ namespace cacu{
 /**
  * for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_gpu(float_t *x, int length);
+extern "C" void cacu_relu_cuda(float_t *x, int length);
 
 /**
  * gradient for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_grad_gpu(float_t *x, float_t *g, int length);
+extern "C" void cacu_relu_grad_cuda(float_t *x, float_t *g, int length);
 
 /**
  * for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_gpu(float_t *x, float_t a, int length);
+extern "C" void cacu_leaky_relu_cuda(float_t *x, float_t a, int length);
 
 /**
  * gradient for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_grad_gpu(float_t *x, float_t *g, float_t a, int length);
+extern "C" void cacu_leaky_relu_grad_cuda(float_t *x, float_t *g, float_t a, int length);
 
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_gpu(float_t *x, int num , int length, float_t *y);
+extern "C" void cacu_softmax_cuda(float_t *x, int num , int length, float_t *y);
 
 /**
  * for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_gpu(float_t *x, int length, float_t *y);
+extern "C" void cacu_tanh_cuda(float_t *x, int length, float_t *y);
 
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_grad_gpu(float_t *x, float_t *g, int length, float_t *y);
+extern "C" void cacu_tanh_grad_cuda(float_t *x, float_t *g, int length, float_t *y);
 
 /**
  * for activation use sigmoid functions in cuda
  */
-extern "C" void cacu_sigmoid_gpu(float_t *x, int length, float_t *y);
+extern "C" void cacu_sigmoid_cuda(float_t *x, int length, float_t *y);
 
 /**
  * gradient for activation use sigmoid functions in cuda
  */
-extern "C" void cacu_sigmoid_grad_gpu(float_t *x, float_t *g, int length, float_t *y);
+extern "C" void cacu_sigmoid_grad_cuda(float_t *x, float_t *g, int length, float_t *y);
 
 }
 

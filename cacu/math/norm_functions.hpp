@@ -27,28 +27,46 @@
 
 #pragma once
 
-#include "../../config.h"
+#include "math_definition.h"
+#include "../config.h"
+#include "../definition.h"
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+#include "cuda/norm_functions_cuda.h"
+#include "cpu/norm_functions_cpu.h"
 
-namespace cacu{
-
-extern "C" void cacu_saxpy_atomic_cuda(float *x, const float a, float *y, const int length);
+namespace cacu {
 
 /**
- * @cacu_isaxdb_cuda
- * y[index] = x[index]*a + b
+ * @cacu_cross_entropy
+ * math x[i] = max(0,x[i]) :
+ * for loss use cross entropy functions.
  */
-extern "C" void cacu_isaxb_cuda(float *x, const int length, const float a ,unsigned int *index_,const float b, float *y);
+inline void cacu_norm_l1(float_t *x, int num, int length,
+		const unsigned int *label_, float_t *loss_) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
 
-extern "C" void cacu_argmax_cuda(float *x, const int length, unsigned int *index_);
+#endif
+#else
 
-extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n);
-
-extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int length);
-
+#endif
 }
 
+/**
+ * @cacu_cross_entropy
+ * math x[i] = max(0,x[i]) :
+ * for loss use cross entropy functions.
+ */
+inline void cacu_norm_l2(float_t *x, int num, int length,
+		const unsigned int *label_, float_t *loss_) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+
 #endif
+#else
+
 #endif
+}
+
+}
+;

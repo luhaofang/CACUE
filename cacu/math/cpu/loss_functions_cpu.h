@@ -29,7 +29,7 @@
 
 #include "../../definition.h"
 
-namespace mycnn {
+namespace cacu {
 
 /**
  * @cacu_cross_entropy

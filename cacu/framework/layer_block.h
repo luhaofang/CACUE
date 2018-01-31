@@ -40,8 +40,8 @@ class layer_block {
 
 public:
 
-	layer_block(size_t output_channel = 0, size_t kernel_size = 0, size_t stride = 0,
-			size_t pad = 0, size_t input_dim = 0, size_t channel = 0);
+	layer_block(size_t output_channel, size_t kernel_size, size_t stride,
+			size_t pad, size_t input_dim, size_t channel);
 
 	~layer_block();
 

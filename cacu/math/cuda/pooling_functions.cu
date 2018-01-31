@@ -47,7 +47,7 @@ namespace cacu{
  *input_dim: width of input data
  *output_dim: width of output data
  */
-__global__ void _k_CACU_MAX_POOLING_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index) {
+__global__ void _k_CACU_MAX_POOLING_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -92,9 +92,9 @@ __global__ void _k_CACU_MAX_POOLING_GPU(const float_t *x, int kernel_size, int s
 }
 
 
-extern "C" void cacu_max_pooling_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index){
+extern "C" void cacu_max_pooling_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index){
 
-	_k_CACU_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
+	_k_CACU_MAX_POOLING_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -104,7 +104,7 @@ extern "C" void cacu_max_pooling_gpu(const float_t *x, int kernel_size, int stri
  *input_dim: width of input data
  *output_dim: width of output data
  */
-__global__ void _k_CACU_MAX_POOLING_GRAD_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y,const unsigned int* index) {
+__global__ void _k_CACU_MAX_POOLING_GRAD_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y,const unsigned int* index) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -187,9 +187,9 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_GPU(const float_t *x, int kernel_size, 
 }
 
 
-extern "C" void cacu_max_pooling_grad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y,const unsigned int* index){
+extern "C" void cacu_max_pooling_grad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y,const unsigned int* index){
 
-	_k_CACU_MAX_POOLING_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
+	_k_CACU_MAX_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -199,7 +199,7 @@ extern "C" void cacu_max_pooling_grad_gpu(const float_t *x, int kernel_size, int
 *input_dim: width of input data
 *output_dim: width of output data
 */
-__global__ void _k_CACU_AVERAGE_POOLING_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y) {
+__global__ void _k_CACU_AVERAGE_POOLING_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -239,9 +239,9 @@ __global__ void _k_CACU_AVERAGE_POOLING_GPU(const float_t *x, int kernel_size, i
 	}
 }
 
-extern "C" void cacu_average_pooling_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y){
+extern "C" void cacu_average_pooling_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y){
 
-	_k_CACU_AVERAGE_POOLING_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
+	_k_CACU_AVERAGE_POOLING_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
@@ -252,7 +252,7 @@ extern "C" void cacu_average_pooling_gpu(const float_t *x, int kernel_size, int 
 *output_dim: width of output data
 			LOG_DEBUG("fuck");
 */
-__global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel,int pad, float_t *y) {
+__global__ void _k_CACU_AVERAGE_POOLING_GRAD_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel,int pad, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -330,17 +330,17 @@ __global__ void _k_CACU_AVERAGE_POOLING_GRAD_GPU(const float_t *x, int kernel_si
 	}
 }
 
-extern "C" void cacu_average_pooling_grad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y){
+extern "C" void cacu_average_pooling_grad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y){
 
 	//added pad space to feature map
 	int pad = abs(input_dim - (output_dim - 1) * stride - kernel_size);
 
-	_k_CACU_AVERAGE_POOLING_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, pad, y);
+	_k_CACU_AVERAGE_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size ,stride, input_dim, output_dim ,channel, pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 
-__global__ void _k_CACU_PADDED_DATA_GPU(const float_t *x, int channel,int input_dim,int pad,float_t *y) {
+__global__ void _k_CACU_PADDED_DATA_CUDA(const float_t *x, int channel,int input_dim,int pad,float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -375,14 +375,14 @@ __global__ void _k_CACU_PADDED_DATA_GPU(const float_t *x, int channel,int input_
 	}
 }
 
-extern "C" void cacu_padded_data_gpu(const float_t *x,int channel, int input_dim, int pad, float_t *y){
+extern "C" void cacu_padded_data_cuda(const float_t *x,int channel, int input_dim, int pad, float_t *y){
 
-	_k_CACU_PADDED_DATA_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, channel , input_dim, pad, y);
+	_k_CACU_PADDED_DATA_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, channel , input_dim, pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 
-__global__ void _k_CACU_IMG2COL_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+__global__ void _k_CACU_IMG2COL_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -418,13 +418,13 @@ __global__ void _k_CACU_IMG2COL_GPU(const float_t *x, int kernel_size, int strid
 	}
 }
 
-extern "C" void cacu_img2col_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+extern "C" void cacu_img2col_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 {
-	_k_CACU_IMG2COL_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim, y);
+	_k_CACU_IMG2COL_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_IMG2COL_PAD_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
+__global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -463,14 +463,14 @@ __global__ void _k_CACU_IMG2COL_PAD_GPU(const float_t *x, int kernel_size, int s
 	}
 }
 
-extern "C" void cacu_img2col_pad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad,float_t *y)
+extern "C" void cacu_img2col_pad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad,float_t *y)
 {
-	_k_CACU_IMG2COL_PAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim, pad, y);
+	_k_CACU_IMG2COL_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim, pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 
-__global__ void _k_CACU_UNPADDED_DATA_GPU(const float_t *x,int channel,int input_dim,int pad,float_t *y) {
+__global__ void _k_CACU_UNPADDED_DATA_CUDA(const float_t *x,int channel,int input_dim,int pad,float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -500,14 +500,14 @@ __global__ void _k_CACU_UNPADDED_DATA_GPU(const float_t *x,int channel,int input
 	}
 }
 
-extern "C" void cacu_unpadded_data_gpu(const float_t *x,int channel, int input_dim, int pad, float_t *y){
+extern "C" void cacu_unpadded_data_cuda(const float_t *x,int channel, int input_dim, int pad, float_t *y){
 
-	_k_CACU_UNPADDED_DATA_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, channel, input_dim, pad, y);
+	_k_CACU_UNPADDED_DATA_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, channel, input_dim, pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 
-__global__ void _k_CACU_COL2IMG_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+__global__ void _k_CACU_COL2IMG_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -579,14 +579,14 @@ __global__ void _k_CACU_COL2IMG_GPU(const float_t *x, int kernel_size, int strid
 	}
 }
 
-extern "C" void cacu_col2img_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
+extern "C" void cacu_col2img_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y)
 {
 
-	_k_CACU_COL2IMG_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim, y);
+	_k_CACU_COL2IMG_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_COL2IMG_PAD_GPU(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
+__global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -668,14 +668,14 @@ __global__ void _k_CACU_COL2IMG_PAD_GPU(const float_t *x, int kernel_size, int s
 	}
 }
 
-extern "C" void cacu_col2img_pad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
+extern "C" void cacu_col2img_pad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
 {
-	_k_CACU_COL2IMG_PAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim,pad, y);
+	_k_CACU_COL2IMG_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride, input_dim, channel, output_dim,pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 
-__global__ void _k_CACU_COL2IMG_PAD_1x1_GPU(const float_t *x, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
+__global__ void _k_CACU_COL2IMG_PAD_1x1_CUDA(const float_t *x, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -730,15 +730,15 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_GPU(const float_t *x, int stride, int in
 }
 
 
-extern "C" void cacu_col2img_pad_1x1_gpu(const float_t *x, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
+extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x, int stride, int input_dim, int channel, int output_dim, int pad, float_t *y)
 {
 
-	_k_CACU_COL2IMG_PAD_1x1_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, stride, input_dim, channel, output_dim,pad, y);
+	_k_CACU_COL2IMG_PAD_1x1_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, stride, input_dim, channel, output_dim,pad, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 
-__global__ void _K_CACU_ROW_MAX_POOLING_GPU(float_t *x, int input_length, int output_length, float_t *y)
+__global__ void _K_CACU_ROW_MAX_POOLING_CUDA(float_t *x, int input_length, int output_length, float_t *y)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -751,15 +751,15 @@ __global__ void _K_CACU_ROW_MAX_POOLING_GPU(float_t *x, int input_length, int ou
 	}
 }
 
-extern "C" void cacu_row_max_pooling_gpu(float_t *x, int input_length, int output_length, float_t *y)
+extern "C" void cacu_row_max_pooling_cuda(float_t *x, int input_length, int output_length, float_t *y)
 {
 
 	thrust::stable_sort(thrust::device, x, x + input_length,thrust::greater<float_t>());
-	_K_CACU_ROW_MAX_POOLING_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length, output_length, y);
+	_K_CACU_ROW_MAX_POOLING_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length, output_length, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _K_CACU_ROW_MAX_POOLING_INDEX_GPU(const float_t *x, int input_length, int output_length, float_t *y,unsigned int* index)
+__global__ void _K_CACU_ROW_MAX_POOLING_INDEX_CUDA(const float_t *x, int input_length, int output_length, float_t *y,unsigned int* index)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -778,13 +778,13 @@ __global__ void _K_CACU_ROW_MAX_POOLING_INDEX_GPU(const float_t *x, int input_le
 	}
 }
 
-extern "C" void cacu_row_max_pooling_index_gpu(const float_t *x, int input_length, int output_length, float_t *y,unsigned int* index)
+extern "C" void cacu_row_max_pooling_index_cuda(const float_t *x, int input_length, int output_length, float_t *y,unsigned int* index)
 {
-	_K_CACU_ROW_MAX_POOLING_INDEX_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length, output_length, y, index);
+	_K_CACU_ROW_MAX_POOLING_INDEX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length, output_length, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _K_CACU_ROW_MAX_POOLING_GRAD_GPU(const float_t *x, int output_length, float_t *y,const unsigned int* index)
+__global__ void _K_CACU_ROW_MAX_POOLING_GRAD_CUDA(const float_t *x, int output_length, float_t *y,const unsigned int* index)
 {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -797,9 +797,9 @@ __global__ void _K_CACU_ROW_MAX_POOLING_GRAD_GPU(const float_t *x, int output_le
 	}
 }
 
-extern "C" void cacu_row_max_pooling_grad_gpu(const float_t *x, int output_length, float_t *y,const unsigned int* index)
+extern "C" void cacu_row_max_pooling_grad_cuda(const float_t *x, int output_length, float_t *y,const unsigned int* index)
 {
-	_K_CACU_ROW_MAX_POOLING_GRAD_GPU<<<BLOCKNUM, THREADNUM, 0>>>(x, output_length, y, index);
+	_K_CACU_ROW_MAX_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, output_length, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 

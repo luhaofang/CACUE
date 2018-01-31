@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "blob_base.h"
 
-#include "../math/math.h"
 #include "../definition.h"
 
 #include "../tensor/tensor.h"

@@ -37,81 +37,81 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cacu{
 
 /**
- * @cacu_max_pooling_gpu
+ * @cacu_max_pooling_cuda
  * channel: channel of input data
  * kernel_size: pooling window size
  * input_dim: width of input data
  * output_dim: width of output data
  * index: the array of the maximum set
  */
-extern "C" void cacu_max_pooling_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index);
+extern "C" void cacu_max_pooling_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y, unsigned int* index);
 
 /**
- * @cacu_max_pooling_gpu
+ * @cacu_max_pooling_cuda
  * channel: channel of input data
  * kernel_size: pooling window size
  * input_dim: width of input data
  * output_dim: width of output data
  * index: the array of the maximum set
  */
-extern "C" void cacu_max_pooling_grad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y,const unsigned int* index);
+extern "C" void cacu_max_pooling_grad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y,const unsigned int* index);
 
 
 /**
- * @cacu_average_pooling_gpu
+ * @cacu_average_pooling_cuda
  * channel: channel of input data
  * kernel_size: pooling window size
  * input_dim: width of input data
  * output_dim: width of output data
  */
-extern "C" void cacu_average_pooling_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
+extern "C" void cacu_average_pooling_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
 
 /**
- * @cacu_average_pooling_gpu
+ * @cacu_average_pooling_cuda
  * channel: channel of input data
  * kernel_size: pooling window size
  * input_dim: width of input data
  * output_dim: width of output data
  */
-extern "C" void cacu_average_pooling_grad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
+extern "C" void cacu_average_pooling_grad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int output_dim, int channel, float_t *y);
 
 /**
- * @cacu_padded_data_gpu
+ * @cacu_padded_data_cuda
  * pad data.
  * y is input_dim + 2 * pad dim wise
  */
-extern "C" void cacu_padded_data_gpu(const float_t *x,int channel, int input_dim, int pad, float_t *y);
+extern "C" void cacu_padded_data_cuda(const float_t *x,int channel, int input_dim, int pad, float_t *y);
 
 /**
- * @cacu_img2col_gpu
+ * @cacu_img2col_cuda
  * img2col
  */
-extern "C" void cacu_img2col_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
+extern "C" void cacu_img2col_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
 
 
-extern "C" void cacu_img2col_pad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad,float_t *y);
+extern "C" void cacu_img2col_pad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad,float_t *y);
 /**
- * @cacu_unpadded_data_gpu
+ * @cacu_unpadded_data_cuda
  * unpadded data.
  * y is input_dim - 2 * pad dim wise
  */
-extern "C" void cacu_unpadded_data_gpu(const float_t *x,int channel, int input_dim, int pad, float_t *y);
+extern "C" void cacu_unpadded_data_cuda(const float_t *x,int channel, int input_dim, int pad, float_t *y);
 
 /**
- * @cacu_img2col_gpu
+ * @cacu_img2col_cuda
  * col2img
  */
-extern "C" void cacu_col2img_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
+extern "C" void cacu_col2img_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim, float_t *y);
 
-extern "C" void cacu_col2img_pad_gpu(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y);
+extern "C" void cacu_col2img_pad_cuda(const float_t *x, int kernel_size, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y);
 
-extern "C" void cacu_col2img_pad_1x1_gpu(const float_t *x, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y);
+extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x, int stride, int input_dim, int channel, int output_dim,int pad, float_t *y);
 
-extern "C" void cacu_row_max_pooling_gpu(float_t *x, int input_length, int output_length, float_t *y);
+extern "C" void cacu_row_max_pooling_cuda(float_t *x, int input_length, int output_length, float_t *y);
 
-extern "C" void cacu_row_max_pooling_index_gpu(float_t *x, int input_length, int output_length, float_t *y,unsigned int* index);
+extern "C" void cacu_row_max_pooling_index_cuda(float_t *x, int input_length, int output_length, float_t *y,unsigned int* index);
 
-extern "C" void cacu_row_max_pooling_grad_gpu(const float_t *x, int output_length, float_t *y,const unsigned int* index);
+extern "C" void cacu_row_max_pooling_grad_cuda(const float_t *x, int output_length, float_t *y,const unsigned int* index);
 
 }
 

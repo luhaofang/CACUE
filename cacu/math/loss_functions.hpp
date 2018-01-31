@@ -27,28 +27,51 @@
 
 #pragma once
 
-#include "../../config.h"
+#include "math_definition.h"
+#include "../config.h"
+#include "../definition.h"
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+#include "cuda/loss_functions_cuda.h"
+#include "cpu/loss_functions_cpu.h"
 
-namespace cacu{
-
-extern "C" void cacu_saxpy_atomic_cuda(float *x, const float a, float *y, const int length);
+namespace cacu {
 
 /**
- * @cacu_isaxdb_cuda
- * y[index] = x[index]*a + b
+ * @cacu_cross_entropy
+ * math x[i] = max(0,x[i]) :
+ * for loss use cross entropy functions.
  */
-extern "C" void cacu_isaxb_cuda(float *x, const int length, const float a ,unsigned int *index_,const float b, float *y);
-
-extern "C" void cacu_argmax_cuda(float *x, const int length, unsigned int *index_);
-
-extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n);
-
-extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int length);
-
+inline void cacu_cross_entropy(float_t *x, int num, int length,
+		const unsigned int *label_, float_t *loss_) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_cross_entropy_cuda(x, num, length, label_, loss_);
+#endif
+#else
+	cacu_cross_entropy_cpu(x, num, length, label_,loss_);
+#endif
 }
 
+/**
+ * @cacu_multi_label_trans
+ * transform the softmax label to multi sigmoid labels
+ */
+inline void cacu_multi_label_trans(int num, int output_num,
+		const unsigned int *label_, unsigned int *trans_labels_) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_multi_label_trans_cuda(num, output_num, label_, trans_labels_);
 #endif
+#else
+
+	for (int n = 0; n < num; ++n)
+	{
+		for(int i = 0; i < output_num; ++i)
+		trans_labels_[n * output_num + i] = 0;
+		trans_labels_[n * output_num + label_[n]] = 1;
+	}
 #endif
+}
+
+}
+;

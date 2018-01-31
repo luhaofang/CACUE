@@ -93,7 +93,7 @@ inline void cacu_isaxb(float *x, const int length, const float a,
 		unsigned int *index_, const float b, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_isaxb_gpu(x, length, a, index_, b, y);
+	cacu_isaxb_cuda(x, length, a, index_, b, y);
 #endif
 #else
 	for (int i = 0; i < length; ++i)
@@ -108,7 +108,7 @@ inline unsigned int argmax(float *data, const int length) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	unsigned int *_index = cuda_malloc<unsigned int>(1);
-	cacu_argmax_gpu(data, length, _index);
+	cacu_argmax_cuda(data, length, _index);
 	cuda_copy2host(&index, _index, 1);
 	return index;
 #endif
@@ -131,7 +131,7 @@ inline void cacu_transpose(float *mtx, const int m, const int n) {
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_transpose_gpu(mtx, m, n);
+	cacu_transpose_cuda(mtx, m, n);
 #endif
 #else
 	int next, cur, pre;
@@ -174,7 +174,7 @@ inline void cacu_clip_vec(float *data, const float threshold,
 		const int length) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_clip_vec_gpu(data, threshold, length);
+	cacu_clip_vec_cuda(data, threshold, length);
 #endif
 #else
 	for(int i = 0; i < length; ++i)
