@@ -28,14 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <time.h>
 
-#include "../../mycnn.h"
+#include "../../cacu/cacu.h"
 
-#include "../../tools/imageio_utils.h"
-#include "../../tools/op_injector.h"
+#include "../../tools/imageio_utils.hpp"
 
 #include "cifar_quick_net.h"
 #include "data_proc.h"
-#include "cifar_test_net.h"
 
 
 
@@ -45,13 +43,13 @@ void test_net()
 
 	int max_iter = 100;
 
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
 #endif
+#endif
 
-	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,test);
-
-	op_injector *injector = new op_injector(net->get_op(9));
+	network *net = create_cifar_quick_net(batch_size,test);
 
 	string datapath = "/home/seal/4T/cacue/cifar10/data/";
 	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
@@ -75,19 +73,22 @@ void test_net()
 
 	int step_index = 0;
 
-	clock_t start,end;
+	struct timeval start;
+	struct timeval end;
+	unsigned long diff;
 
 	for (int i = 0 ; i < max_iter; ++i)
 	{
-		start = clock();
+		gettimeofday(&start, NULL);
 
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARBatchSize)
 				break;
-			input_data->copy_data_io(full_data[step_index], j);
+			input_data->copy2data(full_data[step_index], j);
 			step_index += 1;
 		}
+
 		net->predict();
 		//cacu_copy(net->output_blob()->s_data(),net->output_blob()->count(),net->output_blob()->s_diff());
 		//net->set_weights_type(constant,1);
@@ -101,10 +102,12 @@ void test_net()
 			}
 		}
 
-		end = clock();
+		gettimeofday(&end, NULL);
 
 		if(i % 1 == 0){
-			LOG_INFO("iter_%d , %ld ms/iter", i, end - start);
+			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
+													- start.tv_usec;
+			LOG_INFO("iter_%d, %ld ms/iter", i, diff / 1000);
 		}
 		if (step_index == kCIFARBatchSize)
 			break;
@@ -112,10 +115,9 @@ void test_net()
 
 	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
 
-	//injector->s_diff_serializa("/home/seal/4T/cacue/imagenet/test.txt");
-
-	delete injector;
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
+#endif
 #endif
 }

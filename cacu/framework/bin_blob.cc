@@ -29,7 +29,7 @@
 
 namespace cacu {
 
-bin_blob::bin_blob(size_t num, size_t channel, size_t width, size_t height, unsigned int _value,
+bin_blob::bin_blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height, unsigned int _value,
 		phase_type phase) :
 blob_base(num, channel, width, height, phase, __bin_blob__) {
 	_tdata = new tensor<unsigned int>(_length);
@@ -47,7 +47,7 @@ bin_blob::~bin_blob(){
 	}
 }
 
-void bin_blob::copy2data(vec_i &data_, size_t i) {
+void bin_blob::copy2data(vec_i &data_, dsize_t i) {
 	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
 				data_.size(), _cube_length);
 	_tdata->copy2data(i*_cube_length, _cube_length, &data_[0]);
@@ -59,7 +59,7 @@ void bin_blob::copy2data(vec_i &data_) {
 	_tdata->copy2data(&data_[0]);
 }
 
-void bin_blob::copy2diff(vec_t &data_, size_t i) {
+void bin_blob::copy2diff(vec_t &data_, dsize_t i) {
 	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
 				data_.size(), _cube_length);
 	_tdiff->copy2data(i*_cube_length, _cube_length, &data_[0]);
@@ -83,15 +83,15 @@ void bin_blob::serializa(std::ostream& os) {
 	unsigned int* s_data_ = (unsigned int*) _s_data;
 	bitset<32> _bits;
 #if __PARALLELTYPE__ == __CUDA__
-	size_t _len = _length / 32;
+	dsize_t _len = _length / 32;
 	if (_length % 32 != 0)
 		_len += 1;
 	os.write((char*) (&_len), sizeof(_len));
 	vec_t _v(_length);
 	cuda_copy2host(&_v[0], (float_t*) _s_data, _length);
-	size_t _index;
+	dsize_t _index;
 
-	for (size_t i = 0; i < _v.size(); ++i) {
+	for (dsize_t i = 0; i < _v.size(); ++i) {
 		_index = i % 32;
 		if (_v[i])
 			_bits[_index] = 1;
@@ -104,12 +104,12 @@ void bin_blob::serializa(std::ostream& os) {
 	}
 	vec_t().swap(_v);
 #else
-	size_t _len = _length / 32;
+	dsize_t _len = _length / 32;
 	if(_length % 32 != 0)
 	_len += 1;
 	os.write((char*)(&_len), sizeof(_len));
-	size_t _index;
-	for(size_t i = 0; i < _length; ++i)
+	dsize_t _index;
+	for(dsize_t i = 0; i < _length; ++i)
 	{
 		_index = i % 32;
 		if (s_data_[i])
@@ -132,21 +132,21 @@ void bin_blob::load(std::ifstream& is) {
 	/*
 	unsigned int* s_data_ = (unsigned int*) _s_data;
 #if __PARALLELTYPE__ == __CUDA__
-	size_t length_;
+	dsize_t length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));
-	size_t _len = _length / 32;
+	dsize_t _len = _length / 32;
 	if (_length % 32 != 0)
 		_len += 1;
 	CHECK_EQ_OP(length_, _length,
 			"parameter length is not equal to local weight: %d vs %d!", length_,
 			_len);
 	vec_t _v(_length);
-	unsigned size_t
+	unsigned dsize_t
 	_bit;
-	for (size_t i = 0; i < _len; i++) {
+	for (dsize_t i = 0; i < _len; i++) {
 		is.read(reinterpret_cast<char*>(&_bit), sizeof(unsigned int));
 		bitset<32> bits(_bit);
-		for (size_t j = 0; j < 32; ++j) {
+		for (dsize_t j = 0; j < 32; ++j) {
 			if (bits.test(j) && (i * 32 + j < _length))
 				_v[i * 32 + j] = 1;
 			else if (!bits.test(j) && (i * 32 + j < _length))
@@ -156,17 +156,17 @@ void bin_blob::load(std::ifstream& is) {
 	cuda_copy2dev((float_t*) _s_data, &_v[0], length_);
 	vec_t().swap(_v);
 #else
-	size_t length_;
+	dsize_t length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));
-	size_t _len = _length / 32;
+	dsize_t _len = _length / 32;
 	if(_length % 32 != 0)
 	_len += 1;
 	CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_len);
-	unsigned size_t _bit;
-	for (size_t i = 0; i < _len; i++) {
+	unsigned dsize_t _bit;
+	for (dsize_t i = 0; i < _len; i++) {
 		is.read(reinterpret_cast<char*>(&_bit), sizeof(unsigned int));
 		bitset<32> bits(_bit);
-		for(size_t j = 0; j < 32; ++j)
+		for(dsize_t j = 0; j < 32; ++j)
 		{
 			if(bits.test(j) && (i * 32 + j < _length))
 			s_data_[i * 32 + j] = 1;

@@ -56,6 +56,7 @@ void solver_base::crop_grad(blob* g_) {
 
 void solver_base::train_iter() {
 	_net->set_phase(train);
+
 	_net->forward_propagate();
 
 	_net->back_propagate();

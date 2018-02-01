@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "../config.h"
+
 #include "../utils/check_utils.h"
 #include "../utils/log.h"
 
@@ -39,6 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../tensor/utils/device_data_utils.hpp"
 #include "../tensor/utils/cpu_data_utils.hpp"
+
+#include "../utils/data_printer.h"
 
 #include "operator_base.h"
 
@@ -70,7 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../user_ops/p_inner_product_op.h"
 #include "../user_ops/deconvolution_op.h"
 #include "../user_ops/row_max_pooling_op.h"
-#include "../user_ops/local_conv_op.h"
+//#include "../user_ops/local_conv_op.h"
 #include "../user_ops/normalization_op.h"
 
 #include "../user_ops/roi_pooling_op.h"

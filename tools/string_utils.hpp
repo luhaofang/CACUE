@@ -25,49 +25,52 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#pragma once
 
-#include "cuda_utils.h"
+#include <vector>
+#include <string>
 
-#include "../../math/blas/cublas_utils.h"
-
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+using namespace std;
 
 namespace cacu {
 
-void cuda_set_device(unsigned int device_id) {
-	struct cudaDeviceProp device_prop;
-	if (cudaGetDeviceProperties(&device_prop, device_id) == cudaSuccess) {
-		cout << "======================================================="
-				<< endl;
-		cout << "device " << device_id << ": " << device_prop.name << endl;
-		cout << "-------------------------------------------------------"
-				<< endl;
-		cout << "totalGlobalMem      |	" << device_prop.totalGlobalMem << endl;
-		cout << "warpSize            |	" << device_prop.warpSize << endl;
-		cout << "maxThreadsPerBlock  |	" << device_prop.maxThreadsPerBlock
-				<< endl;
-		cout << "sharedMemPerBlock   |	" << device_prop.totalConstMem << endl;
-		cout << "totalConstMem       |	" << device_prop.totalConstMem << endl;
-		cout << "======================================================="
-				<< endl;
-	} else
-		cout << "device " << device_id
-				<< " not found, please check your device num or select an available device!";
-	CUDA_CHECK(cudaSetDevice(device_id));
-	create_cublas_handle();
+//string split
+vector<string> split(string str, string pattern) {
+	vector < string > ret;
+	if (pattern.empty())
+		return ret;
+	size_t start = 0, index = str.find_first_of(pattern, 0);
+	while (index != str.npos) {
+		if (start != index) {
+			if (str.substr(start, index - start) != "")
+				ret.push_back(str.substr(start, index - start));
+		}
+		start = index + 1;
+		index = str.find_first_of(pattern, start);
+	}
+	if (!str.substr(start).empty()) {
+		if (str.substr(start) != "")
+			ret.push_back(str.substr(start));
+	}
+	return ret;
 }
 
-void cuda_release() {
-	release_cublas_handle();
-}
-
-void cuda_free(void* data_) {
-	cudaFree(data_);
-}
-
-
-}
-
+inline static long timespan(clock_t &start, clock_t &end) {
+#ifdef _WIN32
+	return (end - start);
+#elif linux
+	return (end - start) / 1000;
 #endif
+
+}
+
+#ifdef _WIN32
+std::wstring StringToWString(const chars_t &str)
+{
+	std::wstring wstr(str.length(), L' ');
+	std::copy(str.begin(), str.end(), wstr.begin());
+	return wstr;
+}
 #endif
+
+}

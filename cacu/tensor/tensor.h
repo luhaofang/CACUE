@@ -39,21 +39,21 @@ class tensor {
 
 public:
 
-	tensor(size_t length);
+	tensor(dsize_t length);
 
 	~tensor();
 
 	inline DTYPE* pdata() const {
 		return _pdata;
 	}
-	inline size_t length() const {
+	inline dsize_t length() const {
 		return _length;
 	}
 
 	/*
 	 * resize tensor size
 	 */
-	void resize(size_t length);
+	void resize(dsize_t length);
 
 	/*
 	 * copy data from host RAM to tensor memory
@@ -62,11 +62,11 @@ public:
 	/*
 	 * copy data from host RAM to tensor memory
 	 */
-	void copy2data(size_t sp, size_t length, DTYPE* data_);
+	void copy2data(dsize_t sp, dsize_t length, DTYPE* data_);
 
 	void set_value(DTYPE value);
 
-	void set_value(size_t sp, size_t length, DTYPE value);
+	void set_value(dsize_t sp, dsize_t length, DTYPE value);
 
 	/*
 	 * refresh data
@@ -89,12 +89,12 @@ private:
 
 	DTYPE *_pdata;
 
-	size_t _length;
+	dsize_t _length;
 
 };
 
 template<typename DTYPE>
-tensor<DTYPE>::tensor(size_t length) {
+tensor<DTYPE>::tensor(dsize_t length) {
 
 	_length = length;
 #if __USE_DEVICE__ == ON
@@ -124,7 +124,7 @@ inline void tensor<DTYPE>::_memcopy(DTYPE* data_)
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::resize(size_t length) {
+inline void tensor<DTYPE>::resize(dsize_t length) {
 	_length = length;
 #if __USE_DEVICE__ == ON
 	device_free(_pdata);
@@ -146,7 +146,7 @@ inline void tensor<DTYPE>::copy2data(DTYPE* data_) {
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::copy2data(size_t sp, size_t length, DTYPE* data_) {
+inline void tensor<DTYPE>::copy2data(dsize_t sp, dsize_t length, DTYPE* data_) {
 #if __USE_DEVICE__ == ON
 	device_copy2dev(_pdata + sp, data_, length);
 #else
@@ -159,17 +159,17 @@ inline void tensor<DTYPE>::set_value(DTYPE value) {
 #if __USE_DEVICE__ == ON
 	device_setvalue<DTYPE>(_pdata, value, _length);
 #else
-	for(size_t i = 0; i < _length; ++i)
+	for(dsize_t i = 0; i < _length; ++i)
 	_pdata[i] = value;
 #endif
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::set_value(size_t sp, size_t length, DTYPE value) {
+inline void tensor<DTYPE>::set_value(dsize_t sp, dsize_t length, DTYPE value) {
 #if __USE_DEVICE__ == ON
 	device_setvalue<DTYPE>(_pdata + sp, value, length);
 #else
-	for(size_t i = sp; i < length; ++i)
+	for(dsize_t i = sp; i < length; ++i)
 	_pdata[i] = value;
 #endif
 }
@@ -194,7 +194,7 @@ void tensor<DTYPE>::serializa(std::ostream& os) {
 	vec_t().swap(_v);
 #else
 	os.write((char*)(&_length), sizeof(_length));
-	for(size_t i = 0; i < _length; ++i)
+	for(dsize_t i = 0; i < _length; ++i)
 		os.write((char*)(&_pdata[i]), sizeof(DTYPE));
 #endif
 }

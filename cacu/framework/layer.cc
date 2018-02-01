@@ -29,9 +29,13 @@
 
 namespace cacu {
 
-layer::layer(size_t output_channel, size_t kernel_size, size_t stride,
-		size_t pad, size_t input_dim, size_t channel) :
-		layer_base(output_channel, kernel_size, stride, pad, input_dim, channel) {
+layer::layer(data_args *args) :
+		layer_base(args) {
+
+}
+
+layer::layer() :
+		layer_base() {
 
 }
 
@@ -40,7 +44,7 @@ layer* layer::op(op_name op_) {
 	blobs *blobs_ = cacu_allocator::create_blobs();
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
-	add_op(operator_factory::create_op(op_, blobs_, _args));
+	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
 	return this;
 }
@@ -48,17 +52,18 @@ layer* layer::op(op_name op_) {
 layer* layer::op(op_name op_, blob_base *blob_) {
 	if (blob_ == NULL)
 		LOG_FATAL("input data is NULL!");
-	refresh_layer_param(blob_);
 	blobs *blobs_ = cacu_allocator::create_blobs();
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
 	blobs_->push_back(blob_);
-	add_op(operator_factory::create_op(op_, blobs_, _args));
+	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
 	return this;
 }
 
-layer* layer::op(op_name op_, blob_base *blob_, data_args *args_) {
+layer* layer::op(op_name op_, blob_base *blob_, data_args *&args_) {
+	if (args_ != NULL)
+		LOG_FATAL("layer data arguments is already defined, if your want a new data arguments, please setup a new layer!");
 	if (blob_ == NULL)
 		LOG_FATAL("input data is NULL!");
 	_args = args_;
@@ -66,7 +71,7 @@ layer* layer::op(op_name op_, blob_base *blob_, data_args *args_) {
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
 	blobs_->push_back(blob_);
-	add_op(operator_factory::create_op(op_, blobs_, _args));
+	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
 	return this;
 }
@@ -75,22 +80,35 @@ layer* layer::op(op_name op_, blobs *blobs_) {
 
 	if (blobs_ == NULL)
 		LOG_FATAL("input data is NULL!");
-	refresh_layer_param(blobs_->at(0));
-
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
-	add_op(operator_factory::create_op(op_, blobs_, _args));
+	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
 	return this;
 }
 
-layer* layer::op(op_name op_, blobs *blobs_, data_args *args_) {
+layer* layer::op(op_name op_, blobs *blobs_, data_args *&args_) {
+	if (args_ != NULL)
+		LOG_FATAL("layer data arguments is already defined, if your want a new data arguments, please setup a new layer!");
 	if (blobs_ == NULL)
 		LOG_FATAL("input data is NULL!");
 	_args = args_;
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
-	add_op(operator_factory::create_op(op_, blobs_, _args));
+	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
+	out_blob = _ops->back()->out_data<blob_base>();
+	return this;
+}
+
+layer* layer::op(op_name op_, blob_base *blob_, op_args *args_) {
+	if (blob_ == NULL)
+		LOG_FATAL("input data is NULL!");
+	_args = NULL;
+	blobs *blobs_ = cacu_allocator::create_blobs();
+	if (out_blob != NULL)
+		blobs_->push_back(out_blob);
+	blobs_->push_back(blob_);
+	add_op(operator_factory::create_op(op_, blobs_, _args, args_));
 	out_blob = _ops->back()->out_data<blob_base>();
 	return this;
 }

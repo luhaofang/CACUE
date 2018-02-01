@@ -33,7 +33,7 @@ struct rect {
 
 public:
 
-	rect(int l_, int t_, int r_, int b_, float_t score_) {
+	rect(dsize_t l_, dsize_t t_, dsize_t r_, dsize_t b_, float_t score_) {
 		l = l_;
 		t = t_;
 		r = r_;
@@ -41,10 +41,10 @@ public:
 		score = score_;
 	}
 
-	int l;
-	int t;
-	int r;
-	int b;
+	dsize_t l;
+	dsize_t t;
+	dsize_t r;
+	dsize_t b;
 
 	//confidence scores
 	float_t score;

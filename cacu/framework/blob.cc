@@ -17,7 +17,7 @@
  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS size_tERRUPTION) HOWEVER CAUSED AND
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -26,11 +26,13 @@
 
 #include "blob.h"
 
+#include "../utils/data_printer.h"
+
 using namespace std;
 
 namespace cacu {
 
-blob::blob(size_t num, size_t channel, size_t width, size_t height,
+blob::blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 		float_t _value, phase_type phase) :
 		blob_base(num, channel, width, height, phase, __blob__) {
 	_tdata = new tensor<float_t>(_length);
@@ -67,17 +69,17 @@ blob* blob::copy_create(phase_type phase_, float_t value_) const {
 }
 
 /*
- * copy data size_to blob, if blob is established in gpu, io op is needed
+ * copy data dsize_to blob, if blob is established in gpu, io op is needed
  * where i is the start index in blob
  */
-void blob::copy2data(vec_t &data_, size_t i) {
+void blob::copy2data(vec_t &data_, dsize_t i) {
 	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
 			data_.size(), _cube_length);
 	_tdata->copy2data(i*_cube_length, _cube_length, &data_[0]);
 }
 
 /*
- * copy data size_to blob, if blob is established in gpu, io op is needed
+ * copy data dsize_to blob, if blob is established in gpu, io op is needed
  */
 void blob::copy2data(vec_t &data_) {
 	CHECK_EQ_OP(data_.size(), _length, "blob size must be equal! %d vs %d",
@@ -86,17 +88,17 @@ void blob::copy2data(vec_t &data_) {
 }
 
 /*
- * copy data size_to blob, if blob is established in gpu, io op is needed
+ * copy data dsize_to blob, if blob is established in gpu, io op is needed
  * where i is the start index in blob
  */
-void blob::copy2diff(vec_t &data_, size_t i) {
+void blob::copy2diff(vec_t &data_, dsize_t i) {
 	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
 			data_.size(), _cube_length);
 	_tdiff->copy2data(i*_cube_length, _cube_length, &data_[0]);
 }
 
 /*
- * copy data size_to blob's diff, if blob is established in gpu, io op is needed
+ * copy data dsize_to blob's diff, if blob is established in gpu, io op is needed
  */
 void blob::copy2diff(vec_t &data_) {
 	CHECK_EQ_OP(data_.size(), _length, "blob size must be equal! %d vs %d",
@@ -115,9 +117,9 @@ void blob::serializa(std::ostream& os) {
  * loads blob data from model file
  */
 void blob::load(std::ifstream& is) {
-	size_t length_;
-	is.read(reinterpret_cast<char*>(&length_), sizeof(size_t));
-	CHECK_EQ_OP(length_,_length,"parameter length is not equal to local weight: %d vs %d!",length_,_length);
+	dsize_t length_;
+	is.read(reinterpret_cast<char*>(&length_), sizeof(dsize_t));
+	CHECK_EQ_OP(length_,_length,"parameter length is not equal to local length: %d vs %d!",length_,_length);
 	_tdata->load(is);
 }
 

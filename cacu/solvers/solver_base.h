@@ -73,7 +73,7 @@ public:
 
 	void crop_grad(blob* g_);
 
-	inline void train_iter();
+	void train_iter();
 
 	/**
 	 * change global_lr by rate after several training iterations

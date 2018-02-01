@@ -19,7 +19,7 @@
  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS size_tERRUPTION) HOWEVER CAUSED AND
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -37,13 +37,13 @@ class cacu_allocator {
 
 public:
 
-	inline static blob* create_blob(size_t num, size_t channel, size_t width,
-			size_t height, float_t value, phase_type phase) {
+	inline static blob* create_blob(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height, float_t value, phase_type phase) {
 		return new blob(num, channel, width, height, value, phase);
 	}
 
-	inline static blob* create_blob(size_t num, size_t channel, size_t width,
-			size_t height, phase_type phase) {
+	inline static blob* create_blob(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height, phase_type phase) {
 		return new blob(num, channel, width, height, 0, phase);
 	}
 
@@ -57,13 +57,13 @@ public:
 				blob_->height(), 0, phase_);
 	}
 
-	inline static bin_blob* create_bin_blob(size_t num, size_t channel,
-			size_t width, size_t height, unsigned int value, phase_type phase) {
+	inline static bin_blob* create_bin_blob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, unsigned int value, phase_type phase) {
 		return new bin_blob(num, channel, width, height, value, phase);
 	}
 
-	inline static bin_blob* create_bin_blob(size_t num, size_t channel,
-			size_t width, size_t height, phase_type phase) {
+	inline static bin_blob* create_bin_blob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, phase_type phase) {
 		return new bin_blob(num, channel, width, height, 0, phase);
 	}
 
@@ -79,13 +79,13 @@ public:
 	}
 
 	/*
-	inline static em_blob* create_em_blob(size_t num, size_t channel,
-			size_t width, size_t height, float_t value, phase_type phase) {
+	inline static em_blob* create_em_blob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, float_t value, phase_type phase) {
 		return new em_blob(num, channel, width, height, value, phase);
 	}
 
-	inline static em_blob* create_em_blob(size_t num, size_t channel,
-			size_t width, size_t height, phase_type phase) {
+	inline static em_blob* create_em_blob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, phase_type phase) {
 		return new em_blob(num, channel, width, height, 0, phase);
 	}
 
@@ -100,13 +100,13 @@ public:
 				blob_->height(), 0, phase_);
 	}
 
-	inline static em_bin_blob* create_em_bin_blob(size_t num, size_t channel,
-			size_t width, size_t height, unsigned int value, phase_type phase) {
+	inline static em_bin_blob* create_em_bin_blob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, unsigned int value, phase_type phase) {
 		return new em_bin_blob(num, channel, width, height, value, phase);
 	}
 
-	inline static em_bin_blob* create_em_bin_blob(size_t num, size_t channel,
-			size_t width, size_t height, phase_type phase) {
+	inline static em_bin_blob* create_em_bin_blob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, phase_type phase) {
 		return new em_bin_blob(num, channel, width, height, 0, phase);
 	}
 

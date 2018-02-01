@@ -29,10 +29,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 #include <sys/time.h>
 
-#include "../../mycnn.h"
+#include "../../cacu.h"
 
 #include "../../tools/imageio_utils.h"
-#include "../../tools/op_injector.h"
 
 #include "data_proc.h"
 #include "resnet_18.h"
@@ -58,7 +57,7 @@ void test_net()
 	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_120000.model");//vggnet_40000.model");
 	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/mobilenet.model");
 	//net->check();
-	op_injector *injector = new op_injector(net->get_op(29));
+	//op_injector *injector = new op_injector(net->get_op(29));
 
 	string datapath = "/home/seal/4T/imagenet/224X224_val/";
 	string vallist = "/home/seal/4T/imagenet/val_list";
@@ -148,7 +147,7 @@ void test_net()
 
 	//injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
 
-	delete injector;
+	//delete injector;
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif

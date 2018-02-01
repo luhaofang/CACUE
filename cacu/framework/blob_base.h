@@ -19,13 +19,16 @@
  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS size_tERRUPTION) HOWEVER CAUSED AND
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #pragma once
+
+
+#include "../definition.h"
 
 #include "../utils/log.h"
 #include "../utils/check_utils.h"
@@ -40,40 +43,40 @@ class blob_base {
 
 public:
 
-	blob_base(size_t num, size_t channel, size_t width, size_t height,
+	blob_base(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 			phase_type phase, blob_type type);
 
 	virtual ~blob_base();
 
-	inline size_t num() const {
+	inline dsize_t num() const {
 		return _num;
 	}
 
-	inline size_t channel() const {
+	inline dsize_t channel() const {
 		return _channel;
 	}
 
-	inline size_t width() const {
+	inline dsize_t width() const {
 		return _width;
 	}
 
-	inline size_t height() const {
+	inline dsize_t height() const {
 		return _height;
 	}
 
-	inline size_t channel_length() const {
+	inline dsize_t channel_length() const {
 		return _channel_length;
 	}
 
-	inline size_t length() const {
+	inline dsize_t length() const {
 		return _cube_length;
 	}
 
-	inline size_t count() const {
+	inline dsize_t count() const {
 		return _length;
 	}
 
-	inline size_t data_num() const {
+	inline dsize_t data_num() const {
 		return _data_num;
 	}
 
@@ -81,11 +84,11 @@ public:
 		return _phase;
 	}
 
-	inline void set_data_num(size_t num) {
+	inline void set_data_num(dsize_t num) {
 		_data_num = num;
 	}
 
-	virtual size_t calculate_size() = 0;
+	virtual dsize_t calculate_size() = 0;
 
 	virtual void _RESET_DATA() = 0;
 
@@ -95,10 +98,10 @@ public:
 
 	virtual void load(std::ifstream& is) = 0;
 
-	virtual void resize(size_t num, size_t channel, size_t width,
-			size_t height) = 0;
+	virtual void resize(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height) = 0;
 
-	inline size_t index(size_t c, size_t x, size_t y) const {
+	inline dsize_t index(dsize_t c, dsize_t x, dsize_t y) const {
 		return c * _cube_length + x * _width + y;
 	}
 
@@ -116,15 +119,15 @@ public:
 
 protected:
 
-	size_t _width;
-	size_t _height;
-	size_t _channel;
-	size_t _num;
-	size_t _cube_length;
-	size_t _length;
-	size_t _channel_length;
+	dsize_t _width;
+	dsize_t _height;
+	dsize_t _channel;
+	dsize_t _num;
+	dsize_t _cube_length;
+	dsize_t _length;
+	dsize_t _channel_length;
 
-	size_t _data_num;
+	dsize_t _data_num;
 	phase_type _phase;
 
 	void *_s_data;

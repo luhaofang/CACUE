@@ -52,6 +52,7 @@ public:
 		o_blob = NULL;
 		o_blobs = NULL;
 		_args = args_;
+		_o_args = NULL;
 		_phase = data->phase();
 		_OP_TYPE = type_;
 		data->_REC();
@@ -66,6 +67,22 @@ public:
 		o_blob = NULL;
 		o_blobs = NULL;
 		_args = NULL;
+		_o_args = NULL;
+		_phase = data->phase();
+		_OP_TYPE = type_;
+		data->_REC();
+
+		_weights = new vector<weight*>();
+	}
+
+	operator_base(blob_base *&data, op_args *&args_, op_name type_) {
+
+		s_blob = data;
+		s_blobs = NULL;
+		o_blob = NULL;
+		o_blobs = NULL;
+		_args = NULL;
+		_o_args = args_;
 		_phase = data->phase();
 		_OP_TYPE = type_;
 		data->_REC();
@@ -80,6 +97,7 @@ public:
 		o_blob = NULL;
 		o_blobs = NULL;
 		_args = args_;
+		_o_args = NULL;
 		_phase = data->at(0)->phase();
 		_OP_TYPE = type_;
 		data->_REC();
@@ -94,6 +112,7 @@ public:
 		o_blob = NULL;
 		o_blobs = NULL;
 		_args = NULL;
+		_o_args = NULL;
 		_phase = data->at(0)->phase();
 		_OP_TYPE = type_;
 		data->_REC();
@@ -103,7 +122,7 @@ public:
 
 	virtual ~operator_base() {
 
-		delete _args;
+		delete _o_args;
 		if (_IS_ALLOC_OUTPUT) {
 			if (o_blob != NULL)
 				delete o_blob;
@@ -191,6 +210,8 @@ protected:
 	blobs *o_blobs;
 
 	data_args *_args;
+
+	op_args *_o_args;
 
 	phase_type _phase;
 

@@ -44,7 +44,7 @@ class bin_blob : public blob_base {
 
 public:
 
-	bin_blob(size_t num, size_t channel, size_t width, size_t height,
+	bin_blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 			unsigned int _value, phase_type phase);
 
 	~bin_blob();
@@ -52,7 +52,7 @@ public:
 	/**
 	 * return the piece probe in blob data
 	 */
-	inline unsigned int* p_data(size_t n) const {
+	inline unsigned int* p_data(dsize_t n) const {
 		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num);
 		return (unsigned int*) _s_data + n * _cube_length;
 	}
@@ -60,7 +60,7 @@ public:
 	/**
 	 * return the piece probe in blob diff
 	 */
-	inline float_t* p_diff(size_t n) const {
+	inline float_t* p_diff(dsize_t n) const {
 		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num);
 		return (float_t*) _s_diff + n * _cube_length;
 	}
@@ -86,28 +86,28 @@ public:
 	bin_blob* copy_create(phase_type phase_, unsigned int value_) const;
 
 	/*
-	 * copy data size_to blob, if blob is established in gpu, io op is needed
+	 * copy data dsize_to blob, if blob is established in gpu, io op is needed
 	 * where i is the start piece index in blob
 	 */
-	void copy2data(vec_i &data_, size_t i);
+	void copy2data(vec_i &data_, dsize_t i);
 
 	/*
-	 * copy data size_to blob, if blob is established in gpu, io op is needed
+	 * copy data dsize_to blob, if blob is established in gpu, io op is needed
 	 */
 	void copy2data(vec_i &data_);
 
 	/*
-	 * copy data size_to blob, if blob is established in gpu, io op is needed
+	 * copy data dsize_to blob, if blob is established in gpu, io op is needed
 	 * where i is the start piece index in blob
 	 */
-	void copy2diff(vec_t &data_, size_t i);
+	void copy2diff(vec_t &data_, dsize_t i);
 
 	/*
-	 * copy data size_to blob's diff, if blob is established in gpu, io op is needed
+	 * copy data dsize_to blob's diff, if blob is established in gpu, io op is needed
 	 */
 	void copy2diff(vec_t &data_);
 
-	inline size_t calculate_size() {
+	inline dsize_t calculate_size() {
 		return test == _phase ?
 				_length * sizeof(unsigned int) :
 				_length * sizeof(unsigned int) + _length * sizeof(float_t);
@@ -127,8 +127,8 @@ public:
 
 	void load(std::ifstream& is);
 
-	inline void resize(size_t num, size_t channel, size_t width,
-			size_t height) {
+	inline void resize(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height) {
 		_width = width;
 		_height = height;
 		_channel = channel;

@@ -28,13 +28,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <time.h>
 
-#include "../../mycnn.h"
+#include "../../cacu/cacu.h"
 
-#include "../../tools/imageio_utils.h"
+#include "../../tools/imageio_utils.hpp"
 
 
-using namespace mycnn;
-using namespace mycnn_tools;
+using namespace cacu;
+using namespace cacu_tools;
 
 
 const int kCIFARImageNBytes = 3072;
@@ -42,132 +42,22 @@ const int kCIFARBatchSize = 10000;
 const int kCIFARDataSize = 1024;
 const int kCIFARDataCount = 50000;
 
-void readdata(chars_t filename, vector<vec_t> &data_blob) {
-	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-	if(!data_file)
-		LOG_FATAL("file %s cannot be opened!",filename.c_str());
-	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
-		char label_char;
-		data_file.read(&label_char, 1);
-		char buffer[kCIFARImageNBytes];
-		data_file.read(buffer, kCIFARImageNBytes);
-		vec_t datas(kCIFARImageNBytes);
-		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (mycnn::float_t) ((unsigned char) (buffer[j]));
-			datas[j + kCIFARDataSize] = (mycnn::float_t) ((unsigned char) (buffer[j + kCIFARDataSize]));
-			datas[j + kCIFARDataSize * 2] = (mycnn::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize]));
-		}
-		data_blob.push_back(datas);
-	}
-}
+void readdata(chars_t filename, vector<vec_t> &data_blob);
 
-void readdata(chars_t filename, mycnn::float_t *data_) {
-#if __PARALLELTYPE__ == __CUDA__
-	imageio_utils::imread_gpu(data_,filename.c_str(), kCIFARImageNBytes);
-#else
-	imageio_utils::imread(data_,filename.c_str(),kCIFARImageNBytes);
-#endif
-}
+void readdata(chars_t filename, float_t *data_);
 
-void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
-	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-	if(!data_file)
-		LOG_FATAL("file %s cannot be opened!",filename.c_str());
-	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
-		char label_char;
-		data_file.read(&label_char, 1);
-		char buffer[kCIFARImageNBytes];
-		data_file.read(buffer, kCIFARImageNBytes);
-		vec_t datas(kCIFARImageNBytes);
-		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (mycnn::float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (mycnn::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (mycnn::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
-		}
-		data_blob.push_back(datas);
-	}
-}
+void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean);
 
 void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
-		vector<vec_i> &labels) {
-	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
-	if(!data_file)
-		LOG_FATAL("file %s cannot be opened!",filename.c_str());
-	mycnn::float_t *snp;
-	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
-		char label_char;
-		data_file.read(&label_char, 1);
-		labels.push_back(vec_i(1, (unsigned int)((label_char))));
-		char buffer[kCIFARImageNBytes];
-		data_file.read(buffer, kCIFARImageNBytes);
-		vec_t datas(kCIFARImageNBytes);
-		snp = &datas[0];
-		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (mycnn::float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (mycnn::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (mycnn::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
-		}
-		data_blob.push_back(datas);
-	}
-}
+		vector<vec_i> &labels);
 
-void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels)
-{
+void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
-	vec_t mean(kCIFARImageNBytes);
+void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
-	imageio_utils::load_mean_file(&mean[0], meanfile);
+vec_t compute_mean(chars_t &filepath, int filecount);
 
-	for (int i = 1; i <= 5; i++) {
-		ostringstream oss;
-		oss << filepath << "data_batch_" << i << ".bin";
-		readdata((oss.str()), data_blob , mean , labels);
-	}
-}
-
-void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels)
-{
-
-	vec_t mean(kCIFARImageNBytes);
-
-	imageio_utils::load_mean_file(&mean[0], meanfile);
-
-	{
-		ostringstream oss;
-		oss << filepath << "test_batch.bin";
-		readdata((oss.str()), data_blob , mean, labels);
-	}
-}
-
-vec_t compute_mean(chars_t &filepath, int filecount)
-{
-	vector<vec_t> mean_data;
-	vec_t mean(kCIFARImageNBytes);
-
-	//calculate mean
-	for (int i = 1; i <= filecount; i++) {
-		ostringstream oss;
-		oss << filepath << "data_batch_" << i << ".bin";
-		readdata((oss.str()), mean_data);
-	}
-
-	mycnn::float_t length = (mycnn::float_t) mean_data.size();
-
-	for (unsigned int i = 0; i < mean_data.size(); i++) {
-		cacu_saxpy_cpu(&mean_data[i][0], 1, &mean[0],kCIFARImageNBytes);
-	}
-
-	cacu_scalex_cpu(&mean[0],(float)1.0/length,kCIFARImageNBytes);
-	return mean;
-}
-
-
-void make_mean(chars_t filepath, chars_t meanfile)
-{
-	vec_t mean = compute_mean(filepath,5);
-	LOG_DEBUG("%f,%f",mean[0],mean[24]);
-	imageio_utils::save_mean_file(&mean[0],meanfile,mean.size());
-}
+void make_mean(chars_t filepath, chars_t meanfile);
 
 
 

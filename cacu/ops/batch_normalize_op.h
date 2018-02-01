@@ -219,6 +219,9 @@ namespace cacu{
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
+				LOG_DEBUG("");
+				cuda_print(_var->s_data(),3);
+
 				for (int i = 0; i < s_blob_->num(); ++i){
 					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
 					cacu_cdxsize(o_blob_->p_data(i), o_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
@@ -256,7 +259,6 @@ namespace cacu{
 					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 				}
 			}
-
 #endif
 		}
 

@@ -35,10 +35,11 @@ namespace cacu{
 
 	public:
 
-		split_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_SPLIT){
+		split_op(blob_base *&data, op_args *&args_) : operator_base(data, args_, CACU_SPLIT){
+			_split_count = args_->at(0);
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial(data, _args);
+			init_weights(data,_args);
 			echo();
 
 		};
@@ -48,9 +49,9 @@ namespace cacu{
 		};
 
 		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			int split_count = args_->at(0);
+
 			o_blobs = create_oblobs();
-			for(int i = 0 ; i < split_count ; ++i)
+			for(int i = 0 ; i < _split_count ; ++i)
 			{
 	#if __USEMBEDDING__ == ON
 				o_blobs->push_back(cacu_allocator::create_em_blob(data->num(),data->channel(),data->height(),data->width(), 0,_phase));
@@ -66,7 +67,7 @@ namespace cacu{
 
 		virtual const void check() override{
 			//split count > 0
-			CHECK_GT_OP(_args->at(0), 0,"output_channel must > 0 vs %d",_args->at(0));
+			CHECK_GT_OP(_split_count, 0,"output_channel must > 0 vs %d",_split_count);
 		}
 
 		virtual const void op() override {
@@ -120,7 +121,7 @@ namespace cacu{
 
 		virtual const void echo() override{
 			LOG_INFO("create split op:");
-			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",s_blob->channel(),s_blob->height(),o_blobs->at(0)->channel(),o_blobs->at(0)->height());
+			LOG_INFO("channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, split_num: %d",s_blob->channel(),s_blob->height(),o_blobs->at(0)->channel(),o_blobs->at(0)->height(), _split_count);
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override
@@ -134,6 +135,7 @@ namespace cacu{
 
 	private:
 
+		int _split_count;
 
 	};
 };

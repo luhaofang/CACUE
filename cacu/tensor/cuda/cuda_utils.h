@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include "../../definition.h"
+
 #include "cuda_log.h"
 
 #ifdef __PARALLELTYPE__
@@ -43,14 +45,14 @@ void cuda_release();
 void cuda_free(void* data_);
 
 template<typename DTYPE>
-inline DTYPE* cuda_malloc(size_t length) {
+inline DTYPE* cuda_malloc(dsize_t length) {
 	DTYPE* data_;
 	CUDA_CHECK(cudaMalloc((void** ) (&data_), length * sizeof(DTYPE)));
 	return data_;
 }
 
 template<typename DTYPE>
-inline DTYPE* cuda_malloc_v(size_t length, DTYPE value) {
+inline DTYPE* cuda_malloc_v(dsize_t length, DTYPE value) {
 	DTYPE* data_;
 	CUDA_CHECK(cudaMalloc((void** ) (&data_), length * sizeof(DTYPE)));
 	vector<DTYPE> d(length, value);
@@ -62,7 +64,7 @@ inline DTYPE* cuda_malloc_v(size_t length, DTYPE value) {
 }
 
 template<typename DTYPE>
-inline void cuda_setvalue(DTYPE *data_, DTYPE value, size_t length) {
+inline void cuda_setvalue(DTYPE *data_, DTYPE value, dsize_t length) {
 	vector<DTYPE> v(length, value);
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (data_), (void* ) (&v[0]),
@@ -71,31 +73,31 @@ inline void cuda_setvalue(DTYPE *data_, DTYPE value, size_t length) {
 }
 
 template<typename DTYPE>
-inline void cuda_copy2dev(DTYPE *d_data_, DTYPE* s_values, size_t length) {
+inline void cuda_copy2dev(DTYPE *d_data_, DTYPE* s_values, dsize_t length) {
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),
 					length * sizeof(DTYPE), cudaMemcpyHostToDevice));
 }
 
 template<typename DTYPE>
-inline void cuda_copy2host(DTYPE *d_data_, DTYPE* s_values, size_t length) {
+inline void cuda_copy2host(DTYPE *d_data_, DTYPE* s_values, dsize_t length) {
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),
 					length * sizeof(DTYPE), cudaMemcpyDeviceToHost));
 }
 
 template<typename DTYPE>
-void cuda_print(DTYPE* data_, size_t length) {
+void cuda_print(DTYPE* data_, dsize_t length) {
 	vector<DTYPE> v(length);
 	cuda_copy2host(&v[0], data_, length);
-	for (size_t i = 0; i < length; ++i)
+	for (dsize_t i = 0; i < length; ++i)
 		cout << v[i] << ",";
 	cout << endl;
 	vector<DTYPE>().swap(v);
 }
 
 template<typename DTYPE>
-inline void cuda_refresh(DTYPE *data_, size_t length) {
+inline void cuda_refresh(DTYPE *data_, dsize_t length) {
 	CUDA_CHECK(cudaMemset((void* ) (data_), (DTYPE ) 0, length * sizeof(DTYPE)));
 }
 

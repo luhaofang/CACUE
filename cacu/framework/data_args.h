@@ -37,20 +37,9 @@ class data_args: public args_base<int> {
 
 public:
 
-	data_args(int _output_channel, int _kernel_size, int _stride, int _pad,
-			int _input_dim, int _channel) :
-			args_base<int>(_output_channel, _kernel_size, _stride, _pad, _input_dim,
+	data_args(int _output_channel, int _kernel_size, int _stride, int _pad, int _channel) :
+			args_base<int>(_output_channel, _kernel_size, _stride, _pad,
 					_channel, _ARGSEND) {
-
-	}
-
-	data_args(int arg) :
-			args_base<int>(arg, _ARGSEND) {
-
-	}
-
-	data_args(int arg1, int arg2) :
-			args_base<int>(arg1, arg2, _ARGSEND) {
 
 	}
 
@@ -74,12 +63,8 @@ public:
 		return this->at(3);
 	}
 
-	inline int input_dim() const {
-		return this->at(4);
-	}
-
 	inline int channel() const {
-		return this->at(5);
+		return this->at(4);
 	}
 
 private:

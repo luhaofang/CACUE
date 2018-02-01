@@ -41,7 +41,7 @@ namespace cacu{
 			init_weights(data->at(0),args_);
 
 			_loss = (float_t*)malloc(sizeof(float_t));
-
+			_loss[0] = 0;
 			echo();
 		};
 
@@ -91,7 +91,7 @@ namespace cacu{
 #if __USEMBEDDING__ == ON
 			cacu_copy_cpu(o_blob_->s_diff(), 1 ,_loss);
 #else
-	#if __PARALLELTYPE__ == __CUDA__
+	#if __USE_DEVICE__ == ON
 			cuda_copy2host(_loss, o_blob_->s_diff(), 1);
 	#else
 			cacu_copy(o_blob_->s_diff(), 1 ,_loss);

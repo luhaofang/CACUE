@@ -40,26 +40,25 @@ class layer_block {
 
 public:
 
-	layer_block(size_t output_channel, size_t kernel_size, size_t stride,
-			size_t pad, size_t input_dim, size_t channel);
+	layer_block();
 
 	~layer_block();
 
-	inline blob_base* get_oblob() {
+	inline blob_base * get_oblob() {
 		if (_layers->size() != 0)
 			return layers(length() - 1)->get_oblob();
 		return NULL;
 	}
 
-	inline layer *layers(int i) const {
+	inline layer* layers(int i) const {
 		return (layer*) _layers->at(i);
 	}
 
-	inline layer_base *pop_layer() const {
+	inline layer_base*& pop_layer() const {
 		return _layers->at(length() - 1);
 	}
 
-	inline layer_base *layer_bases(int i) const {
+	inline layer_base*& layer_bases(int i) const {
 		return _layers->at(i);
 	}
 
@@ -78,22 +77,6 @@ public:
 private:
 
 	vector<layer_base*> *_layers;
-
-	//feature map output dim
-	size_t _output_dim = 0;
-	//input feature map channel
-	size_t _channel = 0;
-	//input dim
-	size_t _input_dim = 0;
-	//output feature map channel
-	size_t _output_channel = 0;
-	//kernel size
-	size_t _kernel_size = 0;
-	//padding size
-	size_t _pad = 0;
-	//stride size
-	size_t _stride = 0;
-
 };
 
 }

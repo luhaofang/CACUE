@@ -37,8 +37,9 @@ class layer: public layer_base {
 
 public:
 
-	layer(size_t output_channel, size_t kernel_size, size_t stride, size_t pad,
-			size_t input_dim, size_t channel);
+	layer(data_args *args);
+
+	layer();
 
 	~layer(){}
 
@@ -48,13 +49,15 @@ public:
 
 	layer* op(op_name op_);
 
-	layer* op(op_name op_, blob_base *blob_);
+	layer* op(op_name op_, blob_base * blob_);
 
-	layer* op(op_name op_, blob_base *blob_, data_args *args_);
+	layer* op(op_name op_, blob_base * blob_, data_args *& args_);
 
-	layer* op(op_name op_, blobs *blobs_);
+	layer* op(op_name op_, blobs * blobs_);
 
-	layer* op(op_name op_, blobs *blobs_, data_args *args_);
+	layer* op(op_name op_, blobs * blobs_, data_args *& args_);
+
+	layer* op(op_name op_, blob_base * blob_, op_args * args_);
 
 	template<class OPTYPE>
 	inline OPTYPE *& get_op(int i) const {
@@ -75,11 +78,6 @@ public:
 
 private:
 
-	//args refresh by input blob
-	inline void refresh_layer_param(blob_base *blob_) {
-		_args->at(4) = blob_->height();
-		_args->at(5) = blob_->channel();
-	}
 
 };
 

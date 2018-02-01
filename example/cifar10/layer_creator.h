@@ -25,49 +25,44 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#pragma once
 
-#include "cuda_utils.h"
+#include "../../cacu/framework/layer.h"
+#include "../../cacu/framework/layer_block.h"
+#include "../../cacu/framework/blob_base.h"
 
-#include "../../math/blas/cublas_utils.h"
+#include "../../cacu/ops/ops_defination.h"
+#include "../../cacu/ops/operators.h"
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+using namespace cacu;
 
-namespace cacu {
+layer_block* conv_layer_maxpooling(blob_base* data, int output_channel,
+		int kernel_size, int stride = 1, int pad = 0, op_name activation_op =
+				CACU_RELU);
 
-void cuda_set_device(unsigned int device_id) {
-	struct cudaDeviceProp device_prop;
-	if (cudaGetDeviceProperties(&device_prop, device_id) == cudaSuccess) {
-		cout << "======================================================="
-				<< endl;
-		cout << "device " << device_id << ": " << device_prop.name << endl;
-		cout << "-------------------------------------------------------"
-				<< endl;
-		cout << "totalGlobalMem      |	" << device_prop.totalGlobalMem << endl;
-		cout << "warpSize            |	" << device_prop.warpSize << endl;
-		cout << "maxThreadsPerBlock  |	" << device_prop.maxThreadsPerBlock
-				<< endl;
-		cout << "sharedMemPerBlock   |	" << device_prop.totalConstMem << endl;
-		cout << "totalConstMem       |	" << device_prop.totalConstMem << endl;
-		cout << "======================================================="
-				<< endl;
-	} else
-		cout << "device " << device_id
-				<< " not found, please check your device num or select an available device!";
-	CUDA_CHECK(cudaSetDevice(device_id));
-	create_cublas_handle();
-}
+layer_block* conv_layer_avgpooling(blob* data, int output_channel,
+		int kernel_size, int stride = 1, int pad = 0, op_name activation_op =
+				CACU_RELU);
 
-void cuda_release() {
-	release_cublas_handle();
-}
+layer_block* conv_layer_avgpooling_relu_first(blob_base* data,
+		int output_channel, int kernel_size, int stride = 1, int pad = 0,
+		op_name activation_op = CACU_RELU);
 
-void cuda_free(void* data_) {
-	cudaFree(data_);
-}
+layer_block* conv_layer_maxpooling_relu_first(blob_base* data,
+		int output_channel, int kernel_size, int stride = 1, int pad = 0,
+		op_name activation_op = CACU_RELU);
 
+layer_block* conv_layer_nopooling_norelu(blob_base* data, int output_channel,
+		int kernel_size, int stride = 1, int pad = 0, op_name activation_op =
+				CACU_RELU);
 
-}
+layer_block* fc_layer(blob_base* data, int output_channel, int kernel_size = 0,
+		int stride = 0, int pad = 0, op_name activation_op = CACU_RELU);
 
-#endif
-#endif
+layer_block* fc_layer_nodropout(blob_base* data, int output_channel,
+		int kernel_size = 0, int stride = 0, int pad = 0);
+
+layer_block* loss_layer(blob_base* data, blob_base* label, int output_channel);
+
+layer_block* predict_layer(blob_base* data, int output_channel);
+

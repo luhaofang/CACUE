@@ -31,7 +31,7 @@
 
 namespace cacu {
 
-weight::weight(chars_t name, size_t num, size_t channel, size_t width, size_t height,
+weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 		phase_type phase) : blob(num, channel, width, height, 0, phase) {
 	_name = name;
 	_update_lr = 1.0;
@@ -72,7 +72,7 @@ void weight::set_init_type(param_init_type type, float_t value) {
 /*
  * serializa blob data, output data to model file
  */
-inline void weight::serializa_group(std::ostream& os, int group) {
+void weight::serializa_group(std::ostream& os, int group) {
 	float_t* p_data_;
 	int length = _length / group;
 #if __PARALLELTYPE__ == __CUDA__
@@ -100,7 +100,7 @@ inline void weight::serializa_group(std::ostream& os, int group) {
 /*
  * loads blob data from model file
  */
-inline void weight::load_group(std::ifstream& is, int group) {
+void weight::load_group(std::ifstream& is, int group) {
 	float_t* p_data_ = (float_t*) _s_data;
 #if __PARALLELTYPE__ == __CUDA__
 	vec_t _v(_channel_length * (_channel / group));

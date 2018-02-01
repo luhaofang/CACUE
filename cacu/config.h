@@ -60,7 +60,7 @@ namespace cacu {
 /***********************************/
 
 #ifndef __USE_DEVICE__
-#define __USE_DEVICE__  OFF
+#define __USE_DEVICE__  ON
 #endif
 
 #ifndef __PARALLELTYPE__

@@ -29,15 +29,7 @@
 
 namespace cacu {
 
-layer_block::layer_block(size_t output_channel, size_t kernel_size,
-		size_t stride, size_t pad, size_t input_dim, size_t channel) {
-	_output_dim = 0;
-	_channel = channel;
-	_input_dim = input_dim;
-	_output_channel = channel;
-	_kernel_size = kernel_size;
-	_stride = stride;
-	_pad = pad;
+layer_block::layer_block() {
 
 	_layers = new vector<layer_base*>();
 }
@@ -54,28 +46,24 @@ layer_block::~layer_block() {
 layer_block& layer_block::operator <<(layer_block* const &layer_block_) {
 	for (int i = 0; i < layer_block_->length(); ++i)
 		_layers->push_back(layer_block_->layer_bases(i));
-	_output_dim = pop_layer()->_output_dim;
 	return *this;
 }
 
 layer_block& layer_block::operator <<(layer_block &layer_block_) {
 	for (int i = 0; i < layer_block_.length(); ++i)
 		_layers->push_back(layer_block_.layer_bases(i));
-	_output_dim = pop_layer()->_output_dim;
 	return *this;
 }
 
 layer_block& layer_block::operator <<(layer_base* const &layer_) {
 
 	_layers->push_back(layer_);
-	_output_dim = layer_->_output_dim;
 	return *this;
 }
 
 layer_block& layer_block::operator <<(layer_base &layer_) {
 
 	_layers->push_back(&layer_);
-	_output_dim = layer_._output_dim;
 	return *this;
 }
 

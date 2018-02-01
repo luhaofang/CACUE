@@ -27,47 +27,53 @@
 
 #include <time.h>
 #include <sys/time.h>
-#include "../../mycnn.h"
+#include "../../cacu/cacu.h"
 
-#include "../../tools/imageio_utils.h"
+#include "../../cacu/solvers/sgd_solver.h"
 
-#include "alex_net.h"
-#include "vgg_net.h"
+#include "../../tools/string_utils.hpp"
+#include "../../tools/imageio_utils.hpp"
+
+//#include "vgg_net.h"
 #include "data_proc.h"
 #include "resnet_18.h"
 #include "resnet_50.h"
 #include "mobilenet.h"
 
-void train_net() {
-	int batch_size = 32;
+using namespace cacu;
 
-	int max_iter = 1200000;
+void train_net() {
+	int batch_size = 2;
+
+	int max_iter = 20;
 
 	int test_iter = 100;
 	int train_test_iter = 100;
 
 	//set gpu device if training by gpu
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(1);
 #endif
+#endif
 	//set random seed
-	set_rand_seed();
+	//set_rand_seed();
 
 	//log output
 	std::ofstream logger("/home/seal/4T/cacue/imagenet/resnet.log",
 			ios::binary);
-	logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
+	logger.precision(std::numeric_limits<float_t>::digits10);
 
 	//log output
 	std::ofstream precious_logger(
 			"/home/seal/4T/cacue/imagenet/resnet_precious.log",
 			ios::binary);
-	precious_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
+	precious_logger.precision(std::numeric_limits<float_t>::digits10);
 	//log output
 	std::ofstream precious_train_logger(
 			"/home/seal/4T/cacue/imagenet/resnet_train_precious.log",
 			ios::binary);
-	precious_train_logger.precision(std::numeric_limits<mycnn::float_t>::digits10);
+	precious_train_logger.precision(std::numeric_limits<float_t>::digits10);
 
 	//network *net = create_mobilenet(batch_size,train);
 	//network *net = create_vgg_16_net(batch_size, train);
@@ -78,7 +84,7 @@ void train_net() {
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.01);
+	sgd->set_lr(0.1);
 	sgd->set_weight_decay(0.0001);
 	sgd->set_regularize(L2);
 
@@ -99,8 +105,10 @@ void train_net() {
 	 * load mean data
 	 */
 	blob *mean_ = cacu_allocator::create_blob(1, 3, 224, 224, test);
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	imageio_utils::load_mean_file_gpu(mean_->s_data(), meanfile);
+#endif
 #else
 	imageio_utils::load_mean_file(mean_->s_data(),meanfile);
 #endif
@@ -116,7 +124,7 @@ void train_net() {
 		full_data.push_back(file_);
 	}
 	is.close();
-	random_shuffle(full_data.begin(), full_data.end());
+	//random_shuffle(full_data.begin(), full_data.end());
 
 	/**
 	 * read test list data into local memory
@@ -170,7 +178,7 @@ void train_net() {
 						step_index_test = 0;
 					//load image data
 					readdata(full_data_test[step_index_test].c_str(),input_data->p_data(j), mean_->s_data());
-					input_label->copy_data_io(full_label_test[step_index_test],
+					input_label->copy2data(full_label_test[step_index_test],
 							j);
 					compare_label[j] = full_label_test[step_index_test][0];
 					step_index_test += 1;
@@ -214,7 +222,7 @@ void train_net() {
 				clipreaddata((datapath + vec[0]).c_str(), input_data->p_data(j),
 						mean_->s_data());
 				compare_label[j] = label[0];
-				input_label->copy_data_io(label, j);
+				input_label->copy2data(label, j);
 				step_index_train += 1;
 			}
 			net->predict();
@@ -249,7 +257,7 @@ void train_net() {
 				//load image data
 				clipreaddata((datapath + vec[0]).c_str(), input_data->p_data(j),
 						mean_->s_data());
-				input_label->copy_data_io(label, j);
+				input_label->copy2data(label, j);
 				step_index += 1;
 			}
 			//net->predict();
@@ -298,8 +306,9 @@ void train_net() {
 	vector<string>().swap(full_data_test);
 	delete mean_;
 	delete net;
-
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
+#endif
 #endif
 }

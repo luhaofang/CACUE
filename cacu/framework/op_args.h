@@ -33,24 +33,12 @@ using namespace std;
 
 namespace cacu {
 
-class op_args: public args_base<float_t> {
+class op_args: public args_base<int> {
 
 public:
 
-	op_args(float_t _output_channel, int _kernel_size, int _stride, int _pad,
-			int _input_dim, int _channel) :
-			args_base<float_t>(_output_channel, _kernel_size, _stride, _pad,
-					_input_dim, _channel, _ARGSEND) {
-
-	}
-
-	op_args(int arg) :
-			args_base<float_t>(arg, _ARGSEND) {
-
-	}
-
-	op_args(int arg1, int arg2) :
-			args_base<float_t>(arg1, arg2, _ARGSEND) {
+	op_args(int args_) :
+			args_base<int>(args_, _ARGSEND) {
 
 	}
 

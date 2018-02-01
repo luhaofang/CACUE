@@ -29,14 +29,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 #include <sys/time.h>
 
-#include "../../mycnn.h"
+#include "../../cacu/solvers/sgd_solver.h"
 
-#include "../../tools/imageio_utils.h"
+#include "../../cacu/cacu.h"
+#include "../../cacu/config.h"
+
+#include "../../tools/imageio_utils.hpp"
 
 #include "cifar_quick_net.h"
 #include "data_proc.h"
-#include "cifar_test_net.h"
 
+using namespace cacu;
 
 void train_net()
 {
@@ -44,13 +47,16 @@ void train_net()
 
 	int max_iter = 5000;
 
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
+
+#endif
 #endif
 	//set random seed
 	set_rand_seed();
 
-	network *net = create_cifar_quick_net(batch_size,train);//create_cifar_test_net(batch_size,train);
+	network *net = create_cifar_quick_net(batch_size,train);
 	//net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
 	sgd_solver *sgd = new sgd_solver(net);
 	sgd->set_lr(0.001f);
@@ -76,10 +82,11 @@ void train_net()
 		{
 			if (step_index == kCIFARDataCount)
 				step_index = 0;
-			input_data->copy_data_io(full_data[step_index], j);
-			input_label->copy_data_io(full_label[step_index],j);
+			input_data->copy2data(full_data[step_index], j);
+			input_label->copy2data(full_label[step_index],j);
 			step_index += 1;
 		}
+
 		sgd->train_iter();
 		gettimeofday(&end, NULL);
 
@@ -96,7 +103,14 @@ void train_net()
 	}
 	LOG_INFO("optimization is done!");
 	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
+
+	vector<vec_t>().swap(full_data);
+	vector<vec_i>().swap(full_label);
+	delete net;
+
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
+#endif
 #endif
 }

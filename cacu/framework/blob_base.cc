@@ -31,7 +31,7 @@
 
 namespace cacu {
 
-blob_base::blob_base(size_t num, size_t channel, size_t width, size_t height,
+blob_base::blob_base(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 		phase_type phase, blob_type type) {
 
 	_width = width;
@@ -48,9 +48,9 @@ blob_base::blob_base(size_t num, size_t channel, size_t width, size_t height,
 	_data_num = _num;
 	_REC_ = 0;
 	//check the data dim
-	CHECK_LT_OP(_length, numeric_limits<size_t>::max(),
+	CHECK_LT_OP(_length, numeric_limits<dsize_t>::max(),
 			"BLOB cell length is out of bounds: %ld vs d", _length,
-			numeric_limits<size_t>::max());
+			numeric_limits<dsize_t>::max());
 }
 
 blob_base::~blob_base() {

@@ -88,7 +88,7 @@ namespace cacu{
 
 		virtual const void op() override {
 
-			col_offset = _args->channel() / _group * _col_data->width() * _col_data->height();
+			col_offset = s_blob->channel() / _group * _col_data->width() * _col_data->height();
 			w_offset = _w->count() / _group / _group;
 			out_offset = _w->num() / _group * o_blob->width() * o_blob->height();
 
@@ -114,7 +114,7 @@ namespace cacu{
 #else
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			//cacu_print(s_blob_->s_data(),1000);
+
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
 				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
@@ -133,7 +133,7 @@ namespace cacu{
 
 		virtual const void grad() override{
 
-			col_offset = _args->channel() / _group * _col_data->width() * _col_data->height();
+			col_offset = s_blob->channel() / _group * _col_data->width() * _col_data->height();
 			w_offset = _w->count() / _group / _group;
 			out_offset = _w->num() / _group * o_blob->width() * o_blob->height();
 
@@ -152,7 +152,7 @@ namespace cacu{
 					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff_d(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
 				//col2img
 				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff_d(i));
+				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff_d(i));
 				//weights gradient
 				cacu_img2col_pad(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
 				for (int g = 0 ; g < _group ; ++g)
@@ -174,7 +174,7 @@ namespace cacu{
 					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
 				//col2img
 				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),_args->input_dim(),_args->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff(i));
+				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob_->width(),s_blob->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff(i));
 				//weights gradient
 				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->channel(), o_blob_->width(), _args->pad(), col_data_->s_data());
 				for (int g = 0 ; g < _group ; ++g)
@@ -232,8 +232,8 @@ namespace cacu{
 
 		inline void set_group(int group){
 			CHECK_GT_OP(group, 0, "group must > 0 vs %d", group);
-			CHECK_LE_OP(group, _args->channel(),"group must <= %d vs %d", _args->channel(), group);
-			CHECK_EQ_OP(_args->channel() % group, 0,"channel mod group must == 0 vs %d", _args->channel() % group);
+			CHECK_LE_OP(group, s_blob->channel(),"group must <= %d vs %d", _args->channel(), group);
+			CHECK_EQ_OP(s_blob->channel() % group, 0,"channel mod group must == 0 vs %d", _args->channel() % group);
 			this->_group = group;
 		}
 

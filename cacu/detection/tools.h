@@ -29,6 +29,7 @@
 
 #include <vector>
 
+#include "../definition.h"
 #include "rect.h"
 #include "detection_definition.h"
 
@@ -41,19 +42,19 @@ inline bool comp(const rect *a, const rect *b) {
 }
 
 inline float_t IOU(rect* rect1, rect* rect2) {
-	size_t intersection = max(0,
+	dsize_t intersection = max(0,
 			min(rect1->r, rect2->r) - max(rect1->l, rect2->l))
 			* max(0, min(rect1->b, rect2->b) - max(rect1->t, rect2->t));
-	size_t _union = (rect1->r - rect1->l) * (rect1->b - rect1->t)
+	dsize_t _union = (rect1->r - rect1->l) * (rect1->b - rect1->t)
 			+ (rect2->r - rect2->l) * (rect2->b - rect2->t) - intersection;
 	return _union == 0 ? 0 : (float_t) (intersection) / _union;
 }
 
 inline float_t IOM(rect* rect1, rect* rect2) {
-	size_t intersection = max(0,
+	dsize_t intersection = max(0,
 			min(rect1->r, rect2->r) - max(rect1->l, rect2->l))
 			* max(0, min(rect1->b, rect2->b) - max(rect1->t, rect2->t));
-	size_t min_area = min((rect1->r - rect1->l) * (rect1->b - rect1->t),
+	dsize_t min_area = min((rect1->r - rect1->l) * (rect1->b - rect1->t),
 			(rect2->r - rect2->l) * (rect2->b - rect2->t));
 	return (float_t) (intersection) / min_area;
 }

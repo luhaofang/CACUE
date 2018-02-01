@@ -28,15 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <time.h>
 
-#include "../../mycnn.h"
+#include "../../cacu/cacu.h"
 
-#include "../../tools/imageio_utils.h"
+#include "../../tools/imageio_utils.hpp"
 
 #include "cifar_quick_net.h"
 #include "data_proc.h"
-#include "cifar_test_net.h"
 
-
+/*
 void train_net()
 {
 	int batch_size = 100;
@@ -72,8 +71,8 @@ void train_net()
 		{
 			if (step_index == kCIFARDataCount)
 				step_index = 0;
-			input_data->copy_data_io(full_data[step_index], j);
-			input_label->copy_data_io(full_label[step_index],j);
+			input_data->copy2data(full_data[step_index], j);
+			input_label->copy2data(full_label[step_index],j);
 			step_index += 1;
 		}
 		sgd->train_iter();
@@ -94,3 +93,4 @@ void train_net()
 	cuda_release();
 #endif
 }
+*/
