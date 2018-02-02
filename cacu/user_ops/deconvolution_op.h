@@ -123,7 +123,7 @@ namespace cacu{
 			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
-				cacu_img2col_pad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->channel(), s_blob_->width(), _args->pad(), col_data_->s_diff());
+				cacu_img2col_pad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(), o_blob_->width(), o_blob_->height(), _args->pad(), _args->pad(), col_data_->s_diff());
 				//backward convolution data
 				cacu_sgemm(TRANS, NOTRANS, col_data_->s_diff(), s_blob_->width()*s_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,s_blob_->p_diff_d(i),(float_t)0);
 				//add bias
@@ -142,7 +142,7 @@ namespace cacu{
 			blob *col_data_ = (blob*)_col_data;
 			for (int i = 0; i < s_blob_->num(); ++i){
 				//padded data if needed & img2col change
-				cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->channel(), s_blob_->width(), _args->pad(), col_data_->s_diff());
+				cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(), o_blob_->width(), o_blob_->height(), _args->pad(), _args->pad(), col_data_->s_diff());
 				//backward convolution data
 				cacu_sgemm(TRANS, NOTRANS, col_data_->s_diff(), s_blob_->width()*s_blob_->height(),_w->length(), _w->s_data(),_w->num(), (float_t)1,s_blob_->p_diff(i),(float_t)0);
 				//add bias

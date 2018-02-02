@@ -220,8 +220,8 @@ protected:
 	op_name _OP_TYPE;
 
 	//create weight push_back to weights container
-	inline weight* const create_param(chars_t name, size_t num, size_t channel,
-			size_t width, size_t height, phase_type phase) {
+	inline weight* const create_param(chars_t name, dsize_t num,
+			dsize_t channel, dsize_t width, dsize_t height, phase_type phase) {
 		_add2op_weights(new weight(name, num, channel, width, height, phase));
 		return _weights->back();
 	}
@@ -235,15 +235,15 @@ protected:
 		_weights->push_back(w);
 	}
 
-	inline blob_base * create_oblob(size_t num, size_t channel, size_t height, size_t width,
-			phase_type phase_) {
+	inline blob_base * create_oblob(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height, phase_type phase_) {
 		_IS_ALLOC_OUTPUT = true;
 		return new blob(num, channel, height, width, 0, phase_);
 	}
 
 #if __USEMBEDDING__ == ON
-	inline blob_base * create_em_oblob(size_t num, size_t channel, size_t height,
-			size_t width, phase_type phase_) {
+	inline blob_base * create_em_oblob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, phase_type phase_) {
 		_IS_ALLOC_OUTPUT = true;
 		return new em_blob(num, channel, height, width, 0, phase_);
 	}

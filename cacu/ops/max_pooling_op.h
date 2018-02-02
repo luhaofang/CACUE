@@ -48,20 +48,25 @@ namespace cacu{
 		}
 
 		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			int input_dim = data->width();
+			int input_w = data->width();
+			int input_h = data->height();
 			int channel = data->channel();
 			int num = data->num();
-			int output_dim = (input_dim - _args->kernel_size()) / _args->stride() + 1;
-			int pad = abs(input_dim - (output_dim - 1) * _args->stride() - _args->kernel_size());
+			int output_w = (input_w - _args->kernel_size()) / _args->stride() + 1;
+			int output_h = (input_h - _args->kernel_size()) / _args->stride() + 1;
+			int pad = abs(input_w - (output_w - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
-				output_dim += 1;
+				output_w += 1;
+			pad = abs(input_h - (output_h - 1) * _args->stride() - _args->kernel_size());
+			if (pad != 0)
+				output_h += 1;
 
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, channel, output_dim, output_dim, _phase);
-			_index = cacu_allocator::create_em_bin_blob(num, channel, output_dim, output_dim, test);
+			o_blob = create_em_oblob(num, channel, output_w, output_h, _phase);
+			_index = cacu_allocator::create_em_bin_blob(num, channel, output_w, output_h, test);
 #else
-			o_blob = create_oblob(num, channel, output_dim, output_dim, _phase);
-			_index = cacu_allocator::create_bin_blob(num, channel, output_dim, output_dim, test);
+			o_blob = create_oblob(num, channel, output_w, output_h, _phase);
+			_index = cacu_allocator::create_bin_blob(num, channel, output_w, output_h, test);
 #endif
 
 		}
@@ -82,7 +87,7 @@ namespace cacu{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_bin_blob *index_ = (em_bin_blob*)_index;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
-				cacu_max_pooling(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data_d(i), index_->p_data_d(i));
+				cacu_max_pooling(s_blob_->p_data_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), o_blob_->p_data_d(i), index_->p_data_d(i));
 				o_blob_->_sync(i);
 				index_->_sync(i);
 			}
@@ -91,7 +96,7 @@ namespace cacu{
 			blob *s_blob_ = (blob*)s_blob;
 			bin_blob *index_ = (bin_blob*)_index;
 			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
+				cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
 #endif
 
 		}
@@ -103,7 +108,7 @@ namespace cacu{
 			em_blob *s_blob_ = (em_blob*)s_blob;
 			em_bin_blob *index_ = (em_bin_blob*)_index;
 			for(int i = 0 ; i < s_blob_->num(); ++i){
-				cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff_d(i), index_->p_data_d(i));
+				cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), s_blob_->p_diff_d(i), index_->p_data_d(i));
 				s_blob_->_sync(i);
 			}
 #else
@@ -112,7 +117,7 @@ namespace cacu{
 			bin_blob *index_ = (bin_blob*)_index;
 
 			for(int i = 0 ; i < s_blob_->num(); ++i)
-				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), o_blob_->width(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
+				cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
 #endif
 		}
 

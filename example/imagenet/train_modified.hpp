@@ -80,11 +80,11 @@ void train_net() {
 	network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_alexnet(batch_size,train);
 
 	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net.model");//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
-	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net_320000.model");
+	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_320000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
-	sgd->set_lr(0.1);
+	sgd->set_lr(0.001);
 	sgd->set_weight_decay(0.0001);
 	sgd->set_regularize(L2);
 
