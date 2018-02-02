@@ -34,6 +34,7 @@ bin_blob::bin_blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height, 
 blob_base(num, channel, width, height, phase, __bin_blob__) {
 	_tdata = new tensor<unsigned int>(_length);
 	_s_data = _tdata->pdata();
+	_tdata->set_value(_value);
 	if (train == phase) {
 		_tdiff = new tensor<float_t>(_length);
 		_s_diff = _tdiff->pdata();

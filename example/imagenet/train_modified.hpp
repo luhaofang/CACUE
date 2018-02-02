@@ -43,9 +43,9 @@
 using namespace cacu;
 
 void train_net() {
-	int batch_size = 2;
+	int batch_size = 32;
 
-	int max_iter = 20;
+	int max_iter = 1200000;
 
 	int test_iter = 100;
 	int train_test_iter = 100;
@@ -57,7 +57,7 @@ void train_net() {
 #endif
 #endif
 	//set random seed
-	//set_rand_seed();
+	set_rand_seed();
 
 	//log output
 	std::ofstream logger("/home/seal/4T/cacue/imagenet/resnet.log",
@@ -80,7 +80,7 @@ void train_net() {
 	network *net = create_res50net(batch_size,train);//create_mobilenet(batch_size,train);//create_alexnet(batch_size,train);
 
 	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net.model");//net->load_weights("/home/seal/4T/cacue/imagenet/alex_net_20000.model");
-	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_320000.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net_320000.model");
 	//net->check();
 	sgd_solver *sgd = new sgd_solver(net);
 
@@ -124,7 +124,7 @@ void train_net() {
 		full_data.push_back(file_);
 	}
 	is.close();
-	//random_shuffle(full_data.begin(), full_data.end());
+	random_shuffle(full_data.begin(), full_data.end());
 
 	/**
 	 * read test list data into local memory
@@ -277,9 +277,6 @@ void train_net() {
 				<< endl;
 		logger.flush();
 
-		if (i == 80000)
-			sgd->set_lr_iter(0.1);
-
 		if (i % 200000 == 0)
 			sgd->set_lr_iter(0.1);
 
@@ -306,6 +303,7 @@ void train_net() {
 	vector<string>().swap(full_data_test);
 	delete mean_;
 	delete net;
+	delete sgd;
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();

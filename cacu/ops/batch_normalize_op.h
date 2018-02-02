@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 
+
 namespace cacu{
 
 	class batch_normalize_op : public operator_base
@@ -200,6 +201,7 @@ namespace cacu{
 				//cacu_print(_mean->s_data(), _mean->count());
 				//cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, dim_sum_->s_data(),0, s_blob_->length()/s_blob_->channel());
 				cacu_sgemv(TRANS, s_blob_->s_data(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(),0);
+				//cacu_print(_mutipler->s_data(), _mean->count());
 				//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _mean->s_data(), 0, s_blob_->channel());
 				cacu_sgemv(NOTRANS, dim_sum_->s_data(), _mean->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _mean->s_data(), 0);
 				//cacu_print(_mean->s_data(), _mean->count());
@@ -218,9 +220,6 @@ namespace cacu{
 				cacu_scalex(_var->s_data(), _var->count(), (1.0 / m));
 
 				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
-
-				LOG_DEBUG("");
-				cuda_print(_var->s_data(),3);
 
 				for (int i = 0; i < s_blob_->num(); ++i){
 					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));

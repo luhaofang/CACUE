@@ -45,11 +45,42 @@ namespace cacu{
 extern cublasHandle_t handle;
 
 //cublas log utilities
-#define CUBLAS_LOG(level,status) \
-		if(status!=CUBLAS_STATUS_SUCCESS) \
-			{do{ fprintf(stderr,"[%s][%s %s:%d] code %d, cuda operation falled!\n",level, __TIME__, __FILE__, __LINE__,status);}while(0); exit(-1);};
+#define CUBLAS_LOG(level, status) \
+				do{ fprintf(stderr,"[%s][%s %s:%d] %s\n",level, __TIME__, __FILE__, __LINE__,status);}while(0); exit(-1); \
 
-#define CUBLAS_CHECK(status) CUBLAS_LOG("CUBLAS",status)
+#define CUBLAS_CHECK(status) \
+		if(status!=CUBLAS_STATUS_SUCCESS) {\
+			switch(status) { \
+				case CUBLAS_STATUS_NOT_INITIALIZED: \
+					CUBLAS_LOG("CUBLAS","Resource allocation failed inside the cuBLAS library. This is usually caused by a cudaMalloc() failure."); \
+					break; \
+				case CUBLAS_STATUS_ALLOC_FAILED: \
+					CUBLAS_LOG("CUBLAS","An unsupported value or parameter was passed to the function (a negative vector size, for example)."); \
+					break; \
+				case CUBLAS_STATUS_ARCH_MISMATCH: \
+					CUBLAS_LOG("CUBLAS","The function requires a feature absent from the device architecture; usually caused by the lack of support for double precision."); \
+					break; \
+				case CUBLAS_STATUS_MAPPING_ERROR: \
+					CUBLAS_LOG("CUBLAS","An access to GPU memory space failed, which is usually caused by a failure to bind a texture."); \
+					break; \
+				case CUBLAS_STATUS_EXECUTION_FAILED: \
+					CUBLAS_LOG("CUBLAS","The GPU program failed to execute. This is often caused by a launch failure of the kernel on the GPU, which can be caused by multiple reasons."); \
+					break; \
+				case CUBLAS_STATUS_INTERNAL_ERROR: \
+					CUBLAS_LOG("CUBLAS","An internal cuBLAS operation failed. This error is usually caused by a cudaMemcpyAsync() failure."); \
+					break; \
+				case CUBLAS_STATUS_NOT_SUPPORTED: \
+					CUBLAS_LOG("CUBLAS","The functionnality requested is not supported."); \
+					break; \
+				case CUBLAS_STATUS_LICENSE_ERROR: \
+					CUBLAS_LOG("CUBLAS","The functionnality requested requires some license and an error was detected when trying to check the current licensing. This error can happen if the license is not present or is expired or if the environment variable NVIDIA_LICENSE_FILE is not set properly."); \
+					break; \
+				default : \
+					break; \
+			} \
+		}
+
+
 
 
 void create_cublas_handle();
