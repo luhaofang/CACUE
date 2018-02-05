@@ -46,7 +46,7 @@ blob::blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 
 blob::~blob() {
 	delete _tdata;
-	if (train == _phase) {
+	if (_tdiff != NULL) {
 		delete _tdiff;
 	}
 }

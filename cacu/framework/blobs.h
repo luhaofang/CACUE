@@ -54,17 +54,16 @@ public:
 			case __bin_blob__:
 				delete (bin_blob*) at(i);
 				break;
-			/*
-			case __em_blob__:
-				delete (em_blob*) at(i);
-				break;
-			case __em_bin_blob__:
-				delete (em_bin_blob*) at(i);
-				break;
-			*/
+				/*
+				 case __em_blob__:
+				 delete (em_blob*) at(i);
+				 break;
+				 case __em_bin_blob__:
+				 delete (em_bin_blob*) at(i);
+				 break;
+				 */
 			default:
-				LOG_FATAL("can't identify the type!")
-				;
+				LOG_FATAL("can't identify the type!");
 				break;
 			}
 		}
@@ -84,14 +83,14 @@ public:
 			case __bin_blob__:
 				delete (bin_blob*) at(i);
 				break;
-			/*
-			case __em_blob__:
-				delete (em_blob*) at(i);
-				break;
-			case __em_bin_blob__:
-				delete (em_bin_blob*) at(i);
-				break;
-			*/
+				/*
+				 case __em_blob__:
+				 delete (em_blob*) at(i);
+				 break;
+				 case __em_bin_blob__:
+				 delete (em_bin_blob*) at(i);
+				 break;
+				 */
 			default:
 				LOG_FATAL("can't identify the type!");
 				break;
@@ -119,6 +118,11 @@ public:
 	inline void _RESET_DIFF() {
 		for (int i = 0; i < this->size(); ++i)
 			at(i)->_RESET_DIFF();
+	}
+
+	inline void _MOTIFY() {
+		for (int i = 0; i < this->size(); ++i)
+			at(i)->_MOTIFY();
 	}
 
 };

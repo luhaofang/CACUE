@@ -91,10 +91,6 @@ void test_net()
 		}
 
 		net->predict();
-		//cacu_copy(net->output_blob()->s_data(),net->output_blob()->count(),net->output_blob()->s_diff());
-		//net->set_weights_type(constant,1);
-		//net->back_propagate();
-		//injector->get_outblob_count();
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
 			max_index = argmax(output_data->p_data(j),output_data->length());

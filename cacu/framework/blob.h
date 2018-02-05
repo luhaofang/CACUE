@@ -50,7 +50,7 @@ namespace cacu{
 		 * return the piece probe in blob data
 		 */
 		inline float_t* p_data(dsize_t n) const{
-			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
+			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
 			return (float_t*)_s_data + n*_cube_length;
 		}
 
@@ -58,7 +58,7 @@ namespace cacu{
 		 * return the piece probe in blob diff
 		 */
 		inline float_t* p_diff(dsize_t n) const{
-			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num);
+			CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
 			return (float_t*)_s_diff + n*_cube_length;
 		}
 
@@ -134,7 +134,7 @@ namespace cacu{
 				return;
 			_tdata->resize(_length, 0);
 			_s_data = _tdata->pdata();
-			if(train == _phase){
+			if(_tdiff != NULL){
 				_tdiff->resize(_length, 0);
 				_s_diff = _tdiff->pdata();
 			}
@@ -155,7 +155,7 @@ namespace cacu{
 				return;
 			_tdata->resize(_length, value);
 			_s_data = _tdata->pdata();
-			if(train == _phase){
+			if(_tdiff != NULL){
 				_tdiff->resize(_length, value);
 				_s_diff = _tdiff->pdata();
 			}
@@ -164,9 +164,9 @@ namespace cacu{
 
 	protected:
 
-		tensor<float_t>* _tdata;
+		tensor<float_t>* _tdata = NULL;
 
-		tensor<float_t>* _tdiff;
+		tensor<float_t>* _tdiff = NULL;
 
 
 	};

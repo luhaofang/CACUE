@@ -50,21 +50,21 @@ public:
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(),
-					s_blob->height(), s_blob->width(), _phase);
+					s_blob->width(), s_blob->height(), _phase);
 			//save for train
 			if (train == _phase)
 				_x = create_em_opblob(s_blob->num(), s_blob->channel(),
-						s_blob->height(), s_blob->width(), test);
+						s_blob->width(), s_blob->height(), test);
 			else
 				_x = NULL;
 
-			_dim_sum = create_em_opblob(1, s_blob->channel(), s_blob->height(),
-					s_blob->width(), test);
+			_dim_sum = create_em_opblob(1, s_blob->channel(), s_blob->width(),
+					s_blob->height(), test);
 #else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
 			//save for train
 			if(train == _phase)
-			_x = create_opblob(s_blob->num(), s_blob->channel(), s_blob->height(),s_blob->width(), test);
+			_x = create_opblob(s_blob->num(), s_blob->channel(), s_blob->width(),  s_blob->height(), test);
 			else
 			_x = NULL;
 			_dim_sum = create_opblob(s_blob->num(), s_blob->channel(), 1, 1, test);
@@ -75,12 +75,10 @@ public:
 					test);
 			_num_mutipler = create_opblob(1, s_blob->num(), 1, 1, 1.0, test);
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->height(),
-					s_blob->width());
+			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
 			//save for train
-			if (train == _phase)
-				_x->resize(s_blob->num(), s_blob->channel(), s_blob->height(),
-						s_blob->width());
+			if (_x != NULL)
+				_x->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
 
 			_dim_sum->resize(s_blob->num(), s_blob->channel(), 1, 1);
 
@@ -476,4 +474,3 @@ private:
 
 };
 }
-;

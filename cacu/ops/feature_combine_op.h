@@ -49,13 +49,13 @@ namespace cacu{
 			_units_count = _args->at(0);
 			if(o_blob == NULL){
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phase);
+			o_blob = create_em_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->width(), s_blob->height(), _phase);
 #else
-			o_blob = create_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phase);
+			o_blob = create_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->width(), s_blob->height(), _phase);
 #endif
 			}
 			else
-				o_blob->resize(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width());
+				o_blob->resize(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->width(), s_blob->height());
 
 		}
 

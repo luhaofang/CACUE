@@ -53,7 +53,7 @@ public:
 	 * return the piece probe in blob data
 	 */
 	inline unsigned int* p_data(dsize_t n) const {
-		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num);
+		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
 		return (unsigned int*) _s_data + n * _cube_length;
 	}
 
@@ -61,7 +61,7 @@ public:
 	 * return the piece probe in blob diff
 	 */
 	inline float_t* p_diff(dsize_t n) const {
-		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num);
+		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
 		return (float_t*) _s_diff + n * _cube_length;
 	}
 
@@ -142,7 +142,7 @@ public:
 
 		_tdata->resize(_length, 0);
 		_s_data = _tdata->pdata();
-		if(train == _phase){
+		if(_tdiff != NULL){
 			_tdiff->resize(_length, 0);
 			_s_diff = _tdiff->pdata();
 		}
@@ -162,7 +162,7 @@ public:
 			return;
 		_tdata->resize(_length, value);
 		_s_data = _tdata->pdata();
-		if(train == _phase){
+		if(_tdiff != NULL){
 			_tdiff->resize(_length, 0);
 			_s_diff = _tdiff->pdata();
 		}
@@ -170,9 +170,9 @@ public:
 
 private:
 
-	tensor<unsigned int>* _tdata;
+	tensor<unsigned int>* _tdata = NULL;
 
-	tensor<float_t>* _tdiff;
+	tensor<float_t>* _tdiff = NULL;
 
 };
 

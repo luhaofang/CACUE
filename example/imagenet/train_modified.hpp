@@ -165,10 +165,12 @@ void train_net() {
 	float_t count = 0;
 
 	int previous_count=0;
+	int allcount = 0;
 
 	vec_i compare_label(batch_size);
 	random_shuffle(full_data.begin(), full_data.end());
 	for (int i = 1; i <= max_iter; ++i) {
+
 		if (i % test_iter == 0) {
 			count = 0;
 			gettimeofday(&start, NULL);
@@ -184,7 +186,6 @@ void train_net() {
 					step_index_test += 1;
 				}
 				net->predict();
-
 				for (int j = 0; j < batch_size; ++j) {
 					max_index = argmax(output_data->p_data(j),
 							output_data->length());
@@ -245,6 +246,10 @@ void train_net() {
 			precious_train_logger.flush();
 		}
 		{
+			batch_size = 20;
+			input_data->resize(batch_size,3,224,224);
+			input_label->resize(batch_size,1,1,1);
+			compare_label.resize(batch_size);
 			gettimeofday(&start, NULL);
 			for (int j = 0; j < batch_size; ++j) {
 				if (step_index == ALL_DATA_SIZE) {
@@ -262,7 +267,6 @@ void train_net() {
 			}
 			//net->predict();
 			sgd->train_iter();
-
 			gettimeofday(&end, NULL);
 		}
 

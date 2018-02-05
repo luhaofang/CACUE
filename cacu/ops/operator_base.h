@@ -185,9 +185,12 @@ public:
 
 	inline void infer() {
 
-		if(!s_blob->_IS_MOTIFIED()){
+		blob_base *blob_ = (s_blobs == NULL) ? s_blob : s_blobs->at(0);
+		LOG_DEBUG("%d",blob_->_IS_MOTIFIED());
+		if (!blob_->_IS_MOTIFIED()) {
 			initial();
-			s_blob->_MOTIFY();
+			blob_->blob_size();
+			(s_blobs == NULL) ? blob_->_MOTIFY() : s_blobs->_MOTIFY();
 		}
 		//reset the data's values
 		LOOP_INIT_DATA_();
@@ -249,27 +252,27 @@ protected:
 	inline blob_base * create_oblob(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height, phase_type phase_) {
 		_IS_ALLOC_OUTPUT = true;
-		return new blob(num, channel, height, width, 0, phase_);
+		return new blob(num, channel, width, height, 0, phase_);
 	}
 
 	inline blob *create_opblob(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height, phase_type phase_) {
 		_storage_blobs->push_back(
-				new blob(num, channel, height, width, 0, phase_));
+				new blob(num, channel, width, height, 0, phase_));
 		return (blob *) _storage_blobs->back();
 	}
 
 	inline blob *create_opblob(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height, float_t value, phase_type phase_) {
 		_storage_blobs->push_back(
-				new blob(num, channel, height, width, value, phase_));
+				new blob(num, channel, width, height, value, phase_));
 		return (blob *) _storage_blobs->back();
 	}
 
 	inline bin_blob *create_bin_opblob(dsize_t num, dsize_t channel,
 			dsize_t width, dsize_t height, phase_type phase_) {
 		_storage_blobs->push_back(
-				new bin_blob(num, channel, height, width, 0, phase_));
+				new bin_blob(num, channel, width, height, 0, phase_));
 		return (bin_blob *) _storage_blobs->back();
 	}
 
@@ -277,7 +280,7 @@ protected:
 			dsize_t width, dsize_t height, unsigned int value,
 			phase_type phase_) {
 		_storage_blobs->push_back(
-				new bin_blob(num, channel, height, width, value, phase_));
+				new bin_blob(num, channel, width, height, value, phase_));
 		return (bin_blob *) _storage_blobs->back();
 	}
 
@@ -285,27 +288,27 @@ protected:
 	inline blob_base * create_em_oblob(dsize_t num, dsize_t channel,
 			dsize_t width, dsize_t height, phase_type phase_) {
 		_IS_ALLOC_OUTPUT = true;
-		return new em_blob(num, channel, height, width, 0, phase_);
+		return new em_blob(num, channel, width, height, 0, phase_);
 	}
 
 	inline em_blob * create_em_opblob(dsize_t num, dsize_t channel,
 			dsize_t width, dsize_t height, phase_type phase_) {
 		_storage_blobs->push_back(
-				new em_blob(num, channel, height, width, 0, phase_));
+				new em_blob(num, channel, width, height, 0, phase_));
 		return (em_blob *) _storage_blobs->back();
 	}
 
 	inline em_blob * create_em_opblob(dsize_t num, dsize_t channel,
 			dsize_t width, dsize_t height, float_t value, phase_type phase_) {
 		_storage_blobs->push_back(
-				new em_blob(num, channel, height, width, value, phase_));
+				new em_blob(num, channel, width, height, value, phase_));
 		return (blob *) _storage_blobs->back();
 	}
 
 	inline em_bin_blob * create_em_bin_opblob(dsize_t num, dsize_t channel,
 			dsize_t width, dsize_t height, phase_type phase_) {
 		_storage_blobs->push_back(
-				new em_bin_blob(num, channel, height, width, 0, phase_));
+				new em_bin_blob(num, channel, width, height, 0, phase_));
 		return (em_bin_blob *) _storage_blobs->back();
 	}
 
@@ -313,7 +316,7 @@ protected:
 			dsize_t width, dsize_t height, unsigned int value,
 			phase_type phase_) {
 		_storage_blobs->push_back(
-				new em_bin_blob(num, channel, height, width, value, phase_));
+				new em_bin_blob(num, channel, width, height, value, phase_));
 		return (em_bin_blob *) _storage_blobs->back();
 	}
 #endif

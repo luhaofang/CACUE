@@ -99,7 +99,7 @@ void network::predict() {
 
 void network::forward_propagate() {
 	for (unsigned int i = 0; i < _layers->size(); ++i) {
-		//LOG_DEBUG("layer: %d",i);
+		//LOG_DEBUG("forward layer: %d",i);
 		_layers->at(i)->operate();
 	}
 }
@@ -107,7 +107,7 @@ void network::forward_propagate() {
 void network::back_propagate() {
 	for (int i = _layers->size() - 1; i >= 0; --i) {
 		_layers->at(i)->grad();
-		//LOG_DEBUG("layer: %d",i);
+		//LOG_DEBUG("backward layer: %d",i);
 	}
 }
 

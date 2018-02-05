@@ -29,7 +29,6 @@
 
 namespace cacu {
 
-
 /**
  * op defination
  * every operation is defined here and regedit in operator_factory.h
