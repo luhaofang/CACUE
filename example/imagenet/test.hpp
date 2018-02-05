@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../cacu.h"
 
-#include "../../tools/imageio_utils.h"
+#include "../../tools/imageio_utils.hpp"
 
 #include "data_proc.h"
 #include "resnet_18.h"

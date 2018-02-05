@@ -116,11 +116,26 @@ public:
 	void _REC();
 
 	inline bool _IS_MOTIFIED() {
-		if(_p_length == _length)
-			return true;
-		else
-			_p_length = _length;
-		return false;
+		return _p_length == _length;
+	}
+
+	inline void _MOTIFY() {
+		_p_length = _length;
+	}
+
+	void blob_size()
+	{
+		switch(_blob_type){
+
+		case __blob__:
+			LOG_INFO("blob size: (%d, %d, %d, %d)", _num, _channel, _width, _height);
+			break;
+		case __bin_blob__:
+			LOG_INFO("bin blob size: (%d, %d, %d, %d)", _num, _channel, _width, _height);
+			break;
+		default:
+			break;
+		}
 	}
 
 protected:

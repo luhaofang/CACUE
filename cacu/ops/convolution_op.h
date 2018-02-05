@@ -72,8 +72,9 @@ namespace cacu{
 			}
 			else
 			{
+
 				o_blob->resize(num, _args->output_channel(), output_w, output_h);
-				_col_data->resize(1, s_blob->channel(), output_w * _args->kernel_size(), output_h*_args->kernel_size());
+				_col_data->resize(1, s_blob->channel(), output_w * _args->kernel_size(), output_h * _args->kernel_size());
 				_bias_multiplier->resize(1, 1, output_w, output_h, (float_t)(1));
 			}
 		}

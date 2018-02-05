@@ -139,9 +139,13 @@ public:
 
 		if(_IS_MOTIFIED())
 			return;
+
 		_tdata->resize(_length, 0);
-		if(test == _phase)
+		_s_data = _tdata->pdata();
+		if(train == _phase){
 			_tdiff->resize(_length, 0);
+			_s_diff = _tdiff->pdata();
+		}
 	}
 
 	inline void resize(dsize_t num, dsize_t channel, dsize_t width,
@@ -157,8 +161,11 @@ public:
 		if(_IS_MOTIFIED())
 			return;
 		_tdata->resize(_length, value);
-		if(test == _phase)
-			_tdiff->resize(_length, value);
+		_s_data = _tdata->pdata();
+		if(train == _phase){
+			_tdiff->resize(_length, 0);
+			_s_diff = _tdiff->pdata();
+		}
 	}
 
 private:

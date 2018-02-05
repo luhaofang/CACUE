@@ -185,8 +185,10 @@ public:
 
 	inline void infer() {
 
-		if(!s_blob->_IS_MOTIFIED())
+		if(!s_blob->_IS_MOTIFIED()){
 			initial();
+			s_blob->_MOTIFY();
+		}
 		//reset the data's values
 		LOOP_INIT_DATA_();
 		//forward propagation

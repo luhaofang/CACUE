@@ -76,12 +76,12 @@ void test_net()
 	struct timeval start;
 	struct timeval end;
 	unsigned long diff;
-
+	int allcount = 0;
 	for (int i = 0 ; i < max_iter; ++i)
 	{
 		gettimeofday(&start, NULL);
-		//batch_size = 20;
-		//input_data->resize(batch_size,3,32,32);
+
+		input_data->resize(batch_size,3,32,32);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARBatchSize)
@@ -98,11 +98,13 @@ void test_net()
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
 			max_index = argmax(output_data->p_data(j),output_data->length());
-			if(max_index == _full_label[i * batch_size + j]){
+			if(max_index == _full_label[allcount + j]){
 				count += 1.0;
 			}
 		}
-
+		allcount += batch_size;
+		batch_size = urandint(10,20);
+		LOG_DEBUG("batch_size: %d",batch_size);
 		gettimeofday(&end, NULL);
 
 		if(i % 1 == 0){
@@ -114,7 +116,7 @@ void test_net()
 			break;
 	}
 
-	LOG_INFO("precious: %f,%f", count / kCIFARBatchSize,count);
+	LOG_INFO("precious: %f,%f", count / allcount,count);
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
