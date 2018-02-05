@@ -107,7 +107,6 @@ public:
 			//cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data(i),(float_t)1,o_blob_->length(),o_blob_->p_data(i));
 		}
 #endif
-		o_blob_->blob_size();
 	}
 
 	virtual const void grad() override {

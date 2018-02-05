@@ -54,14 +54,15 @@ public:
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blob = s_blob;
-			_rand_vect = create_em_opblob(num, channel, input_w, input_h,
-					test);
+			_rand_vect = create_em_opblob(num, channel, input_w, input_h, test);
 #else
 			o_blob = s_blob;
 			_rand_vect = create_opblob(num,channel,input_w,input_h, test);
 #endif
-		} else
+		} else {
+			o_blob->_NEED_MOTIFY();
 			_rand_vect->resize(num, channel, input_w, input_h);
+		}
 
 	}
 

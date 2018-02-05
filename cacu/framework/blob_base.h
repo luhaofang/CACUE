@@ -123,6 +123,10 @@ public:
 		_p_length = _length;
 	}
 
+	inline void _NEED_MOTIFY() {
+		_p_length = 0;
+	}
+
 	void blob_size()
 	{
 		switch(_blob_type){

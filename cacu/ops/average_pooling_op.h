@@ -104,10 +104,6 @@ public:
 		for(int i = 0; i < s_blob_->num(); ++i)
 		cacu_average_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), o_blob_->p_data(i));
 #endif
-		o_blob_->blob_size();
-		o_blob->blob_size();
-		s_blob_->blob_size();
-		s_blob->blob_size();
 	}
 
 	virtual const void grad() override {

@@ -186,11 +186,9 @@ public:
 	inline void infer() {
 
 		blob_base *blob_ = (s_blobs == NULL) ? s_blob : s_blobs->at(0);
-		LOG_DEBUG("%d",blob_->_IS_MOTIFIED());
 		if (!blob_->_IS_MOTIFIED()) {
-			initial();
-			blob_->blob_size();
 			(s_blobs == NULL) ? blob_->_MOTIFY() : s_blobs->_MOTIFY();
+			initial();
 		}
 		//reset the data's values
 		LOOP_INIT_DATA_();

@@ -46,7 +46,10 @@ public:
 	}
 
 	virtual const void initial() override {
-		o_blob = s_blob;
+		if (o_blob == NULL)
+			o_blob = s_blob;
+		else
+			o_blob->_NEED_MOTIFY();
 	}
 
 	virtual const void init_weights() override {
