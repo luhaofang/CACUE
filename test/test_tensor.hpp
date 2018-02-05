@@ -22,7 +22,7 @@ TEST_CASE("tensor")
 		cacu_print(t.pdata(),1);
 		LOG_DEBUG("p initial: %d",t.pdata());
 
-		t.resize(3);
+		t.resize(3, 1);
 		LOG_DEBUG("p resize: %d",t.pdata());
 		LOG_DEBUG("tensor length:%d", t.length());
 		a.resize(3,2);
@@ -42,7 +42,7 @@ TEST_CASE("tensor")
 		gettimeofday(&start, NULL);
 		for(int i = 1 ; i < 1; i++)
 		{
-			t.resize(i*3*224*224);
+			t.resize(i*3*224*224, 1);
 		}
 		gettimeofday(&end, NULL);
 		diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec

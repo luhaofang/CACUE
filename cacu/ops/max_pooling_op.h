@@ -37,41 +37,41 @@ namespace cacu{
 		max_pooling_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_MAX_POOLING){
 
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
 
 		}
 
 		~max_pooling_op(){
-			delete _index;
+
 		}
 
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			int input_w = data->width();
-			int input_h = data->height();
-			int channel = data->channel();
-			int num = data->num();
-			int output_w = (input_w - _args->kernel_size()) / _args->stride() + 1;
-			int output_h = (input_h - _args->kernel_size()) / _args->stride() + 1;
-			int pad = abs(input_w - (output_w - 1) * _args->stride() - _args->kernel_size());
+		virtual const void initial() override{
+			int output_w = (s_blob->width() - _args->kernel_size()) / _args->stride() + 1;
+			int output_h = (s_blob->height() - _args->kernel_size()) / _args->stride() + 1;
+			int pad = abs(s_blob->width() - (output_w - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
 				output_w += 1;
-			pad = abs(input_h - (output_h - 1) * _args->stride() - _args->kernel_size());
+			pad = abs(s_blob->height() - (output_h - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
 				output_h += 1;
-
+			if(o_blob == NULL){
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, channel, output_w, output_h, _phase);
-			_index = cacu_allocator::create_em_bin_blob(num, channel, output_w, output_h, test);
+			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), output_w, output_h, _phase);
+			_index = cacu_allocator::create_em_bin_blob(s_blob->num(), s_blob->channel(), output_w, output_h, test);
 #else
-			o_blob = create_oblob(num, channel, output_w, output_h, _phase);
-			_index = cacu_allocator::create_bin_blob(num, channel, output_w, output_h, test);
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), output_w, output_h, _phase);
+			_index = create_bin_opblob(s_blob->num(), s_blob->channel(), output_w, output_h, test);
 #endif
-
+			}
+			else{
+				o_blob->resize(s_blob->num(), s_blob->channel(), output_w, output_h);
+				_index->resize(s_blob->num(), s_blob->channel(), output_w, output_h);
+			}
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void init_weights() override{
 			return;
 		}
 
@@ -146,7 +146,7 @@ namespace cacu{
 
 	private:
 
-		blob_base *_index;
+		bin_blob *_index = NULL;
 
 	};
 };

@@ -36,29 +36,34 @@ namespace cacu{
 
 		inner_product_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_INNERPRODUCT){
 			check();
-			initial(data, args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~inner_product_op(){
 
-			delete _bias_multiplier;
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), _args->output_channel(), 1, 1, _phase);
-#else
-			o_blob = create_oblob(data->num(), _args->output_channel(), 1, 1, _phase);
-#endif
-
-			_bias_multiplier = cacu_allocator::create_blob(1, data->num(), 1, 1, (float_t)(1), _phase);
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(s_blob->num(), _args->output_channel(), 1, 1, _phase);
+#else
+			o_blob = create_oblob(s_blob->num(), _args->output_channel(), 1, 1, _phase);
+#endif
+			_bias_multiplier = create_opblob(1, s_blob->num(), 1, 1, (float_t)(1), _phase);
+			}
+			else
+			{
+				o_blob->resize(s_blob->num(), _args->output_channel(), 1, 1);
+				_bias_multiplier->resize(1, s_blob->num(), 1, 1, (float_t)(1));
+			}
+		}
 
-			_w = create_param("w", _args->output_channel(), data->channel(), data->width(), data->height(), _phase);
+		virtual const void init_weights() override{
+
+			_w = create_param("w", _args->output_channel(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
 
 			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
 			_bias ->set_lr(2);
@@ -180,7 +185,7 @@ namespace cacu{
 
 		weight *_bias;
 		
-		blob_base *_bias_multiplier;
+		blob *_bias_multiplier = NULL;
 
 	};
 };

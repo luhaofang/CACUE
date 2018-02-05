@@ -38,22 +38,20 @@ namespace cacu{
 		convolution_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_CONVOLUTION){
 
 			check();
-			initial(data, args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~convolution_op(){
 
-			delete _col_data;
-			delete _bias_multiplier;
-		};
+		}
 
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			int input_w = data->width();
-			int input_h = data->height();
-			int channel = data->channel();
-			int num = data->num();
+		virtual const void initial() override{
+			int input_w = s_blob->width();
+			int input_h = s_blob->height();
+			int channel = s_blob->channel();
+			int num = s_blob->num();
 
 			int output_w = (input_w + 2 * _args->pad() - _args->kernel_size()) / _args->stride() + 1;
 			if(_args->kernel_size() == 1)
@@ -62,18 +60,26 @@ namespace cacu{
 			int output_h = (input_h + 2 * _args->pad() - _args->kernel_size()) / _args->stride() + 1;
 			if(_args->kernel_size() == 1)
 				output_h = (input_h + 2 * _args->pad()) / _args->stride();
+			if(o_blob == NULL){
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(num, _args->output_channel(), output_w, output_h, _phase);
 
 #else
-			o_blob = create_oblob(num, _args->output_channel(), output_w, output_h, _phase);
+			o_blob = create_opblob(num, _args->output_channel(), output_w, output_h, _phase);
 #endif
-			_col_data = cacu_allocator::create_blob(1, data->channel(), output_w * _args->kernel_size(), output_h*_args->kernel_size(), _phase);
-			_bias_multiplier = cacu_allocator::create_blob(1, 1, output_w, output_h, (float_t)(1), _phase);
+			_col_data = create_opblob(1, s_blob->channel(), output_w * _args->kernel_size(), output_h*_args->kernel_size(), _phase);
+			_bias_multiplier = create_opblob(1, 1, output_w, output_h, (float_t)(1), _phase);
+			}
+			else
+			{
+				o_blob->resize(num, _args->output_channel(), output_w, output_h);
+				_col_data->resize(1, s_blob->channel(), output_w * _args->kernel_size(), output_h*_args->kernel_size());
+				_bias_multiplier->resize(1, 1, output_w, output_h, (float_t)(1));
+			}
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
-			_w = create_param("w", _args->output_channel(), data->channel(), _args->kernel_size(), _args->kernel_size(), _phase);
+		virtual const void init_weights() override{
+			_w = create_param("w", _args->output_channel(), s_blob->channel(), _args->kernel_size(), _args->kernel_size(), _phase);
 
 			_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
 			_bias ->set_lr(2);
@@ -177,7 +183,7 @@ namespace cacu{
 					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
 				//col2img
 				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob_->width(),s_blob->channel(),o_blob_->width(),_args->pad(), s_blob_->p_diff(i));
+				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
 				//weights gradient
 				cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
 				for (int g = 0 ; g < _group ; ++g)
@@ -254,9 +260,9 @@ namespace cacu{
 
 		weight *_bias;
 
-		blob_base *_col_data;
+		blob *_col_data = NULL;
 
-		blob_base *_bias_multiplier;
+		blob *_bias_multiplier = NULL;
 
 		int _group = 1;
 

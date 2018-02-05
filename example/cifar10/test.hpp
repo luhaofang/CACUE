@@ -80,7 +80,8 @@ void test_net()
 	for (int i = 0 ; i < max_iter; ++i)
 	{
 		gettimeofday(&start, NULL);
-
+		//batch_size = 20;
+		//input_data->resize(batch_size,3,32,32);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARBatchSize)

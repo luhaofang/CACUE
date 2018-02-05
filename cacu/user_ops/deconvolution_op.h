@@ -38,38 +38,43 @@ namespace cacu{
 		deconvolution_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_DECONVOLUTION){
 
 			check();
-			initial(data, args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~deconvolution_op(){
 
-			delete _col_data;
-		};
+		}
 
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			int input_dim = data->width();
-			int channel = data->channel();
-			int num = data->num();
+		virtual const void initial() override{
+			int input_dim = s_blob->width();
+			int channel = s_blob->channel();
+			int num = s_blob->num();
 
 			int output_dim = (input_dim - 1) * _args->stride() + _args->kernel_size() - _args->pad() * 2;
 			if(_args->kernel_size() == 1)
 				output_dim = input_dim * _args->stride() - 2 * _args->pad();
+			if(o_blob == NULL){
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(num, _args->output_channel(), output_dim, output_dim, _phase);
 
 #else
 			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phase);
 #endif
-			_col_data = cacu_allocator::create_blob(1, _args->output_channel(), input_dim * _args->kernel_size(), input_dim*_args->kernel_size(), _phase);
-
+			_col_data = create_opblob(1, _args->output_channel(), input_dim * _args->kernel_size(), input_dim*_args->kernel_size(), _phase);
+			}
+			else
+			{
+				o_blob->resize(num, _args->output_channel(), output_dim, output_dim);
+				_col_data->resize(1, _args->output_channel(), input_dim * _args->kernel_size(), input_dim*_args->kernel_size());
+			}
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
-			_w = create_param("w", data->channel(), _args->output_channel(), _args->kernel_size(), _args->kernel_size(), _phase);
+		virtual const void init_weights() override{
+			_w = create_param("w", s_blob->channel(), _args->output_channel(), _args->kernel_size(), _args->kernel_size(), _phase);
 
-			_bias = create_param("bias", data->channel(), 1, 1, 1, _phase);
+			_bias = create_param("bias", s_blob->channel(), 1, 1, 1, _phase);
 			_bias ->set_lr(2.0);
 		}
 
@@ -94,7 +99,7 @@ namespace cacu{
 				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),s_blob_->p_data_d(i),o_blob_->width()*o_blob_->height(),1 ,col_data_->s_data(),0);
 				//col2img
 				//unpadded
-				cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),_args->pad(), o_blob_->p_data_d(i));
+				cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(),o_blob_->p_data_d(i));
 
 				o_blob_->_sync(i);
 			}
@@ -109,7 +114,7 @@ namespace cacu{
 				cacu_sgemm(NOTRANS,TRANS,_w->s_data(),_w->length(),_w->num(),s_blob_->p_data(i),o_blob_->width()*o_blob_->height(),1 ,col_data_->s_data(),0);
 				//col2img
 				//unpadded
-				cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),_args->pad(), o_blob_->p_data(i));
+				cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), o_blob_->p_data(i));
 			}
 #endif
 
@@ -205,7 +210,7 @@ namespace cacu{
 
 		weight *_bias;
 
-		blob_base *_col_data;
+		blob_base *_col_data = NULL;
 
 	};
 };

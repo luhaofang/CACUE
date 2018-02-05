@@ -36,29 +36,35 @@ namespace cacu{
 
 		dropout_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_DROPOUT){
 			check();
-			initial(data, args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
-
-		~dropout_op(){
-			delete _rand_vect;
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			int input_dim = data->width();
-			int channel = data->channel();
-			int num = data->num();
-#if __USEMBEDDING__ == ON
-			o_blob = data;
-			_rand_vect = cacu_allocator::create_em_blob(num,channel,input_dim,input_dim, test);
-#else
-			o_blob = data;
-			_rand_vect = cacu_allocator::create_blob(num,channel,input_dim,input_dim, test);
-#endif
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		~dropout_op(){
+
+		}
+
+		virtual const void initial() override{
+			int input_dim = s_blob->width();
+			int channel = s_blob->channel();
+			int num = s_blob->num();
+
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = s_blob;
+			_rand_vect = create_em_opblob(num,channel,input_dim,input_dim, test);
+#else
+			o_blob = s_blob;
+			_rand_vect = create_opblob(num,channel,input_dim,input_dim, test);
+#endif
+			}
+			else
+				_rand_vect->resize(num,channel,input_dim,input_dim);
+
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 
@@ -167,7 +173,7 @@ namespace cacu{
 
 	private:
 
-		blob_base *_rand_vect;
+		blob *_rand_vect = NULL;
 
 		float_t _ratio = 0.5;
 	};

@@ -36,22 +36,24 @@ namespace cacu{
 
 		injector_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_INJECTOR){
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~injector_op(){
 
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			o_blob = data;
-			_mean = cacu_allocator::create_blob(1,o_blob->channel(),1,1,test);
-			_mask = cacu_allocator::create_blob(1,o_blob->channel(),o_blob->height(),o_blob->width(),test);
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
+			if(o_blob == NULL){
+				o_blob = s_blob;
+			_mean->resize(1,o_blob->channel(),1,1);
+			_mask->resize(1,o_blob->channel(),o_blob->height(),o_blob->width());
+			}
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 

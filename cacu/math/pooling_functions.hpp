@@ -118,43 +118,6 @@ inline void cacu_average_pooling_grad(const float_t *x, const int kernel_size,
 #endif
 }
 
-/*
- *channel: channel of input data
- *input_dim: width of input data
- *pad: pad size of input data
- */
-template<typename DTYPE>
-inline void cacu_padded_data(const DTYPE *x, int channel, int input_dim,
-		int pad, DTYPE *y) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_padded_data_cuda(x, channel, input_dim, pad, y);
-#endif
-#else
-	cacu_padded_data_cpu(x, channel, input_dim, pad, y);
-#endif
-}
-
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *stride: stride move of the kernel
- *input_dim: width of input data
- *output_dim: width of output data
- */
-inline void cacu_img2col(const float_t *x, const int kernel_size,
-		const int stride, const int input_w, const int input_h,
-		const int channel, const int output_w, const int output_h, float_t *y) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_img2col_cuda(x, kernel_size, stride, input_w, input_h, channel, output_w, output_h,
-			y);
-#endif
-#else
-	cacu_img2col_cpu(x, kernel_size, stride, input_w, input_h, channel,
-			output_w, output_h, y);
-#endif
-}
 
 inline void cacu_img2col_pad(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
@@ -173,61 +136,27 @@ inline void cacu_img2col_pad(const float_t *x, const int kernel_size,
 
 /*
  *channel: channel of input data
- *input_dim: width of input data
- *pad: pad size of input data
- */
-template<typename DTYPE>
-inline void cacu_unpadded_data(const DTYPE *x, int channel, int input_dim,
-		int pad, DTYPE *y) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_unpadded_data_cuda(x, channel, input_dim, pad, y);
-#endif
-#else
-	cacu_unpadded_data_cpu(x, channel, input_dim, pad, y);
-#endif
-}
-
-/*
- *channel: channel of input data
  *kernel_size: pooling window size
  *stride: stride move of the kernel
  *input_dim: width of input data
  *output_dim: width of output data
  */
-inline void cacu_col2img(const float_t *x, int kernel_size, int stride,
-		int input_dim, int channel, int output_dim, float_t *y) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_col2img_cuda(x, kernel_size, stride, input_dim, channel, output_dim,
-			y);
-#endif
-#else
-	cacu_col2img_cpu(x, kernel_size, stride, input_dim, channel, output_dim, y);
-#endif
-}
-
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *stride: stride move of the kernel
- *input_dim: width of input data
- *output_dim: width of output data
- */
-inline void cacu_col2img_pad(const float_t *x, int kernel_size, int stride,
-		int input_dim, int channel, int output_dim, int pad, float_t *y) {
+inline void cacu_col2img_pad(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	if (kernel_size != 1)
-	cacu_col2img_pad_cuda(x, kernel_size, stride, input_dim, channel,
-			output_dim, pad, y);
+	cacu_col2img_pad_cuda(x, kernel_size, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, y);
 	else
-	cacu_col2img_pad_1x1_cuda(x, stride, input_dim, channel, output_dim,
-			pad, y);
+	cacu_col2img_pad_1x1_cuda(x, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, y);
 #endif
 #else
-	cacu_col2img_pad_cpu(x, kernel_size, stride, input_dim, channel, output_dim,
-			pad, y);
+	cacu_col2img_pad_cpu(x, kernel_size, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, y);
 #endif
 }
 

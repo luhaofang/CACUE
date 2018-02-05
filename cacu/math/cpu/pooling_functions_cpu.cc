@@ -203,43 +203,6 @@ void cacu_average_pooling_grad_cpu(const float_t *x, const int kernel_size,
 		}
 }
 
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *stride: stride move of the kernel
- *input_dim: width of input data
- *output_dim: width of output data
- */
-void cacu_img2col_cpu(const float_t *x, const int kernel_size, const int stride,
-		const int input_w, const int input_h, const int channel,
-		const int output_w, const int output_h, float_t *y) {
-	int cin_length = input_w * input_h;
-	int kernel_length = kernel_size * kernel_size;
-	int block_size = kernel_length * channel;
-	float_t *yp;
-	int in_start, out_start;
-	int i, j, c, ki, kj;
-
-#if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
-#endif
-	for (i = 0; i < output_h; ++i)
-		for (j = 0; j < output_w; ++j) {
-			out_start = (i * output_w + j) * block_size;
-			in_start = (i * input_w + j) * stride;
-
-			for (c = 0; c < channel; ++c) {
-				yp = y + out_start + c * kernel_length;
-
-				for (ki = 0; ki < kernel_size; ki++)
-					for (kj = 0; kj < kernel_size; ++kj) {
-						yp[ki * kernel_size + kj] =
-								x[in_start + c * cin_length];
-					}
-			}
-		}
-}
-
 void cacu_img2col_pad_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
@@ -284,81 +247,42 @@ void cacu_img2col_pad_cpu(const float_t *x, const int kernel_size,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-void cacu_col2img_cpu(const float_t *x, const int kernel_size, const int stride,
-		const int input_dim, const int channel, const int output_dim,
-		float_t *y) {
-	int sd_out, sn_out;
-
-	int block_size = kernel_size * kernel_size * channel;
-	int k_size = kernel_size * kernel_size;
-	int cout_length = output_dim * output_dim;
-	int cin_length = input_dim * input_dim;
-	float_t *yp;
-
-	int row, col, c, ki, kj;
-
-#if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
-#endif
-	//for output_dim's location
-	for (row = 0; row < output_dim; ++row) {
-		for (col = 0; col < output_dim; ++col) {
-			sd_out = (row * output_dim + col) * block_size;
-			sn_out = (row * input_dim + col) * stride;
-			for (c = 0; c < channel; ++c) {
-				yp = y + sn_out + c * cin_length;
-				for (ki = 0; ki < kernel_size; ++ki)
-					for (kj = 0; kj < kernel_size; ++kj) {
-						yp[ki * input_dim + kj] += x[ki * kernel_size + kj
-								+ sd_out + c * k_size];
-					}
-			}
-		}
-	}
-}
-
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *stride: stride move of the kernel
- *input_dim: width of input data
- *output_dim: width of output data
- */
 void cacu_col2img_pad_cpu(const float_t *x, const int kernel_size,
-		const int stride, const int input_dim, const int channel,
-		const int output_dim, const int pad, float_t *y) {
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y) {
 	int sd_out, sn_out;
 
 	int block_size = kernel_size * kernel_size * channel;
 	int k_size = kernel_size * kernel_size;
-	int cout_length = output_dim * output_dim;
-	int cin_length = input_dim * input_dim;
+	int cout_length = output_w * output_h;
+	int cin_length = input_w * input_h;
 	float_t *yp;
 
 	int row, col, c, ki, kj;
-	int input_h, input_w, output_h, output_w;
+	int in_h, in_w, out_h, out_w;
 
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
 #endif
 	//for output_dim's location
-	for (row = 0; row < output_dim; ++row) {
-		for (col = 0; col < output_dim; ++col) {
+	for (row = 0; row < output_h; ++row) {
+		for (col = 0; col < output_w; ++col) {
 
-			output_h = row * stride;
-			output_w = col * stride;
-			sd_out = (row * output_dim + col);
+			out_h = row * stride;
+			out_w = col * stride;
+			sd_out = (row * output_w + col);
 			for (c = 0; c < channel; ++c) {
 				yp = y + c * cin_length;
 				for (ki = 0; ki < kernel_size; ++ki)
 					for (kj = 0; kj < kernel_size; ++kj) {
-						input_h = output_h + ki;
-						input_w = output_w + kj;
-						if (input_w >= pad && input_w < input_dim + pad
-								&& input_h >= pad && input_h < input_dim + pad)
-							yp[(input_h - pad) * input_dim + input_w - pad] +=
-									x[(ki * kernel_size + kj + c * k_size)
-											* cout_length + sd_out];
+						in_h = out_h + ki;
+						in_w = out_w + kj;
+						if (in_w >= pad_w && in_w < input_w + pad_w
+								&& in_h >= pad_h && in_h < input_h + pad_h)
+							yp[(in_h - pad_h) * input_w + in_w - pad_w] += x[(ki
+									* kernel_size + kj + c * k_size)
+									* cout_length + sd_out];
 					}
 			}
 		}

@@ -36,32 +36,37 @@ namespace cacu{
 
 		feature_combine_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_FEATURE_COMBINE){
 			check();
-			initial(data, args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~feature_combine_op(){
 
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			_units_count = args_->at(0);
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phase);
-#else
-			o_blob = create_oblob(data->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phase);
-#endif
-			o_blob->_CHECK_SIZE_EQ(s_blob);
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
+			_units_count = _args->at(0);
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phase);
+#else
+			o_blob = create_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width(), _phase);
+#endif
+			}
+			else
+				o_blob->resize(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->height(), s_blob->width());
+
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 
 		virtual const void check() override{
 			int mod = s_blob->num() % _args->at(0);
 			CHECK_EQ_OP(mod, 0, "s_blob num must be integral multiple of units count vs %d!" , mod);
+			o_blob->_CHECK_SIZE_EQ(s_blob);
 		}
 
 		virtual const void op() override {
@@ -150,4 +155,4 @@ namespace cacu{
 		//combine unit counts
 		int _units_count;
 	};
-};
+}

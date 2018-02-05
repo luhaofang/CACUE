@@ -58,6 +58,7 @@ public:
 		data->_REC();
 
 		_weights = new vector<weight*>();
+		_storage_blobs = new blobs();
 	}
 
 	operator_base(blob_base *&data, op_name type_) {
@@ -73,6 +74,7 @@ public:
 		data->_REC();
 
 		_weights = new vector<weight*>();
+		_storage_blobs = new blobs();
 	}
 
 	operator_base(blob_base *&data, op_args *&args_, op_name type_) {
@@ -88,6 +90,7 @@ public:
 		data->_REC();
 
 		_weights = new vector<weight*>();
+		_storage_blobs = new blobs();
 	}
 
 	operator_base(blobs *&data, data_args *&args_, op_name type_) {
@@ -103,6 +106,7 @@ public:
 		data->_REC();
 
 		_weights = new vector<weight*>();
+		_storage_blobs = new blobs();
 	}
 
 	operator_base(blobs *&data, op_name type_) {
@@ -118,6 +122,7 @@ public:
 		data->_REC();
 
 		_weights = new vector<weight*>();
+		_storage_blobs = new blobs();
 	}
 
 	virtual ~operator_base() {
@@ -134,9 +139,9 @@ public:
 			_weights->at(i) = NULL;
 		}
 		delete _weights;
-	}
 
-	virtual const void op() = 0;
+		delete _storage_blobs;
+	}
 
 	virtual const void check() = 0;
 
@@ -180,6 +185,8 @@ public:
 
 	inline void infer() {
 
+		if(!s_blob->_IS_MOTIFIED())
+			initial();
 		//reset the data's values
 		LOOP_INIT_DATA_();
 		//forward propagation
@@ -217,6 +224,8 @@ protected:
 
 	vector<weight*> *_weights;
 
+	blobs *_storage_blobs;
+
 	op_name _OP_TYPE;
 
 	//create weight push_back to weights container
@@ -241,11 +250,69 @@ protected:
 		return new blob(num, channel, height, width, 0, phase_);
 	}
 
+	inline blob *create_opblob(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height, phase_type phase_) {
+		_storage_blobs->push_back(
+				new blob(num, channel, height, width, 0, phase_));
+		return (blob *) _storage_blobs->back();
+	}
+
+	inline blob *create_opblob(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height, float_t value, phase_type phase_) {
+		_storage_blobs->push_back(
+				new blob(num, channel, height, width, value, phase_));
+		return (blob *) _storage_blobs->back();
+	}
+
+	inline bin_blob *create_bin_opblob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, phase_type phase_) {
+		_storage_blobs->push_back(
+				new bin_blob(num, channel, height, width, 0, phase_));
+		return (bin_blob *) _storage_blobs->back();
+	}
+
+	inline bin_blob *create_bin_opblob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, unsigned int value,
+			phase_type phase_) {
+		_storage_blobs->push_back(
+				new bin_blob(num, channel, height, width, value, phase_));
+		return (bin_blob *) _storage_blobs->back();
+	}
+
 #if __USEMBEDDING__ == ON
 	inline blob_base * create_em_oblob(dsize_t num, dsize_t channel,
 			dsize_t width, dsize_t height, phase_type phase_) {
 		_IS_ALLOC_OUTPUT = true;
 		return new em_blob(num, channel, height, width, 0, phase_);
+	}
+
+	inline em_blob * create_em_opblob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, phase_type phase_) {
+		_storage_blobs->push_back(
+				new em_blob(num, channel, height, width, 0, phase_));
+		return (em_blob *) _storage_blobs->back();
+	}
+
+	inline em_blob * create_em_opblob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, float_t value, phase_type phase_) {
+		_storage_blobs->push_back(
+				new em_blob(num, channel, height, width, value, phase_));
+		return (blob *) _storage_blobs->back();
+	}
+
+	inline em_bin_blob * create_em_bin_opblob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, phase_type phase_) {
+		_storage_blobs->push_back(
+				new em_bin_blob(num, channel, height, width, 0, phase_));
+		return (em_bin_blob *) _storage_blobs->back();
+	}
+
+	inline em_bin_blob * create_em_bin_opblob(dsize_t num, dsize_t channel,
+			dsize_t width, dsize_t height, unsigned int value,
+			phase_type phase_) {
+		_storage_blobs->push_back(
+				new em_bin_blob(num, channel, height, width, value, phase_));
+		return (em_bin_blob *) _storage_blobs->back();
 	}
 #endif
 	inline blobs * create_oblobs() {
@@ -253,9 +320,11 @@ protected:
 		return new blobs();
 	}
 
-	virtual const void initial(blob_base *&data, data_args *&args_) = 0;
+	virtual const void init_weights() = 0;
 
-	virtual const void init_weights(blob_base *&data, data_args *&args_) = 0;
+	virtual const void op() = 0;
+
+	virtual const void initial() = 0;
 
 private:
 

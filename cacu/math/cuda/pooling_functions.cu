@@ -369,96 +369,6 @@ extern "C" void cacu_average_pooling_grad_cuda(const float_t *x,
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_PADDED_DATA_CUDA(const float_t *x, int channel,
-		int input_dim, int pad, float_t *y) {
-
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int threadid = bid * THREADNUM + tid;
-
-	int input_dim_ = input_dim + 2 * pad;
-
-	int length = input_dim_ * input_dim_ * channel;
-
-	int cout_length = input_dim_ * input_dim_;
-
-	int cin_length = input_dim * input_dim;
-
-	int col, row;
-
-	int in_start, c;
-
-	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-
-		row = ((i % cout_length) / input_dim_);
-		col = i % input_dim_;
-		c = i / cout_length;
-		if (row >= pad && row <= input_dim) {
-			if (col >= pad && col <= input_dim) {
-				in_start = ((row - pad) * input_dim + (col - pad))
-						+ c * cin_length;
-				y[i] = x[in_start];
-			} else
-				y[i] = 0;
-		} else
-			y[i] = 0;
-	}
-}
-
-extern "C" void cacu_padded_data_cuda(const float_t *x, int channel,
-		int input_dim, int pad, float_t *y) {
-
-	_k_CACU_PADDED_DATA_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, channel, input_dim,
-			pad, y);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-__global__ void _k_CACU_IMG2COL_CUDA(const float_t *x, const int kernel_size,
-		const int stride, const int input_w, const int input_h,
-		const int channel, const int output_w, const int output_h, float_t *y) {
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int out_start, in_start;
-
-	int k_row, k_col, c;
-
-	int cin_length = input_w * input_h;
-	int kernel_length = kernel_size * kernel_size;
-	int block_size = channel * kernel_length;
-	int output_size = output_w * output_h;
-
-	for (int j = bid; j < output_size; j += BLOCKNUM) {
-
-		out_start = j * block_size;
-		in_start = ((j / output_w) * input_w + (j % output_w)) * stride;
-
-		for (int i = tid; i < block_size; i += THREADNUM)
-		{
-			if (kernel_size != 1) {
-				k_row = (i % (kernel_length)) / kernel_size;
-				k_col = (i % (kernel_length)) % kernel_size;
-			} else {
-				k_row = 0;
-				k_col = 0;
-			}
-			c = i / kernel_length;
-			y[out_start + i] = x[in_start + (k_row * input_w + k_col)
-					+ c * cin_length];
-
-		}
-	}
-}
-
-extern "C" void cacu_img2col_cuda(const float_t *x, const int kernel_size,
-		const int stride, const int input_w, const int input_h,
-		const int channel, const int output_w, const int output_h, float_t *y) {
-	_k_CACU_IMG2COL_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
-			input_w, input_h, channel, output_w, output_h, y);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
 __global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
@@ -510,128 +420,10 @@ extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_size,
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_UNPADDED_DATA_CUDA(const float_t *x, int channel,
-		int input_dim, int pad, float_t *y) {
-
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int threadid = bid * THREADNUM + tid;
-
-	int input_dim_ = input_dim - 2 * pad;
-
-	int length = input_dim_ * input_dim_ * channel;
-
-	int cout_length = input_dim_ * input_dim_;
-
-	int cin_length = input_dim * input_dim;
-
-	int col, row;
-
-	int in_start, c;
-
-	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-
-		row = ((i % cout_length) / input_dim_);
-		col = i % input_dim_;
-		c = i / cout_length;
-
-		in_start = ((row + pad) * input_dim + (col + pad)) + c * cin_length;
-		y[i] = x[in_start];
-	}
-}
-
-extern "C" void cacu_unpadded_data_cuda(const float_t *x, int channel,
-		int input_dim, int pad, float_t *y) {
-
-	_k_CACU_UNPADDED_DATA_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, channel,
-			input_dim, pad, y);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-__global__ void _k_CACU_COL2IMG_CUDA(const float_t *x, int kernel_size,
-		int stride, int input_dim, int channel, int output_dim, float_t *y) {
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int threadid = bid * THREADNUM + tid;
-
-	//the set in the input feature map
-	int startset_i, startset_j;
-	//the set in the output feature map
-	int outset_si, outset_sj, outset_i, outset_j;
-	//the count for stride in feature map
-	int count_i, count_j;
-
-	int k_index, outset_index;
-
-	int block_size = kernel_size * kernel_size * channel;
-
-	int length = input_dim * input_dim * channel;
-
-	int cin_length = input_dim * input_dim;
-
-	int c;
-
-	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = 0;
-		//row
-		startset_i = (i % cin_length) / input_dim;
-		//col
-		startset_j = (i % cin_length) % input_dim;
-		//channel
-		c = i / cin_length;
-
-		outset_si = startset_i / stride;
-		outset_sj = startset_j / stride;
-
-		if (outset_si >= output_dim)
-			outset_si = output_dim - 1;
-		if (outset_sj >= output_dim)
-			outset_sj = output_dim - 1;
-
-		count_i = 0;
-		count_j = 0;
-
-		while (outset_si - (count_i + 1) >= 0
-				&& ((outset_si - (count_i + 1)) * stride) + kernel_size
-						> startset_i) {
-			count_i++;
-		}
-		while (outset_sj - (count_j + 1) >= 0
-				&& ((outset_sj - (count_j + 1)) * stride) + kernel_size
-						> startset_j) {
-			count_j++;
-		}
-
-		//stride
-		for (int mi = 0; mi <= count_i; ++mi)
-			for (int mj = 0; mj <= count_j; ++mj) {
-				outset_i = outset_si - mi;
-				outset_j = outset_sj - mj;
-
-				k_index = ((startset_i - outset_i * stride) * kernel_size
-						+ (startset_j - outset_j * stride))
-						+ c * kernel_size * kernel_size;
-				outset_index = (outset_i * output_dim + outset_j) * block_size;
-
-				y[i] += x[outset_index + k_index];
-
-			}
-	}
-}
-
-extern "C" void cacu_col2img_cuda(const float_t *x, int kernel_size, int stride,
-		int input_dim, int channel, int output_dim, float_t *y) {
-
-	_k_CACU_COL2IMG_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
-			input_dim, channel, output_dim, y);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-__global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, int kernel_size,
-		int stride, int input_dim, int channel, int output_dim, int pad,
-		float_t *y) {
+__global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y) {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
@@ -646,41 +438,42 @@ __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, int kernel_size,
 
 	int k_index, outset_index, inset_index;
 
-	int input_dim_ = input_dim + 2 * pad;
+	int input_w_ = input_w + 2 * pad_w;
+	int input_h_ = input_h + 2 * pad_h;
 
-	int length = input_dim_ * input_dim_ * channel;
+	int length = input_w_ * input_h_ * channel;
 
-	int cin_length = input_dim * input_dim;
+	int cin_length = input_w * input_h;
 
-	int cin_length_ = input_dim_ * input_dim_;
+	int cin_length_ = input_w_ * input_h_;
 
-	int output_size = output_dim * output_dim;
+	int output_size = output_w * output_h;
 
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
 		//row
-		startset_i = (i % cin_length_) / input_dim_;
+		startset_i = (i % cin_length_) / input_w_;
 		//col
-		startset_j = (i % cin_length_) % input_dim_;
+		startset_j = (i % cin_length_) % input_w_;
 
-		if (startset_i >= pad && startset_i < input_dim + pad
-				&& startset_j >= pad && startset_j < input_dim + pad) {
+		if (startset_i >= pad_h && startset_i < input_h + pad_h
+				&& startset_j >= pad_w && startset_j < input_w + pad_w) {
 			//channel
 			c = i / cin_length_;
 
-			inset_index = ((startset_i - pad) * input_dim + (startset_j - pad))
+			inset_index = ((startset_i - pad_h) * input_w + (startset_j - pad_w))
 					+ c * cin_length;
 			y[inset_index] = 0;
 
 			outset_si = startset_i / stride;
 			outset_sj = startset_j / stride;
 
-			if (outset_si >= output_dim)
-				outset_si = output_dim - 1;
-			if (outset_sj >= output_dim)
-				outset_sj = output_dim - 1;
+			if (outset_si >= output_h)
+				outset_si = output_h - 1;
+			if (outset_sj >= output_w)
+				outset_sj = output_w - 1;
 
 			count_i = 0;
 			count_j = 0;
@@ -705,7 +498,7 @@ __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, int kernel_size,
 					k_index = ((startset_i - outset_i * stride) * kernel_size
 							+ (startset_j - outset_j * stride))
 							+ c * kernel_size * kernel_size;
-					outset_index = (outset_i * output_dim + outset_j);
+					outset_index = (outset_i * output_w + outset_j);
 
 					y[inset_index] += x[outset_index + k_index * output_size];
 				}
@@ -713,16 +506,19 @@ __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, int kernel_size,
 	}
 }
 
-extern "C" void cacu_col2img_pad_cuda(const float_t *x, int kernel_size,
-		int stride, int input_dim, int channel, int output_dim, int pad,
-		float_t *y) {
+extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y) {
 	_k_CACU_COL2IMG_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
-			input_dim, channel, output_dim, pad, y);
+			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_COL2IMG_PAD_1x1_CUDA(const float_t *x, int stride,
-		int input_dim, int channel, int output_dim, int pad, float_t *y) {
+__global__ void _k_CACU_COL2IMG_PAD_1x1_CUDA(const float_t *x,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y) {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
@@ -735,31 +531,32 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_CUDA(const float_t *x, int stride,
 
 	int outset_index, inset_index;
 
-	int input_dim_ = input_dim + 2 * pad;
+	int input_w_ = input_w + 2 * pad_w;
+	int input_h_ = input_h + 2 * pad_h;
 
-	int length = input_dim_ * input_dim_ * channel;
+	int length = input_w_ * input_h_ * channel;
 
-	int cin_length = input_dim * input_dim;
+	int cin_length = input_w * input_h;
 
-	int cin_length_ = input_dim_ * input_dim_;
+	int cin_length_ = input_w_ * input_h_;
 
-	int output_size = output_dim * output_dim;
+	int output_size = output_w * output_h;
 
 	int c;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
 		//row
-		startset_i = (i % cin_length_) / input_dim_;
+		startset_i = (i % cin_length_) / input_w_;
 		//col
-		startset_j = (i % cin_length_) % input_dim_;
+		startset_j = (i % cin_length_) % input_w_;
 
-		if (startset_i >= pad && startset_i < input_dim + pad
-				&& startset_j >= pad && startset_j < input_dim + pad) {
+		if (startset_i >= pad_h && startset_i < input_h + pad_h
+				&& startset_j >= pad_w && startset_j < input_w + pad_w) {
 			//channel
 			c = i / cin_length_;
 
-			inset_index = ((startset_i - pad) * input_dim + (startset_j - pad))
+			inset_index = ((startset_i - pad_h) * input_w + (startset_j - pad_w))
 					+ c * cin_length;
 
 			outset_si = startset_i / stride;
@@ -767,7 +564,7 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_CUDA(const float_t *x, int stride,
 
 			if (startset_i % stride == 0 && startset_j % stride == 0) {
 
-				outset_index = (outset_si * output_dim + outset_sj);
+				outset_index = (outset_si * output_w + outset_sj);
 
 				y[inset_index] += x[outset_index + c * output_size];
 
@@ -776,11 +573,13 @@ __global__ void _k_CACU_COL2IMG_PAD_1x1_CUDA(const float_t *x, int stride,
 	}
 }
 
-extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x, int stride,
-		int input_dim, int channel, int output_dim, int pad, float_t *y) {
+extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y) {
 
 	_k_CACU_COL2IMG_PAD_1x1_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, stride,
-			input_dim, channel, output_dim, pad, y);
+			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 

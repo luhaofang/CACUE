@@ -37,26 +37,31 @@ namespace cacu{
 
 		sum_elemwise_op(blobs *&data, data_args *&args_) : operator_base(data, args_, CACU_SUM_ELEMWISE){
 			check();
-			initial(data->at(0),args_);
-			init_weights(data->at(0),args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~sum_elemwise_op(){
 
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), data->channel(), data->width(), data->height(), _phase);
-#else
-			o_blob = create_oblob(data->num(), data->channel(), data->width(), data->height(), _phase);
-#endif
-
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
+
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
+#else
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
+#endif
+			}
+			else
+			{
+				o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
+			}
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 

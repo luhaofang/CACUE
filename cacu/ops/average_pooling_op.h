@@ -37,45 +37,47 @@ namespace cacu{
 		average_pooling_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_AVERAGE_POOLING){
 
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
 
-		};
+		}
 
 		~average_pooling_op(){
 
-		};
+		}
 
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			int input_w = data->width();
-			int input_h = data->height();
-			int channel = data->channel();
-			int num = data->num();
-			int output_w = (input_w - _args->kernel_size()) / _args->stride() + 1;
-			int output_h = (input_h - _args->kernel_size()) / _args->stride() + 1;
-			int pad = abs(input_w - (output_w - 1) * _args->stride() - _args->kernel_size());
+		virtual const void initial() override{
+
+			int output_w = (s_blob->width() - _args->kernel_size()) / _args->stride() + 1;
+			int output_h = (s_blob->height() - _args->kernel_size()) / _args->stride() + 1;
+			int pad = abs(s_blob->width() - (output_w - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
 				output_w += 1;
-			pad = abs(input_h - (output_h - 1) * _args->stride() - _args->kernel_size());
+			pad = abs(s_blob->height() - (output_h - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
 				output_h += 1;
 
+			if(o_blob == NULL){
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, channel, output_w, output_h, _phase);
+			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), output_w, output_h, _phase);
 #else
-			o_blob = create_oblob(num, channel, output_w, output_h, _phase);
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), output_w, output_h, _phase);
 #endif
+			}
+			else
+			{
+				o_blob->resize(s_blob->num(), s_blob->channel(), output_w, output_h);
+			}
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void init_weights() override{
 			return;
 		}
 
 		virtual const void check() override{
 			//kernel_size > 0
 			CHECK_GT_OP(_args->kernel_size(), 0,"kernel_size must > 0 vs %d",_args->kernel_size());
-			//CHECK_EQ_OP(_args->output_channel(),s_blob->channel(),"source data must equal to layer args output_channel!");
 		}
 
 		virtual const void op() override {

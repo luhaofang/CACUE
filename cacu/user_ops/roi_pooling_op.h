@@ -36,34 +36,39 @@ namespace cacu{
 
 		roi_pooling_op(blobs *&data, data_args *&args_) : operator_base(data, args_, CACU_ROI_POOLING){
 			check();
-			initial(data->at(0),args_);
-			init_weights(data->at(0),args_);
+			initial();
+			init_weights();
 			echo();
 
-		};
+		}
 
 		~roi_pooling_op(){
 
-		};
+		}
 
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
 
-			int input_dim = data->width();
-			int channel = data->channel();
-			int num = data->num();
+			int input_dim = s_blobs->at(0)->width();
+			int channel = s_blobs->at(0)->channel();
+			int num = s_blobs->at(0)->num();
 			int output_dim = (input_dim - _args->kernel_size()) / _args->stride() + 1;
 			int pad = abs(input_dim - (output_dim - 1) * _args->stride() - _args->kernel_size());
 			if (pad != 0)
 				output_dim += 1;
-
+			if(o_blob == NULL){
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(num, channel, output_dim, output_dim, _phase);
 #else
 			o_blob = create_oblob(num, channel, output_dim, output_dim, _phase);
 #endif
+			}
+			else
+			{
+				o_blob->resize(num, channel, output_dim, output_dim);
+			}
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void init_weights() override{
 			return;
 		}
 

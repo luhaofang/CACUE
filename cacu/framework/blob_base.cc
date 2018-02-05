@@ -41,6 +41,7 @@ blob_base::blob_base(dsize_t num, dsize_t channel, dsize_t width, dsize_t height
 	_channel_length = width * height;
 	_cube_length = channel * width * height;
 	_length = _num * _cube_length;
+	_p_length = _length;
 	_phase = phase;
 	_blob_type = type;
 	_s_data = NULL;

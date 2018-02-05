@@ -65,8 +65,6 @@ public:
 		return _layers->size();
 	}
 
-	inline void set_inputdata(blob_base *&blob_);
-
 	void predict();
 
 	void forward_propagate();

@@ -86,47 +86,20 @@ extern "C" void cacu_average_pooling_grad_cuda(const float_t *x,
 		const int input_h, const int output_w, const int output_h,
 		const int channel, float_t *y);
 
-/**
- * @cacu_padded_data_cuda
- * pad data.
- * y is input_dim + 2 * pad dim wise
- */
-extern "C" void cacu_padded_data_cuda(const float_t *x, int channel,
-		int input_dim, int pad, float_t *y);
-
-/**
- * @cacu_img2col_cuda
- * img2col
- */
-extern "C" void cacu_img2col_cuda(const float_t *x, const int kernel_size,
-		const int stride, const int input_w, const int input_h,
-		const int channel, const int output_w, const int output_h, float_t *y);
-
 extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);
-/**
- * @cacu_unpadded_data_cuda
- * unpadded data.
- * y is input_dim - 2 * pad dim wise
- */
-extern "C" void cacu_unpadded_data_cuda(const float_t *x, int channel,
-		int input_dim, int pad, float_t *y);
 
-/**
- * @cacu_img2col_cuda
- * col2img
- */
-extern "C" void cacu_col2img_cuda(const float_t *x, int kernel_size, int stride,
-		int input_dim, int channel, int output_dim, float_t *y);
+extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y);
 
-extern "C" void cacu_col2img_pad_cuda(const float_t *x, int kernel_size,
-		int stride, int input_dim, int channel, int output_dim, int pad,
-		float_t *y);
-
-extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x, int stride,
-		int input_dim, int channel, int output_dim, int pad, float_t *y);
+extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, float_t *y);
 
 extern "C" void cacu_row_max_pooling_cuda(float_t *x, int input_length,
 		int output_length, float_t *y);

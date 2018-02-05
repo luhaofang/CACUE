@@ -137,9 +137,28 @@ public:
 		_cube_length = channel * width * height;
 		_length = _num * _cube_length;
 
-		_tdata->resize(_length);
+		if(_IS_MOTIFIED())
+			return;
+		_tdata->resize(_length, 0);
 		if(test == _phase)
-			_tdiff->resize(_length);
+			_tdiff->resize(_length, 0);
+	}
+
+	inline void resize(dsize_t num, dsize_t channel, dsize_t width,
+				dsize_t height, unsigned int value) {
+		_width = width;
+		_height = height;
+		_channel = channel;
+		_num = num;
+		_channel_length = width * height;
+		_cube_length = channel * width * height;
+		_length = _num * _cube_length;
+
+		if(_IS_MOTIFIED())
+			return;
+		_tdata->resize(_length, value);
+		if(test == _phase)
+			_tdiff->resize(_length, value);
 	}
 
 private:

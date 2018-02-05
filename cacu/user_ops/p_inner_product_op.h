@@ -36,31 +36,37 @@ namespace cacu{
 
 		p_inner_product_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_P_INNERPRODUCT){
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-
-		};
-
-		~p_inner_product_op(){
-			delete _temp;
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), data->channel(), 1, 1, _phase);
-			_temp =  create_oblob(1, data->channel(), data->height(), data->width(), _phase);
-#else
-			o_blob = create_oblob(data->num(), data->channel(), 1, 1, _phase);
-			_temp =  create_oblob(1, data->channel(), data->height(), data->width(), _phase);
-#endif
 
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
-			_w = create_param("w", data->channel(), 1, data->width(), data->height(), _phase);
+		~p_inner_product_op(){
 
-			_bias = create_param("bias", data->channel(), 1, 1, 1, _phase);
+		}
+
+		virtual const void initial() override{
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), 1, 1, _phase);
+			_temp =  create_em_opblob(1, s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
+#else
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), 1, 1, _phase);
+			_temp =  create_opblob(1, s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
+#endif
+			}
+			else
+			{
+				o_blob->resize(s_blob->num(), s_blob->channel(), 1, 1);
+				_temp->resize(1, s_blob->channel(), s_blob->height(), s_blob->width());
+			}
+		}
+
+		virtual const void init_weights() override{
+			_w = create_param("w", s_blob->channel(), 1, s_blob->width(), s_blob->height(), _phase);
+
+			_bias = create_param("bias", s_blob->channel(), 1, 1, 1, _phase);
 			_bias ->set_lr(2);
 		}
 
@@ -183,7 +189,7 @@ namespace cacu{
 		//p_innerproduct_op use bias switcher
 		bool _is_use_bias = true;
 
-		blob_base *_temp;
+		blob *_temp = NULL;
 
 		weight *_w;
 

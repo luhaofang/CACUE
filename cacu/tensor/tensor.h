@@ -53,7 +53,7 @@ public:
 	/*
 	 * resize tensor size
 	 */
-	void resize(dsize_t length);
+	void resize(dsize_t length, DTYPE value);
 
 	/*
 	 * copy data from host RAM to tensor memory
@@ -124,15 +124,15 @@ inline void tensor<DTYPE>::_memcopy(DTYPE* data_)
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::resize(dsize_t length) {
+inline void tensor<DTYPE>::resize(dsize_t length, DTYPE value) {
 	_length = length;
 #if __USE_DEVICE__ == ON
 	device_free(_pdata);
-	_pdata = device_malloc_v<DTYPE>(length, 0);
+	_pdata = device_malloc_v<DTYPE>(length, value);
 #else
 	free(_pdata);
 	_pdata = (DTYPE*)malloc(_length * sizeof(DTYPE));
-	set_value(0);
+	set_value(value);
 #endif
 }
 

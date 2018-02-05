@@ -34,22 +34,22 @@ namespace cacu{
 
 	public:
 
-		leaky_relu_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_LEAKY_RELU){
+		leaky_relu_op(blob_base *&data) : operator_base(data, CACU_LEAKY_RELU){
 			check();
-			initial(data, args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~leaky_relu_op(){
 
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-			o_blob = data;
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
+			o_blob = s_blob;
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 

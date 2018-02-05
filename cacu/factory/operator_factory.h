@@ -64,7 +64,7 @@ public:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())
 			;
-			return new relu_op(blob_->at(0), d_args_);
+			return new relu_op(blob_->at(0));
 		case CACU_BATCH_NORMALIZE:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())
@@ -89,12 +89,12 @@ public:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())
 			;
-			return new leaky_relu_op(blob_->at(0), d_args_);
+			return new leaky_relu_op(blob_->at(0));
 		case CACU_SOFTMAX:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())
 			;
-			return new softmax_op(blob_->at(0), d_args_);
+			return new softmax_op(blob_->at(0));
 		case CACU_SOFTMAX_LOSS:
 			CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
 					blob_->size())
@@ -144,12 +144,12 @@ public:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())
 			;
-			return new tanh_op(blob_->at(0), d_args_);
+			return new tanh_op(blob_->at(0));
 		case CACU_SIGMOID:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())
 			;
-			return new sigmoid_op(blob_->at(0), d_args_);
+			return new sigmoid_op(blob_->at(0));
 		case CACU_PRIMARY_VECTOR:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())

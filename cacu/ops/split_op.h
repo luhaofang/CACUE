@@ -36,32 +36,40 @@ namespace cacu{
 	public:
 
 		split_op(blob_base *&data, op_args *&args_) : operator_base(data, args_, CACU_SPLIT){
-			_split_count = args_->at(0);
+			_split_count = _args->at(0);
 			check();
-			initial(data, _args);
-			init_weights(data,_args);
+			initial();
+			init_weights();
 			echo();
 
-		};
+		}
 
 		~split_op(){
 
-		};
+		}
 
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-
+		virtual const void initial() override{
+			if(o_blobs == NULL){
 			o_blobs = create_oblobs();
 			for(int i = 0 ; i < _split_count ; ++i)
 			{
 	#if __USEMBEDDING__ == ON
-				o_blobs->push_back(cacu_allocator::create_em_blob(data->num(),data->channel(),data->height(),data->width(), 0,_phase));
+				o_blobs->push_back(cacu_allocator::create_em_blob(s_blob->num(),s_blob->channel(),s_blob->height(),s_blob->width(), 0,_phase));
 	#else
-				o_blobs->push_back(cacu_allocator::create_blob(data->num(),data->channel(),data->height(),data->width(), 0,_phase));
+				o_blobs->push_back(cacu_allocator::create_blob(s_blob->num(),s_blob->channel(),s_blob->height(),s_blob->width(), 0,_phase));
 	#endif
+			}
+			}
+			else
+			{
+				for(int i = 0 ; i < _split_count ; ++i)
+				{
+					o_blobs->at(i)->resize(s_blob->num(),s_blob->channel(),s_blob->height(),s_blob->width());
+				}
 			}
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void init_weights() override{
 			return;
 		}
 

@@ -27,7 +27,6 @@
 
 #pragma once
 
-
 #include "../definition.h"
 
 #include "../utils/log.h"
@@ -88,6 +87,8 @@ public:
 		_data_num = num;
 	}
 
+	virtual void resize(dsize_t num, dsize_t channel, dsize_t width, dsize_t height) = 0;
+
 	virtual dsize_t calculate_size() = 0;
 
 	virtual void _RESET_DATA() = 0;
@@ -97,9 +98,6 @@ public:
 	virtual void serializa(std::ostream& os) = 0;
 
 	virtual void load(std::ifstream& is) = 0;
-
-	virtual void resize(dsize_t num, dsize_t channel, dsize_t width,
-			dsize_t height) = 0;
 
 	inline dsize_t index(dsize_t c, dsize_t x, dsize_t y) const {
 		return c * _cube_length + x * _width + y;
@@ -116,6 +114,14 @@ public:
 	}
 
 	void _REC();
+
+	inline bool _IS_MOTIFIED() {
+		if(_p_length == _length)
+			return true;
+		else
+			_p_length = _length;
+		return false;
+	}
 
 protected:
 
@@ -139,6 +145,8 @@ private:
 	blob_type _blob_type;
 
 	unsigned _REC_;
+
+	dsize_t _p_length;
 
 };
 }

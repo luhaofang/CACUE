@@ -36,37 +36,43 @@ namespace cacu{
 
 		row_max_pooling_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_ROW_MAX_POOLING){
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-
-		};
-
-		~row_max_pooling_op(){
-			delete _index;
-			delete _x;
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-
-			int input_dim = data->width();
-			int channel = data->channel();
-			int num = data->num();
-			int output_length = data->length()/_args->at(0);
-
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, output_channel, 1, 1, _phase);
-			_index = cacu_allocator::create_em_bin_blob(num, output_length, 1, 1, test);
-			_x = cacu_allocator::create_em_blob(1, channel, input_dim, input_dim, test);
-#else
-			o_blob = create_oblob(num, output_length, 1, 1, _phase);
-			_index = cacu_allocator::create_bin_blob(num, output_length, 1, 1, test);
-			_x = cacu_allocator::create_blob(1, channel, input_dim, input_dim, test);
-#endif
 
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		~row_max_pooling_op(){
+
+		}
+
+		virtual const void initial() override{
+
+			int input_dim = s_blob->width();
+			int channel = s_blob->channel();
+			int num = s_blob->num();
+			int output_length = s_blob->length()/_args->at(0);
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(num, output_channel, 1, 1, _phase);
+			_index = create_em_bin_opblob(num, output_length, 1, 1, test);
+			_x = create_opblob(1, channel, input_dim, input_dim, test);
+#else
+			o_blob = create_oblob(num, output_length, 1, 1, _phase);
+			_index = create_bin_opblob(num, output_length, 1, 1, test);
+			_x = create_opblob(1, channel, input_dim, input_dim, test);
+#endif
+			}
+			else
+			{
+				o_blob->resize(num, output_length, 1, 1);
+				_index->resize(num, output_length, 1, 1);
+				_x->resize(1, channel, input_dim, input_dim);
+			}
+
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 
@@ -157,9 +163,9 @@ namespace cacu{
 
 	private:
 
-		blob_base *_index;
+		bin_blob *_index = NULL;
 
-		blob_base *_x;
+		blob *_x = NULL;
 
 	};
 };

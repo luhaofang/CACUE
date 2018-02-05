@@ -37,27 +37,34 @@ namespace cacu{
 		normalization_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_NORM){
 
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
 
-		};
+		}
 
 		~normalization_op(){
 
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), data->channel(), data->height(),data->width(), _phase);
-			_temp = cacu_allocator::create_em_blob(1, data->channel(), data->height(),data->width(), 1.0, _phase);
-#else
-			o_blob = create_oblob(data->num(), data->channel(), data->height(), data->width(), _phase);
-			_temp = cacu_allocator::create_blob(1, data->channel(), data->height(),data->width(), 1.0, _phase);
-#endif
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), s_blob->height(),s_blob->width(), _phase);
+			_temp = create_em_opblob(1, s_blob->channel(), s_blob->height(),s_blob->width(), 1.0, _phase);
+#else
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
+			_temp = create_opblob(1, s_blob->channel(), s_blob->height(),s_blob->width(), 1.0, _phase);
+#endif
+			}
+			else
+			{
+				o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->height(), s_blob->width());
+				_temp->resize(1, s_blob->channel(), s_blob->height(),s_blob->width(), 1.0);
+			}
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 
@@ -148,7 +155,7 @@ namespace cacu{
 
 	private:
 
-		blob_base *_temp;
+		blob *_temp = NULL;
 
 		normalize_type _NORMALIZER = norm_l2;
 

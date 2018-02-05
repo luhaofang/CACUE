@@ -34,27 +34,31 @@ namespace cacu{
 
 	public:
 
-		tanh_op(blob_base *&data, data_args *&args_) : operator_base(data, args_, CACU_TANH){
+		tanh_op(blob_base *&data) : operator_base(data, CACU_TANH){
 			check();
-			initial(data,args_);
-			init_weights(data,args_);
+			initial();
+			init_weights();
 			echo();
-		};
+		}
 
 		~tanh_op(){
 
-		};
-
-		virtual const void initial(blob_base *&data, data_args *&args_) override{
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(data->num(), data->channel(), data->height(), data->width(), _phase);
-#else
-			o_blob = create_oblob(data->num(), data->channel(), data->height(), data->width(), _phase);
-#endif
-
 		}
 
-		virtual const void init_weights(blob_base *&data, data_args *&args_) override{
+		virtual const void initial() override{
+			if(o_blob == NULL){
+#if __USEMBEDDING__ == ON
+			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
+#else
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
+#endif
+			}
+			else{
+				o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->height(), s_blob->width());
+			}
+		}
+
+		virtual const void init_weights() override{
 			return;
 		}
 
