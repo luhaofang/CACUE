@@ -41,7 +41,8 @@ namespace cacu{
  */
 extern "C" void cacu_cross_entropy_cuda(float_t *x, int num, int length,const unsigned int *label_, float_t *loss_);
 
-
+extern "C" void cacu_cross_entropy_multi_cuda(float_t *x, const int num, const int channel, const int width, const int height,
+		const unsigned int *label_, float_t *loss_);
 
 /**
  * @cacu_multi_label_trans

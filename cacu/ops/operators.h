@@ -59,13 +59,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "max_pooling_op.h"
 
 #include "relu_op.h"
+#include "prelu_op.h"
 #include "leaky_relu_op.h"
 #include "softmax_op.h"
 #include "tanh_op.h"
 #include "sigmoid_op.h"
 
 #include "softmax_with_loss_op.h"
-#include "hinge_loss_op.h"
+
+//#include "hinge_loss_op.h"
 
 /***********************************/
 /*        user operators	       */

@@ -27,34 +27,38 @@
 
 #include "tools.h"
 
-namespace cacu {
+using namespace std;
+using namespace cacu;
 
-void NMS(vector<rect *> &rects, float_t threshold, nms_type type) {
+namespace cacu_detection {
 
-	if (rects.size() == 0)
+void NMS(vector<rect*> *&rects, float_t threshold, nms_type type) {
+
+	if (rects->size() == 0)
 		return;
-	sort(rects.begin(), rects.end(), comp);
-	vector<size_t> areas(rects.size());
-	vector<rect *> input_rects(rects);
-	rects.clear();
+	sort(rects->begin(), rects->end(), comp);
+	vector<rect *> input_rects(*rects);
+	rects->clear();
 
 	rect *pRect = NULL;
 
 	while (input_rects.size() > 0) {
 		pRect = input_rects[0];
-		//LOG_DEBUG("%d,%d,%d,%d,%f", pRect->l,pRect->t,pRect->r,pRect->b,pRect->score);
-		rects.push_back(pRect);
+		rects->push_back(pRect);
 		input_rects.erase(input_rects.begin());
+		//printf("input_rects :%d ,rects :%d\n",input_rects.size(), rects->size());
 		for (int i = 0; i < input_rects.size(); ++i) {
 			switch (type) {
 			case nms_iou:
-				if (IOU(pRect, input_rects[i]) >= threshold) {
+				if (IOU(pRect, input_rects[i]) > threshold) {
+					delete input_rects[i];
 					input_rects.erase(input_rects.begin() + i);
 					i--;
 				}
 				break;
 			case nms_iom:
-				if (IOM(pRect, input_rects[i]) >= threshold) {
+				if (IOM(pRect, input_rects[i]) > threshold) {
+					delete input_rects[i];
 					input_rects.erase(input_rects.begin() + i);
 					i--;
 				}

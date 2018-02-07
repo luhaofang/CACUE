@@ -31,7 +31,6 @@
 #include "utils/cpu_data_utils.hpp"
 #include "utils/device_data_utils.hpp"
 
-
 namespace cacu {
 
 template<typename DTYPE>
@@ -46,6 +45,23 @@ public:
 	inline DTYPE* pdata() const {
 		return _pdata;
 	}
+
+	/*
+	 * WARNING: frequently call for the function will extremely reduce the performance
+	 */
+	inline DTYPE* pdata_cpu() {
+#if __USE_DEVICE__ == ON
+		if (_pdata_cpu == NULL) {
+			_pdata_cpu = (DTYPE*) malloc(_length * sizeof(DTYPE));
+
+		}
+		device_copy2host(_pdata_cpu, _pdata, _length);
+		return _pdata_cpu;
+#else
+		return NULL;
+#endif
+	}
+
 	inline dsize_t length() const {
 		return _length;
 	}
@@ -89,6 +105,8 @@ private:
 
 	DTYPE *_pdata;
 
+	DTYPE *_pdata_cpu = NULL;
+
 	dsize_t _length;
 
 };
@@ -113,13 +131,14 @@ tensor<DTYPE>::~tensor() {
 	device_free(_pdata);
 #else
 	free(_pdata);
+	if(_pdata_cpu != NULL)
+	free(_pdata_cpu);
 #endif
 
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::_memcopy(DTYPE* data_)
-{
+inline void tensor<DTYPE>::_memcopy(DTYPE* data_) {
 	cacu_copy(data_, _length, _pdata);
 }
 
@@ -129,6 +148,8 @@ inline void tensor<DTYPE>::resize(dsize_t length, DTYPE value) {
 #if __USE_DEVICE__ == ON
 	device_free(_pdata);
 	_pdata = device_malloc_v<DTYPE>(length, value);
+	if (_pdata_cpu != NULL)
+		_pdata_cpu = (DTYPE*) malloc(_length * sizeof(DTYPE));
 #else
 	free(_pdata);
 	_pdata = (DTYPE*)malloc(_length * sizeof(DTYPE));
@@ -195,7 +216,7 @@ void tensor<DTYPE>::serializa(std::ostream& os) {
 #else
 	os.write((char*)(&_length), sizeof(_length));
 	for(dsize_t i = 0; i < _length; ++i)
-		os.write((char*)(&_pdata[i]), sizeof(DTYPE));
+	os.write((char*)(&_pdata[i]), sizeof(DTYPE));
 #endif
 }
 

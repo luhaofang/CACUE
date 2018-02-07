@@ -31,14 +31,17 @@
 
 namespace cacu {
 
-weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
-		phase_type phase) : blob(num, channel, width, height, 0, phase) {
+weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
+		dsize_t height, phase_type phase) :
+		blob(num, channel, width, height, 0, phase) {
 	_name = name;
 	_update_lr = 1.0;
 	_decay_mult = 1.0;
 }
 
-weight::~weight(){};
+weight::~weight() {
+}
+;
 
 void weight::set_init_type(param_init_type type, float_t value) {
 	vec_t w(_length);
@@ -131,6 +134,13 @@ void weight::load_group(std::ifstream& is, int group) {
 #endif
 }
 
-
+void weight::load(std::ifstream& is) {
+	dsize_t length_;
+	is.read(reinterpret_cast<char*>(&length_), sizeof(dsize_t));
+	CHECK_EQ_OP(length_, _length,
+			"parameter [%s] length is not equal to local length: %d vs %d!",
+			_name.c_str(), length_, _length);
+	_tdata->load(is);
+}
 
 }

@@ -79,9 +79,9 @@ void test_net()
 	int allcount = 0;
 	for (int i = 0 ; i < max_iter; ++i)
 	{
-		gettimeofday(&start, NULL);
+		//gettimeofday(&start, NULL);
 
-		input_data->resize(batch_size,3,32,32);
+		//input_data->resize(batch_size,3,32,32);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARBatchSize)
@@ -99,15 +99,15 @@ void test_net()
 			}
 		}
 		allcount += batch_size;
-		batch_size = urandint(10,20);
+		batch_size = urandint(90,100);
 		LOG_DEBUG("batch_size: %d",batch_size);
-		gettimeofday(&end, NULL);
+		//gettimeofday(&end, NULL);
 
-		if(i % 1 == 0){
-			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
-													- start.tv_usec;
-			LOG_INFO("iter_%d, %ld ms/iter", i, diff / 1000);
-		}
+//		if(i % 1 == 0){
+//			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
+//													- start.tv_usec;
+//			LOG_INFO("iter_%d, %ld ms/iter", i, diff / 1000);
+//		}
 		if (step_index == kCIFARBatchSize)
 			break;
 	}

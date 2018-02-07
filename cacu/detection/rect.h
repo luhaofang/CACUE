@@ -27,7 +27,11 @@
 
 #pragma once
 
-namespace cacu {
+#include "../definition.h"
+
+using namespace cacu;
+
+namespace cacu_detection {
 
 struct rect {
 

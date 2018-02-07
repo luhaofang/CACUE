@@ -49,4 +49,12 @@ void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
 	}
 }
 
+
+
+void cacu_cross_entropy_multi_cpu(float_t *x, const int num, const int channel, const int width, const int height,
+		const unsigned int *label_, float_t *loss_){
+
+}
+
+
 }

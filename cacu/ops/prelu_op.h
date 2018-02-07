@@ -29,39 +29,33 @@
 
 namespace cacu {
 
-class softmax_op: public operator_base {
+class prelu_op: public operator_base {
 
 public:
 
-	softmax_op(blob_base *&data) :
-			operator_base(data, CACU_SOFTMAX) {
+	prelu_op(blob_base *&data) :
+			operator_base(data, CACU_PRELU) {
 		check();
 		initial();
 		init_weights();
 		echo();
-
 	}
 
-	~softmax_op() {
+	~prelu_op() {
 
 	}
 
 	virtual const void initial() override {
 		if (o_blob == NULL) {
-#if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(),
-					s_blob->width(), s_blob->height(), _phase);
-#else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
-#endif
+			o_blob = s_blob;
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
-					s_blob->height());
+			o_blob->_NEED_MOTIFY();
 		}
 	}
 
 	virtual const void init_weights() override {
-		return;
+		_p_slopes = create_param("pslopes", 1, s_blob->channel(), 1, 1, _phase);
+		set_param_init_type(constant, _p_slopes, 0.25);
 	}
 
 	virtual const void check() override {
@@ -74,42 +68,59 @@ public:
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
 
-		cacu_softmax_cpu(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(),
-				s_blob_->width(), s_blob_->height(), o_blob_->s_data());
+		cacu_prelu_cpu(o_blob_->s_data(), _p_slopes->s_data(), o_blob_->num(),
+				o_blob_->channel(), o_blob_->channel_length());
 
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
-		cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->channel(), s_blob_->width(), s_blob_->height(), o_blob_->s_data());
+		//LOG_DEBUG("input");
+		//cacu_print(o_blob_->s_data(), 100);
+		cacu_prelu(o_blob_->s_data(), _p_slopes->s_data(), o_blob_->num(),
+				o_blob_->channel(), o_blob_->channel_length());
+		//LOG_DEBUG("output");
+		//cacu_print(o_blob_->s_data(), 100);
 #endif
-		//echo();
 	}
 
 	virtual const void grad() override {
-		blob *o_blob_ = (blob*) o_blob;
-		blob *s_blob_ = (blob*) s_blob;
 
-		//echo();
+#if __USEMBEDDING__ == ON
+		em_blob *o_blob_ = (em_blob*) o_blob;
+		em_blob *s_blob_ = (em_blob*) s_blob;
 
+		cacu_prelu_grad_cpu(s_blob_->s_data(), o_blob_->s_diff(),
+				_p_slopes->s_data(), _p_slopes->s_diff(), o_blob_->num(),
+				o_blob_->channel(), o_blob_->channel_length());
+
+#else
+		blob *o_blob_ = (blob*)o_blob;
+		blob *s_blob_ = (blob*)s_blob;
+
+		cacu_prelu_grad(s_blob_->s_data(), o_blob_->s_diff(), _p_slopes->s_data(), _p_slopes->s_diff(), o_blob_->num(),
+				o_blob_->channel(), o_blob_->channel_length());
+
+#endif
 	}
 
 	virtual const void load(std::ifstream& is) override {
-		return;
+		_p_slopes->load(is);
 	}
 
 	virtual const void save(std::ostream& os) override {
-		return;
+		_p_slopes->serializa(os);
 	}
 
 	virtual const void echo() override {
-		LOG_INFO("create softmax op:");
+		LOG_INFO("create relu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blob->channel(), s_blob->width(), s_blob->height(),
 				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override {
+	inline virtual const void LOOP_INIT_DATA_() override
+	{
 		return;
 	}
 
@@ -118,6 +129,8 @@ public:
 	}
 
 private:
+
+	weight * _p_slopes = NULL;
 
 };
 }

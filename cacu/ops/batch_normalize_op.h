@@ -64,7 +64,7 @@ public:
 			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
 			//save for train
 			if(train == _phase)
-			_x = create_opblob(s_blob->num(), s_blob->channel(), s_blob->width(),  s_blob->height(), test);
+			_x = create_opblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), test);
 			else
 			_x = NULL;
 			_dim_sum = create_opblob(s_blob->num(), s_blob->channel(), 1, 1, test);
@@ -75,10 +75,12 @@ public:
 					test);
 			_num_mutipler = create_opblob(1, s_blob->num(), 1, 1, 1.0, test);
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
+			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
+					s_blob->height());
 			//save for train
 			if (_x != NULL)
-				_x->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
+				_x->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
+						s_blob->height());
 
 			_dim_sum->resize(s_blob->num(), s_blob->channel(), 1, 1);
 
@@ -390,9 +392,9 @@ public:
 	{
 		LOG_INFO("create batch_normalize op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height());
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
+				s_blob->channel(), s_blob->width(), s_blob->height(),
+				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override

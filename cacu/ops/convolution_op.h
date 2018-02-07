@@ -48,27 +48,23 @@ public:
 	}
 
 	virtual const void initial() override {
-		int input_w = s_blob->width();
-		int input_h = s_blob->height();
-		int channel = s_blob->channel();
-		int num = s_blob->num();
 
-		int output_w = (input_w + 2 * _args->pad() - _args->kernel_size())
-				/ _args->stride() + 1;
+		int output_w = (s_blob->width() + 2 * _args->pad()
+				- _args->kernel_size()) / _args->stride() + 1;
 		if (_args->kernel_size() == 1)
-			output_w = (input_w + 2 * _args->pad()) / _args->stride();
+			output_w = (s_blob->width() + 2 * _args->pad()) / _args->stride();
 
-		int output_h = (input_h + 2 * _args->pad() - _args->kernel_size())
-				/ _args->stride() + 1;
+		int output_h = (s_blob->height() + 2 * _args->pad()
+				- _args->kernel_size()) / _args->stride() + 1;
 		if (_args->kernel_size() == 1)
-			output_h = (input_h + 2 * _args->pad()) / _args->stride();
+			output_h = (s_blob->height() + 2 * _args->pad()) / _args->stride();
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, _args->output_channel(), output_w,
-					output_h, _phase);
+			o_blob = create_em_oblob(s_blob->num(), _args->output_channel(),
+					output_w, output_h, _phase);
 
 #else
-			o_blob = create_opblob(num, _args->output_channel(), output_w, output_h, _phase);
+			o_blob = create_oblob(s_blob->num(), _args->output_channel(), output_w, output_h, _phase);
 #endif
 			_col_data = create_opblob(1, s_blob->channel(),
 					output_w * _args->kernel_size(),
@@ -77,7 +73,8 @@ public:
 					(float_t) (1), _phase);
 		} else {
 
-			o_blob->resize(num, _args->output_channel(), output_w, output_h);
+			o_blob->resize(s_blob->num(), _args->output_channel(), output_w,
+					output_h);
 			_col_data->resize(1, s_blob->channel(),
 					output_w * _args->kernel_size(),
 					output_h * _args->kernel_size());
@@ -108,10 +105,9 @@ public:
 
 	virtual const void op() override {
 
-		col_offset = s_blob->channel() / _group * _col_data->width()
-				* _col_data->height();
+		col_offset = s_blob->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * o_blob->width() * o_blob->height();
+		out_offset = _w->num() / _group * o_blob->channel_length();
 
 		blob *col_data_ = (blob*) _col_data;
 		blob *bias_multiplier = (blob*) _bias_multiplier;
@@ -130,10 +126,10 @@ public:
 			for (int g = 0; g < _group; ++g)
 				cacu_sgemm(NOTRANS, NOTRANS,
 						col_data_->s_data() + col_offset * g,
-						o_blob_->width() * o_blob_->height(),
-						_w->length() / _group, _w->s_data() + w_offset * g,
-						_w->num() / _group, (float_t) 1,
-						o_blob_->p_data_d(i) + out_offset * g, (float_t) 0);
+						o_blob_->channel_length(), _w->length() / _group,
+						_w->s_data() + w_offset * g, _w->num() / _group,
+						(float_t) 1, o_blob_->p_data_d(i) + out_offset * g,
+						(float_t) 0);
 			//add bias
 			if (_is_use_bias)
 				cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(),
@@ -153,7 +149,7 @@ public:
 			//mycnn_tools::cacu_output(col_data_->s_data(),col_data_->count(),"/home/seal/1.txt");
 			//forward convolution data
 			for (int g = 0; g < _group; ++g)
-			cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->width()*o_blob_->height(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
+			cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->channel_length(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
 			//cacu_print(o_blob_->p_data(i),1000);
 			//add bias
 			if(_is_use_bias)
@@ -200,8 +196,7 @@ public:
 					o_blob_->width(), _args->pad(), col_data_->s_data());
 			for (int g = 0; g < _group; ++g)
 				cacu_sgemm(TRANS, NOTRANS, col_data_->s_data() + col_offset * g,
-						_w->length() / _group,
-						o_blob_->width() * o_blob_->height(),
+						_w->length() / _group, o_blob_->channel_length(),
 						o_blob_->p_diff_d(i) + out_offset * g,
 						_w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
 			//bias gradient
@@ -228,7 +223,7 @@ public:
 			//weights gradient
 			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
 			for (int g = 0; g < _group; ++g)
-			cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g, _w->length() / _group, o_blob_->width()*o_blob_->height(), o_blob_->p_diff(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
+			cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g, _w->length() / _group, o_blob_->channel_length(), o_blob_->p_diff(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
 			//bias gradient
 			if(_is_use_bias)
 			//cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
@@ -259,10 +254,10 @@ public:
 	{
 		LOG_INFO("create convolution op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height(), _args->kernel_size(), _args->stride(),
-				_args->pad());
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), kenrel_size: %d, stride: %d, pad: %d",
+				s_blob->channel(), s_blob->width(), s_blob->height(),
+				o_blob->channel(), o_blob->width(), o_blob->height(),
+				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override

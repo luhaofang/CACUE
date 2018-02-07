@@ -53,7 +53,7 @@ public:
 	 * return the piece probe in blob data
 	 */
 	inline unsigned int* p_data(dsize_t n) const {
-		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
+		//CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
 		return (unsigned int*) _s_data + n * _cube_length;
 	}
 
@@ -61,9 +61,27 @@ public:
 	 * return the piece probe in blob diff
 	 */
 	inline float_t* p_diff(dsize_t n) const {
-		CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
+		//CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
 		return (float_t*) _s_diff + n * _cube_length;
 	}
+
+#if __USE_DEVICE__ == ON
+	/**
+	 * return the piece probe in blob data
+	 */
+	inline unsigned int* p_data_cpu(dsize_t n) const {
+		//CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
+		return _tdata->pdata_cpu() + n * _cube_length;
+	}
+
+	/**
+	 * return the source probe in blob data
+	 */
+	inline unsigned int* s_data_cpu() const {
+		return _tdata->pdata_cpu();
+	}
+
+#endif
 
 	/**
 	 * return the source probe in blob data

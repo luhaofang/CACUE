@@ -35,3 +35,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "test_tensor.hpp"
 #include "test_weight.hpp"
 #include "test_cublas.hpp"
+#include "test_detection.hpp"
+#include "test_detection_tools.hpp"

@@ -77,6 +77,9 @@ void train_net()
 	unsigned long diff;
 	for (int i = 1 ; i < max_iter; ++i)
 	{
+		//batch_size = 200;
+		input_data->resize(batch_size,3,32,32);
+		input_label->resize(batch_size,1,1,1);
 		gettimeofday(&start, NULL);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
@@ -88,6 +91,7 @@ void train_net()
 		}
 
 		sgd->train_iter();
+
 		gettimeofday(&end, NULL);
 
 		if(i % 10 == 0){

@@ -104,17 +104,53 @@ inline void cacu_leaky_relu_grad(float_t *x, float_t *g, float_t a,
 }
 
 /**
+ * @cacu_leaky_relu
+ * math if(x[i]<0)?x[i] = x[i]:x[i] *= a;
+ * for activation use leaky_relu functions.
+ */
+inline void cacu_prelu(float_t *x, const float_t *slopes, const int num,
+		const int channel, const int c_length) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_prelu_cuda(x, slopes, num, channel, c_length);
+#endif
+#else
+	cacu_prelu_cpu(x, slopes, num, channel, c_length);
+#endif
+
+}
+
+/**
+ * @cacu_leaky_relu_grad
+ * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
+ * gradient for activation use leaky_relu functions.
+ */
+inline void cacu_prelu_grad(float_t *x, float_t *g, const float_t *slopes,
+		float_t * g_slopes, const int num, const int channel,
+		const int c_length) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_prelu_grad_cuda(x, g, slopes, g_slopes, num, channel, c_length);
+#endif
+#else
+	cacu_prelu_grad_cpu(x, g, slopes, g_slopes, num, channel, c_length);
+#endif
+
+}
+
+/**
  * @cacu_softmax
  * math softmax;
  * for activation use softmax functions.
  */
-inline void cacu_softmax(float_t *x, int num, int length, float_t *y) {
+inline void cacu_softmax(float_t *x, int num, int channel, int width,
+		int height, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_softmax_cuda(x, num, length, y);
+	cacu_softmax_cuda(x, num, channel, width, height, y);
 #endif
 #else
-	cacu_softmax_cpu(x, num, length, y);
+	cacu_softmax_cpu(x, num, channel, width, height, y);
 #endif
 
 }

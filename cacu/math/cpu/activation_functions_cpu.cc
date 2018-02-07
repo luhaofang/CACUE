@@ -55,8 +55,8 @@ void cacu_relu_grad_cpu(float_t *x, float_t *g, const int length) {
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		if (x[i] <= 0)
-			g[i] = float_t(0);
+		//if (x[i] <= 0)
+		g[i] *= (x[i] > 0);
 	}
 }
 
@@ -94,30 +94,75 @@ void cacu_leaky_relu_grad_cpu(float_t *x, float_t *g, const float_t a,
 }
 
 /**
+ * @cacu_leaky_relu
+ * math if(x[i]<0)?x[i] = x[i]:x[i] *= a;
+ * for activation use leaky_relu functions.
+ */
+void cacu_prelu_cpu(float_t *x, const float_t *slopes, const int num,
+		const int channel, const int c_length) {
+	int i;
+	int length = num * channel * c_length;
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i)
+#endif
+	for (i = 0; i < length; ++i) {
+		if (x[i] < 0)
+			x[i] *= slopes[(i / c_length) % channel];
+	}
+}
+
+/**
+ * @cacu_leaky_relu_grad
+ * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
+ * gradient for activation use leaky_relu functions.
+ */
+void cacu_prelu_grad_cpu(float_t *x, float_t *g, const float_t *slopes,
+		float_t * g_slopes, const int num, const int channel,
+		const int c_length) {
+	int i;
+	int length = num * channel * c_length;
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i)
+#endif
+	for (i = 0; i < length; ++i) {
+		if (x[i] <= 0) {
+			g_slopes[(i / c_length) % channel] += x[i] * g[i];
+			g[i] *= slopes[(i / c_length) % channel];
+		}
+	}
+}
+
+/**
  * @cacu_softmax
  * math softmax;
  * for activation use softmax functions.
  */
-void cacu_softmax_cpu(float_t *x, const int num, const int length,
-		float_t *y) {
+void cacu_softmax_cpu(float_t *x, const int num, const int channel,
+		const int width, const int height, float_t *y) {
 	float_t *xp, *yp, max_, sum_;
 	int n, i;
+	int length = width * height * num;
+	int c_length = width * height;
+	int p_length = channel * c_length;
+	int index;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(n,i,max_,sum_,xp,yp)
 #endif
-	for (n = 0; n < num; ++n) {
-		xp = x + n * length;
-		yp = y + n * length;
+	for (n = 0; n < length; ++n) {
+		index = n / c_length * p_length + n % c_length;
+		xp = x + index;
+		yp = y + index;
 		max_ = xp[0];
 		sum_ = 0;
-		for (i = 1; i < length; ++i)
-			max_ = max(xp[i], max_);
-		for (i = 0; i < length; ++i) {
-			yp[i] = exp(xp[i] - max_);
-			sum_ += yp[i];
+		for (i = 1; i < channel; ++i)
+			max_ = max(xp[i * c_length], max_);
+		for (i = 0; i < channel; ++i) {
+			yp[i * c_length] = xp[i * c_length] - max_;
+			yp[i * c_length] = exp(yp[i * c_length]);
+			sum_ += yp[i * c_length];
 		}
-		for (i = 0; i < length; ++i) {
-			yp[i] = (yp[i] / sum_);
+		for (i = 0; i < channel; ++i) {
+			yp[i * c_length] = (yp[i * c_length] / sum_);
 		}
 	}
 }
@@ -142,8 +187,7 @@ void cacu_tanh_cpu(float_t *x, const int length, float_t *y) {
  * math tanh;
  * for activation use tanh functions.
  */
-void cacu_tanh_grad_cpu(float_t *x, float_t *g, const int length,
-		float_t *y) {
+void cacu_tanh_grad_cpu(float_t *x, float_t *g, const int length, float_t *y) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)

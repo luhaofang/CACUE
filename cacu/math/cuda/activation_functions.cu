@@ -33,8 +33,7 @@
 #include "../../definition.h"
 #include "../../tensor/cuda/cuda_log.h"
 
-
-namespace cacu{
+namespace cacu {
 
 __global__ void _k_CACU_RELU_CUDA(float_t *x, int length) {
 
@@ -137,25 +136,96 @@ extern "C" void cacu_leaky_relu_grad_cuda(float_t *x, float_t *g, float_t a,
 
 }
 
-__global__ void _k_CACU_SOFTMAX_CUDA(float_t *x, int num, int length,
-		float_t *y) {
+__global__ void _k_CACU_PRELU_CUDA(float_t *x, const float_t *slopes,
+		const int num, const int channel, const int c_length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
+
+	int length = num * channel * c_length;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		x[i] = x[i] * slopes[i / c_length % channel] * (x[i] <= 0)
+				+ x[i] * (x[i] > 0);
+	}
+
+}
+
+/**
+ * for activation use leaky_relu functions in cuda
+ */
+extern "C" void cacu_prelu_cuda(float_t *x, const float_t *slopes,
+		const int num, const int channel, const int c_length) {
+
+	_k_CACU_PRELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, slopes, num, channel,
+			c_length);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+
+}
+
+__global__ void _k_CACU_PRELU_GRAD_CUDA(float_t *x, float_t *g,
+		const float_t *slopes, float_t * g_slopes, const int num,
+		const int channel, const int c_length) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int length = num * channel * c_length;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		g[i] = g[i] * slopes[i / c_length % channel] * (x[i] <= 0)
+				+ g[i] * (x[i] > 0);
+		g_slopes[i / c_length % channel] += g[i] * x[i] * (x[i] <= 0);
+	}
+
+}
+
+/**
+ * gradient for activation use leaky_relu functions in cuda
+ */
+extern "C" void cacu_prelu_grad_cuda(float_t *x, float_t *g,
+		const float_t *slopes, float_t * g_slopes, const int num,
+		const int channel, const int c_length) {
+
+	_k_CACU_PRELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, slopes, g_slopes,
+			num, channel, c_length);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+
+}
+
+__global__ void _k_CACU_SOFTMAX_CUDA(float_t *x, const int num,
+		const int channel, const int width, const int height, float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int length = width * height * num;
+	int c_length = width * height;
+	int p_length = channel * c_length;
+	int index;
 
 	__shared__ float_t sum[THREADNUM], max_data[THREADNUM];
 
 	float_t *xp, *yp;
 
-	for (int i = bid; i < num; i += BLOCKNUM) {
+	for (int i = bid; i < length; i += BLOCKNUM) {
 
-		xp = x + i * length;
-		yp = y + i * length;
+		index = i / c_length * p_length + i % c_length;
+		xp = x + index;
+		yp = y + index;
 
 		if (tid == 0) {
 			max_data[0] = xp[0];
-			for (int i = 1; i < length; i++)
-				max_data[0] = max(max_data[0], xp[i]);
+			for (int c = 1; c < channel; c++)
+				max_data[0] = max(max_data[0], xp[c * c_length]);
 		}
 
 		__syncthreads();
@@ -164,9 +234,9 @@ __global__ void _k_CACU_SOFTMAX_CUDA(float_t *x, int num, int length,
 		max_data[tid] = max_data[0];
 
 		sum[tid] = float_t(0);
-		for (int i = tid; i < length; i += THREADNUM) {
-			yp[i] = exp(xp[i] - max_data[tid]);
-			sum[tid] += yp[i];
+		for (int c = tid; c < channel; c += THREADNUM) {
+			yp[c * c_length] = exp(xp[c * c_length] - max_data[tid]);
+			sum[tid] += yp[c * c_length];
 		}
 
 		__syncthreads();
@@ -184,8 +254,8 @@ __global__ void _k_CACU_SOFTMAX_CUDA(float_t *x, int num, int length,
 
 		__syncthreads();
 
-		for (int i = tid; i < length; i += THREADNUM) {
-			yp[i] /= sum[tid];
+		for (int c = tid; c < channel; c += THREADNUM) {
+			yp[c * c_length] /= sum[tid];
 		}
 
 	}
@@ -195,9 +265,11 @@ __global__ void _k_CACU_SOFTMAX_CUDA(float_t *x, int num, int length,
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_cuda(float_t *x, int num, int length, float_t *y) {
+extern "C" void cacu_softmax_cuda(float_t *x, const int num, const int channel,
+		const int width, const int height, float_t *y) {
 
-	_k_CACU_SOFTMAX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, num, length, y);
+	_k_CACU_SOFTMAX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, num, channel, width,
+			height, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 

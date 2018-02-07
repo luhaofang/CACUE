@@ -104,9 +104,9 @@ public:
 	virtual const void echo() override {
 		LOG_INFO("create relu op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height());
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
+				s_blob->channel(), s_blob->width(), s_blob->height(),
+				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override

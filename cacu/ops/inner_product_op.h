@@ -164,8 +164,8 @@ public:
 	{
 		LOG_INFO("create inner_product op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: %d",
+				s_blob->channel(), s_blob->width(), s_blob->height(), o_blob->channel(),
 				o_blob->height());
 	}
 

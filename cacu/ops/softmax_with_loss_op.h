@@ -53,7 +53,8 @@ public:
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(s_blobs->at(0)->num(),
-					s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), train);
+					s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+					s_blobs->at(0)->height(), train);
 #else
 			o_blob = create_oblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),train);
 #endif
@@ -82,8 +83,8 @@ public:
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		em_bin_blob *labels_ = (em_bin_blob*) s_blobs->at(1);
 
-		cacu_softmax_cpu(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),
-				o_blob_->s_data());
+		cacu_softmax_cpu(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(),
+				o_blob_->width(), s_blob_->height(), o_blob_->s_data());
 		cacu_cross_entropy_cpu(o_blob_->s_data(), o_blob_->num(),
 				o_blob_->length(), labels_->s_data(), o_blob_->s_diff());
 
@@ -92,8 +93,7 @@ public:
 		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
-		cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->length(),o_blob_->s_data());
-		//cacu_print(o_blob_->s_data(),o_blob_->count());
+		cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(), s_blob_->width(), s_blob_->height(), o_blob_->s_data());
 		cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
 #endif
 

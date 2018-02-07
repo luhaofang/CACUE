@@ -27,7 +27,6 @@
 
 #pragma once
 
-
 #include "blob.h"
 
 #include "../tensor/cuda/cuda_utils.h"
@@ -38,8 +37,8 @@ class weight: public blob {
 
 public:
 
-	weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
-			phase_type phase);
+	weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height, phase_type phase);
 
 	~weight();
 
@@ -74,6 +73,11 @@ public:
 	 * loads blob data from model file
 	 */
 	void load_group(std::ifstream& is, int group);
+
+	/*
+	 * loads blob data from model file
+	 */
+	void load(std::ifstream& is) override;
 
 private:
 

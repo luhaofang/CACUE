@@ -46,22 +46,20 @@ public:
 	}
 
 	virtual const void initial() override {
-		int input_w = s_blob->width();
-		int input_h = s_blob->height();
-		int channel = s_blob->channel();
-		int num = s_blob->num();
 
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blob = s_blob;
-			_rand_vect = create_em_opblob(num, channel, input_w, input_h, test);
+			_rand_vect = create_em_opblob(s_blob->num(), s_blob->channel(),
+					s_blob->width(), s_blob->height(), test);
 #else
 			o_blob = s_blob;
-			_rand_vect = create_opblob(num,channel,input_w,input_h, test);
+			_rand_vect = create_opblob(s_blob->num(),s_blob->channel(),s_blob->width(),s_blob->height(), test);
 #endif
 		} else {
 			o_blob->_NEED_MOTIFY();
-			_rand_vect->resize(num, channel, input_w, input_h);
+			_rand_vect->resize(s_blob->num(), s_blob->channel(),
+					s_blob->width(), s_blob->height());
 		}
 
 	}
@@ -153,9 +151,9 @@ public:
 	{
 		LOG_INFO("create dropout op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height());
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
+				s_blob->channel(), s_blob->width(), s_blob->height(),
+				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override
@@ -167,10 +165,12 @@ public:
 		_phase = phase_;
 	}
 
-	inline void set_ratio(float_t ratio_) {
-		CHECK_GE_OP(0, ratio_, "ratio must be a positive decimal vs %f!",
+	void set_ratio(float_t ratio_) {
+		CHECK_GE_OP(ratio_, 0.0,
+				"ratio must be a positive decimal larger than 0 vs %f!",
 				ratio_);
-		CHECK_LE_OP(1, ratio_, "ratio must be a positive decimal vs %f!",
+		CHECK_LE_OP(ratio_, 1.0,
+				"ratio must be a positive decimal smaller than 1 vs %f!",
 				ratio_);
 		_ratio = ratio_;
 	}

@@ -137,10 +137,10 @@ public:
 	virtual const void echo() override {
 		LOG_INFO("create average pooling op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height(), _args->kernel_size(), _args->stride(),
-				_args->pad());
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), kenrel_size: %d, stride: %d, pad: %d",
+				s_blob->channel(), s_blob->width(), s_blob->height(),
+				o_blob->channel(), o_blob->width(), o_blob->height(),
+				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override {

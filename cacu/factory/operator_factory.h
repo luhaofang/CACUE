@@ -110,11 +110,11 @@ public:
 					blob_->size())
 			;
 			return new split_op(blob_->at(0), o_args_);
-		case CACU_HINGE_LOSS:
-			CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
+		case CACU_PRELU:
+			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 					blob_->size())
 			;
-			return new hinge_loss_op(blob_, d_args_);
+			return new prelu_op(blob_->at(0));
 		case CACU_ROI_POOLING:
 			CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
 					blob_->size())

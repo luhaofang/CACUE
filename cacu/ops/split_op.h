@@ -35,7 +35,7 @@ public:
 
 	split_op(blob_base *&data, op_args *&args_) :
 			operator_base(data, args_, CACU_SPLIT) {
-		_split_count = args_->at(0);
+		_split_count = _o_args->at(0);
 		check();
 		initial();
 		init_weights();
@@ -132,8 +132,9 @@ public:
 	virtual const void echo() override {
 		LOG_INFO("create split op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, split_num: %d",
-				s_blob->channel(), s_blob->height(), o_blobs->at(0)->channel(),
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), split_num: %d",
+				s_blob->channel(), s_blob->width(), s_blob->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(),
 				o_blobs->at(0)->height(), _split_count);
 	}
 
