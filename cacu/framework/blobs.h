@@ -50,9 +50,11 @@ public:
 			switch (at(i)->_TYPE()) {
 			case __blob__:
 				delete (blob*) at(i);
+				at(i) = NULL;
 				break;
 			case __bin_blob__:
 				delete (bin_blob*) at(i);
+				at(i) = NULL;
 				break;
 				/*
 				 case __em_blob__:

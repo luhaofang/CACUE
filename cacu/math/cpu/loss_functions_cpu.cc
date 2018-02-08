@@ -35,7 +35,7 @@ namespace cacu {
  * for loss use cross entropy functions.
  */
 void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
-		const unsigned int *label_, float_t *loss_) {
+		const int *label_, float_t *loss_) {
 
 	float *xp;
 	int n;
@@ -45,14 +45,14 @@ void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
 #endif
 	for (int n = 0; n < num; ++n) {
 		xp = x + n * length;
-		loss_[0] -= log(max(xp[label_[n]], float_t(_MIN_FLT_)));
+		loss_[0] -= (label_[n] >= 0) ? log(max(xp[label_[n]], float_t(_MIN_FLT_))) : 0;
 	}
 }
 
 
 
 void cacu_cross_entropy_multi_cpu(float_t *x, const int num, const int channel, const int width, const int height,
-		const unsigned int *label_, float_t *loss_){
+		const int *label_, float_t *loss_){
 
 }
 

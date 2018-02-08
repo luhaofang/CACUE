@@ -45,7 +45,7 @@ namespace cacu {
 inline void cacu_max_pooling(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int output_w, const int output_h, const int channel, float_t *y,
-		unsigned int* index) {
+		int* index) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_max_pooling_cuda(x, kernel_size, stride, input_w, input_h, output_w,
@@ -66,7 +66,7 @@ inline void cacu_max_pooling(const float_t *x, const int kernel_size,
 inline void cacu_max_pooling_grad(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int output_w, const int output_h, const int channel, float_t *y,
-		const unsigned int* index) {
+		const int* index) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_max_pooling_grad_cuda(x, kernel_size, stride, input_w, input_h,
@@ -178,7 +178,7 @@ inline void cacu_row_max_pooling(float_t *x, int input_length,
 }
 
 inline void cacu_row_max_pooling_index(float_t *x, int input_length,
-		int output_length, float_t *y, unsigned int* index) {
+		int output_length, float_t *y, int* index) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_row_max_pooling_index_cuda(x, input_length, output_length, y, index);
@@ -195,7 +195,7 @@ inline void cacu_row_max_pooling_index(float_t *x, int input_length,
  *output_dim: width of output data
  */
 inline void cacu_row_max_pooling_grad(const float_t *x, int output_length,
-		float_t *y, const unsigned int* index) {
+		float_t *y, const int* index) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_row_max_pooling_grad_cuda(x, output_length, y, index);

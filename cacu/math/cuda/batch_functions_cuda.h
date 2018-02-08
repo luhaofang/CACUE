@@ -67,6 +67,13 @@ extern "C" void cacu_sxsize_cuda(const float_t *x, int length,const float_t a, f
 extern "C" void cacu_cdxsize_cuda(const float_t *x, int length,const float_t *a, int size, float_t *y);
 
 /**
+ * @cacu_sdxsize
+ * math y[i] = (x[i] + a) / b:
+ * x is a length dim array list, a is the corresponding denominator.
+ */
+extern "C" void cacu_sdxsize_cuda(float_t *x, const int length, const float_t a, const float_t b, float_t *y);
+
+/**
  * @cacu_ssxpy_cuda
  * math z[i] = a * x[j] + b * y[i] :
  * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).

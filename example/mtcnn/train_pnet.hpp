@@ -34,9 +34,237 @@
 #include "../../tools/string_utils.hpp"
 #include "../../tools/imageio_utils.hpp"
 
-
 #include "models_creater.h"
 
+using namespace cacu_tools;
 using namespace cacu;
 
+void train_net() {
+	int batch_size = 128;
 
+	int max_iter = 100000;
+
+	int train_test_iter = 100;
+
+	//set gpu device if training by gpu
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_set_device(1);
+#endif
+#endif
+	//set random seed
+	set_rand_seed();
+
+	//log output
+	std::ofstream logger("/home/seal/4T/cacue/imagenet/pnet.log", ios::binary);
+	logger.precision(std::numeric_limits<float_t>::digits10);
+
+	//log output
+	std::ofstream precious_logger(
+			"/home/seal/4T/cacue/imagenet/pnet_precious.log", ios::binary);
+	precious_logger.precision(std::numeric_limits<float_t>::digits10);
+	//log output
+	std::ofstream precious_train_logger(
+			"/home/seal/4T/cacue/imagenet/pnet_train_precious.log",
+			ios::binary);
+	precious_train_logger.precision(std::numeric_limits<float_t>::digits10);
+
+	network *net = create_Pnet(batch_size, train);
+
+	net->load_weights("/home/seal/4T/cacue/imagenet/Pnet.model");
+	//net->check();
+	sgd_solver *sgd = new sgd_solver(net);
+
+	sgd->set_lr(0.0001);
+	sgd->set_weight_decay(0.0001);
+	sgd->set_regularize(L2);
+
+	string datapath = "";
+
+	vector<string> full_data;
+
+	vector<string> vec;
+	vec_i label(1);
+	vec_t roi_label(4);
+
+	/**
+	 * read train list data into local memory
+	 */
+	string trainlist = "neg_12.txt";
+	ifstream is = ifstream(trainlist);
+	is.precision(numeric_limits<float>::digits10);
+	if (!is)
+		LOG_FATAL("file %s cannot be opened!", trainlist.c_str());
+	string file_ = "";
+	while (getline(is, file_)) {
+		full_data.push_back((file_ + " -1 -1 -1 -1"));
+	}
+	is.close();
+	trainlist = "pos_12.txt";
+	is = ifstream(trainlist);
+	is.precision(numeric_limits<float>::digits10);
+	if (!is)
+		LOG_FATAL("file %s cannot be opened!", trainlist.c_str());
+	file_ = "";
+	while (getline(is, file_)) {
+		full_data.push_back(file_);
+	}
+	is.close();
+	trainlist = "part_12.txt";
+	is = ifstream(trainlist);
+	is.precision(numeric_limits<float>::digits10);
+	if (!is)
+		LOG_FATAL("file %s cannot be opened!", trainlist.c_str());
+	file_ = "";
+	while (getline(is, file_)) {
+		full_data.push_back(file_);
+	}
+	is.close();
+	random_shuffle(full_data.begin(), full_data.end());
+
+	int ALL_DATA_SIZE = full_data.size();
+	/**
+	 * read data for training
+	 */
+	blob *input_data = (blob*) net->input_blobs()->at(0);
+	bin_blob *input_label = (bin_blob*) net->input_blobs()->at(1);
+	blob *input_roi_label = (blob*) net->input_blobs()->at(2);
+	/**
+	 * read data for testing
+	 */
+	blob *output_data = net->output_blob();
+	//blob *roi_data = net->get_op(net->op_count()-2)->out_data<blob>();
+
+	int step_index = 0;
+	int step_index_train = 0;
+	struct timeval start;
+	struct timeval end;
+	unsigned long diff;
+
+	unsigned int max_index;
+	float_t count = 0;
+
+	int previous_count = 0;
+	int allcount = 0;
+
+	vec_i compare_label(batch_size);
+	random_shuffle(full_data.begin(), full_data.end());
+	for (int i = 1; i <= max_iter; ++i) {
+
+		if (i % train_test_iter == 0) {
+			count = 0;
+			step_index_train = step_index;
+			gettimeofday(&start, NULL);
+			for (int j = 0; j < batch_size; ++j) {
+
+				if (step_index_train == ALL_DATA_SIZE) {
+					step_index_train = 0;
+				}
+				file_ = full_data[step_index_train];
+				vec = split(file_," ");
+				label[0] = strtoul(vec[1].c_str(), NULL, 10);
+				roi_label[0] = strtoul(vec[2].c_str(), NULL, 10);
+				roi_label[1] = strtoul(vec[3].c_str(), NULL, 10);
+				roi_label[2] = strtoul(vec[4].c_str(), NULL, 10);
+				roi_label[3] = strtoul(vec[5].c_str(), NULL, 10);
+				//load image data
+				imageio_utils::imread_gpu(input_data->p_data(j),
+						(datapath + vec[0] + ".jpg").c_str(), 3 * 12 * 12);
+				compare_label[j] = label[0];
+				input_label->copy2data(label, j);
+				input_roi_label->copy2data(roi_label, j);
+				step_index_train += 1;
+			}
+			cacu_sdxsize(input_data->s_data(), input_data->count(),
+					(float_t) -127.5, (float_t) 128.0, input_data->s_data());
+			net->predict();
+			for (int j = 0; j < batch_size; ++j) {
+				max_index = argmax(output_data->p_data(j),
+						output_data->length());
+				if (max_index == compare_label[j]) {
+					count += 1.0;
+				}
+			}
+			//sgd->train_iter();
+
+			gettimeofday(&end, NULL);
+
+			//if(previous_count >= count)
+			//	sgd->set_lr_iter(0.1f);
+
+			LOG_INFO("train_test accuracy: %f", (float_t )count / batch_size);
+			precious_train_logger << count << endl;
+			precious_train_logger.flush();
+		}
+		{
+			gettimeofday(&start, NULL);
+			for (int j = 0; j < batch_size; ++j) {
+				if (step_index == ALL_DATA_SIZE) {
+					step_index = 0;
+					random_shuffle(full_data.begin(), full_data.end());
+				}
+				file_ = full_data[step_index];
+				//LOG_DEBUG("%s",file_.c_str());
+				vec = split(file_," ");
+				//LOG_DEBUG("%s: (%s,%s,%s,%s) ,%s", vec[0].c_str(), vec[2].c_str(),vec[3].c_str(),vec[4].c_str(),vec[5].c_str(),vec[1].c_str());
+				label[0] = strtol(vec[1].c_str(), NULL, 10);
+				roi_label[0] = strtof(vec[2].c_str(), NULL);
+				roi_label[1] = strtof(vec[3].c_str(), NULL);
+				roi_label[2] = strtof(vec[4].c_str(), NULL);
+				roi_label[3] = strtof(vec[5].c_str(), NULL);
+				//LOG_DEBUG("%s: (%f,%f,%f,%f) ,%d", vec[0].c_str(), roi_label[0],roi_label[1],roi_label[2],roi_label[3],label[0]);
+				//load image data
+				imageio_utils::imread_gpu(input_data->p_data(j),
+						(datapath + vec[0] + ".jpg").c_str(), 3 * 12 * 12);
+				compare_label[j] = label[0];
+				input_label->copy2data(label, j);
+				input_roi_label->copy2data(roi_label, j);
+				step_index += 1;
+			}
+			cacu_sdxsize(input_data->s_data(), input_data->count(),
+					(float_t) -127.5, (float_t) 128.0, input_data->s_data());
+			//net->predict();
+			sgd->train_iter();
+			gettimeofday(&end, NULL);
+		}
+
+		if (i % 100 == 0) {
+			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
+					- start.tv_usec;
+			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), diff / 1000);
+			((mse_loss_op*) net->get_op(net->op_count() - 1))->echo();
+			((softmax_with_loss_op*) net->get_op(net->op_count() - 2))->echo();
+		}
+		logger
+				<< ((softmax_with_loss_op*) net->get_op(net->op_count() - 2))->loss()
+				<< endl;
+		logger.flush();
+
+		if (i % 50000 == 0)
+			sgd->set_lr_iter(0.1);
+
+		if (i % 10000 == 0) {
+			ostringstream oss;
+			oss << "/home/seal/4T/cacue/imagenet/Pnet_" << i << ".model";
+			net->save_weights(oss.str());
+		}
+	}
+
+	logger.close();
+	precious_logger.close();
+	precious_train_logger.close();
+
+	ostringstream oss;
+	oss << "/home/seal/4T/cacue/imagenet/Pnet_" << max_iter << ".model";
+	net->save_weights(oss.str());
+	LOG_INFO("optimization is done!");
+
+	vector<string>().swap(full_data);
+	delete net;
+	delete sgd;
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_release();
+#endif
+#endif
+}

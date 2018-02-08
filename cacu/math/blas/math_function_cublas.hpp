@@ -35,7 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cacu{
 
 inline void cacu_saxpy_cublas(float *x, const float a, float *y, const int length) {
-
 	CUBLAS_CHECK(cublasSaxpy_v2(handle, length, &a, x, 1, y, 1));
 }
 

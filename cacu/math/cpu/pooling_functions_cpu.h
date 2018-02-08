@@ -40,7 +40,7 @@ namespace cacu {
 void cacu_max_pooling_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int output_w, const int output_h, const int channel, float_t *y,
-		unsigned int* index);
+		int* index);
 
 /*
  *channel: channel of input data
@@ -51,7 +51,7 @@ void cacu_max_pooling_cpu(const float_t *x, const int kernel_size,
 void cacu_max_pooling_grad_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int output_w, const int output_h, const int channel, float_t *y,
-		const unsigned int* index);
+		const int* index);
 
 /*
  *channel: channel of input data
@@ -94,9 +94,9 @@ void cacu_row_max_pooling_cpu(float_t *x, const int input_length,
 		const int output_length, float_t *y);
 
 void cacu_row_max_pooling_index_cpu(float_t *x, const int input_length,
-		const int output_length, float_t *y, unsigned int* index);
+		const int output_length, float_t *y, int* index);
 
 void cacu_row_max_pooling_grad_cpu(const float_t *x, const int output_length,
-		float_t *y, const unsigned int* index);
+		float_t *y, const int* index);
 
 }

@@ -45,16 +45,16 @@ class bin_blob : public blob_base {
 public:
 
 	bin_blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
-			unsigned int _value, phase_type phase);
+			int _value, phase_type phase);
 
 	~bin_blob();
 
 	/**
 	 * return the piece probe in blob data
 	 */
-	inline unsigned int* p_data(dsize_t n) const {
+	inline int* p_data(dsize_t n) const {
 		//CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
-		return (unsigned int*) _s_data + n * _cube_length;
+		return (int*) _s_data + n * _cube_length;
 	}
 
 	/**
@@ -69,7 +69,7 @@ public:
 	/**
 	 * return the piece probe in blob data
 	 */
-	inline unsigned int* p_data_cpu(dsize_t n) const {
+	inline int* p_data_cpu(dsize_t n) const {
 		//CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
 		return _tdata->pdata_cpu() + n * _cube_length;
 	}
@@ -77,7 +77,7 @@ public:
 	/**
 	 * return the source probe in blob data
 	 */
-	inline unsigned int* s_data_cpu() const {
+	inline int* s_data_cpu() const {
 		return _tdata->pdata_cpu();
 	}
 
@@ -86,8 +86,8 @@ public:
 	/**
 	 * return the source probe in blob data
 	 */
-	inline unsigned int* s_data() const {
-		return (unsigned int*) _s_data;
+	inline int* s_data() const {
+		return (int*) _s_data;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public:
 	 */
 	void copy_blob(bin_blob* blob_);
 
-	bin_blob* copy_create(phase_type phase_, unsigned int value_) const;
+	bin_blob* copy_create(phase_type phase_, int value_) const;
 
 	/*
 	 * copy data dsize_to blob, if blob is established in gpu, io op is needed
@@ -127,8 +127,8 @@ public:
 
 	inline dsize_t calculate_size() {
 		return test == _phase ?
-				_length * sizeof(unsigned int) :
-				_length * sizeof(unsigned int) + _length * sizeof(float_t);
+				_length * sizeof(int) :
+				_length * sizeof(int) + _length * sizeof(float_t);
 	}
 
 	inline void _RESET_DATA() {
@@ -167,7 +167,7 @@ public:
 	}
 
 	inline void resize(dsize_t num, dsize_t channel, dsize_t width,
-				dsize_t height, unsigned int value) {
+				dsize_t height, int value) {
 		_width = width;
 		_height = height;
 		_channel = channel;
@@ -188,7 +188,7 @@ public:
 
 private:
 
-	tensor<unsigned int>* _tdata = NULL;
+	tensor<int>* _tdata = NULL;
 
 	tensor<float_t>* _tdiff = NULL;
 

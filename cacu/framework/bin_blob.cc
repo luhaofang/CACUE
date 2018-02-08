@@ -29,10 +29,10 @@
 
 namespace cacu {
 
-bin_blob::bin_blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height, unsigned int _value,
+bin_blob::bin_blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height, int _value,
 		phase_type phase) :
 blob_base(num, channel, width, height, phase, __bin_blob__) {
-	_tdata = new tensor<unsigned int>(_length);
+	_tdata = new tensor<int>(_length);
 	_s_data = _tdata->pdata();
 	_tdata->set_value(_value);
 	if (train == phase) {

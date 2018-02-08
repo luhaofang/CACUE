@@ -35,10 +35,16 @@ network* create_Pnet(dsize_t batch_size, phase_type phase_) {
 	blobs *input_datas_ = cacu_allocator::create_blobs();
 	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 12, 12, phase_);
 	input_datas_->push_back(blob_);
+	bin_blob *label_;
+	blob *roi_label_ ;
+
 	if (train == phase_) {
-		bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,
+		label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,
 				phase_);
+		roi_label_ = cacu_allocator::create_blob(batch_size, 4, 1, 1,
+						phase_);
 		input_datas_->push_back(label_);
+		input_datas_->push_back(roi_label_);
 	}
 
 	network *net = new network(input_datas_);
@@ -66,11 +72,26 @@ network* create_Pnet(dsize_t batch_size, phase_type phase_) {
 	*net << conv4_2;
 
 	layer *cls = new layer();
-	if(train == phase_)
-		cls->op(CACU_SOFTMAX_LOSS,conv4_1->get_oblob());
+	if(train == phase_){
+		blobs *cls_blobs = new blobs();
+		cls_blobs->push_back(conv4_1->get_oblob());
+		cls_blobs->push_back(label_);
+		cls->op(CACU_SOFTMAX_LOSS,cls_blobs);
+		cls->get_op<softmax_with_loss_op>(0)->set_loss_weight(0.7);
+	}
 	else
 		cls->op(CACU_SOFTMAX,conv4_1->get_oblob());
 	*net << cls;
+
+	layer *roi = new layer();
+	if(train == phase_){
+		blobs *roi_blobs = new blobs();
+		roi_blobs->push_back(conv4_2->get_oblob());
+		roi_blobs->push_back(roi_label_);
+		roi->op(CACU_MSE_LOSS,roi_blobs);
+		roi->get_op<mse_loss_op>(0)->set_loss_weight(0.3);
+		*net << roi;
+	}
 
 	return net;
 }
@@ -80,10 +101,16 @@ network* create_Rnet(dsize_t batch_size, phase_type phase_) {
 	blobs *input_datas_ = cacu_allocator::create_blobs();
 	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 24, 24, phase_);
 	input_datas_->push_back(blob_);
+	bin_blob *label_;
+	blob *roi_label_ ;
+
 	if (train == phase_) {
-		bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,
+		label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,
 				phase_);
+		roi_label_ = cacu_allocator::create_blob(batch_size, 4, 1, 1,
+						phase_);
 		input_datas_->push_back(label_);
+		input_datas_->push_back(roi_label_);
 	}
 
 	network *net = new network(input_datas_);
@@ -117,11 +144,27 @@ network* create_Rnet(dsize_t batch_size, phase_type phase_) {
 	*net << conv4_2;
 
 	layer *cls = new layer();
-	if(train == phase_)
-		cls->op(CACU_SOFTMAX_LOSS,conv4_1->get_oblob());
+	if(train == phase_){
+		blobs *cls_blobs = new blobs();
+		cls_blobs->push_back(conv4_1->get_oblob());
+		cls_blobs->push_back(label_);
+		cls->op(CACU_SOFTMAX_LOSS,cls_blobs);
+		cls->get_op<softmax_with_loss_op>(0)->set_loss_weight(0.7);
+	}
 	else
 		cls->op(CACU_SOFTMAX,conv4_1->get_oblob());
 	*net << cls;
+
+	layer *roi = new layer();
+	if(train == phase_){
+		blobs *roi_blobs = new blobs();
+		roi_blobs->push_back(conv4_2->get_oblob());
+		roi_blobs->push_back(roi_label_);
+		roi->op(CACU_MSE_LOSS,roi_blobs);
+		roi->get_op<mse_loss_op>(0)->set_loss_weight(0.3);
+		*net << roi;
+	}
+
 
 	return net;
 }
@@ -130,10 +173,16 @@ network* create_Onet(dsize_t batch_size, phase_type phase_) {
 	blobs *input_datas_ = cacu_allocator::create_blobs();
 	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 48, 48, phase_);
 	input_datas_->push_back(blob_);
+	bin_blob *label_;
+	blob *roi_label_ ;
+
 	if (train == phase_) {
-		bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,
+		label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,
 				phase_);
+		roi_label_ = cacu_allocator::create_blob(batch_size, 4, 1, 1,
+						phase_);
 		input_datas_->push_back(label_);
+		input_datas_->push_back(roi_label_);
 	}
 
 	network *net = new network(input_datas_);
@@ -174,11 +223,27 @@ network* create_Onet(dsize_t batch_size, phase_type phase_) {
 	*net << conv4_2;
 
 	layer *cls = new layer();
-	if(train == phase_)
-		cls->op(CACU_SOFTMAX_LOSS,conv4_1->get_oblob());
+	if(train == phase_){
+		blobs *cls_blobs = new blobs();
+		cls_blobs->push_back(conv4_1->get_oblob());
+		cls_blobs->push_back(label_);
+		cls->op(CACU_SOFTMAX_LOSS,cls_blobs);
+		cls->get_op<softmax_with_loss_op>(0)->set_loss_weight(0.7);
+	}
 	else
 		cls->op(CACU_SOFTMAX,conv4_1->get_oblob());
 	*net << cls;
+
+	layer *roi = new layer();
+	if(train == phase_){
+		blobs *roi_blobs = new blobs();
+		roi_blobs->push_back(conv4_2->get_oblob());
+		roi_blobs->push_back(roi_label_);
+		roi->op(CACU_MSE_LOSS,roi_blobs);
+		roi->get_op<mse_loss_op>(0)->set_loss_weight(0.3);
+		*net << roi;
+	}
+
 
 	return net;
 }

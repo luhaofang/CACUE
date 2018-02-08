@@ -37,9 +37,12 @@ network::network(blobs *&datas_) {
 }
 
 network::~network() {
+	for (int i = 0; i < _input_blobs->size(); ++i) {
+		delete _input_blobs->at(i);
+		_input_blobs->at(i) = NULL;
+	}
 	delete _input_blobs;
-	for(int i = 0 ; i< _layers->size(); ++i)
-	{
+	for (int i = 0; i < _layers->size(); ++i) {
 		delete _layers->at(i);
 		_layers->at(i) = NULL;
 	}

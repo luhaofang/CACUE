@@ -25,7 +25,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "../../config.h"
 
 #ifdef __PARALLELTYPE__
@@ -33,9 +32,10 @@
 
 #include "../../tensor/cuda/cuda_log.h"
 
-namespace cacu{
+namespace cacu {
 
-__global__ void _k_CACU_SAXPY_ATOMIC_CUDA(float *x, float a, float *y,const int length){
+__global__ void _k_CACU_SAXPY_ATOMIC_CUDA(float *x, float a, float *y,
+		const int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -49,44 +49,49 @@ __global__ void _k_CACU_SAXPY_ATOMIC_CUDA(float *x, float a, float *y,const int 
 
 }
 
-extern "C" void cacu_saxpy_atomic_cuda(float *x, float a, float *y, const int length)
-{
-	_k_CACU_SAXPY_ATOMIC_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a ,y,length);
+extern "C" void cacu_saxpy_atomic_cuda(float *x, float a, float *y,
+		const int length) {
+	_k_CACU_SAXPY_ATOMIC_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a, y, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-
-__global__ void _k_CACU_ISAXB_CUDA(float *x, const int length,const float a ,unsigned int *index_, const float b, float *y) {
+__global__ void _k_CACU_ISAXB_CUDA(float *x, const int length, const float a,
+		int *index_, const float b, float *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
 	int threadid = bid * THREADNUM + tid;
 
-	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = x[i];
+	if (index_[0] >= 0) {
+
+		for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+			y[i] = x[i];
+		}
+
+		__syncthreads();
+
+		if (threadid == 0)
+			y[index_[0]] = a * x[index_[0]] + b;
 	}
-
-	__syncthreads();
-
-	if(threadid == 0)
-		y[index_[0]] = a*x[index_[0]] + b;
 }
 
 /**
  * @cacu_isaxdb_cuda
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_cuda(float *x, const int length,const float a ,unsigned int *index_,const float b, float *y) {
+extern "C" void cacu_isaxb_cuda(float *x, const int length, const float a,
+		int *index_, const float b, float *y) {
 
-	_k_CACU_ISAXB_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length,a ,index_,b,y);
+	_k_CACU_ISAXB_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, index_, b, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 
-__global__ void _k_ARGMAX_CUDA(float *x, const int length, unsigned int *index_) {
+__global__ void _k_ARGMAX_CUDA(float *x, const int length,
+		unsigned int *index_) {
 
 	__shared__ float shared_data[THREADNUM];
 
@@ -95,17 +100,16 @@ __global__ void _k_ARGMAX_CUDA(float *x, const int length, unsigned int *index_)
 	int tid = threadIdx.x;
 
 	int max_length = THREADNUM;
-	if(THREADNUM > length)
+	if (THREADNUM > length)
 		max_length = length;
 
-	if(tid < max_length){
+	if (tid < max_length) {
 		shared_data[tid] = x[tid];
 		index_data[tid] = tid;
 	}
 
 	for (unsigned int i = tid; i < length; i += THREADNUM) {
-		if(x[i] > shared_data[tid])
-		{
+		if (x[i] > shared_data[tid]) {
 			shared_data[tid] = x[i];
 			index_data[tid] = i;
 		}
@@ -113,11 +117,10 @@ __global__ void _k_ARGMAX_CUDA(float *x, const int length, unsigned int *index_)
 
 	__syncthreads();
 
-	if(tid == 0){
+	if (tid == 0) {
 
-		for(int i = 1; i< max_length; ++i)
-		{
-			if(shared_data[0] < shared_data[i]){
+		for (int i = 1; i < max_length; ++i) {
+			if (shared_data[0] < shared_data[i]) {
 				shared_data[0] = shared_data[i];
 				index_data[0] = index_data[i];
 			}
@@ -126,20 +129,19 @@ __global__ void _k_ARGMAX_CUDA(float *x, const int length, unsigned int *index_)
 	}
 }
 
-extern "C" void cacu_argmax_cuda(float *x,const int length, unsigned int *index_)
-{
+extern "C" void cacu_argmax_cuda(float *x, const int length,
+		unsigned int *index_) {
 	_k_ARGMAX_CUDA<<<1, THREADNUM, 0>>>(x, length, index_);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n)
-{
+extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n) {
 
 }
 
-
-__global__ void _k_CACU_CLIP_VEC_CUDA(float *data, const float threshold, const int length) {
+__global__ void _k_CACU_CLIP_VEC_CUDA(float *data, const float threshold,
+		const int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -152,8 +154,8 @@ __global__ void _k_CACU_CLIP_VEC_CUDA(float *data, const float threshold, const 
 	}
 }
 
-extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int length)
-{
+extern "C" void cacu_clip_vec_cuda(float *data, const float threshold,
+		const int length) {
 	_k_CACU_CLIP_VEC_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(data, threshold, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());

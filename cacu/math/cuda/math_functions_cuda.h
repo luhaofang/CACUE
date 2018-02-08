@@ -40,7 +40,7 @@ extern "C" void cacu_saxpy_atomic_cuda(float *x, const float a, float *y, const 
  * @cacu_isaxdb_cuda
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_cuda(float *x, const int length, const float a ,unsigned int *index_,const float b, float *y);
+extern "C" void cacu_isaxb_cuda(float *x, const int length, const float a ,int *index_,const float b, float *y);
 
 extern "C" void cacu_argmax_cuda(float *x, const int length, unsigned int *index_);
 

@@ -48,7 +48,7 @@ namespace cacu {
 __global__ void _k_CACU_MAX_POOLING_CUDA(const float_t *x,
 		const int kernel_size, const int stride, const int input_w,
 		const int input_h, const int output_w, const int output_h,
-		const int channel, float_t *y, unsigned int* index) {
+		const int channel, float_t *y, int* index) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -89,7 +89,7 @@ __global__ void _k_CACU_MAX_POOLING_CUDA(const float_t *x,
 				in = start_in + ki * input_w + kj;
 				if ((ki == 0 && kj == 0) || y[i] < x[in]) {
 					y[i] = x[in];
-					index[i] = (unsigned int) (ki * widthx + kj);
+					index[i] = (int) (ki * widthx + kj);
 				}
 			}
 	}
@@ -98,7 +98,7 @@ __global__ void _k_CACU_MAX_POOLING_CUDA(const float_t *x,
 extern "C" void cacu_max_pooling_cuda(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int output_w, const int output_h, const int channel, float_t *y,
-		unsigned int* index) {
+		int* index) {
 
 	_k_CACU_MAX_POOLING_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
 			input_w, input_h, output_w, output_h, channel, y, index);
@@ -114,7 +114,7 @@ extern "C" void cacu_max_pooling_cuda(const float_t *x, const int kernel_size,
 __global__ void _k_CACU_MAX_POOLING_GRAD_CUDA(const float_t *x,
 		const int kernel_size, const int stride, const int input_w,
 		const int input_h, const int output_w, const int output_h,
-		const int channel, float_t *y, const unsigned int* index) {
+		const int channel, float_t *y, const int* index) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -187,7 +187,7 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_CUDA(const float_t *x,
 					offset_j = startset_j - outset_j * stride;
 
 					if (index[(outset_i * output_w + outset_j) + c * cout_length]
-							== (unsigned int) (offset_i * widthx + offset_j)) {
+							== (int) (offset_i * widthx + offset_j)) {
 						y[i] += (x[(outset_i * output_w + outset_j)
 								+ c * cout_length]);
 					}
@@ -200,7 +200,7 @@ __global__ void _k_CACU_MAX_POOLING_GRAD_CUDA(const float_t *x,
 extern "C" void cacu_max_pooling_grad_cuda(const float_t *x,
 		const int kernel_size, const int stride, const int input_w,
 		const int input_h, const int output_w, const int output_h,
-		const int channel, float_t *y, const unsigned int* index) {
+		const int channel, float_t *y, const int* index) {
 
 	_k_CACU_MAX_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size,
 			stride, input_w, input_h, output_w, output_h, channel, y, index);
@@ -607,7 +607,7 @@ extern "C" void cacu_row_max_pooling_cuda(float_t *x, int input_length,
 }
 
 __global__ void _K_CACU_ROW_MAX_POOLING_INDEX_CUDA(const float_t *x,
-		int input_length, int output_length, float_t *y, unsigned int* index) {
+		int input_length, int output_length, float_t *y, int* index) {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
@@ -625,14 +625,14 @@ __global__ void _K_CACU_ROW_MAX_POOLING_INDEX_CUDA(const float_t *x,
 }
 
 extern "C" void cacu_row_max_pooling_index_cuda(const float_t *x,
-		int input_length, int output_length, float_t *y, unsigned int* index) {
+		int input_length, int output_length, float_t *y, int* index) {
 	_K_CACU_ROW_MAX_POOLING_INDEX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x,
 			input_length, output_length, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
 __global__ void _K_CACU_ROW_MAX_POOLING_GRAD_CUDA(const float_t *x,
-		int output_length, float_t *y, const unsigned int* index) {
+		int output_length, float_t *y, const int* index) {
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
@@ -645,7 +645,7 @@ __global__ void _K_CACU_ROW_MAX_POOLING_GRAD_CUDA(const float_t *x,
 }
 
 extern "C" void cacu_row_max_pooling_grad_cuda(const float_t *x,
-		int output_length, float_t *y, const unsigned int* index) {
+		int output_length, float_t *y, const int* index) {
 	_K_CACU_ROW_MAX_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x,
 			output_length, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());

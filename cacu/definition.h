@@ -55,7 +55,7 @@ typedef map<chars_t, float_t> CACU_ARGS;
 
 typedef vector<float_t> vec_t;
 
-typedef vector<unsigned int> vec_i;
+typedef vector<int> vec_i;
 
 typedef vector<float_t*> vec_f;
 

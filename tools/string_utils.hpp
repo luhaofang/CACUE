@@ -36,7 +36,7 @@ namespace cacu {
 
 //string split
 vector<string> split(string str, string pattern) {
-	vector < string > ret;
+	vector<string> ret;
 	if (pattern.empty())
 		return ret;
 	size_t start = 0, index = str.find_first_of(pattern, 0);

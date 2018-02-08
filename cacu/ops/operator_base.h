@@ -129,8 +129,10 @@ public:
 
 		delete _o_args;
 		if (_IS_ALLOC_OUTPUT) {
-			if (o_blob != NULL)
+			if (o_blob != NULL){
 				delete o_blob;
+				o_blob = NULL;
+			}
 			if (o_blobs != NULL)
 				delete o_blobs;
 		}

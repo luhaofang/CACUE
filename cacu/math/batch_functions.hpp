@@ -90,6 +90,22 @@ inline void cacu_cdxsize(const DTYPE *x, int length, const DTYPE *a, int size,
 }
 
 /**
+ * @cacu_sdxsize
+ * math y[i] = (x[i] + a) / b:
+ * x is a length dim array list, a is the corresponding denominator.
+ */
+template<typename DTYPE>
+inline void cacu_sdxsize(DTYPE *x, const int length, const DTYPE a, const DTYPE b, DTYPE *y) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_sdxsize_cuda(x, length, a, b, y);
+#endif
+#else
+	cacu_sdxsize_cpu(x, length, a, b, y);
+#endif
+}
+
+/**
  * @cacu_ssxpy
  * math z[i] = a * x[j] + b * y[i] :
  * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).

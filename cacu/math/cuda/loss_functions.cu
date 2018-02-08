@@ -42,7 +42,7 @@ namespace cacu {
  *output_dim: width of output data
  */
 __global__ void _k_CACU_CROSS_ENTROPY_CUDA(float_t *x, int num, int length,
-		unsigned int *label_, float_t *loss_) {
+		int *label_, float_t *loss_) {
 
 	int tid = threadIdx.x;
 
@@ -55,7 +55,7 @@ __global__ void _k_CACU_CROSS_ENTROPY_CUDA(float_t *x, int num, int length,
 	for (int i = tid; i < num; i += THREADNUM)
 	{
 		xp = x + i * length;
-		shared_data[tid] -= log(max(xp[label_[i]], float_t(_MIN_FLT_)));
+		shared_data[tid] -= (label_[i] >=0) ? log(max(xp[label_[i]], float_t(_MIN_FLT_))) : 0.0;
 	}
 
 	__syncthreads();
@@ -73,7 +73,7 @@ __global__ void _k_CACU_CROSS_ENTROPY_CUDA(float_t *x, int num, int length,
 }
 
 extern "C" void cacu_cross_entropy_cuda(float_t *x, int num, int length,
-		unsigned int *label_, float_t *loss_) {
+		int *label_, float_t *loss_) {
 
 	_k_CACU_CROSS_ENTROPY_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x,
 			num, length, label_, loss_);
@@ -88,13 +88,13 @@ extern "C" void cacu_cross_entropy_cuda(float_t *x, int num, int length,
  */
 __global__ void _k_CACU_CROSS_ENTROPY_MULTI_CUDA(float_t *x, const int num,
 		const int channel, const int width, const int height,
-		const unsigned int *label_, float_t *loss_) {
+		const int *label_, float_t *loss_) {
 
 }
 
 extern "C" void cacu_cross_entropy_multi_cuda(float_t *x, const int num,
 		const int channel, const int width, const int height,
-		const unsigned int *label_, float_t *loss_) {
+		const int *label_, float_t *loss_) {
 
 }
 

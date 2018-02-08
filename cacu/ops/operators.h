@@ -66,6 +66,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sigmoid_op.h"
 
 #include "softmax_with_loss_op.h"
+#include "mse_loss_op.h"
 
 //#include "hinge_loss_op.h"
 

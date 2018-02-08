@@ -90,15 +90,17 @@ void mask_vector(float *vector_, const int length, float *mask) {
  * y[index] = x[index]*a + b
  */
 void cacu_isaxb(float *x, const int length, const float a,
-		unsigned int *index_, const float b, float *y) {
+		int *index_, const float b, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_isaxb_cuda(x, length, a, index_, b, y);
 #endif
 #else
-	for (int i = 0; i < length; ++i)
-	y[i] = x[i];
-	y[*index_] = a * x[*index_] + b;
+	if(*index_ >=0 ){
+		for (int i = 0; i < length; ++i)
+		y[i] = x[i];
+		y[*index_] = a * x[*index_] + b;
+	}
 #endif
 }
 

@@ -118,15 +118,17 @@ inline void cacu_sgemv(TRANSPOSE trans_, float *x, const int x_height, float *y,
 	CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
 	cacu_sgemv_oblas(transx, x, x_height, y, x_width, alpha, z, beta);
 #elif __CBLASTYPE__ == __MKL__
-	CBLAS_TRANSPOSE transx = (trans_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
-	cacu_sgemv_mkl(transx, x, x_height, y, x_width,alpha, z ,beta);
+	CBLAS_TRANSPOSE transx =
+			(trans_ == TRANS) ?
+					CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
+	cacu_sgemv_mkl(transx, x, x_height, y, x_width, alpha, z, beta);
 #endif
 #else
 #if __PARALLELTYPE__ == __CUDA__
 	cublasOperation_t transx =
-			(trans_ == TRANS) ?
-					cublasOperation_t::CUBLAS_OP_T :
-					cublasOperation_t::CUBLAS_OP_N;
+	(trans_ == TRANS) ?
+	cublasOperation_t::CUBLAS_OP_T :
+	cublasOperation_t::CUBLAS_OP_N;
 	cacu_sgemv_cublas(transx, x, x_height, y, x_width, alpha, z, beta);
 #endif
 #endif
@@ -152,20 +154,25 @@ inline void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float *x,
 	cacu_sgemm_oblas(transx, transy, x, x_height, x_width, y, y_width, alpha, z,
 			beta);
 #elif __CBLASTYPE__ == __MKL__
-	CBLAS_TRANSPOSE transx = (transx_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
-	CBLAS_TRANSPOSE transy = (transy_ == TRANS) ? CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
-	cacu_sgemm_mkl(transx, transy, x, x_height, x_width, y, y_width, alpha, z, beta);
+	CBLAS_TRANSPOSE transx =
+			(transx_ == TRANS) ?
+					CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
+	CBLAS_TRANSPOSE transy =
+			(transy_ == TRANS) ?
+					CBLAS_TRANSPOSE::CblasTrans : CBLAS_TRANSPOSE::CblasNoTrans;
+	cacu_sgemm_mkl(transx, transy, x, x_height, x_width, y, y_width, alpha, z,
+			beta);
 #endif
 #else
 #if __PARALLELTYPE__ == __CUDA__
 	cublasOperation_t transx =
-			(transx_ == TRANS) ?
-					cublasOperation_t::CUBLAS_OP_T :
-					cublasOperation_t::CUBLAS_OP_N;
+	(transx_ == TRANS) ?
+	cublasOperation_t::CUBLAS_OP_T :
+	cublasOperation_t::CUBLAS_OP_N;
 	cublasOperation_t transy =
-			(transy_ == TRANS) ?
-					cublasOperation_t::CUBLAS_OP_T :
-					cublasOperation_t::CUBLAS_OP_N;
+	(transy_ == TRANS) ?
+	cublasOperation_t::CUBLAS_OP_T :
+	cublasOperation_t::CUBLAS_OP_N;
 	cacu_sgemm_cublas(transx, transy, x, x_height, x_width, y, y_width, alpha, z,
 			beta);
 #endif
@@ -189,6 +196,20 @@ inline void cacu_saxpy_atomic(float *x, const float a, float *y,
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_saxpy_atomic_cuda(x, a, y, length);
 #endif
+#endif
+}
+
+/**
+ * @cacu_saxpy_cpu
+ * math y = ax + y:
+ * length: the input data's size
+ */
+inline void cacu_saxpy_cpu(float *x, const float a, float *y,
+		const int length) {
+#if __CBLASTYPE__ == __OPENBLAS__
+	cacu_saxpy_oblas(x, a, y, length);
+#elif __CBLASTYPE__ == __MKL__
+	cacu_saxpy_mkl(x, a, y, length);
 #endif
 }
 
@@ -217,8 +238,8 @@ void cacu_copy(float *x, const int length, float *y);
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-void cacu_isaxb(float *x, const int length, const float a,
-		unsigned int *index_, const float b, float *y);
+void cacu_isaxb(float *x, const int length, const float a, int *index_,
+		const float b, float *y);
 
 unsigned int argmax(float *data, const int length);
 

@@ -64,7 +64,9 @@ void face_detect(chars_t file_name) {
 	Onet->load_weights("/home/seal/4T/cacue/imagenet/Onet.model");
 
 	float_t thresholds[3] = { 0.5, 0.5, 0.6 };
-
+	struct timeval start;
+	struct timeval end;
+	gettimeofday(&start, NULL);
 	cv::Mat src = cv::imread(file_name, cv::IMREAD_COLOR);
 	if (!src.data)
 		LOG_FATAL("file %s cannot be opened!", file_name.c_str());
@@ -181,6 +183,10 @@ void face_detect(chars_t file_name) {
 				proposals);
 	}
 	LOG_DEBUG("proposal: %d", proposals->size());
+	gettimeofday(&end, NULL);
+	unsigned long diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
+		- start.tv_usec;
+	LOG_INFO("time cost:%ld ms", diff / 1000);
 	for (dsize_t i = 0; i < proposals->size(); ++i) {
 		cv::rectangle(src,
 				cv::Rect(proposals->at(i)->l, proposals->at(i)->t,

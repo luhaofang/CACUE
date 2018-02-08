@@ -29,12 +29,12 @@
 
 namespace cacu {
 
-class softmax_with_loss_op: public operator_base {
+class mse_loss_op: public operator_base {
 
 public:
 
-	softmax_with_loss_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_SOFTMAX_LOSS) {
+	mse_loss_op(blobs *&data) :
+			operator_base(data, CACU_MSE_LOSS) {
 		check();
 
 		initial();
@@ -45,7 +45,7 @@ public:
 		echo();
 	}
 
-	~softmax_with_loss_op() {
+	~mse_loss_op() {
 		free(_loss);
 	}
 
@@ -70,11 +70,9 @@ public:
 
 	virtual const void check() override {
 		//check blob size
-		CHECK_GT_OP(s_blobs->size(), 1, "source blob size > 1 vs %d !",
-				s_blobs->size());
-		//check blob size
-		CHECK_GT_OP(s_blobs->at(0)->channel(), 1, "source data must > 1 vs %d !",
-				s_blobs->at(0)->channel());
+		CHECK_EQ_OP(s_blobs->at(0)->count(), s_blobs->at(1)->count(),
+				"source data must equal %d vs %d !", s_blobs->at(0)->count(),
+				s_blobs->at(1)->count());
 	}
 
 	virtual const void op() override {
@@ -84,31 +82,43 @@ public:
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
-		em_bin_blob *labels_ = (em_bin_blob*) s_blobs->at(1);
+		em_blob *labels_ = (em_blob*) s_blobs->at(1);
 
-		cacu_softmax_cpu(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(),
-				o_blob_->width(), s_blob_->height(), o_blob_->s_data());
-		cacu_cross_entropy_cpu(o_blob_->s_data(), o_blob_->num(),
-				o_blob_->length(), labels_->s_data(), o_blob_->s_diff());
+		cacu_copy_cpu(labels_->s_data(), labels_->count(), o_blob_->s_data());
 
+		for (int i = 0; i < s_blob_->num(); ++i) {
+			cacu_saxpy_cpu(s_blob_->p_data(i), 1, o_blob_->p_data(i), -1,
+					s_blob_->length());
+		}
+		cacu_sqr_cpu(o_blob_->s_data(), o_blob_->count(), o_blob_->s_diff());
+		cacu_scalex_cpu(o_blob_->s_diff(), o_blob_->count(), 0.5);
+		cacu_sumbysize_cpu(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1,
+				_loss, 0, o_blob_->count());
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blobs->at(0);
-		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+		blob *labels_ = (blob*)s_blobs->at(1);
 
-		cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(), s_blob_->width(), s_blob_->height(), o_blob_->s_data());
-		cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+		//cacu_print(s_blob_->s_data(), 100);
+		cacu_copy(labels_->s_data(), labels_->count(), o_blob_->s_data());
+		float_t *pdata_cpu = o_blob_->s_data_cpu();
+		for(int i = 0; i < s_blob_->num(); ++i) {
+			cacu_saxpby(s_blob_->p_data(i), 1, o_blob_->p_data(i), -1,
+					s_blob_->length());
+
+		}
+		cacu_sqr(o_blob_->s_data(), o_blob_->count(), o_blob_->s_diff());
+		cacu_scalex(o_blob_->s_diff(), o_blob_->count(), 0.5);
+		cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1,
+				o_blob_->s_diff(), 0, o_blob_->count());
 #endif
 
-#if __USEMBEDDING__ == ON
-		cacu_copy_cpu(o_blob_->s_diff(), 1, _loss);
-#else
 #if __USE_DEVICE__ == ON
 		cuda_copy2host(_loss, o_blob_->s_diff(), 1);
 #else
 		cacu_copy(o_blob_->s_diff(), 1 ,_loss);
 #endif
-#endif
+
 		_loss[0] *= normalizer();
 	}
 
@@ -117,27 +127,16 @@ public:
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
-		em_bin_blob *labels_ = (em_bin_blob*) s_blobs->at(1);
 
-		//CE LOSS BACK PROPGATION
-		for (int i = 0; i < s_blob_->num(); ++i) {
-			cacu_isaxb(o_blob_->p_data_d(i), s_blob_->length(), (float_t) 1,
-					labels_->p_data_d(i), (float_t) -1, s_blob_->p_diff_d(i));
-			cacu_scalex(s_blob_->p_diff_d(i), s_blob_->length(), normalizer());
-			s_blob_->_sync(i);
-		}
+		cacu_copy_cpu(o_blob_->s_data(), o_blob_->count(), s_blob_->s_diff());
+		cacu_scalex_cpu(s_blob_->s_diff(), s_blob_->count(), normalizer());
+
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blobs->at(0);
-		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
-		//CE LOSS BACK PROPGATION
-		for (int i = 0; i < s_blob_->num(); ++i)
-		{
-			cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-			cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
-		}
-
+		cacu_copy(o_blob_->s_data(),o_blob_->count(),s_blob_->s_diff());
+		cacu_scalex(s_blob_->s_diff(),s_blob_->count(),normalizer());
 #endif
 	}
 
@@ -172,8 +171,7 @@ public:
 		return _loss[0];
 	}
 
-	inline void set_loss_weight(float_t weight_)
-	{
+	inline void set_loss_weight(float_t weight_) {
 		_loss_weight = weight_;
 	}
 

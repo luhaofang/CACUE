@@ -112,17 +112,17 @@ void cacu_cdxsize_cpu(const DTYPE *x, int length, const DTYPE *a,
 
 /**
  * @cacu_sdxsize
- * math y[i] = x[i] / a :
+ * math y[i] = (x[i] + a) / b:
  * x is a length dim array list, a is the corresponding denominator.
  */
 template<typename DTYPE>
-void cacu_sdxsize_cpu(DTYPE *x, int length, DTYPE a, DTYPE *y) {
+void cacu_sdxsize_cpu(DTYPE *x, int length, DTYPE a, DTYPE b, DTYPE *y) {
 	int j;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(j)
 #endif
 	for (j = 0; j < length; ++j)
-		y[j] = x[j] / a;
+		y[j] = (x[j] + a) / b;
 }
 
 /**

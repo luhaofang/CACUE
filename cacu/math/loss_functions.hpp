@@ -42,7 +42,7 @@ namespace cacu {
  * for loss use cross entropy functions.
  */
 inline void cacu_cross_entropy(float_t *x, int num, int length,
-		const unsigned int *label_, float_t *loss_) {
+		const int *label_, float_t *loss_) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_cross_entropy_cuda(x, num, length, label_, loss_);
@@ -58,7 +58,7 @@ inline void cacu_cross_entropy(float_t *x, int num, int length,
  * for loss use cross entropy functions.
  */
 inline void cacu_cross_entropy_multi(float_t *x, const int num, const int channel, const int width, const int height,
-		const unsigned int *label_, float_t *loss_) {
+		const int *label_, float_t *loss_) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_cross_entropy_multi_cuda(x, num, channel, width, height, label_, loss_);
@@ -73,7 +73,7 @@ inline void cacu_cross_entropy_multi(float_t *x, const int num, const int channe
  * transform the softmax label to multi sigmoid labels
  */
 inline void cacu_multi_label_trans(int num, int output_num,
-		const unsigned int *label_, unsigned int *trans_labels_) {
+		const int *label_, int *trans_labels_) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_multi_label_trans_cuda(num, output_num, label_, trans_labels_);
