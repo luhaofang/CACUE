@@ -74,6 +74,10 @@ __global__ void _k_CACU_ISAXB_CUDA(float *x, const int length, const float a,
 
 		if (threadid == 0)
 			y[index_[0]] = a * x[index_[0]] + b;
+	} else {
+		for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+			y[i] = 0;
+		}
 	}
 }
 

@@ -87,8 +87,12 @@ public:
 		cacu_copy_cpu(labels_->s_data(), labels_->count(), o_blob_->s_data());
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
-			cacu_saxpy_cpu(s_blob_->p_data(i), 1, o_blob_->p_data(i), -1,
-					s_blob_->length());
+			if (o_blob_->p_data(i) != -1.0)
+				cacu_saxpby_cpu(s_blob_->p_data(i), 1, o_blob_->p_data(i), -1,
+						s_blob_->length());
+			else
+				cacu_saxpby_cpu(s_blob_->p_data(i), 0, o_blob_->p_data(i), 0,
+						s_blob_->length());
 		}
 		cacu_sqr_cpu(o_blob_->s_data(), o_blob_->count(), o_blob_->s_diff());
 		cacu_scalex_cpu(o_blob_->s_diff(), o_blob_->count(), 0.5);
@@ -103,13 +107,16 @@ public:
 		cacu_copy(labels_->s_data(), labels_->count(), o_blob_->s_data());
 		float_t *pdata_cpu = o_blob_->s_data_cpu();
 		for(int i = 0; i < s_blob_->num(); ++i) {
+			if(pdata_cpu[i * o_blob_->length()] != -1.0)
 			cacu_saxpby(s_blob_->p_data(i), 1, o_blob_->p_data(i), -1,
 					s_blob_->length());
-
+			else
+			cacu_saxpby(s_blob_->p_data(i), 0, o_blob_->p_data(i), 0,
+					s_blob_->length());
 		}
 		cacu_sqr(o_blob_->s_data(), o_blob_->count(), o_blob_->s_diff());
 		cacu_scalex(o_blob_->s_diff(), o_blob_->count(), 0.5);
-		cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1,
+		cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), normalizer(),
 				o_blob_->s_diff(), 0, o_blob_->count());
 #endif
 
@@ -119,7 +126,6 @@ public:
 		cacu_copy(o_blob_->s_diff(), 1 ,_loss);
 #endif
 
-		_loss[0] *= normalizer();
 	}
 
 	virtual const void grad() override {
@@ -136,7 +142,8 @@ public:
 		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		cacu_copy(o_blob_->s_data(),o_blob_->count(),s_blob_->s_diff());
-		cacu_scalex(s_blob_->s_diff(),s_blob_->count(),normalizer());
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer());
+		//cacu_print(s_blob_->s_diff(),s_blob_->count());
 #endif
 	}
 

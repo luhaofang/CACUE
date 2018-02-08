@@ -89,17 +89,22 @@ void mask_vector(float *vector_, const int length, float *mask) {
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-void cacu_isaxb(float *x, const int length, const float a,
-		int *index_, const float b, float *y) {
+void cacu_isaxb(float *x, const int length, const float a, int *index_,
+		const float b, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_isaxb_cuda(x, length, a, index_, b, y);
 #endif
 #else
-	if(*index_ >=0 ){
+	if(*index_ >= 0 ) {
 		for (int i = 0; i < length; ++i)
 		y[i] = x[i];
 		y[*index_] = a * x[*index_] + b;
+	}
+	else
+	{
+		for (int i = 0; i < length; ++i)
+		y[i] = 0;
 	}
 #endif
 }
@@ -165,15 +170,14 @@ void cacu_transpose(float *mtx, const int m, const int n) {
 void cacu_copy(float *x, const int length, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_copy_cublas(x,length,y);
+	cacu_copy_cublas(x, length, y);
 #endif
 #else
 	memcpy(y, x, length * sizeof(float));
 #endif
 }
 
-void cacu_clip_vec(float *data, const float threshold,
-		const int length) {
+void cacu_clip_vec(float *data, const float threshold, const int length) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_clip_vec_cuda(data, threshold, length);
