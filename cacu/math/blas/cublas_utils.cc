@@ -25,10 +25,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __USE_DEVICE__ && __PARALLELTYPE__
-#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
-
 #include "cublas_utils.h"
+
+#if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
+#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
 
 namespace cacu{
 

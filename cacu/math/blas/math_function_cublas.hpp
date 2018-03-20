@@ -27,10 +27,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "cublas_utils.h"
+
 #if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
 #if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
-
-#include "cublas_utils.h"
 
 namespace cacu{
 
