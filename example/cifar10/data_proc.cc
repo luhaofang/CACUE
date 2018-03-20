@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "data_proc.h"
 
+#include "../../cacu/utils/log.h"
 #include "../../cacu/math/math_functions.hpp"
 
 using namespace cacu;
@@ -44,15 +45,15 @@ void readdata(chars_t filename, vector<vec_t> &data_blob) {
 		data_file.read(buffer, kCIFARImageNBytes);
 		vec_t datas(kCIFARImageNBytes);
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (float_t) ((unsigned char) (buffer[j]));
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize]));
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize]));
+			datas[j] = (cacu::float_t) ((unsigned char) (buffer[j]));
+			datas[j + kCIFARDataSize] = (cacu::float_t) ((unsigned char) (buffer[j + kCIFARDataSize]));
+			datas[j + kCIFARDataSize * 2] = (cacu::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize]));
 		}
 		data_blob.push_back(datas);
 	}
 }
 
-void readdata(chars_t filename, float_t *data_) {
+void readdata(chars_t filename, cacu::float_t *data_) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	imageio_utils::imread_gpu(data_,filename.c_str(), kCIFARImageNBytes);
@@ -73,9 +74,9 @@ void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 		data_file.read(buffer, kCIFARImageNBytes);
 		vec_t datas(kCIFARImageNBytes);
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+			datas[j] = (cacu::float_t) ((unsigned char) (buffer[j])) - mean[j];
+			datas[j + kCIFARDataSize] = (cacu::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (cacu::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
 		}
 		data_blob.push_back(datas);
 	}
@@ -86,7 +87,7 @@ void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
 	if(!data_file)
 		LOG_FATAL("file %s cannot be opened!",filename.c_str());
-	float_t *snp;
+	cacu::float_t *snp;
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
@@ -96,9 +97,9 @@ void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		vec_t datas(kCIFARImageNBytes);
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+			datas[j] = (cacu::float_t) ((unsigned char) (buffer[j])) - mean[j];
+			datas[j + kCIFARDataSize] = (cacu::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
+			datas[j + kCIFARDataSize * 2] = (cacu::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
 		}
 		data_blob.push_back(datas);
 	}
@@ -144,7 +145,7 @@ vec_t compute_mean(chars_t &filepath, int filecount)
 		readdata((oss.str()), mean_data);
 	}
 
-	float_t length = (float_t) mean_data.size();
+	cacu::float_t length = (cacu::float_t) mean_data.size();
 
 	for (unsigned int i = 0; i < mean_data.size(); i++) {
 #if __CBLASTYPE__ == __OPENBLAS__

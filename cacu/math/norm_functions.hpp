@@ -69,4 +69,3 @@ inline void cacu_norm_l2(float_t *x, int num, int length,
 }
 
 }
-;

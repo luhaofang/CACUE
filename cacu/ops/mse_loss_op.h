@@ -105,7 +105,11 @@ public:
 
 		//cacu_print(s_blob_->s_data(), 100);
 		cacu_copy(labels_->s_data(), labels_->count(), o_blob_->s_data());
+#if __USE_DEVICE__ == ON
 		float_t *pdata_cpu = o_blob_->s_data_cpu();
+#else
+		float_t *pdata_cpu = o_blob_->s_data();
+#endif
 		for(int i = 0; i < s_blob_->num(); ++i) {
 			if(pdata_cpu[i * o_blob_->length()] != -1.0)
 			cacu_saxpby(s_blob_->p_data(i), 1, o_blob_->p_data(i), -1,

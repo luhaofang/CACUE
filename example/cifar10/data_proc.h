@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace cacu;
 using namespace cacu_tools;
+using namespace std;
 
 
 const int kCIFARImageNBytes = 3072;
@@ -44,7 +45,7 @@ const int kCIFARDataCount = 50000;
 
 void readdata(chars_t filename, vector<vec_t> &data_blob);
 
-void readdata(chars_t filename, float_t *data_);
+void readdata(chars_t filename, cacu::float_t *data_);
 
 void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean);
 

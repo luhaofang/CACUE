@@ -31,6 +31,8 @@ namespace cacu {
 
 sgd_solver::sgd_solver(network *&net_) :
 		solver_base(net_) {
+
+	_momentum = 0.9f;
 	_history_v = cacu_allocator::create_blobs();
 	for (int i = 0; i < _net->op_count(); ++i) {
 		operator_base* op_ = _net->get_op(i);

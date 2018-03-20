@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <vector>
 #include <math.h>
 
@@ -42,30 +43,30 @@ inline bool comp(const rect *a, const rect *b) {
 	return a->score >= b->score;
 }
 
-inline float_t IOU(rect* rect1, rect* rect2) {
-	dsize_t intersection = std::max(0,
-			std::min(rect1->r, rect2->r) - std::max(rect1->l, rect2->l) + 1)
-			* std::max(0,
-					std::min(rect1->b, rect2->b) - std::max(rect1->t, rect2->t)
+inline cacu::float_t IOU(rect* rect1, rect* rect2) {
+	dsize_t intersection = max(0,
+			min(rect1->r, rect2->r) - max(rect1->l, rect2->l) + 1)
+			* max(0,
+					min(rect1->b, rect2->b) - max(rect1->t, rect2->t)
 							+ 1);
 	dsize_t _union = (rect1->r - rect1->l + 1) * (rect1->b - rect1->t + 1)
 			+ (rect2->r - rect2->l + 1) * (rect2->b - rect2->t + 1)
 			- intersection;
-	return _union == 0 ? 0.0 : (float_t) intersection / _union;
+	return _union == 0 ? 0.0 : (cacu::float_t) intersection / _union;
 }
 
-inline float_t IOM(rect* rect1, rect* rect2) {
-	dsize_t intersection = std::max(0,
-			std::min(rect1->r, rect2->r) - std::max(rect1->l, rect2->l) + 1)
-			* std::max(0,
-					std::min(rect1->b, rect2->b) - std::max(rect1->t, rect2->t)
+inline cacu::float_t IOM(rect* rect1, rect* rect2) {
+	dsize_t intersection = max(0,
+			min(rect1->r, rect2->r) - max(rect1->l, rect2->l) + 1)
+			* max(0,
+					min(rect1->b, rect2->b) - max(rect1->t, rect2->t)
 							+ 1);
-	dsize_t min_area = std::min(
+	dsize_t min_area = min(
 			(rect1->r - rect1->l + 1) * (rect1->b - rect1->t + 1),
 			(rect2->r - rect2->l + 1) * (rect2->b - rect2->t + 1));
-	return (float_t) intersection / min_area;
+	return (cacu::float_t) intersection / min_area;
 }
 
-void NMS(vector<rect *> *&rects, float_t threshold, nms_type type);
+void NMS(vector<rect *> *&rects, cacu::float_t threshold, nms_type type);
 
 }

@@ -27,12 +27,11 @@
 
 #include "tools.h"
 
-using namespace std;
 using namespace cacu;
 
 namespace cacu_detection {
 
-void NMS(vector<rect*> *&rects, float_t threshold, nms_type type) {
+void NMS(vector<rect*> *&rects, cacu::float_t threshold, nms_type type) {
 
 	if (rects->size() == 0)
 		return;

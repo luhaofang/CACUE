@@ -27,6 +27,7 @@
 
 #include "loss_functions_cpu.h"
 
+
 namespace cacu {
 
 /**

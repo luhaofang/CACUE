@@ -27,8 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+#if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
+#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
 
 #include "cublas_utils.h"
 

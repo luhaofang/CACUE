@@ -35,7 +35,7 @@ layer_block::layer_block() {
 }
 
 layer_block::~layer_block() {
-	for(int i = 0; i < _layers->size(); ++i)
+	for(size_t i = 0; i < _layers->size(); ++i)
 	{
 		delete _layers->at(i);
 		_layers->at(i)= NULL;

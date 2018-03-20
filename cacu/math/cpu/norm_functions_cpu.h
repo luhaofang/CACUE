@@ -36,12 +36,8 @@ namespace mycnn{
 	 * loss += -log(p(x)):
 	 * for loss use cross entropy functions.
 	 */
-	inline void cacu_norm_l1_cpu(float_t *x, int channel_length, int length, float_t *y)
+	inline void cacu_norm_l1_cpu(cacu::float_t *x, int channel_length, int length, cacu::float_t *y)
 	{
-
-		float *xp;
-
-		int n;
 
 #if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,xp)
@@ -54,12 +50,8 @@ namespace mycnn{
 	 * loss += -log(p(x)):
 	 * for loss use cross entropy functions.
 	 */
-	inline void cacu_norm_l2_cpu(float_t *x, int channel_length, int length, float_t *y)
+	inline void cacu_norm_l2_cpu(cacu::float_t *x, int channel_length, int length, cacu::float_t *y)
 	{
-
-		float *xp;
-
-		int n;
 
 #if __OPENMP__ == ON
 		#pragma omp parallel for default(shared) private(n,xp)

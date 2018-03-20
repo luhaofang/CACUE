@@ -46,7 +46,7 @@ public:
 	}
 
 	~blobs() {
-		for (unsigned int i = 0; i < size(); ++i) {
+		for (unsigned i = 0; i < size(); ++i) {
 			switch (at(i)->_TYPE()) {
 			case __blob__:
 				delete (blob*) at(i);
@@ -77,7 +77,7 @@ public:
 	}
 
 	inline void _DELETE_BLOBS() {
-		for (unsigned int i = 0; i < size(); ++i) {
+		for (unsigned i = 0; i < size(); ++i) {
 			switch (at(i)->_TYPE()) {
 			case __blob__:
 				delete (blob*) at(i);
@@ -102,7 +102,7 @@ public:
 	}
 
 	inline void _REC() {
-		for (int i = 0; i < this->size(); ++i)
+		for (size_t i = 0; i < this->size(); ++i)
 			at(i)->_REC();
 	}
 
@@ -110,7 +110,7 @@ public:
 	 * reset all data (data & diff) in this blobs
 	 */
 	inline void _RESET_DATA() {
-		for (int i = 0; i < this->size(); ++i)
+		for (size_t i = 0; i < this->size(); ++i)
 			at(i)->_RESET_DATA();
 	}
 
@@ -118,12 +118,12 @@ public:
 	 * reset diff data (diff) in this blobs
 	 */
 	inline void _RESET_DIFF() {
-		for (int i = 0; i < this->size(); ++i)
+		for (size_t i = 0; i < this->size(); ++i)
 			at(i)->_RESET_DIFF();
 	}
 
 	inline void _MOTIFY() {
-		for (int i = 0; i < this->size(); ++i)
+		for (size_t i = 0; i < this->size(); ++i)
 			at(i)->_MOTIFY();
 	}
 

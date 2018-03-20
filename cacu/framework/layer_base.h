@@ -44,18 +44,20 @@ public:
 
 		_args = args_;
 		_ops = new vector<operator_base*>();
+		out_blob = NULL;
 
 	}
 
 	layer_base() {
 		_args = NULL;
+		out_blob = NULL;
 		_ops = new vector<operator_base*>();
 	}
 
 	virtual ~layer_base() {
 		delete _args;
 		_args = NULL;
-		for (int i = 0; i < _ops->size(); ++i) {
+		for (size_t i = 0; i < _ops->size(); ++i) {
 			delete _ops->at(i);
 			_ops->at(i) = NULL;
 		}
@@ -72,14 +74,14 @@ public:
 	}
 
 	inline void operate() {
-		for (unsigned int i = 0; i < _ops->size(); ++i) {
+		for (unsigned i = 0; i < _ops->size(); ++i) {
 			_ops->at(i)->infer();
 			//LOG_DEBUG("op: %d", i);
 		}
 	}
 
 	inline void grad() {
-		for (int i = _ops->size() - 1; i >= 0; --i) {
+		for (int i = (_ops->size()) - 1; i >= 0; --i) {
 			_ops->at(i)->grad();
 			//LOG_DEBUG("op: %d", i);
 		}

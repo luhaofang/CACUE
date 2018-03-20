@@ -30,6 +30,8 @@
 #include <vector>
 #include <string>
 
+#include "../cacu/definition.h"
+
 using namespace std;
 
 namespace cacu {
@@ -53,15 +55,6 @@ vector<string> split(string str, string pattern) {
 			ret.push_back(str.substr(start));
 	}
 	return ret;
-}
-
-inline static long timespan(clock_t &start, clock_t &end) {
-#ifdef _WIN32
-	return (end - start);
-#elif linux
-	return (end - start) / 1000;
-#endif
-
 }
 
 #ifdef _WIN32

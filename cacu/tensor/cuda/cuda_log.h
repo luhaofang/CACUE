@@ -31,8 +31,8 @@
 
 #include "../../config.h"
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
+#if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
+#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
 
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>

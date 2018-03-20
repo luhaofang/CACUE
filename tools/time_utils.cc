@@ -24,25 +24,3 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-#ifdef __USE_DEVICE__ && __PARALLELTYPE__
-#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
-
-#include "cublas_utils.h"
-
-namespace cacu{
-
-cublasHandle_t handle = NULL;
-
-void create_cublas_handle(){
-	CUBLAS_CHECK(cublasCreate_v2(&handle));
-}
-
-void release_cublas_handle() {
-	CUBLAS_CHECK(cublasDestroy_v2(handle));
-}
-
-}
-
-#endif
-#endif

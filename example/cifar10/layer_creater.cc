@@ -48,9 +48,9 @@ layer_block* conv_layer_avgpooling(blob* data, int output_channel,
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
 	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
-	l->op(CACU_CONVOLUTION, data); //->op(CACU_BATCH_NORMALIZE);
+	l->op(CACU_CONVOLUTION, data)->op(activation_op); //->op(CACU_BATCH_NORMALIZE);
 	layer *al = new layer(new data_args(output_channel, 3, 2, 0, l->get_oblob()->channel()));
-	al->op(CACU_AVERAGE_POOLING, (blob*) l->get_oblob())->op(activation_op);
+	al->op(CACU_AVERAGE_POOLING, (blob*) l->get_oblob());
 	clock_t end = clock();
 	*lb << l << al;
 	return lb;

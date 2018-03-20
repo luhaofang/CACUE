@@ -28,8 +28,13 @@
 #pragma once
 
 
+
+
 #include "../cuda/cuda_log.h"
 #include "../cuda/cuda_utils.h"
+
+#ifdef __USE_DEVICE__
+#if  __USE_DEVICE__ == ON
 
 namespace cacu {
 
@@ -99,3 +104,6 @@ inline void device_print(DTYPE* data_, const dsize_t length) {
 #endif
 }
 }
+
+#endif
+#endif

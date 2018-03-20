@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include "../../definition.h"
 
 namespace cacu {

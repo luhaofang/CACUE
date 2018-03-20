@@ -69,7 +69,7 @@ public:
 
 		CHECK_GE_OP(s_blobs->size(), 2, "blobs size must >= 2 vs %d",
 				s_blobs->size());
-		for (int i = 1; i < s_blobs->size(); ++i) {
+		for (size_t i = 1; i < s_blobs->size(); ++i) {
 			CHECK_EQ_OP(s_blobs->at(i)->count(), s_blobs->at(0)->count(),
 					"blob count must be equal %d vs %d",
 					s_blobs->at(i)->count(), s_blobs->at(0)->count());

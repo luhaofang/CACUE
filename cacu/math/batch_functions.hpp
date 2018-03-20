@@ -311,4 +311,3 @@ inline void cacu_group_combine(int num, int channel, int channel_length,
 }
 
 }
-;

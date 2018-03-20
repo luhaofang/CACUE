@@ -27,6 +27,8 @@
 
 #include "weight.h"
 
+#include "../utils/log.h"
+#include "../utils/check_utils.h"
 #include "../math/utils/rand_t.h"
 
 namespace cacu {
@@ -78,12 +80,12 @@ void weight::set_init_type(param_init_type type, float_t value) {
 void weight::serializa_group(std::ostream& os, int group) {
 	float_t* p_data_;
 	int length = _length / group;
-#if __PARALLELTYPE__ == __CUDA__
+#if __USEMBEDDING__ == ON
 	os.write((char*) (&length), sizeof(length));
 	vec_t _v(_channel_length * (_channel / group));
 	for (int n = 0; n < _num; ++n) {
 		p_data_ = s_data() + n * _v.size();
-		cuda_copy2host(&_v[0], p_data_, _v.size());
+		device_copy2host(&_v[0], p_data_, _v.size());
 		for (auto w : _v)
 			os.write((char*) (&w), sizeof(w));
 	}
@@ -105,7 +107,7 @@ void weight::serializa_group(std::ostream& os, int group) {
  */
 void weight::load_group(std::ifstream& is, int group) {
 	float_t* p_data_ = (float_t*) _s_data;
-#if __PARALLELTYPE__ == __CUDA__
+#if __USEMBEDDING__ == ON
 	vec_t _v(_channel_length * (_channel / group));
 	int length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));
@@ -116,7 +118,7 @@ void weight::load_group(std::ifstream& is, int group) {
 		for (int i = 0; i < _v.size(); ++i)
 			is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
 		p_data_ = s_data() + n * _v.size();
-		cuda_copy2dev(p_data_, &_v[0], _v.size());
+		device_copy2dev(p_data_, &_v[0], _v.size());
 	}
 	vec_t().swap(_v);
 #else

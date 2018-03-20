@@ -37,7 +37,7 @@ struct rect {
 
 public:
 
-	rect(dsize_t l_, dsize_t t_, dsize_t r_, dsize_t b_, float_t score_) {
+	rect(dsize_t l_, dsize_t t_, dsize_t r_, dsize_t b_, cacu::float_t score_) {
 		l = l_;
 		t = t_;
 		r = r_;
@@ -51,7 +51,7 @@ public:
 	dsize_t b;
 
 	//confidence scores
-	float_t score;
+	cacu::float_t score;
 };
 
 }

@@ -25,24 +25,23 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __USE_DEVICE__ && __PARALLELTYPE__
-#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
+#pragma once
 
-#include "cublas_utils.h"
 
-namespace cacu{
-
-cublasHandle_t handle = NULL;
-
-void create_cublas_handle(){
-	CUBLAS_CHECK(cublasCreate_v2(&handle));
-}
-
-void release_cublas_handle() {
-	CUBLAS_CHECK(cublasDestroy_v2(handle));
-}
-
-}
-
+#include <time.h>
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <sys/time.h>
 #endif
+
+#ifdef WIN32
+int gettimeofday(struct timeval *tp, void *tzp)
+{
+
+	return 0;
+}
 #endif
+
+
+

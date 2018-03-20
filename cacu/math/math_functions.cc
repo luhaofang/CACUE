@@ -25,6 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../definition.h"
 #include "math_functions.hpp"
 
 #include "../tensor/cuda/cuda_utils.h"

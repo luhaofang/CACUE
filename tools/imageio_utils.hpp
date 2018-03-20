@@ -31,9 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <string>
 #include <windows.h>
-#include <gdiplus.h>
-#pragma comment(lib, "gdiplus.lib")
-using namespace Gdiplus;
 
 #elif linux
 
@@ -51,6 +48,7 @@ using namespace cv;
 #include <sstream>
 #include <vector>
 
+#include "../tools/string_utils.hpp"
 #include "../cacu/tensor/cuda/cuda_utils.h"
 #include "../cacu/definition.h"
 
@@ -69,7 +67,7 @@ namespace cacu_tools{
 #ifdef _WIN32
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-		static void imread_gpu(float_t *p_data, string file_path_,const int size)
+		static void imread_gpu(cacu::float_t *p_data, string file_path_,const int size)
 		{
 			GdiplusStartupInput gdiplusstartupinput;
 			ULONG_PTR gdiplustoken;
@@ -87,9 +85,9 @@ namespace cacu_tools{
 				{
 					index = y * width + x;
 					bmp->GetPixel(x, y, &color);
-					temp_[index] = ((float_t)color.GetRed());
-					temp_[c_length + index] = ((float_t)color.GetGreen());
-					temp_[2 * c_length + index] = ((float_t)color.GetBlue());
+					temp_[index] = ((cacu::float_t)color.GetRed());
+					temp_[c_length + index] = ((cacu::float_t)color.GetGreen());
+					temp_[2 * c_length + index] = ((cacu::float_t)color.GetBlue());
 				}
 			delete bmp;
 			GdiplusShutdown(gdiplustoken);
@@ -97,37 +95,22 @@ namespace cacu_tools{
 			vec_t().swap(temp_);
 		}
 #endif
-#endif
-		static void imread(float_t *p_data, string file_path_,const int size)
+#else
+		static void imread(cacu::float_t *p_data, string file_path_,const int size)
 		{
-			GdiplusStartupInput gdiplusstartupinput;
-			ULONG_PTR gdiplustoken;
-			GdiplusStartup(&gdiplustoken, &gdiplusstartupinput, NULL);
-			Bitmap* bmp = new Bitmap(StringToWString(file_path_).c_str());
-			unsigned int height = bmp->GetHeight();
-			unsigned int width = bmp->GetWidth();
-			Color color;
-			unsigned int c_length = height * width;
-			vec_t temp_(3 * c_length);
-			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
-			unsigned int index;
-			for (unsigned int y = 0; y < height; y++)
-				for (unsigned int x = 0; x < width; x++)
-				{
-					index = y * width + x;
-					bmp->GetPixel(x, y, &color);
-					p_data[index] = ((float_t)color.GetRed());
-					p_data[c_length + index] = ((freinterpret_castloat_t)color.GetGreen());
-					p_data[2 * c_length + index] = ((float_t)color.GetBlue());
-				}
-			delete bmp;
-			GdiplusShutdown(gdiplustoken);
+			
 		}
+
+		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w)
+		{
+			
+		}
+#endif
 #else
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-		static void imread_gpu(float_t *p_data, const char* file_path_, const int size)
+		static void imread_gpu(cacu::float_t *p_data, const char* file_path_, const int size)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -143,16 +126,16 @@ namespace cacu_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					temp_[index] = ((float_t) src.at<cv::Vec3b>(y, x)[0]);
-					temp_[c_length + index] = ((float_t) src.at<cv::Vec3b>(y, x)[1]);
-					temp_[2*c_length + index] = ((float_t) src.at<cv::Vec3b>(y, x)[2]);
+					temp_[index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[0]);
+					temp_[c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[1]);
+					temp_[2*c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
 
 			cuda_copy2dev(p_data,&temp_[0],temp_.size());
 			vec_t().swap(temp_);
 		}
 
-		static void resize_imread_gpu(float_t *p_data, const char* file_path_, int resize_h,int resize_w)
+		static void resize_imread_gpu(cacu::float_t *p_data, const char* file_path_, int resize_h,int resize_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -169,16 +152,16 @@ namespace cacu_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					temp_[index] = ((float_t) dst.at<cv::Vec3b>(y, x)[0]);
-					temp_[c_length + index] = ((float_t) dst.at<cv::Vec3b>(y, x)[1]);
-					temp_[2*c_length + index] = ((float_t) dst.at<cv::Vec3b>(y, x)[2]);
+					temp_[index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0]);
+					temp_[c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1]);
+					temp_[2*c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[2]);
 				}
 
 			cuda_copy2dev(p_data,&temp_[0],temp_.size());
 			vec_t().swap(temp_);
 		}
 
-		static void clip_imread_gpu(float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
+		static void clip_imread_gpu(cacu::float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -202,16 +185,16 @@ namespace cacu_tools{
 				for (unsigned int x = 0; x < clip_size_w; x++) {
 					index = y * clip_size_w + x;
 					setdata = dst.at<cv::Vec3b>(y + start_h, x + start_w);
-					temp_[index] = ((float_t) setdata[0]);
-					temp_[c_length + index] = ((float_t) setdata[1]);
-					temp_[2 * c_length + index] = ((float_t) setdata[2]);
+					temp_[index] = ((cacu::float_t) setdata[0]);
+					temp_[c_length + index] = ((cacu::float_t) setdata[1]);
+					temp_[2 * c_length + index] = ((cacu::float_t) setdata[2]);
 				}
 			cuda_copy2dev(p_data, &temp_[0], temp_.size());
 			vec_t().swap(temp_);
 		}
 #endif
-#endif
-		static void imread(float_t *p_data, const char* file_path_, const int p_size)
+#else
+		static void imread(cacu::float_t *p_data, const char* file_path_, const int p_size)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -227,13 +210,13 @@ namespace cacu_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					p_data[index] = ((float_t) src.at<cv::Vec3b>(y, x)[0]);
-					p_data[c_length + index] = ((float_t) src.at<cv::Vec3b>(y, x)[1]);
-					p_data[2*c_length + index] = ((float_t) src.at<cv::Vec3b>(y, x)[2]);
+					p_data[index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[0]);
+					p_data[c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[1]);
+					p_data[2*c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
 		}
 
-		static void resize_imread(float_t *p_data, const char* file_path_, int resize_h, int resize_w)
+		static void resize_imread(cacu::float_t *p_data, const char* file_path_, int resize_h, int resize_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -251,13 +234,13 @@ namespace cacu_tools{
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
-					p_data[index] = ((float_t) dst.at<cv::Vec3b>(y, x)[0]);
-					p_data[c_length + index] = ((float_t) dst.at<cv::Vec3b>(y, x)[1]);
-					p_data[2*c_length + index] = ((float_t) dst.at<cv::Vec3b>(y, x)[2]);
+					p_data[index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0]);
+					p_data[c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1]);
+					p_data[2*c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[2]);
 				}
 		}
 
-		static void clip_imread(float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
+		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 			if(!src.data)
@@ -281,74 +264,75 @@ namespace cacu_tools{
 				for (unsigned int x = 0; x < clip_size_w; x++) {
 					index = y * clip_size_w + x;
 					setdata = dst.at<cv::Vec3b>(y + start_h, x + start_w);
-					temp_[index] = ((float_t) setdata[0]);
-					temp_[c_length + index] = ((float_t) setdata[1]);
-					temp_[2 * c_length + index] = ((float_t) setdata[2]);
+					temp_[index] = ((cacu::float_t) setdata[0]);
+					temp_[c_length + index] = ((cacu::float_t) setdata[1]);
+					temp_[2 * c_length + index] = ((cacu::float_t) setdata[2]);
 				}
 			memcpy(p_data, &temp_[0], temp_.size());
 			vec_t().swap(temp_);
 		}
 
-
 #endif
-		static void save_mean_file(float_t *p_data, string mean_file_ , int length_)
-		{
-			ofstream os(mean_file_, ios::binary);
-			os.precision(numeric_limits<float_t>::digits10);
-			if(!os)
-				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
-			for(int i = 0 ; i < length_; ++i)
-			{
-				os.write((char*)(p_data+i), sizeof(float_t));
-			}
-			os.close();
-		}
-
-		static void load_mean_file(float_t *p_data, string mean_file_)
-		{
-			ifstream is(mean_file_);
-			is.precision(numeric_limits<float_t>::digits10);
-			if(!is)
-				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
-			vector<float_t> temp_;
-			float_t fp_;
-
-			for(int i = 0 ;is.peek()!=EOF ;++i)
-			{
-				is.read(reinterpret_cast<char*>(&fp_), sizeof(float_t));
-				temp_.push_back(fp_);
-			}
-			is.close();
-
-			float_t *d_= &temp_[0];
-			memcpy(p_data,d_,temp_.size()*sizeof(float_t));
-		}
+#endif
+		
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-		static void load_mean_file_gpu(float_t *p_data, string mean_file_)
+		static void load_mean_file_gpu(cacu::float_t *p_data, string mean_file_)
 		{
 			ifstream is(mean_file_);
-			is.precision(numeric_limits<float_t>::digits10);
+			is.precision(numeric_limits<cacu::float_t>::digits10);
 			if(!is)
 				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
-			vector<float_t> temp_;
-			float_t fp_;
+			vector<cacu::float_t> temp_;
+			cacu::float_t fp_;
 
 			for(int i = 0 ;is.peek()!=EOF ;++i)
 			{
-				is.read(reinterpret_cast<char*>(&fp_), sizeof(float_t));
+				is.read(reinterpret_cast<char*>(&fp_), sizeof(cacu::float_t));
 				temp_.push_back(fp_);
 			}
 			is.close();
 
-			float_t *d_= &temp_[0];
+			cacu::float_t *d_= &temp_[0];
 
 			cuda_copy2dev(p_data,d_,temp_.size());
 		}
 #endif
+#else
+		static void save_mean_file(cacu::float_t *p_data, string mean_file_, int length_)
+		{
+			ofstream os(mean_file_, ios::binary);
+			os.precision(numeric_limits<cacu::float_t>::digits10);
+			if (!os)
+				LOG_FATAL("file %s cannot be opened!", mean_file_.c_str());
+			for (int i = 0; i < length_; ++i)
+			{
+				os.write((char*)(p_data + i), sizeof(cacu::float_t));
+			}
+			os.close();
+		}
+
+		static void load_mean_file(cacu::float_t *p_data, string mean_file_)
+		{
+			ifstream is(mean_file_);
+			is.precision(numeric_limits<cacu::float_t>::digits10);
+			if (!is)
+				LOG_FATAL("file %s cannot be opened!", mean_file_.c_str());
+			vector<cacu::float_t> temp_;
+			cacu::float_t fp_;
+
+			for (int i = 0;is.peek() != EOF;++i)
+			{
+				is.read(reinterpret_cast<char*>(&fp_), sizeof(cacu::float_t));
+				temp_.push_back(fp_);
+			}
+			is.close();
+
+			cacu::float_t *d_ = &temp_[0];
+			memcpy(p_data, d_, temp_.size()*sizeof(cacu::float_t));
+		}
 #endif
-	private:
 
 
 
