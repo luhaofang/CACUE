@@ -90,4 +90,3 @@ inline void cacu_multi_label_trans(int num, int output_num,
 }
 
 }
-;

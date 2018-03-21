@@ -27,9 +27,6 @@
 
 #pragma once
 
-
-
-
 #include "../cuda/cuda_log.h"
 #include "../cuda/cuda_utils.h"
 

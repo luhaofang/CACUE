@@ -46,27 +46,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "operator_base.h"
 
-#include "inner_product_op.h"
-#include "convolution_op.h"
-#include "batch_normalize_op.h"
-#include "dropout_op.h"
+#include "inner_product_op.hpp"
+#include "convolution_op.hpp"
+#include "batch_normalize_op.hpp"
+#include "dropout_op.hpp"
 
-#include "sum_elemwise_op.h"
-#include "feature_combine_op.h"
-#include "split_op.h"
+#include "sum_elemwise_op.hpp"
+#include "feature_combine_op.hpp"
+#include "split_op.hpp"
 
-#include "average_pooling_op.h"
-#include "max_pooling_op.h"
+#include "average_pooling_op.hpp"
+#include "max_pooling_op.hpp"
 
-#include "relu_op.h"
-#include "prelu_op.h"
-#include "leaky_relu_op.h"
-#include "softmax_op.h"
-#include "tanh_op.h"
-#include "sigmoid_op.h"
+#include "relu_op.hpp"
+#include "prelu_op.hpp"
+#include "leaky_relu_op.hpp"
+#include "softmax_op.hpp"
+#include "tanh_op.hpp"
+#include "sigmoid_op.hpp"
 
-#include "softmax_with_loss_op.h"
-#include "mse_loss_op.h"
+#include "softmax_with_loss_op.hpp"
+#include "mse_loss_op.hpp"
 
 //#include "hinge_loss_op.h"
 
@@ -74,12 +74,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*        user operators	       */
 /***********************************/
 
-#include "../user_ops/p_inner_product_op.h"
-#include "../user_ops/deconvolution_op.h"
-#include "../user_ops/row_max_pooling_op.h"
-//#include "../user_ops/local_conv_op.h"
-#include "../user_ops/normalization_op.h"
+#include "../user_ops/p_inner_product_op.hpp"
+#include "../user_ops/deconvolution_op.hpp"
+#include "../user_ops/row_max_pooling_op.hpp"
+//#include "../user_ops/local_conv_op.hpp"
+#include "../user_ops/normalization_op.hpp"
 
-#include "../user_ops/roi_pooling_op.h"
-#include "../user_ops/injector_op.h"
-#include "../user_ops/primary_vector_op.h"
+#include "../user_ops/roi_pooling_op.hpp"
+#include "../user_ops/injector_op.hpp"
+#include "../user_ops/primary_vector_op.hpp"
