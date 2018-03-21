@@ -166,7 +166,7 @@ vec_t compute_mean(chars_t &filepath, int filecount)
 void make_mean(chars_t filepath, chars_t meanfile)
 {
 	vec_t mean = compute_mean(filepath,5);
-	LOG_DEBUG("%f,%f",mean[0],mean[24]);
+	//LOG_DEBUG("%d", mean.size());
 	imageio_utils::save_mean_file(&mean[0],meanfile,mean.size());
 }
 

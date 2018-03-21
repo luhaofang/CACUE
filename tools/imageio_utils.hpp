@@ -315,22 +315,16 @@ namespace cacu_tools{
 
 		static void load_mean_file(cacu::float_t *p_data, string mean_file_)
 		{
-			ifstream is(mean_file_);
+			ifstream is(mean_file_, ios::binary);
 			is.precision(numeric_limits<cacu::float_t>::digits10);
 			if (!is)
 				LOG_FATAL("file %s cannot be opened!", mean_file_.c_str());
-			vector<cacu::float_t> temp_;
-			cacu::float_t fp_;
 
-			for (int i = 0;is.peek() != EOF;++i)
+			for (int i = 0; is.peek() != EOF; ++i)
 			{
-				is.read(reinterpret_cast<char*>(&fp_), sizeof(cacu::float_t));
-				temp_.push_back(fp_);
+				is.read(reinterpret_cast<char*>(p_data + i), sizeof(cacu::float_t));
 			}
 			is.close();
-
-			cacu::float_t *d_ = &temp_[0];
-			memcpy(p_data, d_, temp_.size()*sizeof(cacu::float_t));
 		}
 #endif
 
