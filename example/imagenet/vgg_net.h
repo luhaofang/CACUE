@@ -74,7 +74,7 @@ layer_block* vgg_fc(blob_base* data, int output_channel, int kernel_size = 0, in
 		return lb;
 	}
 
-network* create_vgg_16_net(int batch_size,phrase_type phrase_)
+network* create_vgg_16_net(int batch_size,phase_type phrase_)
 {
 	blob *blob_ = cacu_allocator::create_blob(batch_size, 3, 224, 224, phrase_);
 	bin_blob *label_ = cacu_allocator::create_bin_blob(batch_size, 1, 1, 1,phrase_);
