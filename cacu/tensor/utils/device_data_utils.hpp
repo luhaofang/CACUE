@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef DEVICE_DATA_UTILS_HPP_
+#define DEVICE_DATA_UTILS_HPP_
 
 #include "../cuda/cuda_log.h"
 #include "../cuda/cuda_utils.h"
@@ -103,4 +104,7 @@ inline void device_print(DTYPE* data_, const dsize_t length) {
 }
 
 #endif
+#endif
+
+
 #endif

@@ -26,6 +26,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+#ifndef TEST_HPP_
+#define TEST_HPP_
+
 #include <time.h>
 
 #include "../../cacu/cacu.h"
@@ -41,7 +44,7 @@ void test_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 100;
+	int max_iter = 10;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -51,8 +54,8 @@ void test_net()
 
 	network *net = create_cifar_quick_net(batch_size,test);
 
-	string datapath = "/home/seal/4T/cacue/cifar10/data/";
-	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
+	string datapath = "C:/Users/Haofang.Lu/Desktop/data/cifar10/";
+	string meanfile = "C:/Users/Haofang.Lu/Desktop/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -66,22 +69,19 @@ void test_net()
 
 	blob *output_data = net->output_blob();
 
-	net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
+	net->load_weights("C:/Users/Haofang.Lu/Desktop/git/CACUE/example/cifar10/cifar10_quick.model");
 
 	unsigned int max_index;
-	float_t count = 0;
+	cacu::float_t count = 0;
 
 	int step_index = 0;
 
-	struct timeval start;
-	struct timeval end;
-	unsigned long diff;
 	int allcount = 0;
 	for (int i = 0 ; i < max_iter; ++i)
 	{
 		//gettimeofday(&start, NULL);
 
-		//input_data->resize(batch_size,3,32,32);
+		input_data->resize(batch_size,3,32,32);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARBatchSize)
@@ -99,7 +99,7 @@ void test_net()
 			}
 		}
 		allcount += batch_size;
-		batch_size = urandint(90,100);
+		batch_size = urandint(10, 100);
 		LOG_DEBUG("batch_size: %d",batch_size);
 		//gettimeofday(&end, NULL);
 
@@ -113,10 +113,13 @@ void test_net()
 	}
 
 	LOG_INFO("precious: %f,%f", count / allcount,count);
-
+	delete net;
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif
 #endif
 }
+
+
+#endif

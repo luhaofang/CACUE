@@ -25,7 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef FRAMEWORK_FACTORY_H_
+#define FRAMEWORK_FACTORY_H_
+
 
 #include "../framework/blob_base.h"
 #include "../framework/blob.h"
@@ -131,3 +133,6 @@ public:
 };
 
 }
+
+
+#endif

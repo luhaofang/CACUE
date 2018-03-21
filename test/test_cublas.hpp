@@ -1,3 +1,7 @@
+#ifndef TEST_CUBLAS_HPP_
+#define TEST_CUBLAS_HPP_
+
+
 #include "../cacu/cacu.h"
 
 #include "../cacu/framework/blob.h"
@@ -5,7 +9,7 @@
 #include "../cacu/utils/data_printer.h"
 #include "../cacu/tensor/utils/device_data_utils.hpp"
 
-#include "../cacu/math/math_functions.hpp"
+#include "../cacu/math/math_functions.h"
 
 #include "../cacu/math/blas/cublas_utils.h"
 
@@ -68,3 +72,6 @@ TEST_CASE("blas")
 	}
 }
 
+
+
+#endif

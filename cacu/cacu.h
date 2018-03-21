@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef CACU_H_
+#define CACU_H_
 
 
 #include "definition.h"
@@ -46,3 +47,4 @@
 
 
 
+#endif

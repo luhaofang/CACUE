@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef BLOB_BASE_H_
+#define BLOB_BASE_H_
 
 #include "../definition.h"
 
@@ -169,3 +170,6 @@ private:
 
 };
 }
+
+
+#endif

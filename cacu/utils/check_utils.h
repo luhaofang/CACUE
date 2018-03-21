@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef CHECK_UTILS_H_
+#define CHECK_UTILS_H_
 
 #include <time.h>
 #include <stdio.h>
@@ -82,3 +83,4 @@ namespace cacu {
 
 }
 
+#endif

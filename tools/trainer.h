@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef TRAINER_H_
+#define TRAINER_H_
 
 namespace cacu_tools{
 
@@ -37,3 +38,6 @@ class trainer{
 
 
 }
+
+
+#endif

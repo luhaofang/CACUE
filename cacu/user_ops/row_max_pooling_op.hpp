@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef ROW_MAX_POOLING_OP_HPP_
+#define ROW_MAX_POOLING_OP_HPP_
 
 namespace cacu {
 
@@ -174,3 +175,6 @@ private:
 
 };
 }
+
+
+#endif

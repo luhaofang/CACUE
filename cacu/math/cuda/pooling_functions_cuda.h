@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef POOLING_FUNCTIONS_CUDA_H_
+#define POOLING_FUNCTIONS_CUDA_H_
 
 #include "../../config.h"
 
@@ -113,4 +114,7 @@ extern "C" void cacu_row_max_pooling_grad_cuda(const float_t *x,
 }
 
 #endif
+#endif
+
+
 #endif

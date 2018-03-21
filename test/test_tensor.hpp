@@ -1,3 +1,8 @@
+#ifndef TEST_TENSOR_HPP_
+#define TEST_TENSOR_HPP_
+
+
+
 #include "../cacu/cacu.h"
 
 #include "../cacu/framework/blob.h"
@@ -45,3 +50,6 @@ TEST_CASE("tensor")
 	}
 }
 
+
+
+#endif

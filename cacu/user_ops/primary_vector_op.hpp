@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef PRIMARY_VECTOR_OP_HPP_
+#define PRIMARY_VECTOR_OP_HPP_
 
 namespace cacu {
 
@@ -211,3 +212,6 @@ private:
 
 };
 }
+
+
+#endif

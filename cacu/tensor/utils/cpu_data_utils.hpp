@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef CPU_DATA_UTILS_HPP_
+#define CPU_DATA_UTILS_HPP_
 
 #include "../../definition.h"
 
@@ -58,3 +59,6 @@ inline void cacu_print_cpu(DTYPE *data,const dsize_t length) {
 }
 
 }
+
+
+#endif

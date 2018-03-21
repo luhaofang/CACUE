@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
 namespace cacu {
 
@@ -60,15 +61,15 @@ namespace cacu {
 /***********************************/
 
 #ifndef __USE_DEVICE__
-#define __USE_DEVICE__  ON
+#define __USE_DEVICE__  OFF
 #endif
 
 #ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
+#define __PARALLELTYPE__  __OPENBLAS__
 #endif
 
 #ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __MKL__
+#define __CBLASTYPE__   __OPENBLAS__
 #endif
 
 #ifndef __USEMBEDDING__
@@ -81,3 +82,6 @@ namespace cacu {
 #endif
 
 }
+
+
+#endif

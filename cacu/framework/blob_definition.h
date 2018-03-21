@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef BLOB_DEFINITION_H_
+#define BLOB_DEFINITION_H_
 
 namespace cacu{
 
@@ -71,3 +72,5 @@ typedef struct{
 
 
 }
+
+#endif

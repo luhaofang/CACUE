@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef NORM_FUNCTIONS_HPP_
+#define NORM_FUNCTIONS_HPP_
 
 #include "math_definition.h"
 #include "../config.h"
@@ -69,3 +70,6 @@ inline void cacu_norm_l2(float_t *x, int num, int length,
 }
 
 }
+
+
+#endif

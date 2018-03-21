@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef BATCH_NORMALIZE_OP_HPP_
+#define BATCH_NORMALIZE_OP_HPP_
 
 namespace cacu {
 
@@ -476,3 +477,6 @@ private:
 
 };
 }
+
+
+#endif

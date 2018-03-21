@@ -27,7 +27,7 @@
 
 #include "solver_base.h"
 
-#include "../math/math_functions.hpp"
+#include "../math/math_functions.h"
 
 namespace cacu {
 

@@ -25,7 +25,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef RECT_H_
+#define RECT_H_
+
+
 
 #include "../definition.h"
 
@@ -55,3 +58,6 @@ public:
 };
 
 }
+
+
+#endif

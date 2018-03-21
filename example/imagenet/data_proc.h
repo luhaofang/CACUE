@@ -25,6 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef DATA_PROC_H_
+#define DATA_PROC_H_
 
 #include <time.h>
 
@@ -57,3 +59,4 @@ void make_mean(chars_t filepath, chars_t filelist, chars_t meanfile);
 
 
 
+#endif

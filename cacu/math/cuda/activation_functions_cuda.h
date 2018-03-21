@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef ACTIVATION_FUNCTIONS_CUDA_H_
+#define ACTIVATION_FUNCTIONS_CUDA_H_
 
 #include "../../config.h"
 
@@ -95,4 +96,7 @@ extern "C" void cacu_sigmoid_grad_cuda(float_t *x, float_t *g, int length,
 }
 
 #endif
+#endif
+
+
 #endif

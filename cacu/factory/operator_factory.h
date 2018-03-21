@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef OPERATOR_FACTORY_H_
+#define OPERATOR_FACTORY_H_
 
 #include "../framework/blob.h"
 #include "../framework/blobs.h"
@@ -33,7 +34,7 @@
 
 #include "../ops/operator_base.h"
 #include "../ops/operators.h"
-#include "../ops/ops_defination.h"
+#include "../ops/ops_definition.h"
 
 namespace cacu {
 
@@ -228,3 +229,6 @@ public:
 };
 
 }
+
+
+#endif

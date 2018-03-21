@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef DEFINITION_H_
+#define DEFINITION_H_
 
 #include <stdio.h>
 #include <vector>
@@ -69,3 +70,6 @@ typedef vector<float_t*> vec_f;
 #endif
 
 }
+
+
+#endif

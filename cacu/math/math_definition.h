@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef MATH_DEFINITION_H_
+#define MATH_DEFINITION_H_
 
 namespace cacu{
 
@@ -60,3 +61,6 @@ enum normalize_type {
 };
 
 }
+
+
+#endif

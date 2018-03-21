@@ -25,7 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+
+#ifndef ARGS_BASE_H_
+#define ARGS_BASE_H_
 
 #include <vector>
 #include <stdarg.h>
@@ -61,3 +63,6 @@ args_base<DTYPE>::args_base(DTYPE arg1, ...) {
 }
 
 }
+
+
+#endif

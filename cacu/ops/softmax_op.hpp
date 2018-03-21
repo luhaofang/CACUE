@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef SOFTMAX_OP_HPP_
+#define SOFTMAX_OP_HPP_
 
 namespace cacu {
 
@@ -121,3 +122,6 @@ private:
 
 };
 }
+
+
+#endif

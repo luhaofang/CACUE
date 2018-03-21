@@ -23,7 +23,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef RAND_T_H_
+#define RAND_T_H_
 
 #include <random>
 #include <time.h>
@@ -42,3 +43,6 @@ unsigned int urandint(unsigned int min, unsigned int max);
 unsigned int randint(int max);
 
 }
+
+
+#endif

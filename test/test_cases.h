@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef TEST_CASES_H_
+#define TEST_CASES_H_
 
 
 #define CATCH_CONFIG_RUNNER
@@ -35,5 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "test_tensor.hpp"
 #include "test_weight.hpp"
 #include "test_cublas.hpp"
-#include "test_detection.hpp"
-#include "test_detection_tools.hpp"
+#include "test_log.hpp"
+
+
+#endif

@@ -25,6 +25,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef CIFAR_QUICK_NET_H_
+#define CIFAR_QUICK_NET_H_
+
 #include "layer_creater.h"
 
 #include "../../cacu/cacu.h"
@@ -166,3 +169,4 @@ network* create_cifar_quick_dy_net(int batch_size,phase_type phase_)
 */
 
 
+#endif

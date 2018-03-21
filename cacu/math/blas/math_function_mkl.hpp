@@ -24,7 +24,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#pragma once
+#ifndef MATH_FUNCTION_MKL_H_
+#define MATH_FUNCTION_MKL_H_
 
 #ifdef __CBLASTYPE__
 #if __CBLASTYPE__ == __MKL__
@@ -70,4 +71,6 @@ inline void cacu_copy_mkl(float *x, const int x_length,float *y)
 }
 
 #endif
+#endif
+
 #endif

@@ -25,9 +25,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef OPERATOR_BASE_H_
+#define OPERATOR_BASE_H_
 
-#include "ops_defination.h"
+#include "ops_definition.h"
 
 #include "../framework/blob.h"
 #include "../framework/bin_blob.h"
@@ -338,3 +339,6 @@ private:
 };
 
 }
+
+
+#endif

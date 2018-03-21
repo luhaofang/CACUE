@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef SGD_SOLVER_H_
+#define SGD_SOLVER_H_
 
 #include "solver_base.h"
 
@@ -67,3 +68,5 @@ private:
 
 };
 }
+
+#endif

@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef LOG_H_
+#define LOG_H_
 
 #include <stdio.h>
 #include <time.h>
@@ -65,3 +66,6 @@ namespace cacu{
 
 
 };
+
+
+#endif

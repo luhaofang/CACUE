@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef CUDA_UTILS_H_
+#define CUDA_UTILS_H_
 
 #include "../../definition.h"
 
@@ -103,4 +104,7 @@ inline void cuda_refresh(DTYPE *data_, dsize_t length) {
 
 }
 #endif
+#endif
+
+
 #endif

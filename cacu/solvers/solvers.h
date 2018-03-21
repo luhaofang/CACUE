@@ -25,8 +25,12 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef SOLVERS_H_
+#define SOLVERS_H_
 
 
 #include "solver_base.h"
 #include "sgd_solver.h"
+
+
+#endif

@@ -25,13 +25,14 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef TOOLS_H_
+#define TOOLS_H_
 
 #include <algorithm>
 #include <vector>
 #include <math.h>
 
-#include "../definition.h"
+//#include "../definition.h"
 #include "rect.h"
 #include "detection_definition.h"
 
@@ -70,3 +71,6 @@ inline cacu::float_t IOM(rect* rect1, rect* rect2) {
 void NMS(vector<rect *> *&rects, cacu::float_t threshold, nms_type type);
 
 }
+
+
+#endif

@@ -26,8 +26,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+#ifndef TRAIN_HPP_
+#define TRAIN_HPP_
+
 #include <time.h>
-#include <sys/time.h>
 
 #include "../../cacu/solvers/sgd_solver.h"
 
@@ -57,12 +59,14 @@ void train_net()
 	set_rand_seed();
 
 	network *net = create_cifar_quick_net(batch_size,train);
-	//net->load_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
+	//net->load_weights("C:/Users/Haofang.Lu/Desktop/git/CACUE/example/cifar10/cifar10_quick.model");
 	sgd_solver *sgd = new sgd_solver(net);
 	sgd->set_lr(0.001f);
+	sgd->set_momentum(0.9f);
+	sgd->set_weight_decay(0.004f);
 
-	string datapath = "/home/seal/4T/cacue/cifar10/data/";
-	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
+	string datapath = "C:/Users/Haofang.Lu/Desktop/data/cifar10/";
+	string meanfile = "C:/Users/Haofang.Lu/Desktop/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -72,15 +76,12 @@ void train_net()
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
-	struct timeval start;
-	struct timeval end;
 	unsigned long diff;
 	for (int i = 1 ; i < max_iter; ++i)
 	{
 		//batch_size = 200;
-		input_data->resize(batch_size,3,32,32);
-		input_label->resize(batch_size,1,1,1);
-		gettimeofday(&start, NULL);
+		//input_data->resize(batch_size,3,32,32);
+		//input_label->resize(batch_size,1,1,1);
 		for (int j = 0 ; j < batch_size ; ++j)
 		{
 			if (step_index == kCIFARDataCount)
@@ -92,11 +93,8 @@ void train_net()
 
 		sgd->train_iter();
 
-		gettimeofday(&end, NULL);
-
 		if(i % 10 == 0){
-			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
-										- start.tv_usec;
+			diff = 1000000;
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), diff / 1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}
@@ -106,11 +104,12 @@ void train_net()
 
 	}
 	LOG_INFO("optimization is done!");
-	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick_test.model");
+	net->save_weights("C:/Users/Haofang.Lu/Desktop/git/CACUE/example/cifar10/cifar10_quick.model");
 
 	vector<vec_t>().swap(full_data);
 	vector<vec_i>().swap(full_label);
 	delete net;
+	delete sgd;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -118,3 +117,6 @@ void train_net()
 #endif
 #endif
 }
+
+
+#endif

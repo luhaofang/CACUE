@@ -25,12 +25,13 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef LAYER_BASE_H_
+#define LAYER_BASE_H_
 
 #include "args_base.h"
 #include "data_args.h"
 #include "op_args.h"
-#include "../ops/operator_base.h"
+//#include "../ops/operator_base.h"
 
 #include "../factory/operator_factory.h"
 
@@ -102,3 +103,6 @@ protected:
 };
 
 }
+
+
+#endif

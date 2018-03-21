@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef DATA_PRINTER_H_
+#define DATA_PRINTER_H_
 
 
 #include <stdio.h>
@@ -51,3 +52,6 @@ inline void cacu_print(DTYPE *data, size_t length)
 
 
 }
+
+
+#endif

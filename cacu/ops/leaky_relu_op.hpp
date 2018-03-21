@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef LEAKY_RELU_OP_HPP_
+#define LEAKY_RELU_OP_HPP_
 
 namespace cacu {
 
@@ -103,3 +104,6 @@ private:
 
 };
 }
+
+
+#endif

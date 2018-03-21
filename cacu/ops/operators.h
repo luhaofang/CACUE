@@ -25,14 +25,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef OPERATORS_H_
+#define OPERATORS_H_
 
 #include "../config.h"
 
 #include "../utils/check_utils.h"
 #include "../utils/log.h"
 
-#include "../math/math_functions.hpp"
+#include "../math/math_functions.h"
 #include "../math/activation_functions.hpp"
 #include "../math/batch_functions.hpp"
 #include "../math/pooling_functions.hpp"
@@ -83,3 +84,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../user_ops/roi_pooling_op.hpp"
 #include "../user_ops/injector_op.hpp"
 #include "../user_ops/primary_vector_op.hpp"
+
+
+#endif

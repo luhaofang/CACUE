@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef SPLIT_OP_HPP_
+#define SPLIT_OP_HPP_
 
 namespace cacu {
 
@@ -153,3 +154,6 @@ private:
 
 };
 }
+
+
+#endif

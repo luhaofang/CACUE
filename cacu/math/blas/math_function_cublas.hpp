@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef MATH_FUNCTION_CUBLAS_H_
+#define MATH_FUNCTION_CUBLAS_H_
 
 #include "cublas_utils.h"
 
@@ -71,4 +72,6 @@ inline void cacu_copy_cublas(const float *x, int length, float *y){
 }
 
 #endif
+#endif
+
 #endif

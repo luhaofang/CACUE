@@ -25,6 +25,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef RESNET_18_H_
+#define RESNET_18_H_
+
 #include "../cifar10/layer_creater.h"
 
 #include "../../cacu/cacu.h"
@@ -185,3 +188,6 @@ network* create_res18_dy_net(int batch_size_,phase_type phase_)
 	return net;
 }
 */
+
+
+#endif

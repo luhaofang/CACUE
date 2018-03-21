@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef ACTIVITION_FUNCTIONS_CPU_H_
+#define ACTIVITION_FUNCTIONS_CPU_H_
 
 #include <algorithm>
 #include "../../definition.h"
@@ -111,3 +112,5 @@ float_t sigmoid(float_t data);
 float_t tanh(float_t data);
 
 }
+
+#endif

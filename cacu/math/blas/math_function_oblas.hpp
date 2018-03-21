@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef MATH_FUNCTION_OBLAS_H_
+#define MATH_FUNCTION_OBLAS_H_
 
 #ifdef __CBLASTYPE__
 #if __CBLASTYPE__ == __OPENBLAS__
@@ -71,4 +72,6 @@ void cacu_copy_oblas(float *x, const int x_length,float *y)
 }
 
 #endif
+#endif
+
 #endif

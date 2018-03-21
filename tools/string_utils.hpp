@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef STRING_UTILS_HPP_
+#define STRING_UTILS_HPP_
 
 #include <vector>
 #include <string>
@@ -67,3 +68,6 @@ std::wstring StringToWString(const chars_t &str)
 #endif
 
 }
+
+
+#endif

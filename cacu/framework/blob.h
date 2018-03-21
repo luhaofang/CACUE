@@ -23,11 +23,12 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef BLOB_H_
+#define BLOB_H_
 
 #include "blob_base.h"
 
-#include "../definition.h"
+//#include "../definition.h"
 
 #include "../tensor/tensor.h"
 
@@ -188,3 +189,6 @@ protected:
 
 };
 }
+
+
+#endif

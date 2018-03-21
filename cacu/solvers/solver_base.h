@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef SOLVER_BASE_H_
+#define SOLVER_BASE_H_
 
 #include "../math/math_definition.h"
 #include "../framework/weight.h"
@@ -112,3 +113,6 @@ private:
 
 };
 }
+
+
+#endif

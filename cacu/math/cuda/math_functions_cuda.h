@@ -25,7 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef MATH_FUNCTIONS_CUDA_H_
+#define MATH_FUNCTIONS_CUDA_H_
+
 
 #include "../../config.h"
 
@@ -51,4 +53,7 @@ extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int
 }
 
 #endif
+#endif
+
+
 #endif

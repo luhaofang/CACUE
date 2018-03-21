@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef AVERAGE_POOLING_OP_HPP_
+#define AVERAGE_POOLING_OP_HPP_
 
 namespace cacu {
 
@@ -155,3 +156,5 @@ private:
 
 };
 }
+
+#endif

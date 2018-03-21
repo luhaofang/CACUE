@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef CUDA_LOG_H_
+#define CUDA_LOG_H_
 
 #include <stdio.h>
 
@@ -218,4 +219,7 @@ namespace cacu {
 }
 
 #endif
+#endif
+
+
 #endif

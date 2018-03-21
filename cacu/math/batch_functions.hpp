@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef BATCH_FUNCTIONS_HPP_
+#define BATCH_FUNCTIONS_HPP_
 
 #include "math_definition.h"
 #include "../config.h"
@@ -311,3 +312,6 @@ inline void cacu_group_combine(int num, int channel, int channel_length,
 }
 
 }
+
+
+#endif

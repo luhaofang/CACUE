@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef DROPOUT_OP_HPP_
+#define DROPOUT_OP_HPP_
 
 namespace cacu {
 
@@ -182,3 +183,6 @@ private:
 	float_t _ratio = 0.5;
 };
 }
+
+
+#endif

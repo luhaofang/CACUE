@@ -23,6 +23,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef RESNET_50_H_
+#define RESNET_50_H_
+
 #include "../../cacu/cacu.h"
 #include "../../cacu/framework/network.h"
 #include "../../cacu/framework/layer.h"
@@ -166,3 +169,5 @@ network* create_res50net(int batch_size_,phase_type phase_)
 }
 
 
+
+#endif

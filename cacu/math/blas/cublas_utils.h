@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef CUBLAS_UTILS_H_
+#define CUBLAS_UTILS_H_
 
 #include <stdio.h>
 
@@ -86,4 +87,7 @@ void release_cublas_handle();
 }
 
 #endif
+#endif
+
+
 #endif

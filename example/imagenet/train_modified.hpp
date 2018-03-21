@@ -25,6 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef TRAIN_MODIFIED_HPP_
+#define TRAIN_MODIFIED_HPP_
+
 #include <time.h>
 #include <sys/time.h>
 #include "../../cacu/cacu.h"
@@ -314,3 +317,6 @@ void train_net() {
 #endif
 #endif
 }
+
+
+#endif

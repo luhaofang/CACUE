@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef NORM_FUNCTIONS_CPU_H_
+#define NORM_FUNCTIONS_CPU_H_
 
 #include "../../definition.h"
 
@@ -61,3 +62,6 @@ namespace mycnn{
 
 
 };
+
+
+#endif

@@ -25,6 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef DEMO_HPP_
+#define DEMO_HPP_
+
 #include <libpng/png.h>
 #include <opencv2/opencv.hpp>
 
@@ -211,3 +214,5 @@ void face_detect(chars_t file_name) {
 }
 
 //#endif
+
+#endif

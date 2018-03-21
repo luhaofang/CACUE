@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef BATCH_FUNCTIONS_CUDA_H_
+#define BATCH_FUNCTIONS_CUDA_H_
 
 #include "../../config.h"
 
@@ -177,3 +178,4 @@ extern "C" void cacu_group_combine_cuda(int num, int channel, int channel_length
 #endif
 
 
+#endif

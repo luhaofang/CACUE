@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
-
+#ifndef LOSS_FUNCTIONS_CPU_H_
+#define LOSS_FUNCTIONS_CPU_H_
 
 #include <algorithm>
 #include "../../definition.h"
@@ -45,3 +45,6 @@ void cacu_cross_entropy_multi_cpu(float_t *x, const int num, const int channel, 
 		const int *label_, float_t *loss_);
 
 }
+
+
+#endif

@@ -25,6 +25,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef VGG_NET_H_
+#define VGG_NET_H_
+
+
 
 #include "../../cacu/cacu.h"
 #include "../../cacu/framework/network.h"
@@ -292,3 +296,6 @@ network* create_vgg_16_dy_net(int batch_size,phrase_type phrase_)
 }
 
 */
+
+
+#endif

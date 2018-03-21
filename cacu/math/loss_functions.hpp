@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef LOSS_FUNCTIONS_HPP_
+#define LOSS_FUNCTIONS_HPP_
 
 #include "math_definition.h"
 #include "../config.h"
@@ -90,3 +91,6 @@ inline void cacu_multi_label_trans(int num, int output_num,
 }
 
 }
+
+
+#endif

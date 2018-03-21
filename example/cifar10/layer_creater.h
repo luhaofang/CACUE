@@ -25,13 +25,14 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef LAYER_CREATER_H_
+#define LAYER_CREATER_H_
 
 #include "../../cacu/framework/layer.h"
 #include "../../cacu/framework/layer_block.h"
 #include "../../cacu/framework/blob_base.h"
 
-#include "../../cacu/ops/ops_defination.h"
+#include "../../cacu/ops/ops_definition.h"
 #include "../../cacu/ops/operators.h"
 
 using namespace cacu;
@@ -66,3 +67,6 @@ layer_block* loss_layer(blob_base* data, blob_base* label, int output_channel);
 
 layer_block* predict_layer(blob_base* data, int output_channel);
 
+
+
+#endif

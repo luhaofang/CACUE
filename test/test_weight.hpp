@@ -1,3 +1,7 @@
+#ifndef TEST_WEIGHT_HPP_
+#define TEST_WEIGHT_HPP_
+
+
 #include "../cacu/cacu.h"
 
 #include "../cacu/framework/weight.h"
@@ -30,3 +34,6 @@ TEST_CASE("weight") {
 
 }
 
+
+
+#endif

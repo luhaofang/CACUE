@@ -25,6 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef TEST_HPP_
+#define TEST_HPP_
 
 #include <time.h>
 #include <sys/time.h>
@@ -152,3 +154,6 @@ void test_net()
 	cuda_release();
 #endif
 }
+
+
+#endif

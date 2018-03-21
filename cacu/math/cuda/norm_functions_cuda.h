@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef NORM_FUNCTIONS_CUDA_H_
+#define NORM_FUNCTIONS_CUDA_H_
 
 #include "../../config.h"
 
@@ -46,4 +47,7 @@ extern "C" void cacu_norm_l1_cuda(float_t *x, int num, int length,const unsigned
 }
 
 #endif
+#endif
+
+
 #endif

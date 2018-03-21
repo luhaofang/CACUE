@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef POOLING_FUNCTIONS_CPU_H_
+#define POOLING_FUNCTIONS_CPU_H_
 
 #include <algorithm>
 #include "../../definition.h"
@@ -101,3 +102,6 @@ void cacu_row_max_pooling_grad_cpu(const float_t *x, const int output_length,
 		float_t *y, const int* index);
 
 }
+
+
+#endif

@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef FEATURE_COMBINE_OP_HPP_
+#define FEATURE_COMBINE_OP_HPP_
 
 namespace cacu {
 
@@ -164,3 +165,5 @@ private:
 	int _units_count;
 };
 }
+
+#endif

@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef ROI_POOLING_OP_HPP_
+#define ROI_POOLING_OP_HPP_
 
 namespace cacu {
 
@@ -136,3 +137,6 @@ private:
 
 };
 }
+
+
+#endif

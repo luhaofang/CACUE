@@ -25,12 +25,13 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef BLOBS_H_
+#define BLOBS_H_
 
 #include <vector>
 
 #include "blob_base.h"
-
+#include "blob.h"
 #include "bin_blob.h"
 
 using namespace std;
@@ -129,3 +130,6 @@ public:
 
 };
 }
+
+
+#endif

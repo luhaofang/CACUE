@@ -25,6 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MODELS_CREATER_H_
+#define MODELS_CREATER_H_
+
 #include "../../cacu/cacu.h"
 #include "../../cacu/framework/network.h"
 #include "../../cacu/framework/layer.h"
@@ -247,3 +250,6 @@ network* create_Onet(dsize_t batch_size, phase_type phase_) {
 
 	return net;
 }
+
+
+#endif

@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef ACTIVATION_FUNCTIONS_HPP_
+#define ACTIVATION_FUNCTIONS_HPP_
 
 #include "math_definition.h"
 #include "../config.h"
@@ -220,3 +221,5 @@ inline void cacu_sigmoid_grad(float_t *x, float_t *g, int length, float_t *y) {
 }
 
 }
+
+#endif

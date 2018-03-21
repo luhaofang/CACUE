@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef INNER_PRODUCT_OP_H_
+#define INNER_PRODUCT_OP_H_
 
 namespace cacu {
 
@@ -209,3 +210,6 @@ private:
 
 };
 }
+
+
+#endif

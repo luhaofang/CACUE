@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef OPS_DEFINITION_H_
+#define OPS_DEFINITION_H_
 
 namespace cacu {
 
@@ -71,3 +72,6 @@ enum op_name {
 };
 
 }
+
+
+#endif

@@ -25,10 +25,11 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef NETWORK_H_
+#define NETWORK_H_
 
 #include "layer_base.h"
-#include "layer.h"
+//#include "layer.h"
 #include "layer_block.h"
 
 namespace cacu {
@@ -118,3 +119,5 @@ private:
 };
 
 }
+
+#endif

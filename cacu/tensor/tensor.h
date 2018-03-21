@@ -23,7 +23,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef TENSOR_H_
+#define TENSOR_H_
 
 #include "../config.h"
 #include "../utils/log.h"
@@ -237,3 +238,6 @@ void tensor<DTYPE>::load(std::ifstream& is) {
 }
 
 }
+
+
+#endif

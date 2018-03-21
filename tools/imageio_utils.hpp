@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef IMAGEIO_UTILS_HPP_
+#define IMAGEIO_UTILS_HPP_
 
 #ifdef _WIN32
 #include <iostream>
@@ -35,7 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #elif linux
 
 #include <string>
-#include <libpng/png.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
@@ -332,3 +332,6 @@ namespace cacu_tools{
 
 	};
 }
+
+
+#endif

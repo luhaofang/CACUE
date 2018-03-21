@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef DECONVOLUTION_OP_HPP_
+#define DECONVOLUTION_OP_HPP_
 
 namespace cacu {
 
@@ -250,3 +251,6 @@ protected:
 
 };
 }
+
+
+#endif

@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef SIGMOID_OP_HPP_
+#define SIGMOID_OP_HPP_
 
 namespace cacu {
 
@@ -133,3 +134,6 @@ private:
 
 };
 }
+
+
+#endif

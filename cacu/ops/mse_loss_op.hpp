@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef MSE_LOSS_OP_HPP_
+#define MSE_LOSS_OP_HPP_
 
 namespace cacu {
 
@@ -193,3 +194,6 @@ private:
 	float_t _loss_weight = 1.0;
 };
 }
+
+
+#endif

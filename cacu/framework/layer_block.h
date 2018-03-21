@@ -25,11 +25,12 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef LAYER_BLOCK_H_
+#define LAYER_BLOCK_H_
 
 #include <vector>
 
-#include "layer_base.h"
+//#include "layer_base.h"
 #include "layer.h"
 
 using namespace std;
@@ -80,3 +81,5 @@ private:
 };
 
 }
+
+#endif

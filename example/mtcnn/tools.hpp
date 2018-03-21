@@ -25,6 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef TOOLS_HPP_
+#define TOOLS_HPP_
+
 #include <math.h>
 
 #include "../../cacu/detection/detection_definition.h"
@@ -195,3 +198,6 @@ void filter_Onet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 	}
 	NMS(proposal, 0.7, nms_iom);
 }
+
+
+#endif

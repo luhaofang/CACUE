@@ -25,7 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef TIME_UTILS_H_
+#define TIME_UTILS_H_
 
 
 #include <time.h>
@@ -44,4 +45,4 @@ int gettimeofday(struct timeval *tp, void *tzp)
 #endif
 
 
-
+#endif

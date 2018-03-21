@@ -25,7 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef BATCH_FUNCTIONS_CPU_H_
+#define BATCH_FUNCTIONS_CPU_H_
 
 #include <math.h>
 #include "../../definition.h"
@@ -411,3 +412,6 @@ void cacu_group_combine_cpu(int num, int channel, int channel_length,
 
 }
 ;
+
+
+#endif

@@ -25,9 +25,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef LAYER_H_
+#define LAYER_H_
 
-#include "../ops/ops_defination.h"
+#include "../ops/ops_definition.h"
 
 #include "layer_base.h"
 
@@ -82,3 +83,6 @@ private:
 };
 
 }
+
+
+#endif

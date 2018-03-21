@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "data_proc.h"
 
 #include "../../cacu/utils/log.h"
-#include "../../cacu/math/math_functions.hpp"
+#include "../../cacu/math/math_functions.h"
 
 using namespace cacu;
 

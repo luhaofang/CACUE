@@ -25,9 +25,13 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef FRAMEWORK_H_
+#define FRAMEWORK_H_
 
 
 //#include "blob_definition.h"
 //#include "blob_base.h"
 //#include "blob.h"
+
+
+#endif

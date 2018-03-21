@@ -25,14 +25,16 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+
+#ifndef BIN_BLOB_H_
+#define BIN_BLOB_H_
 
 #include <bitset>
 
 #include "blob_base.h"
 
 #include "../math/math.h"
-#include "../definition.h"
+//#include "../definition.h"
 
 #include "../tensor/tensor.h"
 
@@ -195,3 +197,6 @@ private:
 };
 
 }
+
+
+#endif

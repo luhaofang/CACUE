@@ -25,7 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#ifndef OP_ARGS_H_
+#define OP_ARGS_H_
+
 
 #include "args_base.h"
 
@@ -50,3 +52,5 @@ private:
 
 };
 }
+
+#endif
