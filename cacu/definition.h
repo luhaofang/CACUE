@@ -39,8 +39,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ostream>
 #include <iostream>
 
+using namespace std;
+
 namespace cacu{
 
+/*
+ * Definition for numerical limitation
+ */
 #ifdef _WIN32
 
 #define _MAX_INT_ INT_MAX
@@ -53,7 +58,10 @@ namespace cacu{
 
 #endif
 
-using namespace std;
+
+/*
+ * Definition for data structure
+ */
 
 typedef float float_t;
 
@@ -69,6 +77,8 @@ typedef vector<int> vec_i;
 
 typedef vector<float_t*> vec_f;
 
+/*
+ */
 
 #ifndef ON
 #define ON 1
