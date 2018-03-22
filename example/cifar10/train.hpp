@@ -37,11 +37,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../cacu/config.h"
 
 #include "../../tools/imageio_utils.hpp"
+#include "../../tools/time_utils.h"
 
 #include "cifar_quick_net.h"
 #include "data_proc.h"
 
 using namespace cacu;
+using namespace cacu_tools;
 
 void train_net()
 {
@@ -76,9 +78,12 @@ void train_net()
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
+	timeval start;
+	timeval end;
 	unsigned long diff;
 	for (int i = 1 ; i < max_iter; ++i)
 	{
+		gettime(&start);
 		//batch_size = 200;
 		//input_data->resize(batch_size,3,32,32);
 		//input_label->resize(batch_size,1,1,1);
@@ -92,9 +97,12 @@ void train_net()
 		}
 
 		sgd->train_iter();
+		
+		gettime(&end);
 
 		if(i % 10 == 0){
-			diff = 1000000;
+			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
+				- start.tv_usec;
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), diff / 1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
 		}

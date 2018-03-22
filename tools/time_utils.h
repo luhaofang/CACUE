@@ -30,19 +30,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include <time.h>
-#ifdef WIN32
+
+#ifdef _WIN32
 #include <windows.h>
-#else
+
+#elif defined(__linux)
 #include <sys/time.h>
+
 #endif
 
-#ifdef WIN32
-int gettimeofday(struct timeval *tp, void *tzp)
-{
+namespace cacu_tools {
 
-	return 0;
+	struct timeval {
+		long tv_sec;
+		long tv_usec;
+	};
+
+#ifdef _WIN32
+
+	void gettimeofday_win32(timeval *tp, void *tzp);
+
+#endif
+
+	void gettime(timeval *tp);
+
 }
-#endif
+
+
 
 
 #endif

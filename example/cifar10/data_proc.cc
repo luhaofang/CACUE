@@ -53,16 +53,6 @@ void readdata(chars_t filename, vector<vec_t> &data_blob) {
 	}
 }
 
-void readdata(chars_t filename, cacu::float_t *data_) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	imageio_utils::imread_gpu(data_,filename.c_str(), kCIFARImageNBytes);
-#endif
-#else
-	imageio_utils::imread(data_,filename.c_str(),kCIFARImageNBytes);
-#endif
-}
-
 void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
 	if(!data_file)

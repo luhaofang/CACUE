@@ -31,7 +31,6 @@
 
 #include "definition.h"
 
-
 #include "utils/log.h"
 #include "utils/check_utils.h"
 

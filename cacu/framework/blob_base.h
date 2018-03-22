@@ -116,6 +116,9 @@ public:
 
 	void _REC();
 
+	/*
+	* compare the current data size with previous data size
+	*/
 	inline bool _IS_MOTIFIED() {
 		return _p_length == _length;
 	}

@@ -28,144 +28,97 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef IMAGEIO_UTILS_HPP_
 #define IMAGEIO_UTILS_HPP_
 
-#ifdef _WIN32
-#include <iostream>
-#include <string>
-#include <windows.h>
-
-#elif linux
-
 #include <string>
 #include <stdlib.h>
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 using namespace cv;
 
-#endif
 
 #include <ostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 
-#include "../tools/string_utils.hpp"
-#include "../cacu/tensor/cuda/cuda_utils.h"
 #include "../cacu/definition.h"
 
+#include "../tools/string_utils.hpp"
+#include "../cacu/tensor/cuda/cuda_utils.h"
 #include "../cacu/math/utils/rand_t.h"
+
+//#include "../cacu/utils/log.h"
+//#include "../cacu/utils/check_utils.h"
+
 
 using namespace std;
 using namespace cacu;
 
 
-namespace cacu_tools{
+namespace cacu_tools {
 
 
 	class imageio_utils {
 
 	public:
-#ifdef _WIN32
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-		static void imread_gpu(cacu::float_t *p_data, string file_path_,const int size)
-		{
-			GdiplusStartupInput gdiplusstartupinput;
-			ULONG_PTR gdiplustoken;
-			GdiplusStartup(&gdiplustoken, &gdiplusstartupinput, NULL);
-			Bitmap* bmp = new Bitmap(StringToWString(file_path_).c_str());
-			unsigned int height = bmp->GetHeight();
-			unsigned int width = bmp->GetWidth();
-			Color color;
-			unsigned int c_length = height * width;
-			vec_t temp_(3 * c_length);
-			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
-			unsigned int index;
-			for (unsigned int y = 0; y < height; y++)
-				for (unsigned int x = 0; x < width; x++)
-				{
-					index = y * width + x;
-					bmp->GetPixel(x, y, &color);
-					temp_[index] = ((cacu::float_t)color.GetRed());
-					temp_[c_length + index] = ((cacu::float_t)color.GetGreen());
-					temp_[2 * c_length + index] = ((cacu::float_t)color.GetBlue());
-				}
-			delete bmp;
-			GdiplusShutdown(gdiplustoken);
-			cuda_copy2dev(p_data, &temp_[0], temp_.size());
-			vec_t().swap(temp_);
-		}
-#endif
-#else
-		static void imread(cacu::float_t *p_data, string file_path_,const int size)
-		{
-			
-		}
-
-		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w)
-		{
-			
-		}
-#endif
-#else
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 		static void imread_gpu(cacu::float_t *p_data, const char* file_path_, const int size)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
-			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_);
+			if (!src.data)
+				LOG_FATAL("file %s cannot be opened!", file_path_);
 
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;
 
-			vec_t temp_(3*c_length);
-			CHECK_EQ_OP(size,temp_.size(),"image size %d must equal to the blob size %d!",temp_.size(),size);
+			vec_t temp_(3 * c_length);
+			CHECK_EQ_OP(size, temp_.size(), "image size %d must equal to the blob size %d!", temp_.size(), size);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
 					temp_[index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[0]);
 					temp_[c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[1]);
-					temp_[2*c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[2]);
+					temp_[2 * c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
 
-			cuda_copy2dev(p_data,&temp_[0],temp_.size());
+			cuda_copy2dev(p_data, &temp_[0], temp_.size());
 			vec_t().swap(temp_);
 		}
 
-		static void resize_imread_gpu(cacu::float_t *p_data, const char* file_path_, int resize_h,int resize_w)
+		static void resize_imread_gpu(cacu::float_t *p_data, const char* file_path_, int resize_h, int resize_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
-			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_);
+			if (!src.data)
+				LOG_FATAL("file %s cannot be opened!", file_path_);
 
 			unsigned int height = resize_h;
 			unsigned int width = resize_w;
 			unsigned int c_length = height * width;
 			cv::Mat dst;
-			cv::resize(src,dst,cv::Size(resize_w,resize_h),(0,0),(0,0),cv::INTER_LINEAR);
+			cv::resize(src, dst, cv::Size(resize_w, resize_h), (0, 0), (0, 0), cv::INTER_LINEAR);
 
-			vec_t temp_(3*c_length);
+			vec_t temp_(3 * c_length);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
 					temp_[index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0]);
 					temp_[c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1]);
-					temp_[2*c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[2]);
+					temp_[2 * c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[2]);
 				}
 
-			cuda_copy2dev(p_data,&temp_[0],temp_.size());
+			cuda_copy2dev(p_data, &temp_[0], temp_.size());
 			vec_t().swap(temp_);
 		}
 
-		static void clip_imread_gpu(cacu::float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
+		static void clip_imread_gpu(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
-			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_);
+			if (!src.data)
+				LOG_FATAL("file %s cannot be opened!", file_path_);
 
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
@@ -175,9 +128,9 @@ namespace cacu_tools{
 			CHECK_LT_OP(clip_size_h, height, "clip height %d must less than the image height %d!", clip_size_h, height);
 			CHECK_LT_OP(clip_size_w, width, "clip width %d must less than the image width %d!", clip_size_w, width);
 
-			vec_t temp_(3*c_length);
+			vec_t temp_(3 * c_length);
 			unsigned int index;
-			unsigned int start_w,start_h;
+			unsigned int start_w, start_h;
 			start_w = randint(src.cols - clip_size_w);
 			start_h = randint(src.rows - clip_size_h);
 			cv::Vec3b setdata;
@@ -193,58 +146,59 @@ namespace cacu_tools{
 			vec_t().swap(temp_);
 		}
 #endif
-#else
+#endif
+		/*
 		static void imread(cacu::float_t *p_data, const char* file_path_, const int p_size)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
-			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_);
+			if (!src.data)
+				LOG_FATAL("file %s cannot be opened!", file_path_);
 
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
 			unsigned int c_length = height * width;
 
-			vec_t temp_(3*c_length);
-			CHECK_EQ_OP(p_size, temp_.size(), "image size %d must equal to the blob size %d!",temp_.size(), p_size);
+			vec_t temp_(3 * c_length);
+			CHECK_EQ_OP(p_size, temp_.size(), "image size %d must equal to the blob size %d!", temp_.size(), p_size);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
 					p_data[index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[0]);
 					p_data[c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[1]);
-					p_data[2*c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[2]);
+					p_data[2 * c_length + index] = ((cacu::float_t) src.at<cv::Vec3b>(y, x)[2]);
 				}
 		}
 
 		static void resize_imread(cacu::float_t *p_data, const char* file_path_, int resize_h, int resize_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
-			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_);
+			if (!src.data)
+				LOG_FATAL("file %s cannot be opened!", file_path_);
 
 			unsigned int height = resize_h;
 			unsigned int width = resize_w;
 			unsigned int c_length = height * width;
 
 			cv::Mat dst;
-			cv::resize(src,dst,cv::Size(resize_w,resize_h),(0,0),(0,0),cv::INTER_LINEAR);
+			cv::resize(src, dst, cv::Size(resize_w, resize_h), (0, 0), (0, 0), cv::INTER_LINEAR);
 
-			vec_t temp_(3*c_length);
+			vec_t temp_(3 * c_length);
 			unsigned int index;
 			for (unsigned int y = 0; y < height; y++)
 				for (unsigned int x = 0; x < width; x++) {
 					index = y * width + x;
 					p_data[index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0]);
 					p_data[c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1]);
-					p_data[2*c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[2]);
+					p_data[2 * c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[2]);
 				}
 		}
 
-		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h,int clip_size_w)
+		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w)
 		{
 			cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
-			if(!src.data)
-				LOG_FATAL("file %s cannot be opened!",file_path_);
+			if (!src.data)
+				LOG_FATAL("file %s cannot be opened!", file_path_);
 
 			unsigned int height = src.rows;
 			unsigned int width = src.cols;
@@ -254,9 +208,9 @@ namespace cacu_tools{
 			CHECK_LT_OP(clip_size_h, height, "clip height %d must less than the image height %d!", clip_size_h, height);
 			CHECK_LT_OP(clip_size_w, width, "clip width %d must less than the image width %d!", clip_size_w, width);
 
-			vec_t temp_(3*c_length);
+			vec_t temp_(3 * c_length);
 			unsigned int index;
-			unsigned int start_w,start_h;
+			unsigned int start_w, start_h;
 			start_w = randint(src.cols - clip_size_w);
 			start_h = randint(src.rows - clip_size_h);
 			cv::Vec3b setdata;
@@ -271,10 +225,7 @@ namespace cacu_tools{
 			memcpy(p_data, &temp_[0], temp_.size());
 			vec_t().swap(temp_);
 		}
-
-#endif
-#endif
-		
+		*/
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -282,21 +233,21 @@ namespace cacu_tools{
 		{
 			ifstream is(mean_file_);
 			is.precision(numeric_limits<cacu::float_t>::digits10);
-			if(!is)
-				LOG_FATAL("file %s cannot be opened!",mean_file_.c_str());
+			if (!is)
+				LOG_FATAL("file %s cannot be opened!", mean_file_.c_str());
 			vector<cacu::float_t> temp_;
 			cacu::float_t fp_;
 
-			for(int i = 0 ;is.peek()!=EOF ;++i)
+			for (int i = 0;is.peek() != EOF;++i)
 			{
 				is.read(reinterpret_cast<char*>(&fp_), sizeof(cacu::float_t));
 				temp_.push_back(fp_);
 			}
 			is.close();
 
-			cacu::float_t *d_= &temp_[0];
+			cacu::float_t *d_ = &temp_[0];
 
-			cuda_copy2dev(p_data,d_,temp_.size());
+			cuda_copy2dev(p_data, d_, temp_.size());
 		}
 #endif
 #else

@@ -29,22 +29,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TEST_HPP_
 #define TEST_HPP_
 
-#include <time.h>
-
 #include "../../cacu/cacu.h"
 
 #include "../../tools/imageio_utils.hpp"
+#include "../../tools/time_utils.h"
 
 #include "cifar_quick_net.h"
 #include "data_proc.h"
 
-
+using namespace cacu;
+using namespace cacu_tools;
 
 void test_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 10;
+	int max_iter = 100;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -73,16 +73,19 @@ void test_net()
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
+	struct timeval start;
+	struct timeval end;
+	unsigned long diff;
 
 	int step_index = 0;
 
 	int allcount = 0;
-	for (int i = 0 ; i < max_iter; ++i)
+	for (int i = 0; i < max_iter; ++i)
 	{
-		//gettimeofday(&start, NULL);
+		gettime(&start);
 
-		input_data->resize(batch_size,3,32,32);
-		for (int j = 0 ; j < batch_size ; ++j)
+		input_data->resize(batch_size, 3, 32, 32);
+		for (int j = 0; j < batch_size; ++j)
 		{
 			if (step_index == kCIFARBatchSize)
 				break;
@@ -91,23 +94,23 @@ void test_net()
 		}
 
 		net->predict();
-		for(int j = 0 ; j < batch_size ; ++j)
+		for (int j = 0; j < batch_size; ++j)
 		{
-			max_index = argmax(output_data->p_data(j),output_data->length());
-			if(max_index == _full_label[allcount + j]){
+			max_index = argmax(output_data->p_data(j), output_data->length());
+			if (max_index == _full_label[allcount + j]) {
 				count += 1.0;
 			}
 		}
 		allcount += batch_size;
 		batch_size = urandint(10, 100);
-		LOG_DEBUG("batch_size: %d",batch_size);
-		//gettimeofday(&end, NULL);
+		LOG_DEBUG("batch_size: %d", batch_size);
+		gettime(&end);
 
-//		if(i % 1 == 0){
-//			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
-//													- start.tv_usec;
-//			LOG_INFO("iter_%d, %ld ms/iter", i, diff / 1000);
-//		}
+		if (i % 1 == 0) {
+			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
+				- start.tv_usec;
+			LOG_INFO("iter_%d, %ld ms/iter", i, diff / 1000);
+		}
 		if (step_index == kCIFARBatchSize)
 			break;
 	}

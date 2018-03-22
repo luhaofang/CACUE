@@ -24,3 +24,43 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+
+#include "time_utils.h"
+
+
+namespace cacu_tools {
+
+#ifdef _WIN32
+
+	void gettimeofday_win32(timeval *tp, void *tzp)
+	{
+		time_t clock;
+		struct tm tm;
+		SYSTEMTIME wtm;
+
+		GetLocalTime(&wtm);
+		tm.tm_year = wtm.wYear - 1900;
+		tm.tm_mon = wtm.wMonth - 1;
+		tm.tm_mday = wtm.wDay;
+		tm.tm_hour = wtm.wHour;
+		tm.tm_min = wtm.wMinute;
+		tm.tm_sec = wtm.wSecond;
+		tm.tm_isdst = -1;
+		clock = mktime(&tm);
+		tp->tv_sec = clock;
+		tp->tv_usec = wtm.wMilliseconds * 1000;
+	}
+
+#endif
+
+	void gettime(timeval *tp)
+	{
+#ifdef _WIN32
+		gettimeofday_win32(tp, NULL);
+#elif defined(__linux)
+		gettimeofday(tp, NULL);
+#endif
+	}
+
+}
