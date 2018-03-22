@@ -52,15 +52,21 @@ namespace cacu_tools {
 		tp->tv_usec = wtm.wMilliseconds * 1000;
 	}
 
-#endif
-
 	void gettime(timeval *tp)
 	{
-#ifdef _WIN32
 		gettimeofday_win32(tp, NULL);
-#elif defined(__linux)
-		gettimeofday(tp, NULL);
-#endif
 	}
+
+
+#elif defined(__linux)
+
+	void gettime(struct timeval *tp)
+	{
+		gettimeofday(tp, NULL);
+	}
+
+#endif
+
+
 
 }

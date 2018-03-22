@@ -73,8 +73,8 @@ void test_net()
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
-	struct timeval start;
-	struct timeval end;
+	cacu_tools::timeval start;
+	cacu_tools::timeval end;
 	unsigned long diff;
 
 	int step_index = 0;

@@ -78,8 +78,8 @@ void train_net()
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
-	timeval start;
-	timeval end;
+	cacu_tools::timeval start;
+	cacu_tools::timeval end;
 	unsigned long diff;
 	for (int i = 1 ; i < max_iter; ++i)
 	{
