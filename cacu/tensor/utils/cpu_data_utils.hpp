@@ -28,7 +28,10 @@
 #ifndef CPU_DATA_UTILS_HPP_
 #define CPU_DATA_UTILS_HPP_
 
+
 #include "../../definition.h"
+
+using namespace std;
 
 namespace cacu {
 
@@ -41,7 +44,10 @@ namespace cacu {
  */
 template<typename DTYPE>
 void cacu_copy_cpu(DTYPE *x,const dsize_t length, DTYPE *y) {
-	memcpy(y, x, length * sizeof(DTYPE));
+	for (int i = 0; i < length; ++i) {
+		x[i] = y[i];
+	}
+	//memcpy(y, x, length * sizeof(DTYPE));
 }
 
 template<typename DTYPE>

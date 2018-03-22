@@ -55,7 +55,7 @@ template<class DTYPE>
 args_base<DTYPE>::args_base(DTYPE arg1, ...) {
 	va_list arg_ptr;
 	va_start(arg_ptr, arg1);
-	while (arg1 != _ARGSEND) {
+	while (arg1 != (DTYPE)_ARGSEND) {
 		this->push_back(arg1);
 		arg1 = va_arg(arg_ptr, DTYPE);
 	};

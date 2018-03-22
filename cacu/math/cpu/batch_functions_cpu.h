@@ -324,8 +324,6 @@ void cacu_bn_gamma_grad_cpu(const DTYPE *_x, const DTYPE *d_y, int num,
 
 	int set;
 
-	int m = cin_length * num;
-
 	int n, c, f;
 
 #if __OPENMP__ == ON

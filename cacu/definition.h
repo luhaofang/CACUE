@@ -37,12 +37,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <fstream>
 #include <istream>
 #include <ostream>
+#include <iostream>
 
 namespace cacu{
+
+#ifdef _WIN32
 
 #define _MAX_INT_ INT_MAX
 #define _MIN_FLT_ FLT_MIN
 
+#elif defined(__linux)
+
+#define _MAX_INT_ __INT_MAX__
+#define _MIN_FLT_ __FLT_MIN__
+
+#endif
 
 using namespace std;
 

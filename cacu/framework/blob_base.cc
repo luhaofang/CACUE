@@ -25,9 +25,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "blob_base.h"
 #include "blob_definition.h"
+
+using namespace std;
 
 namespace cacu {
 
@@ -49,9 +50,9 @@ blob_base::blob_base(dsize_t num, dsize_t channel, dsize_t width, dsize_t height
 	_data_num = _num;
 	_REC_ = 0;
 	//check the data dim
-	CHECK_LT_OP(_length, numeric_limits<dsize_t>::max(),
+	CHECK_LT_OP(_length, _MAX_INT_,
 			"BLOB cell length is out of bounds: %ld vs d", _length,
-			numeric_limits<dsize_t>::max());
+			_MAX_INT_);
 }
 
 blob_base::~blob_base() {

@@ -39,8 +39,7 @@ class data_args: public args_base<int> {
 public:
 
 	data_args(int _output_channel, int _kernel_size, int _stride, int _pad, int _channel) :
-			args_base<int>(_output_channel, _kernel_size, _stride, _pad,
-					_channel, _ARGSEND) {
+			args_base<int>(_output_channel, _kernel_size, _stride, _pad, _channel, _ARGSEND) {
 
 	}
 
