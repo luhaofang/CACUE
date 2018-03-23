@@ -106,8 +106,8 @@ void cacu_prelu_cpu(float_t *x, const float_t *slopes, const int num,
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		if (x[i] < 0)
-			x[i] *= slopes[(i / c_length) % channel];
+		x[i] = x[i] * slopes[i / c_length % channel] * (x[i] <= 0)
+			+ x[i] * (x[i] > 0);
 	}
 }
 
@@ -125,10 +125,9 @@ void cacu_prelu_grad_cpu(float_t *x, float_t *g, const float_t *slopes,
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		if (x[i] <= 0) {
-			g_slopes[(i / c_length) % channel] += x[i] * g[i];
-			g[i] *= slopes[(i / c_length) % channel];
-		}
+		g[i] = g[i] * slopes[i / c_length % channel] * (x[i] <= 0)
+			+ g[i] * (x[i] > 0);
+		g_slopes[i / c_length % channel] += g[i] * x[i] * (x[i] <= 0);
 	}
 }
 

@@ -45,7 +45,7 @@ namespace cacu {
 template<typename DTYPE>
 void cacu_copy_cpu(DTYPE *x,const dsize_t length, DTYPE *y) {
 	for (int i = 0; i < length; ++i) {
-		x[i] = y[i];
+		y[i] = x[i];
 	}
 	//memcpy(y, x, length * sizeof(DTYPE));
 }
