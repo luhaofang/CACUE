@@ -67,9 +67,25 @@ enum op_name {
 	CACU_SPLIT,
 
 	CACU_INJECTOR,
+	CACU_MATH,
 
 	CACU_PRIMARY_VECTOR
 };
+
+
+/**
+* math op defination
+* Introduced by math_op
+*/
+
+enum math_op_name {
+	ADD,
+	SUB,
+	MUL,
+	DIV
+};
+
+
 
 }
 

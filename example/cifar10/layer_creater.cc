@@ -29,6 +29,20 @@
 
 using namespace cacu;
 
+layer_block* conv_layer(blob_base* data, int output_channel,
+	int kernel_size, int stride, int pad, op_name activation_op) {
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad,
+		data->channel()));
+	l->op(CACU_CONVOLUTION, data)->op(CACU_RELU); //->op(CACU_BATCH_NORMALIZE);
+	clock_t end = clock();
+	*lb << l;
+	return lb;
+}
+
+
+
 layer_block* conv_layer_maxpooling(blob_base* data, int output_channel,
 		int kernel_size, int stride, int pad, op_name activation_op) {
 	layer_block *lb = new layer_block();

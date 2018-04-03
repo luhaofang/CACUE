@@ -69,6 +69,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "softmax_with_loss_op.hpp"
 #include "mse_loss_op.hpp"
 
+#include "math_op.hpp"
+
 //#include "hinge_loss_op.h"
 
 /***********************************/
