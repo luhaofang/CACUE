@@ -24,48 +24,42 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef DATA_PROC_H_
-#define DATA_PROC_H_
 
-#include <time.h>
+#ifndef SERIALIZER_UTILS_HPP_
+#define SERIALIZER_UTILS_HPP_
 
-#include "../../cacu/cacu.h"
+#include <ostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
-#include "../../tools/imageio_utils.hpp"
 
+#include "../cacu/framework/blob.h"
 
-using namespace cacu;
-using namespace cacu_tools;
 using namespace std;
+using namespace cacu;
 
 
-const int kCIFARImageNBytes = 3072;
-const int kCIFARBatchSize = 10000;
-const int kCIFARDataSize = 1024;
-const int kCIFARDataCount = 50000;
+namespace cacu_tools {
 
-void readdata(chars_t filename, vector<vec_t> &data_blob);
+	class serializer {
 
-void readdata(chars_t filename, cacu::float_t *data_);
+	public:
 
-void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean);
+		static void blob_serialize(blob *data, chars_t output)
+		{
+			std::ofstream os(output, ios::binary);
+			os.precision(std::numeric_limits<cacu::float_t>::digits10);
+			
+			for (int i = 0; i < data->count(); ++i)
+				os << data->s_data()[i] << endl;
 
-void readdata(string filename, vector<vec_t> &data_blob, vector<vec_i> &labels);
+			os.close();
+		}
 
-void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
-		vector<vec_i> &labels);
+	};
 
-void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-vec_t compute_mean(chars_t &filepath, int filecount);
-
-void make_mean(chars_t filepath, chars_t meanfile);
-
-
+}
 
 
 

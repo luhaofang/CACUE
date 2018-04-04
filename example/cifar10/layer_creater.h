@@ -37,6 +37,15 @@
 
 using namespace cacu;
 
+layer_block* conv_layer(blob_base* data, int output_channel,
+	int kernel_size, int stride = 1, int pad = 0, op_name activation_op =
+	CACU_RELU);
+
+layer_block* conv_layer_noActi(blob_base* data, int output_channel,
+	int kernel_size, int stride = 1, int pad = 0, op_name activation_op =
+	CACU_RELU);
+
+
 layer_block* conv_layer_maxpooling(blob_base* data, int output_channel,
 		int kernel_size, int stride = 1, int pad = 0, op_name activation_op =
 				CACU_RELU);

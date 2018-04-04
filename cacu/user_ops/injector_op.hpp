@@ -34,8 +34,8 @@ class injector_op: public operator_base {
 
 public:
 
-	injector_op(blob_base *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_INJECTOR) {
+	injector_op(blob_base *&data) :
+			operator_base(data, CACU_INJECTOR) {
 		check();
 		initial();
 		init_weights();

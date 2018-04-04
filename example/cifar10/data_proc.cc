@@ -72,6 +72,29 @@ void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 	}
 }
 
+void readdata(string filename, vector<vec_t> &data_blob,
+	vector<vec_i> &labels) {
+	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
+	if (!data_file)
+		LOG_FATAL("file %s cannot be opened!", filename.c_str());
+	cacu::float_t *snp;
+	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
+		char label_char;
+		data_file.read(&label_char, 1);
+		labels.push_back(vec_i(1, (unsigned int)((label_char))));
+		char buffer[kCIFARImageNBytes];
+		data_file.read(buffer, kCIFARImageNBytes);
+		vec_t datas(kCIFARImageNBytes);
+		snp = &datas[0];
+		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
+			datas[j] = (cacu::float_t) ((unsigned char)(buffer[j])) ;
+			datas[j + kCIFARDataSize] = (cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])) ;
+			datas[j + kCIFARDataSize * 2] = (cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize]));
+		}
+		data_blob.push_back(datas);
+	}
+}
+
 void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		vector<vec_i> &labels) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
@@ -120,6 +143,17 @@ void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data
 		ostringstream oss;
 		oss << filepath << "test_batch.bin";
 		readdata((oss.str()), data_blob , mean, labels);
+	}
+}
+
+void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
+{
+
+	vec_t mean(kCIFARImageNBytes);
+	{
+		ostringstream oss;
+		oss << filepath << "test_batch.bin";
+		readdata((oss.str()), data_blob, labels);
 	}
 }
 
