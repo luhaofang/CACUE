@@ -102,6 +102,8 @@ public:
 
 	void load_weights(chars_t modelpath);
 
+	void load_weights_from(chars_t modelpath, int op_num);
+
 	void save_weights(chars_t modelpath);
 
 	void check();

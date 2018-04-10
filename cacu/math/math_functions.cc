@@ -365,4 +365,28 @@ void cacu_clip_vec(float *data, const float threshold, const int length) {
 #endif
 }
 
+
+void cacu_abs(float *x, const int length, float *y) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_abs_cuda(x, length, y);
+#endif
+#else
+	for (int i = 0; i < length; ++i)
+		y[i] = abs(x[i]);
+#endif
+}
+
+void cacu_abs_grad(float *x, float *diff, const int length, float *grad) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_abs_grad_cuda(x, diff, length , grad);
+#endif
+#else
+	for (int i = 0; i < length; ++i)
+		diff[i] = (x[i] > 0) ? grad[i] : -grad[i];
+#endif
+}
+
+
 }

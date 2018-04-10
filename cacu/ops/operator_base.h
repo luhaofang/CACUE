@@ -186,6 +186,13 @@ public:
 		return _weights->at(i);
 	}
 
+	inline void set_is_update_weight(bool _update)
+	{
+		LOG_INFO("Fix the operator's weight!");
+		for (int i = 0; i < _weights->size(); ++i)
+			_weights->at(i)->set_update(_update);
+	}
+
 	inline void infer() {
 
 		blob_base *blob_ = (s_blobs == NULL) ? s_blob : s_blobs->at(0);

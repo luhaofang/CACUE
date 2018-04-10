@@ -55,6 +55,8 @@ void readdata(string filename, vector<vec_t> &data_blob, vector<vec_i> &labels);
 void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		vector<vec_i> &labels);
 
+void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
+
 void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
 void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);

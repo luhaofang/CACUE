@@ -165,6 +165,26 @@ extern "C" void cacu_clip_vec_cuda(float *data, const float threshold,
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
+__global__ void _k_CACU_ABS_CUDA(float *data, const int length, float *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] = abs(x[i]);
+	}
+}
+
+extern "C" void cacu_abs_cuda(float *x, const int length, float *y)
+{
+	_k_CACU_ABS_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
 }
 
 #endif

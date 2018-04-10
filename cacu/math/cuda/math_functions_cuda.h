@@ -50,6 +50,8 @@ extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n);
 
 extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int length);
 
+extern "C" void cacu_abs_cuda(float *x, const int length, float *y);
+
 }
 
 #endif

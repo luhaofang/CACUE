@@ -119,6 +119,10 @@ void mask_vector(float *vector_, const int length, float *mask);
  */
 void cacu_copy(float *x, const int length, float *y);
 
+void cacu_abs(float *x, const int length, float *y);
+
+void cacu_abs_grad(float *x, float *diff, const int length, float *grad);
+
 /**
  * @cacu_isaxdb
  * y[index] = x[index]*a + b

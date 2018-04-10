@@ -87,9 +87,9 @@ void readdata(string filename, vector<vec_t> &data_blob,
 		vec_t datas(kCIFARImageNBytes);
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (cacu::float_t) ((unsigned char)(buffer[j])) ;
-			datas[j + kCIFARDataSize] = (cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])) ;
-			datas[j + kCIFARDataSize * 2] = (cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize]));
+			datas[j] = ((cacu::float_t) ((unsigned char)(buffer[j])));
+			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])));
+			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize])));
 		}
 		data_blob.push_back(datas);
 	}
@@ -110,9 +110,9 @@ void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 		vec_t datas(kCIFARImageNBytes);
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = (cacu::float_t) ((unsigned char) (buffer[j])) - mean[j];
-			datas[j + kCIFARDataSize] = (cacu::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize];
-			datas[j + kCIFARDataSize * 2] = (cacu::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize];
+			datas[j] = ((cacu::float_t) ((unsigned char) (buffer[j])) - mean[j]);
+			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char) (buffer[j + kCIFARDataSize])) - mean[j + kCIFARDataSize]);
+			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char) (buffer[j + 2 * kCIFARDataSize])) - mean[j + 2 * kCIFARDataSize]);
 		}
 		data_blob.push_back(datas);
 	}
@@ -129,6 +129,16 @@ void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob
 		ostringstream oss;
 		oss << filepath << "data_batch_" << i << ".bin";
 		readdata((oss.str()), data_blob , mean , labels);
+	}
+}
+
+void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
+{
+
+	for (int i = 1; i <= 5; i++) {
+		ostringstream oss;
+		oss << filepath << "data_batch_" << i << ".bin";
+		readdata((oss.str()), data_blob, labels);
 	}
 }
 
@@ -149,7 +159,6 @@ void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data
 void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
 {
 
-	vec_t mean(kCIFARImageNBytes);
 	{
 		ostringstream oss;
 		oss << filepath << "test_batch.bin";

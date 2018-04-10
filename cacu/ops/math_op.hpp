@@ -83,6 +83,8 @@ namespace cacu {
 				break;
 			case DIV:
 				break;
+			case ABS:
+				cacu_abs(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 			default:
 				break;
 			}
@@ -112,6 +114,8 @@ namespace cacu {
 				break;
 			case DIV:
 				break;
+			case ABS:
+				cacu_abs_grad(s_blob_->s_data(), s_blob_->s_diff(), s_blob_->count(), o_blob_->s_diff());
 			default:
 				break;
 			}
@@ -141,7 +145,7 @@ namespace cacu {
 			_phase = phase_;
 		}
 
-		void function(math_op_name function, blob *data_)
+		void function(math_op_name function, blob *data_= NULL)
 		{
 			this->_FUNC = function;
 			this->_data = data_;

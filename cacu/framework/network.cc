@@ -145,6 +145,18 @@ void network::load_weights(chars_t modelpath) {
 	LOG_INFO("Initialize model by : %s", modelpath.c_str());
 }
 
+void network::load_weights_from(chars_t modelpath, int op_num) {
+	std::ifstream is(modelpath, ios::binary);
+	is.precision(std::numeric_limits<float_t>::digits10);
+	if (!is)
+		LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
+	for (int i = op_num; i < op_count(); ++i) {
+		get_op(i)->load(is);
+	}
+	is.close();
+	LOG_INFO("Initialize model from op[%d] by : %s", op_num, modelpath.c_str());
+}
+
 void network::save_weights(chars_t modelpath) {
 	std::ofstream os(modelpath, ios::binary);
 	os.precision(std::numeric_limits<float_t>::digits10);

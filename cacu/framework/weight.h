@@ -63,6 +63,14 @@ public:
 		return _decay_mult;
 	}
 
+	inline void set_update(bool update_) {
+		_update = update_;
+	}
+
+	inline float_t update() const {
+		return _update;
+	}
+
 	void set_init_type(param_init_type type, float_t value);
 
 	/*
@@ -87,6 +95,8 @@ private:
 	float_t _update_lr;
 
 	float_t _decay_mult;
+
+	bool _update;
 
 };
 

@@ -39,6 +39,7 @@ weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
 	_name = name;
 	_update_lr = 1.0;
 	_decay_mult = 1.0;
+	_update = true;
 }
 
 weight::~weight() {
