@@ -55,26 +55,23 @@ public:
 			_temp = create_em_opblob(1, s_blob->channel(), s_blob->height(),
 					s_blob->width(), _phase);
 #else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), 1, 1, _phase);
-			_temp = create_opblob(1, s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
+			o_blob = create_oblob(s_blob->num(), _args->output_channel(), 1, 1, _phase);
 #endif
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), 1, 1);
-			_temp->resize(1, s_blob->channel(), s_blob->height(),
-					s_blob->width());
+			o_blob->resize(s_blob->num(), _args->output_channel(), 1, 1);
 		}
 	}
 
 	virtual const void init_weights() override {
-		_w = create_param("w", s_blob->channel(), 1, s_blob->width(),
+		_w = create_param("w", s_blob->channel(), _args->output_channel() / s_blob->channel(), s_blob->width(),
 				s_blob->height(), _phase);
 
-		_bias = create_param("bias", s_blob->channel(), 1, 1, 1, _phase);
+		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
 		_bias->set_lr(2);
 	}
 
 	virtual const void check() override {
-		return;
+		CHECK_EQ_OP(_args->output_channel() % s_blob->channel(), 0, "Output data channel must integer times of input data channel: (%d)", _args->output_channel() % s_blob->channel());
 	}
 
 	virtual const void op() override {
@@ -101,17 +98,15 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
-		blob *temp_ = (blob*)_temp;
 
 		for(int i = 0; i < s_blob_->num(); ++i) {
-			cacu_copy(s_blob_->p_data(i),temp_->count(),temp_->s_data());
-			cacu_ssx(_w->s_data(),_w->count(),temp_->s_data());
-			cacu_sumbysize(BYWIDTH,temp_->s_data(),temp_->count(),1,o_blob_->p_data(i),0,s_blob_->height()*s_blob_->width());
+
+			for (int c = 0; c < s_blob_->channel(); ++c) 
+				cacu_sgemm(TRANS, NOTRANS, _w->p_data(c), _w->channel(), _w->channel_length(), s_blob_->p_data(i) + c * s_blob_->channel_length(), 1, 1, o_blob_->p_data(i) + c * _w->channel(), 0);
+
 			//bias added
-			if(_is_use_bias)
-			{
-				cacu_ssxpy(_bias->s_data(),(float_t)(1),_bias->count(), o_blob_->p_data(i),(float_t)1,o_blob_->length(),o_blob_->p_data(i));
-			}
+			if (_is_use_bias)			
+				cacu_saxpby(_bias->s_data(), (float_t)(1), o_blob_->p_data(i), (float_t)(1), _bias->count());
 		}
 #endif
 	}
@@ -141,19 +136,19 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
-		blob *temp_ = (blob*)_temp;
-
+			
 		for (int i = 0; i < s_blob_->num(); ++i) {
-			//gradient propagation
-			cacu_cxsize(_w->s_data(), _w->count(), o_blob_->p_diff(i), o_blob_->length(), s_blob_->p_diff(i));
-			//weights gradient
-			cacu_cxsize(s_blob_->p_data(i), s_blob_->length(), o_blob_->p_diff(i), o_blob_->length(), temp_->s_diff());
-			cacu_saxpby(temp_->s_diff(),(float_t)1,_w->s_diff(),(float_t)1,_w->count());
-			if(_is_use_bias)
-			//bias gradient
-			cacu_saxpby(o_blob_->p_diff(i), 1, _bias->s_diff(), 1, o_blob_->count());
-		}
 
+			for (int c = 0; c < s_blob_->channel(); ++c) {
+				//gradient propagation
+				cacu_sgemm(NOTRANS, NOTRANS, _w->p_data(c), _w->channel_length(), _w->channel(), o_blob_->p_diff(i) + c * _args->output_channel() / s_blob->channel(), 1, 1, s_blob_->p_diff(i) + c * s_blob_->channel_length(), 0);
+				//weights gradient
+				cacu_sgemm(NOTRANS, TRANS, s_blob_->p_data(i) + c * s_blob_->channel_length(), s_blob_->channel_length(), 1, o_blob_->p_diff(i) + c * _args->output_channel() / s_blob->channel(), _args->output_channel() / s_blob->channel(), 1, _w->p_diff(c), 1);
+			}
+		}
+		if (_is_use_bias)
+			//bias gradient
+			cacu_sumbysize(BYHEIGHT, o_blob_->s_diff(), o_blob_->count(), 1, _bias->s_diff(), 1, _bias->count());
 #endif
 	}
 
@@ -203,14 +198,11 @@ public:
 	void is_use_bias(bool switcher_) {
 		_is_use_bias = switcher_;
 	}
-	;
 
 private:
 
 	//p_innerproduct_op use bias switcher
 	bool _is_use_bias = true;
-
-	blob *_temp = NULL;
 
 	weight *_w;
 
