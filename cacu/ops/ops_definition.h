@@ -83,7 +83,9 @@ enum math_op_name {
 	SUB,
 	MUL,
 	DIV,
-	ABS
+	ABS,
+	MASK_LT,
+	MASK_GT
 };
 
 

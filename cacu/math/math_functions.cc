@@ -248,16 +248,37 @@ void mask_vector(float *vector_, const int length, float *mask) {
 	vec_t v_(length);
 	cuda_copy2host(&v_[0], vector_, length);
 	for (int i = 0; i < length; ++i) {
-		if (v_[i] > 0)
-			v_[i] = 1.0;
+		v_[i] = 1.0 * (v_[i] > 0);
 	}
 	cuda_copy2dev(mask, &v_[0], length);
 	vec_t().swap(v_);
 #endif
 #else
 	for (int i = 0; i < length; ++i) {
-		if (vector_[i] > 0)
-		mask[i] = 1.0;
+		mask[i] = 1.0 * (vector_[i] > 0);
+	}
+#endif
+}
+
+/**
+* @mask_vector
+* math vector_[i] = (vector_[i]<0)
+* length: the input data's size
+*/
+void mask_vector_lt(float *vector_, const int length, float *mask) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	vec_t v_(length);
+	cuda_copy2host(&v_[0], vector_, length);
+	for (int i = 0; i < length; ++i) {
+		v_[i] = 1.0 * (v_[i] < 0);
+	}
+	cuda_copy2dev(mask, &v_[0], length);
+	vec_t().swap(v_);
+#endif
+#else
+	for (int i = 0; i < length; ++i) {
+		mask[i] = 1.0 * (vector_[i] < 0);
 	}
 #endif
 }

@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cacu {
 
-	class math_op : public operator_base{
+	class math_op : public operator_base {
 
 	public:
 
@@ -48,7 +48,7 @@ namespace cacu {
 
 		virtual const void initial() override {
 			if (o_blob == NULL)
-				o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), train);
+				o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
 			else
 				o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
 		}
@@ -64,7 +64,7 @@ namespace cacu {
 		virtual const void op() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			
+
 			switch (_FUNC)
 			{
 			case ADD:
@@ -85,6 +85,14 @@ namespace cacu {
 				break;
 			case ABS:
 				cacu_abs(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+			case MASK_LT:
+				mask_vector_lt(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				cacu_ssx(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), -1.0 / o_blob_->num(), o_blob_->s_diff(), 0, o_blob_->count());
+			case MASK_GT:
+				mask_vector(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				cacu_ssx(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), 1.0 / o_blob_->num(), o_blob_->s_diff(), 0, o_blob_->count());
 			default:
 				break;
 			}
@@ -94,7 +102,7 @@ namespace cacu {
 		virtual const void grad() override {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
-			
+
 			switch (_FUNC)
 			{
 			case ADD:
@@ -116,6 +124,16 @@ namespace cacu {
 				break;
 			case ABS:
 				cacu_abs_grad(s_blob_->s_data(), s_blob_->s_diff(), s_blob_->count(), o_blob_->s_diff());
+			case MASK_LT:
+				mask_vector_lt(s_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
+				cacu_scalex(s_blob_->s_diff(), s_blob_->count(), (float_t)1.0 / s_blob_->num());
+				//cacu_print(s_blob_->s_data(), 10);
+				//cacu_print(s_blob_->s_diff(), 10);
+			case MASK_GT:
+				mask_vector(s_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
+				cacu_scalex(s_blob_->s_diff(), s_blob_->count(), (float_t)1.0 / s_blob_->num());
+				//cacu_print(s_blob_->s_data(), 10);
+				//cacu_print(s_blob_->s_diff(), 10);
 			default:
 				break;
 			}
@@ -130,11 +148,22 @@ namespace cacu {
 		}
 
 		virtual const void echo() override {
-			LOG_INFO("create math op:");
-			LOG_INFO(
-				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height());
+
+			if (_FUNC == MASK_LT) {
+				blob *o_blob_ = (blob*)o_blob;
+				LOG_INFO("Dimension loss: %f", o_blob_->s_diff()[0]);
+			}
+			else if (_FUNC == MASK_GT){
+				blob *o_blob_ = (blob*)o_blob;
+				LOG_INFO("Spasity loss: %f", o_blob_->s_diff()[0]);
+			}
+			else {
+				LOG_INFO("create math op:");
+				LOG_INFO(
+					"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
+					s_blob->channel(), s_blob->width(), s_blob->height(),
+					o_blob->channel(), o_blob->width(), o_blob->height());
+			}
 		}
 
 		inline virtual const void LOOP_INIT_DATA_() override {

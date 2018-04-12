@@ -136,7 +136,7 @@ public:
 		for (int i = 0; i < s_blob_->num(); ++i)
 		{
 			cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-			cacu_scalex(s_blob_->p_diff(i),s_blob_->length(),normalizer());
+			cacu_scalex(s_blob_->p_diff(i), s_blob_->length(), normalizer() * _loss_weight);
 		}
 
 #endif
@@ -153,6 +153,7 @@ public:
 	virtual const void echo() override
 	{
 		LOG_INFO("loss : %f", _loss[0]);
+		LOG_INFO("weighted loss : %f", _loss[0] * _loss_weight);
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override
@@ -166,7 +167,7 @@ public:
 
 	float_t normalizer() {
 		blob_base* blob_ = s_blobs->at(0);
-		return _loss_weight * ((float_t) (1) / blob_->num());
+		return ((float_t) (1) / blob_->num());
 	}
 
 	inline float_t loss() {

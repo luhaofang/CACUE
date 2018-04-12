@@ -144,10 +144,13 @@ public:
 
 #else
 		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *s_blob1_ = (blob*)s_blobs->at(0);
+		blob *s_blob2_ = (blob*)s_blobs->at(1);
 
-		cacu_copy(o_blob_->s_data(),o_blob_->count(),s_blob_->s_diff());
-		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer());
+		cacu_copy(o_blob_->s_data(),o_blob_->count(),s_blob1_->s_diff());
+		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer());
+		cacu_copy(o_blob_->s_data(), o_blob_->count(), s_blob2_->s_diff());
+		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), -normalizer());
 		//cacu_print(s_blob_->s_diff(),s_blob_->count());
 #endif
 	}
@@ -162,7 +165,8 @@ public:
 
 	virtual const void echo() override
 	{
-		LOG_INFO("loss : %f", _loss[0]);
+		LOG_INFO("mse loss : %f", _loss[0]);
+		LOG_INFO("weighted mse loss : %f", _loss[0] * _loss_weight);
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override
@@ -176,7 +180,7 @@ public:
 
 	float_t normalizer() {
 		blob_base* blob_ = s_blobs->at(0);
-		return _loss_weight * ((float_t) (1) / blob_->num());
+		return ((float_t) (1) / blob_->num());
 	}
 
 	inline float_t loss() {

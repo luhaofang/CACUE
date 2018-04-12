@@ -113,6 +113,13 @@ void rand_vector(float *vector_, const int length, const float ratio_);
 void mask_vector(float *vector_, const int length, float *mask);
 
 /**
+* @mask_vector
+* math vector_[i] = (vector_[i]<0)
+* length: the input data's size
+*/
+void mask_vector_lt(float *vector_, const int length, float *mask);
+
+/**
  * @cacu_copy
  * math y = x:
  * length: the input data's size
