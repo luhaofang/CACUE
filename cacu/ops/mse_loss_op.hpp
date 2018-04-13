@@ -166,7 +166,8 @@ public:
 	virtual const void echo() override
 	{
 		LOG_INFO("mse loss : %f", _loss[0]);
-		LOG_INFO("weighted mse loss : %f", _loss[0] * _loss_weight);
+		if (_loss_weight != 1.0)
+			LOG_INFO("weighted mse loss : %f", _loss[0] * _loss_weight);
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override

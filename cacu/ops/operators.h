@@ -64,6 +64,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "leaky_relu_op.hpp"
 #include "softmax_op.hpp"
 #include "tanh_op.hpp"
+#include "half_tanh_op.hpp"
 #include "sigmoid_op.hpp"
 
 #include "softmax_with_loss_op.hpp"

@@ -156,12 +156,11 @@ void cacu_softmax_cpu(float_t *x, const int num, const int channel,
 		for (i = 1; i < channel; ++i)
 			max_ = max(xp[i * c_length], max_);
 		for (i = 0; i < channel; ++i) {
-			yp[i * c_length] = xp[i * c_length] - max_;
-			yp[i * c_length] = exp(yp[i * c_length]);
+			yp[i * c_length] = exp(xp[i * c_length] - max_);
 			sum_ += yp[i * c_length];
 		}
 		for (i = 0; i < channel; ++i) {
-			yp[i * c_length] = (yp[i * c_length] / sum_);
+			yp[i * c_length] /= sum_;
 		}
 	}
 }
@@ -195,6 +194,37 @@ void cacu_tanh_grad_cpu(float_t *x, float_t *g, const int length, float_t *y) {
 		y[i] = g[i] * (float_t(1) - x[i] * x[i]);
 	}
 }
+
+/**
+* @cacu_htanh
+* math half tanh;
+* for activation use tanh functions.
+*/
+void cacu_htanh_cpu(float_t *x, const int length, float_t *y) {
+	int i;
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i)
+#endif
+	for (i = 0; i < length; ++i) {
+		y[i] = x[i] > 0 ? tanh(x[i]) : 0;
+	}
+}
+
+/**
+* @cacu_htanh_grad
+* math half tanh;
+* for activation use tanh functions.
+*/
+void cacu_htanh_grad_cpu(float_t *x, float_t *g, const int length, float_t *y) {
+	int i;
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i)
+#endif
+	for (i = 0; i < length; ++i) {
+		y[i] = x[i] > 0 ? g[i] * (float_t(1) - x[i] * x[i]) : 0;
+	}
+}
+
 
 /**
  * @cacu_tanh

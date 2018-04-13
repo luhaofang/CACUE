@@ -78,8 +78,16 @@ namespace cacu {
 				cacu_saxpy(_data->s_data(), (float_t)-1, o_blob_->s_data(), _data->count());
 				break;
 			case MUL:
-				s_blob->_CHECK_SIZE_EQ(_data);
-				cacu_sgemv(NOTRANS, s_blob_->s_data(), s_blob_->count(), _data->s_data(), 1, (float_t)1, o_blob_->s_data(), (float_t)0);
+				//s_blob->_CHECK_SIZE_EQ(_data);
+				cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				for (int i = 0; i < s_blob->num(); ++i)
+				{
+					for (int c = 0; c < s_blob->channel(); ++c)
+						cacu_ssx(_data->s_data(), s_blob_->channel_length(),
+							o_blob_->p_data(i) + c * s_blob_->channel_length());
+				}
+				//cacu_print(o_blob_->s_data(), 10);
+				//cacu_print(_data->s_data(), 1000);
 				break;
 			case DIV:
 				break;
@@ -116,9 +124,14 @@ namespace cacu {
 				cacu_saxpy(o_blob_->s_diff(), (float_t)-1, _data->s_diff(), o_blob_->count());
 				break;
 			case MUL:
-				s_blob->_CHECK_SIZE_EQ(_data);
-				cacu_sgemv(NOTRANS, o_blob_->s_diff(), o_blob_->count(), _data->s_data(), 1, (float_t)1, s_blob_->s_diff(), (float_t)1);
-				cacu_sgemv(NOTRANS, o_blob_->s_diff(), o_blob_->count(), s_blob_->s_data(), 1, (float_t)1, _data->s_diff(), (float_t)1);
+				cacu_copy(s_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
+				for (int i = 0; i < s_blob->num(); ++i)
+				{
+					for (int c = 0; c < s_blob->channel(); ++c)
+						cacu_ssx(o_blob_->p_diff(i) + c * s_blob_->channel_length(), s_blob_->channel_length(),
+							s_blob_->p_diff(i) + c * s_blob_->channel_length());
+				}
+				cacu_sumbysize(BYHEIGHT, s_blob_->s_diff(), s_blob_->count(), 1., _data->s_diff(), 0., _data->count());
 				break;
 			case DIV:
 				break;

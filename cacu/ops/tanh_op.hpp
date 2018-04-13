@@ -111,7 +111,7 @@ public:
 	}
 
 	virtual const void echo() override {
-		LOG_INFO("create relu op:");
+		LOG_INFO("create tanh op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
 				s_blob->channel(), s_blob->height(), o_blob->channel(),

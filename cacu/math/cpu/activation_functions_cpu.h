@@ -93,6 +93,20 @@ void cacu_tanh_cpu(float_t *x, const int length, float_t *y);
 void cacu_tanh_grad_cpu(float_t *x, float_t *g, const int length, float_t *y);
 
 /**
+* @cacu_htanh
+* math half tanh;
+* for activation use tanh functions.
+*/
+void cacu_htanh_cpu(float_t *x, const int length, float_t *y);
+
+/**
+* @cacu_htanh_grad
+* math half tanh;
+* for activation use tanh functions.
+*/
+void cacu_htanh_grad_cpu(float_t *x, float_t *g, const int length, float_t *y);
+
+/**
  * @cacu_tanh
  * math tanh;
  * for activation use tanh functions.
