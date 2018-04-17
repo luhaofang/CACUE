@@ -45,6 +45,8 @@ using namespace cv;
 #include "../tools/string_utils.h"
 #include "../cacu/tensor/cuda/cuda_utils.h"
 #include "../cacu/math/utils/rand_t.h"
+#include "../cacu/utils/log.h"
+#include "../cacu/utils/check_utils.h"
 
 using namespace std;
 using namespace cacu;

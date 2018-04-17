@@ -35,7 +35,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "math_functions.hpp"
 
+
+
+
 */
+
+
+
+#include "math_functions.h"
+#include "activation_functions.h"
+#include "batch_functions.h"
+#include "pooling_functions.h"
+#include "loss_functions.h"
+#include "norm_functions.h"
+
 
 
 #endif

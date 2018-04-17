@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../cacu/framework/network.h"
 #include "../../cacu/framework/layer.h"
 
-#include "../../tools/imageio_utils.hpp"
+#include "../../tools/imageio_utils.h"
 
 
 using namespace cacu;

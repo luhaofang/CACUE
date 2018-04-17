@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TOOLS_HPP_
-#define TOOLS_HPP_
+#ifndef TOOLS_MTCNN_H_
+#define TOOLS_MTCNN_H_
 
 #include <math.h>
 

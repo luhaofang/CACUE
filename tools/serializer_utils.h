@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <limits>
 
 
 #include "../cacu/framework/blob.h"
@@ -46,16 +47,7 @@ namespace cacu_tools {
 
 	public:
 
-		static void blob_serialize(blob *data, chars_t output)
-		{
-			std::ofstream os(output, ios::binary);
-			os.precision(std::numeric_limits<cacu::float_t>::digits10);
-			
-			for (int i = 0; i < data->count(); ++i)
-				os << data->s_data()[i] << endl;
-
-			os.close();
-		}
+		static void blob_serialize(blob *data, chars_t output);
 
 	};
 

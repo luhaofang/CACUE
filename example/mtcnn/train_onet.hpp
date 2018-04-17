@@ -34,8 +34,8 @@
 
 #include "../../cacu/solvers/sgd_solver.h"
 
-#include "../../tools/string_utils.hpp"
-#include "../../tools/imageio_utils.hpp"
+#include "../../tools/string_utils.h"
+#include "../../tools/imageio_utils.h"
 
 #include "models_creater.h"
 

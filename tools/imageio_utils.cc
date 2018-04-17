@@ -34,7 +34,7 @@ namespace cacu_tools {
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-static void imageio_utils::imread_gpu(cacu::float_t *p_data,
+void imageio_utils::imread_gpu(cacu::float_t *p_data,
 		const char* file_path_, const int size) {
 	cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 	if (!src.data)
@@ -63,7 +63,7 @@ static void imageio_utils::imread_gpu(cacu::float_t *p_data,
 	vec_t().swap(temp_);
 }
 
-static void imageio_utils::resize_imread_gpu(cacu::float_t *p_data,
+void imageio_utils::resize_imread_gpu(cacu::float_t *p_data,
 		const char* file_path_, int resize_h, int resize_w) {
 	cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 	if (!src.data)
@@ -92,7 +92,7 @@ static void imageio_utils::resize_imread_gpu(cacu::float_t *p_data,
 	vec_t().swap(temp_);
 }
 
-static void imageio_utils::clip_imread_gpu(cacu::float_t *p_data,
+void imageio_utils::clip_imread_gpu(cacu::float_t *p_data,
 		const char* file_path_, int clip_size_h, int clip_size_w) {
 	cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 	if (!src.data)
@@ -130,7 +130,7 @@ static void imageio_utils::clip_imread_gpu(cacu::float_t *p_data,
 #endif
 #endif
 
-static void imageio_utils::imread(cacu::float_t *p_data, const char* file_path_,
+void imageio_utils::imread(cacu::float_t *p_data, const char* file_path_,
 		const int p_size) {
 	cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 	if (!src.data)
@@ -156,7 +156,7 @@ static void imageio_utils::imread(cacu::float_t *p_data, const char* file_path_,
 		}
 }
 
-static void imageio_utils::resize_imread(cacu::float_t *p_data,
+void imageio_utils::resize_imread(cacu::float_t *p_data,
 		const char* file_path_, int resize_h, int resize_w) {
 	cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 	if (!src.data)
@@ -183,7 +183,7 @@ static void imageio_utils::resize_imread(cacu::float_t *p_data,
 		}
 }
 
-static void imageio_utils::clip_imread(cacu::float_t *p_data,
+void imageio_utils::clip_imread(cacu::float_t *p_data,
 		const char* file_path_, int clip_size_h, int clip_size_w) {
 	cv::Mat src = cv::imread(file_path_, cv::IMREAD_COLOR);
 	if (!src.data)
@@ -222,7 +222,7 @@ static void imageio_utils::clip_imread(cacu::float_t *p_data,
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-static void imageio_utils::load_mean_file_gpu(cacu::float_t *p_data,
+void imageio_utils::load_mean_file_gpu(cacu::float_t *p_data,
 		string mean_file_) {
 	ifstream is(mean_file_);
 	is.precision(numeric_limits<cacu::float_t>::digits10);
@@ -243,7 +243,7 @@ static void imageio_utils::load_mean_file_gpu(cacu::float_t *p_data,
 }
 #endif
 #endif
-static void imageio_utils::save_mean_file(cacu::float_t *p_data,
+void imageio_utils::save_mean_file(cacu::float_t *p_data,
 		string mean_file_, int length_) {
 	ofstream os(mean_file_, ios::binary);
 	os.precision(numeric_limits<cacu::float_t>::digits10);
@@ -255,7 +255,7 @@ static void imageio_utils::save_mean_file(cacu::float_t *p_data,
 	os.close();
 }
 
-static void imageio_utils::load_mean_file(cacu::float_t *p_data,
+void imageio_utils::load_mean_file(cacu::float_t *p_data,
 		string mean_file_) {
 	ifstream is(mean_file_, ios::binary);
 	is.precision(numeric_limits<cacu::float_t>::digits10);

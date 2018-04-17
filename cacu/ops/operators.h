@@ -33,12 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../utils/check_utils.h"
 #include "../utils/log.h"
 
-#include "../math/math_functions.h"
-#include "../math/activation_functions.h"
-#include "../math/batch_functions.h"
-#include "../math/pooling_functions.h"
-#include "../math/loss_functions.h"
-#include "../math/norm_functions.h"
+#include "../math/math.h"
 
 #include "../tensor/utils/device_data_utils.h"
 #include "../tensor/utils/cpu_data_utils.h"
