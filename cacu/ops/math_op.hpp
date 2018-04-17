@@ -93,14 +93,17 @@ namespace cacu {
 				break;
 			case ABS:
 				cacu_abs(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+				break;
 			case MASK_LT:
 				mask_vector_lt(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_ssx(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), -1.0 / o_blob_->num(), o_blob_->s_diff(), 0, o_blob_->count());
+				break;
 			case MASK_GT:
 				mask_vector(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_ssx(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_sumbysize(BYWIDTH, o_blob_->s_data(), o_blob_->count(), 1.0 / o_blob_->num(), o_blob_->s_diff(), 0, o_blob_->count());
+				break;
 			default:
 				break;
 			}
@@ -137,14 +140,17 @@ namespace cacu {
 				break;
 			case ABS:
 				cacu_abs_grad(s_blob_->s_data(), s_blob_->s_diff(), s_blob_->count(), o_blob_->s_diff());
+				break;
 			case MASK_LT:
 				mask_vector_lt(s_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
 				cacu_scalex(s_blob_->s_diff(), s_blob_->count(), (float_t)1.0 / s_blob_->num());
+				break;
 				//cacu_print(s_blob_->s_data(), 10);
 				//cacu_print(s_blob_->s_diff(), 10);
 			case MASK_GT:
 				mask_vector(s_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
 				cacu_scalex(s_blob_->s_diff(), s_blob_->count(), (float_t)1.0 / s_blob_->num());
+				break;
 				//cacu_print(s_blob_->s_data(), 10);
 				//cacu_print(s_blob_->s_diff(), 10);
 			default:

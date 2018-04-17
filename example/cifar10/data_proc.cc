@@ -88,8 +88,8 @@ void readdata(string filename, vector<vec_t> &data_blob,
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
 			datas[j] = ((cacu::float_t) ((unsigned char)(buffer[j]))) / 255.0;
-			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize]))) / 255.0;
-			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize]))) / 255.0;
+			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])))/ 255.0;
+			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize])))/ 255.0;
 		}
 		data_blob.push_back(datas);
 	}

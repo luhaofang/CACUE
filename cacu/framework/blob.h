@@ -91,6 +91,15 @@ public:
 	inline float_t* s_diff() const {
 		return (float_t*) _s_diff;
 	}
+
+	/**
+	 *
+	 */
+	inline void set_value(float_t value_)
+	{
+		_tdata->set_value(value_);
+	}
+
 	/**
 	 * copy dest blob data to local blob
 	 */

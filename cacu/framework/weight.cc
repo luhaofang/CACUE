@@ -81,7 +81,7 @@ void weight::set_init_type(param_init_type type, float_t value) {
 void weight::serializa_group(std::ostream& os, int group) {
 	float_t* p_data_;
 	int length = _length / group;
-#if __USEMBEDDING__ == ON
+#if __USE_DEVICE__ == ON
 	os.write((char*) (&length), sizeof(length));
 	vec_t _v(_channel_length * (_channel / group));
 	for (int n = 0; n < _num; ++n) {
@@ -92,6 +92,7 @@ void weight::serializa_group(std::ostream& os, int group) {
 	}
 	vec_t().swap(_v);
 #else
+
 	os.write((char*)(&length), sizeof(length));
 	vec_t _v(_channel_length * (_channel / group));
 	for(int n = 0; n < _num; ++n) {
@@ -108,7 +109,7 @@ void weight::serializa_group(std::ostream& os, int group) {
  */
 void weight::load_group(std::ifstream& is, int group) {
 	float_t* p_data_ = (float_t*) _s_data;
-#if __USEMBEDDING__ == ON
+#if __USE_DEVICE__ == ON
 	vec_t _v(_channel_length * (_channel / group));
 	int length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));

@@ -313,11 +313,58 @@ __global__ void _k_CACU_TANH_GRAD_CUDA(float_t *x, float_t *g, int length,
 }
 
 /**
- * gradient for activation use tanh functions in cuda
+ * gradient for activation use half tanh functions in cuda
  */
 extern "C" void cacu_tanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
 	_k_CACU_TANH_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_HTANH_CUDA(float_t *x, int length, float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] = x[i] > 0 ? tanh(x[i]) : 0;
+	}
+
+}
+
+/**
+ * gradient for activation use half tanh functions in cuda
+ */
+extern "C" void cacu_htanh_cuda(float_t *x, int length, float_t *y) {
+	_k_CACU_HTANH_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
+__global__ void _k_CACU_HTANH_GRAD_CUDA(float_t *x, float_t *g, int length,
+		float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = x[i] > 0 ? g[i] * (float_t(1) - x[i] * x[i]) : 0;
+	}
+
+}
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_htanh_grad_cuda(float_t *x, float_t *g, int length,
+		float_t *y) {
+	_k_CACU_HTANH_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }

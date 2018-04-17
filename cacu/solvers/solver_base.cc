@@ -81,8 +81,9 @@ void solver_base::__REGULARIZE__(weight *w_, int weight_index_) {
 	blob* temp = (blob*) _temp->at(weight_index_);
 	switch (_regularize) {
 	case L1:
-		rand_vector(temp->s_data(), temp->count(), 0);
-		cacu_saxpy(temp->s_data(), weight_decay_, w_->s_diff(), w_->count());
+		//temp->set_value(1);
+		cacu_sdxsize<float_t>(w_->s_diff(), w_->count(), weight_decay_, 1.0, w_->s_diff());
+		//cacu_saxpy(temp->s_data(), weight_decay_, w_->s_diff(), w_->count());
 		break;
 	case L2:
 		cacu_saxpy(w_->s_data(), weight_decay_, w_->s_diff(), w_->count());

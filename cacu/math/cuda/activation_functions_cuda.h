@@ -83,6 +83,18 @@ extern "C" void cacu_tanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y);
 
 /**
+ * for activation use half tanh functions in cuda
+ */
+extern "C" void cacu_htanh_cuda(float_t *x, const int length, float_t *y);
+
+/**
+* @cacu_htanh_grad
+* math half tanh;
+* for activation use half tanh functions.
+*/
+extern "C" void cacu_htanh_grad_cuda(float_t *x, float_t *g, const int length, float_t *y);
+
+/**
  * for activation use sigmoid functions in cuda
  */
 extern "C" void cacu_sigmoid_cuda(float_t *x, int length, float_t *y);

@@ -49,7 +49,7 @@ extern cublasHandle_t handle;
 #define CUBLAS_LOG(level, status, log) \
 				do{ \
 					fprintf(stderr,"[%s][%s %s:%d] code %d :%s\n",level, __TIME__, __FILE__, __LINE__,status, log);  \
-				}while(0);
+				}while(0); exit(-1);
 
 
 #define CUBLAS_CHECK(status) \
@@ -82,7 +82,7 @@ extern cublasHandle_t handle;
 				default : \
 					break; \
 			} \
-		} exit(0);
+		}
 
 void create_cublas_handle();
 

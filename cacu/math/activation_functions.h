@@ -196,7 +196,7 @@ inline void cacu_tanh_grad(float_t *x, float_t *g, int length, float_t *y) {
 inline void cacu_htanh(float_t *x, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_tanh_cuda(x, length, y);
+	cacu_htanh_cuda(x, length, y);
 #endif
 #else
 	cacu_htanh_cpu(x, length, y);
@@ -212,7 +212,7 @@ inline void cacu_htanh(float_t *x, int length, float_t *y) {
 inline void cacu_htanh_grad(float_t *x, float_t *g, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_tanh_grad_cuda(x, g, length, y);
+	cacu_htanh_grad_cuda(x, g, length, y);
 #endif
 #else
 	cacu_htanh_grad_cpu(x, g, length, y);
