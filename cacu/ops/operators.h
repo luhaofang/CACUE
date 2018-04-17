@@ -34,14 +34,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../utils/log.h"
 
 #include "../math/math_functions.h"
-#include "../math/activation_functions.hpp"
-#include "../math/batch_functions.hpp"
-#include "../math/pooling_functions.hpp"
-#include "../math/loss_functions.hpp"
-#include "../math/norm_functions.hpp"
+#include "../math/activation_functions.h"
+#include "../math/batch_functions.h"
+#include "../math/pooling_functions.h"
+#include "../math/loss_functions.h"
+#include "../math/norm_functions.h"
 
-#include "../tensor/utils/device_data_utils.hpp"
-#include "../tensor/utils/cpu_data_utils.hpp"
+#include "../tensor/utils/device_data_utils.h"
+#include "../tensor/utils/cpu_data_utils.h"
 
 #include "../utils/data_printer.h"
 

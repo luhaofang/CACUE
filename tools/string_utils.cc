@@ -25,63 +25,41 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#include "string_utils.h"
+
+using namespace std;
 
 namespace cacu {
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
-#endif
+//string split
+vector<string> split(string str, string pattern) {
+	vector<string> ret;
+	if (pattern.empty())
+		return ret;
+	size_t start = 0, index = str.find_first_of(pattern, 0);
+	while (index != str.npos) {
+		if (start != index) {
+			if (str.substr(start, index - start) != "")
+				ret.push_back(str.substr(start, index - start));
+		}
+		start = index + 1;
+		index = str.find_first_of(pattern, start);
+	}
+	if (!str.substr(start).empty()) {
+		if (str.substr(start) != "")
+			ret.push_back(str.substr(start));
+	}
+	return ret;
+}
 
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
-#endif
-
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
-#endif
-
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
-#endif
-
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
-
-
-/***********************************/
-/*        user config part	       */
-/***********************************/
-
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  ON
-#endif
-
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
-
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __OPENBLAS__
-#endif
-
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
-
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
+#ifdef _WIN32
+std::wstring StringToWString(const chars_t &str)
+{
+	std::wstring wstr(str.length(), L' ');
+	std::copy(str.begin(), str.end(), wstr.begin());
+	return wstr;
+}
 #endif
 
 }
 
-
-#endif

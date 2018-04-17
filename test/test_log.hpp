@@ -5,7 +5,7 @@
 
 #include "../cacu/utils/log.h"
 #include "../cacu/utils/check_utils.h"
-#include "../tools/imageio_utils.hpp"
+#include "../tools/imageio_utils.h"
 
 #include <time.h>
 

@@ -8,7 +8,7 @@
 #include "../cacu/framework/blob.h"
 #include "../cacu/tensor/tensor.h"
 #include "../cacu/utils/data_printer.h"
-#include "../cacu/tensor/utils/device_data_utils.hpp"
+#include "../cacu/tensor/utils/device_data_utils.h"
 
 #include <time.h>
 #include "../tools/time_utils.h"

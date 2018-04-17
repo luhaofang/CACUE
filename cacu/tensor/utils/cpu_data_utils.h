@@ -25,61 +25,44 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CPU_DATA_UTILS_H_
+#define CPU_DATA_UTILS_H_
+
+
+#include "../../definition.h"
+
+using namespace std;
 
 namespace cacu {
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
-#endif
 
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
-#endif
+/**
+ * @cacu_ram_copy
+ * copy ram data
+ * math y = x:
+ * length: the input data's size
+ */
+template<typename DTYPE>
+void cacu_copy_cpu(DTYPE *x,const dsize_t length, DTYPE *y) {
+	for (int i = 0; i < length; ++i) {
+		y[i] = x[i];
+	}
+	//memcpy(y, x, length * sizeof(DTYPE));
+}
 
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
-#endif
+template<typename DTYPE>
+inline void cacu_memset(DTYPE *x, DTYPE value,const dsize_t length) {
+	for (int i = 0; i < length; ++i) {
+		x[i] = value;
+	}
+}
 
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
-#endif
-
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
-
-
-/***********************************/
-/*        user config part	       */
-/***********************************/
-
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  ON
-#endif
-
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
-
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __OPENBLAS__
-#endif
-
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
-
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
-#endif
+template<typename DTYPE>
+inline void cacu_print_cpu(DTYPE *data,const dsize_t length) {
+	for (int i = 0; i < length; ++i)
+		cout << data[i] << ",";
+	cout << endl;
+}
 
 }
 

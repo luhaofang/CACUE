@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../cacu/cacu.h"
 
-#include "../../tools/imageio_utils.hpp"
+#include "../../tools/imageio_utils.h"
 #include "../../tools/time_utils.h"
 
 #include "cifar_quick_net.h"
@@ -73,8 +73,8 @@ void test_net()
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
-	cacu_tools::timeval start;
-	cacu_tools::timeval end;
+	timeval start;
+	timeval end;
 	unsigned long diff;
 
 	int step_index = 0;

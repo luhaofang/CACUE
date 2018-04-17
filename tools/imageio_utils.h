@@ -24,51 +24,67 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef DATA_PROC_H_
-#define DATA_PROC_H_
 
-#include <time.h>
+#ifndef IMAGEIO_UTILS_H_
+#define IMAGEIO_UTILS_H_
 
-#include "../../cacu/cacu.h"
+#include <string>
+#include <stdlib.h>
+#include <stdio.h>
+#include <opencv2/opencv.hpp>
+using namespace cv;
 
-#include "../../tools/imageio_utils.h"
 
+#include <ostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
-using namespace cacu;
-using namespace cacu_tools;
+#include "../cacu/definition.h"
+
+#include "../tools/string_utils.h"
+#include "../cacu/tensor/cuda/cuda_utils.h"
+#include "../cacu/math/utils/rand_t.h"
+
 using namespace std;
+using namespace cacu;
 
 
-const int kCIFARImageNBytes = 3072;
-const int kCIFARBatchSize = 10000;
-const int kCIFARDataSize = 1024;
-const int kCIFARDataCount = 50000;
-
-void readdata(chars_t filename, vector<vec_t> &data_blob);
-
-void readdata(chars_t filename, cacu::float_t *data_);
-
-void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean);
-
-void readdata(string filename, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
-		vector<vec_i> &labels);
-
-void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
-
-vec_t compute_mean(chars_t &filepath, int filecount);
-
-void make_mean(chars_t filepath, chars_t meanfile);
+namespace cacu_tools {
 
 
+	class imageio_utils {
 
+	public:
+
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+		static void imread_gpu(cacu::float_t *p_data, const char* file_path_, const int size);
+
+		static void resize_imread_gpu(cacu::float_t *p_data, const char* file_path_, int resize_h, int resize_w);
+
+		static void clip_imread_gpu(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
+#endif
+#endif
+
+		static void imread(cacu::float_t *p_data, const char* file_path_, const int p_size);
+
+		static void resize_imread(cacu::float_t *p_data, const char* file_path_, int resize_h, int resize_w);
+
+		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
+		//*/
+
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+		static void load_mean_file_gpu(cacu::float_t *p_data, string mean_file_);
+#endif
+#endif
+		static void save_mean_file(cacu::float_t *p_data, string mean_file_, int length_);
+
+		static void load_mean_file(cacu::float_t *p_data, string mean_file_);
+
+	};
+}
 
 
 #endif

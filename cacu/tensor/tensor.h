@@ -29,8 +29,8 @@
 #include "../config.h"
 #include "../utils/log.h"
 
-#include "utils/cpu_data_utils.hpp"
-#include "utils/device_data_utils.hpp"
+#include "utils/cpu_data_utils.h"
+#include "utils/device_data_utils.h"
 
 namespace cacu {
 

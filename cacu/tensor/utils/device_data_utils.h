@@ -25,63 +25,86 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef DEVICE_DATA_UTILS_H_
+#define DEVICE_DATA_UTILS_H_
+
+#include "../cuda/cuda_log.h"
+#include "../cuda/cuda_utils.h"
+
+#ifdef __USE_DEVICE__
+#if  __USE_DEVICE__ == ON
 
 namespace cacu {
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
+inline void device_release() {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_release();
 #endif
-
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
-#endif
-
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
-#endif
-
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
-#endif
-
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
-
-
-/***********************************/
-/*        user config part	       */
-/***********************************/
-
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  ON
-#endif
-
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
-
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __OPENBLAS__
-#endif
-
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
-
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
-#endif
-
 }
+
+template<typename DTYPE>
+inline DTYPE* device_malloc(const dsize_t length) {
+#if __PARALLELTYPE__ == __CUDA__
+	return cuda_malloc_v(length, 0);
+#else
+	return NULL;
+#endif
+}
+
+template<typename DTYPE>
+inline DTYPE* device_malloc_v(const dsize_t length, DTYPE value) {
+#if __PARALLELTYPE__ == __CUDA__
+	return cuda_malloc_v(length, value);
+#else
+	return NULL;
+#endif
+}
+
+template<typename DTYPE>
+inline void device_setvalue(DTYPE *data_, DTYPE value, const dsize_t length) {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_setvalue(data_, value, length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_refresh(DTYPE *data_, const dsize_t length) {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_refresh(data_, length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_copy2dev(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_copy2dev(d_data_, s_values, length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_copy2host(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_copy2host(d_data_, s_values, length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_free(DTYPE* data_) {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_free(data_);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_print(DTYPE* data_, const dsize_t length) {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_print(data_, length);
+#endif
+}
+}
+
+#endif
+#endif
 
 
 #endif

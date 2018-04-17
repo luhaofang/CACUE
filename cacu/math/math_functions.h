@@ -33,9 +33,9 @@
 #include "../definition.h"
 
 #include "cuda/math_functions_cuda.h"
-#include "blas/math_function_oblas.hpp"
-#include "blas/math_function_mkl.hpp"
-#include "blas/math_function_cublas.hpp"
+#include "blas/math_function_oblas.h"
+#include "blas/math_function_mkl.h"
+#include "blas/math_function_cublas.h"
 #include "utils/rand_t.h"
 
 using namespace std;

@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "data_proc.h"
 
-#include "../../tools/imageio_utils.hpp"
+#include "../../tools/imageio_utils.h"
 
 
 using namespace cacu;

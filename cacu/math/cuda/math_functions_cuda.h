@@ -52,6 +52,8 @@ extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int
 
 extern "C" void cacu_abs_cuda(float *x, const int length, float *y);
 
+extern "C" void cacu_abs_grad_cuda(float *x, float *diff, const int length, float *grad);
+
 }
 
 #endif

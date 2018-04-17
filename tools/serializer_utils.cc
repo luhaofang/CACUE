@@ -25,63 +25,21 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#include "serializer_utils.h"
 
-namespace cacu {
+using namespace std;
+using namespace cacu;
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
-#endif
+namespace cacu_tools {
 
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
-#endif
+static void serializer::blob_serialize(blob *data, chars_t output) {
+	std::ofstream os(output, ios::binary);
+	os.precision(std::numeric_limits<cacu::float_t>::digits10);
 
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
-#endif
+	for (int i = 0; i < data->count(); ++i)
+		os << data->s_data()[i] << endl;
 
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
-#endif
-
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
-
-
-/***********************************/
-/*        user config part	       */
-/***********************************/
-
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  ON
-#endif
-
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
-
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __OPENBLAS__
-#endif
-
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
-
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
-#endif
-
+	os.close();
 }
 
-
-#endif
+}

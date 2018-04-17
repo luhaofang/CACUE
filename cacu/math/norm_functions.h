@@ -25,61 +25,49 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef NORM_FUNCTIONS_H_
+#define NORM_FUNCTIONS_H_
+
+#include "math_definition.h"
+#include "../config.h"
+#include "../definition.h"
+
+#include "cuda/norm_functions_cuda.h"
+#include "cpu/norm_functions_cpu.h"
 
 namespace cacu {
 
-//openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA
+/**
+ * @cacu_cross_entropy
+ * math x[i] = max(0,x[i]) :
+ * for loss use cross entropy functions.
+ */
+inline void cacu_norm_l1(float_t *x, int num, int length,
+		const unsigned int *label_, float_t *loss_) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+
 #endif
+#else
 
-//mkl
-#ifndef __MKL__
-#define __MKL__ 0XB
 #endif
+}
 
-//cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC
+/**
+ * @cacu_cross_entropy
+ * math x[i] = max(0,x[i]) :
+ * for loss use cross entropy functions.
+ */
+inline void cacu_norm_l2(float_t *x, int num, int length,
+		const unsigned int *label_, float_t *loss_) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+
 #endif
+#else
 
-//cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD
 #endif
-
-//opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE
-#endif
-
-
-/***********************************/
-/*        user config part	       */
-/***********************************/
-
-#ifndef __USE_DEVICE__
-#define __USE_DEVICE__  ON
-#endif
-
-#ifndef __PARALLELTYPE__
-#define __PARALLELTYPE__  __CUDA__
-#endif
-
-#ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __OPENBLAS__
-#endif
-
-#ifndef __USEMBEDDING__
-#define __USEMBEDDING__  OFF
-#endif
-
-//embedding size for device
-#ifndef __EMBEDSIZE__
-#define __EMBEDSIZE__ 1
-#endif
+}
 
 }
 
