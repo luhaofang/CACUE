@@ -26,15 +26,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#ifndef TEST_HPP_
-#define TEST_HPP_
+#ifndef FOR_ONE_TEST_HPP_
+#define FOR_ONE_TEST_HPP_
 
 #include "../../cacu/cacu.h"
 
 #include "../../tools/imageio_utils.h"
 #include "../../tools/time_utils.h"
+#include "../../tools/injector.h"
+#include "../../tools/serializer_utils.h"
 
-#include "cifar_quick_net.h"
+#include "cifar_test_net.h"
 #include "data_proc.h"
 
 using namespace cacu;
@@ -42,9 +44,9 @@ using namespace cacu_tools;
 
 void test_net()
 {
-	int batch_size = 100;
+	int batch_size = 1;
 
-	int max_iter = 100;
+	int max_iter = 10;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -52,29 +54,34 @@ void test_net()
 #endif
 #endif
 
-	network *net = create_cifar_quick_net(batch_size,test);
+	network *net = create_cifar_test_net(batch_size, test);
 
 	string datapath = "/home/haofang/data/cifar10/";
 	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
-	load_test_data_bymean(datapath, meanfile, full_data, full_label);
+	load_test_data(datapath, full_data, full_label);
+	//load_test_data_bymean(datapath, meanfile, full_data, full_label);
 
 	vec_i _full_label;
-	for(int i = 0; i < full_label.size(); ++i)
+	for (int i = 0; i < full_label.size(); ++i)
 		_full_label.push_back(full_label[i][0]);
 
 	blob *input_data = (blob*)net->input_blobs()->at(0);
 
 	blob *output_data = net->output_blob();
+	
+	injector *injector_v = new injector(net->get_op(11));
+	injector *injector_s = new injector(net->get_op(12));
 
-	net->load_weights("/home/haofang/experiment/cifar10/cifar10_quick_test.model");
+
+	net->load_weights("C:/Users/Haofang.Lu/Desktop/git/cacue_vs/example/cifar10/model_1000.model");
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
-	timeval start;
-	timeval end;
+	cacu_tools::timeval start;
+	cacu_tools::timeval end;
 	unsigned long diff;
 
 	int step_index = 0;
@@ -102,7 +109,7 @@ void test_net()
 			}
 		}
 		allcount += batch_size;
-		batch_size = urandint(10, 100);
+		batch_size = 1;//urandint(10, 100);
 		LOG_DEBUG("batch_size: %d", batch_size);
 		gettime(&end);
 
@@ -113,9 +120,21 @@ void test_net()
 		}
 		if (step_index == kCIFARBatchSize)
 			break;
-	}
 
-	LOG_INFO("precious: %f,%f", count / allcount,count);
+		ostringstream oss;
+		oss << "/home/haofang/experiments/cifar10/raw" << i << ".data";
+		serializer::blob_serialize(net->get_op(0)->in_data<blob>(), oss.str());
+		ostringstream ossv;
+		ossv << "/home/haofang/experiments/cifar10/visualized" << i << ".data";
+		injector_v->s_data_serializa(ossv.str());
+		ostringstream osss;
+		osss << "/home/haofang/experiments/cifar10/semantic" << i << ".data";
+		injector_s->s_data_serializa(osss.str());
+
+	}	
+
+
+	LOG_INFO("precious: %f,%f", count / allcount, count);
 	delete net;
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -126,3 +145,4 @@ void test_net()
 
 
 #endif
+

@@ -36,7 +36,7 @@
 //#include "../../cacu/definition.h"
 //#include "../../cacu/utils/log.h"
 
-#include "tools.h"
+#include "tools_mtcnn.h"
 #include "models_creater.h"
 
 using namespace cv;
@@ -56,15 +56,15 @@ void face_detect(chars_t file_name) {
 	network *Pnet = create_Pnet(1, test);
 	//Pnet->load_weights(
 	//		"/home/seal/cuda-workspace/CACUE_N/example/mtcnn/model/Pnet.model");
-	Pnet->load_weights("/home/seal/4T/cacue/imagenet/Pnet.model");
+	Pnet->load_weights("/home/haofang/experiment/mtcnn/models/Pnet.model");
 	network *Rnet = create_Rnet(1, test);
 	//Rnet->load_weights(
 	//		"/home/seal/cuda-workspace/CACUE_N/example/mtcnn/model/Rnet.model");
-	Rnet->load_weights("/home/seal/4T/cacue/imagenet/Rnet.model");
+	Rnet->load_weights("/home/haofang/experiment/mtcnn/models/Rnet.model");
 	network *Onet = create_Onet(1, test);
 	//Onet->load_weights(
 	//		"/home/seal/cuda-workspace/CACUE_N/example/mtcnn/model/Onet.model");
-	Onet->load_weights("/home/seal/4T/cacue/imagenet/Onet.model");
+	Onet->load_weights("/home/haofang/experiment/mtcnn/models/Onet.model");
 
 	float_t thresholds[3] = { 0.5, 0.5, 0.6 };
 	struct timeval start;

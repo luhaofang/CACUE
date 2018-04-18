@@ -36,10 +36,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../cacu/cacu.h"
 #include "../../cacu/config.h"
 
-#include "../../tools/imageio_utils.hpp"
+#include "../../tools/imageio_utils.h"
 #include "../../tools/time_utils.h"
 
 #include "cifar_quick_net.h"
+#include "cifar_test_net.h"
 #include "data_proc.h"
 
 using namespace cacu;
@@ -49,37 +50,44 @@ void train_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 5000;
+	int max_iter = 10000;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(0);
+	cuda_set_device(2);
 
 #endif
 #endif
 	//set random seed
 	set_rand_seed();
 
-	network *net = create_cifar_quick_net(batch_size,train);
-	//net->load_weights("C:/Users/Haofang.Lu/Desktop/git/CACUE/example/cifar10/cifar10_quick.model");
+	network *net = create_cifar_test_net(batch_size,train);
+	net->load_weights_from("/home/haofang/experiment/cifar10/cifar10_quick_normal.model",10);
+	//net->load_weights("C:/Users/Haofang.Lu/Desktop/git/cacue_vs/example/cifar10/model_3000.model");
 	sgd_solver *sgd = new sgd_solver(net);
 	sgd->set_lr(0.001f);
 	sgd->set_momentum(0.9f);
 	sgd->set_weight_decay(0.004f);
+	//sgd->set_regularize(regularize_type::L1);
 
-	string datapath = "C:/Users/Haofang.Lu/Desktop/data/cifar10/";
-	string meanfile = "C:/Users/Haofang.Lu/Desktop/data/cifar10/mean.binproto";
+	std::ofstream logger("/home/haofang/experiment/cifar10/py/loss.txt", ios::binary);
+	logger.precision(std::numeric_limits<cacu::float_t>::digits10);
+
+	string datapath = "/home/haofang/data/cifar10/";
+	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
-	load_data_bymean(datapath, meanfile, full_data, full_label);
+
+	//load_data_bymean(datapath, meanfile, full_data, full_label);
+	load_data(datapath, full_data, full_label);
 
 	blob *input_data = (blob*)net->input_blobs()->at(0);
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
-	cacu_tools::timeval start;
-	cacu_tools::timeval end;
+	timeval start;
+	timeval end;
 	unsigned long diff;
 	for (int i = 1 ; i < max_iter; ++i)
 	{
@@ -95,7 +103,7 @@ void train_net()
 			input_label->copy2data(full_label[step_index],j);
 			step_index += 1;
 		}
-
+		
 		sgd->train_iter();
 		
 		gettime(&end);
@@ -104,18 +112,41 @@ void train_net()
 			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
 				- start.tv_usec;
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), diff / 1000);
-			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
+			((softmax_with_loss_op*)net->get_op(net->op_count() - 1))->echo();
+			//net->get_op(10)->echo();
+			//net->get_op(10)->echo();
+
+			logger << ((softmax_with_loss_op*)net->get_op(net->op_count() - 1))->loss() << endl;
+			logger.flush();
+
+			cout << "rawdata:";
+			cacu_print(net->get_op(0)->in_data<blob>()->s_data(), 10);
+			cout << "visualized:";
+			cacu_print(net->get_op(8)->out_data<blob>()->s_data(), 10);
+			cout << "semantic:";
+			cacu_print(net->get_op(9)->out_data<blob>()->s_data(), 10);
+			//if (net->get_op(8)->out_data<blob>()->s_data()[0] + net->get_op(9)->out_data<blob>()->s_data()[0] - net->get_op(0)->in_data<blob>()->s_data()[0] > 0.00001)
+			//	LOG_DEBUG("something is wrong!");
+			//*/
 		}
 
 		if(i % 4000 == 0)
 			sgd->set_lr_iter(0.1f);
 
+		if (i % 1000 == 0)
+		{
+			ostringstream oss;
+			oss << "/home/haofang/experiment/cifar10/model_" << i << ".model";
+			net->save_weights(oss.str());
+		}
+
 	}
 	LOG_INFO("optimization is done!");
-	net->save_weights("C:/Users/Haofang.Lu/Desktop/git/CACUE/example/cifar10/cifar10_quick.model");
+	net->save_weights("/home/haofang/experiment/cifar10/cifar10_quick_test.model");
 
 	vector<vec_t>().swap(full_data);
 	vector<vec_i>().swap(full_label);
+	logger.close();
 	delete net;
 	delete sgd;
 
@@ -128,3 +159,4 @@ void train_net()
 
 
 #endif
+
