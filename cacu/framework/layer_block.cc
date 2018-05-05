@@ -67,4 +67,17 @@ layer_block& layer_block::operator <<(layer_base &layer_) {
 	return *this;
 }
 
+void layer_block::load_weights(chars_t modelpath)
+{
+	std::ifstream is(modelpath, ios::binary);
+	is.precision(std::numeric_limits<float_t>::digits10);
+	if (!is)
+		LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
+	for(int i =0 ; i < _layers->size(); ++i)
+	{
+		_layers->at(i)->load_weights(is);
+	}
+	is.close();
+}
+
 }

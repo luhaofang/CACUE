@@ -78,6 +78,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../user_ops/row_max_pooling_op.hpp"
 //#include "../user_ops/local_conv_op.hpp"
 #include "../user_ops/normalization_op.hpp"
+#include "../user_ops/dilated_convolution_op.hpp"
+#include "../user_ops/combination_op.hpp"
 
 #include "../user_ops/roi_pooling_op.hpp"
 #include "../user_ops/injector_op.hpp"

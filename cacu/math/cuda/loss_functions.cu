@@ -90,11 +90,44 @@ __global__ void _k_CACU_CROSS_ENTROPY_MULTI_CUDA(float_t *x, const int num,
 		const int channel, const int width, const int height,
 		const int *label_, float_t *loss_) {
 
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	float_t *xp;
+	int c_length = width * height;
+	int length = channel * c_length;
+
+	for (int i = 0; i < num; ++i)
+	{
+		shared_data[tid] = 0;
+		for (int j = tid; j < c_length ; j += THREADNUM)
+		{
+			xp = x + i * length + j;
+			shared_data[tid] -= (label_[j + i * c_length] >= 0) ? log(max(xp[label_[j + i * c_length] * c_length], float_t(_MIN_FLT_))) : 0.0;
+		}
+		__syncthreads();
+
+		int acc_length = THREADNUM / 2;
+		while (acc_length > 0) {
+			if (tid < acc_length)
+				shared_data[tid] += shared_data[tid + acc_length];
+			acc_length /= 2;
+			__syncthreads();
+		}
+
+		if (tid == 0)
+			loss_[0] += shared_data[0];
+	}
 }
 
 extern "C" void cacu_cross_entropy_multi_cuda(float_t *x, const int num,
 		const int channel, const int width, const int height,
 		const int *label_, float_t *loss_) {
+
+	_k_CACU_CROSS_ENTROPY_MULTI_CUDA<<<1, THREADNUM, THREADNUM * sizeof (float)>>>(x,
+				num, channel, width, height, label_, loss_);
+	CUDA_CHECK(cudaThreadSynchronize());
 
 }
 

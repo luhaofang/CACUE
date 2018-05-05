@@ -284,7 +284,7 @@ __global__ void _k_CACU_TANH_CUDA(float_t *x, int length, float_t *y) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = tanh(x[i]);
+		y[i] = std::tanh(x[i]);
 	}
 
 }
@@ -331,7 +331,7 @@ __global__ void _k_CACU_HTANH_CUDA(float_t *x, int length, float_t *y) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = x[i] > 0 ? tanh(x[i]) : 0;
+		y[i] = x[i] > 0 ? std::tanh(x[i]) : 0;
 	}
 
 }

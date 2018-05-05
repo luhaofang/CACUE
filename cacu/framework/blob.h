@@ -26,6 +26,8 @@
 #ifndef BLOB_H_
 #define BLOB_H_
 
+#include <limits>
+
 #include "blob_base.h"
 
 //#include "../definition.h"
@@ -128,6 +130,8 @@ public:
 	 * copy data dsize_to blob's diff, if blob is established in gpu, io op is needed
 	 */
 	void copy2diff(vec_t &data_);
+
+	void output_bin(chars_t path_);
 
 	inline dsize_t calculate_size() {
 		return test == _phase ?

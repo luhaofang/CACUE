@@ -287,22 +287,33 @@ void mask_vector_lt(float *vector_, const int length, float *mask) {
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-void cacu_isaxb(float *x, const int length, const float a, int *index_,
+void cacu_isaxb(float *x, const int channel, const int width, const int height, const float a, int *index_,
 		const float b, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_isaxb_cuda(x, length, a, index_, b, y);
+	cacu_isaxb_cuda(x, channel, width, height, a, index_, b, y);
 #endif
 #else
+	float *xp,*yp;
+	int c_length = width * height;
+	int length = channel* c_length;
+	int index;
 	if(*index_ >= 0 ) {
-		for (int i = 0; i < length; ++i)
-		y[i] = x[i];
-		y[*index_] = a * x[*index_] + b;
+		for(int i = 0 ; i< length; ++i)
+			y[i] = x[i];
+		for (int h = 0 ; h < height; ++h)
+			for(int w =0; w < width; ++w)
+			{
+				index =  h * width + w;
+				xp = x + index;
+				yp = y + index;
+				yp[index_[index]*c_length] = a * xp[index_[index]*c_length] + b;
+			}
 	}
 	else
 	{
 		for (int i = 0; i < length; ++i)
-		y[i] = 0;
+			y[i] = 0;
 	}
 #endif
 }
@@ -312,9 +323,19 @@ unsigned int argmax(float *data, const int length) {
 	unsigned int index;
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	unsigned int *_index = cuda_malloc<unsigned int>(1);
-	cacu_argmax_cuda(data, length, _index);
-	cuda_copy2host(&index, _index, 1);
+	vector<float_t> _data(length);
+	cuda_copy2host(&_data[0], data, length);
+	float max;
+	unsigned int i;
+	max = _data[0];
+	index = 0;
+	for (i = 1; i < length; ++i) {
+		if (_data[i] > max) {
+			max = _data[i];
+			index = i;
+		}
+	}
+	vector<float_t>().swap(_data);
 	return index;
 #endif
 #else

@@ -219,6 +219,10 @@ public:
 		return _OP_TYPE;
 	}
 
+	inline void __NEED_BACK_PROPAGATE__(bool need_back_propagate_){
+		_NEED_BACK_PROPAGATE_FEATURE = need_back_propagate_;
+	}
+
 protected:
 
 	blobs *s_blobs;
@@ -338,6 +342,9 @@ protected:
 	virtual const void op() = 0;
 
 	virtual const void initial() = 0;
+
+	bool _NEED_BACK_PROPAGATE_FEATURE = true;
+
 
 private:
 

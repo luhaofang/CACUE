@@ -81,11 +81,11 @@ void imageio_utils::resize_imread_gpu(cacu::float_t *p_data,
 	for (unsigned int y = 0; y < height; y++)
 		for (unsigned int x = 0; x < width; x++) {
 			index = y * width + x;
-			temp_[index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0]);
+			temp_[index] = ((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0] - 102.9801);
 			temp_[c_length + index] =
-					((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1]);
+					((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1] - 115.9465);
 			temp_[2 * c_length + index] = ((cacu::float_t) dst.at<cv::Vec3b>(y,
-					x)[2]);
+					x)[2] - 122.7717);
 		}
 
 	cuda_copy2dev(p_data, &temp_[0], temp_.size());
@@ -245,6 +245,7 @@ void imageio_utils::load_mean_file_gpu(cacu::float_t *p_data,
 #endif
 void imageio_utils::save_mean_file(cacu::float_t *p_data,
 		string mean_file_, int length_) {
+
 	ofstream os(mean_file_, ios::binary);
 	os.precision(numeric_limits<cacu::float_t>::digits10);
 	if (!os)

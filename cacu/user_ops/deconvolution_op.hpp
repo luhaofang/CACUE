@@ -49,31 +49,37 @@ public:
 	}
 
 	virtual const void initial() override {
-		int input_dim = s_blob->width();
+		int input_w = s_blob->width();
+		int input_h= s_blob->height();
 		int channel = s_blob->channel();
 		int num = s_blob->num();
 
-		int output_dim = (input_dim - 1) * _args->stride()
+		int output_w = (input_w - 1) * _args->stride()
 				+ _args->kernel_size() - _args->pad() * 2;
+		int output_h = (input_h - 1) * _args->stride()
+				+ _args->kernel_size() - _args->pad() * 2;
+
 		if (_args->kernel_size() == 1)
-			output_dim = input_dim * _args->stride() - 2 * _args->pad();
+			output_w = input_w * _args->stride() - 2 * _args->pad();
+		if (_args->kernel_size() == 1)
+			output_h = input_h * _args->stride() - 2 * _args->pad();
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, _args->output_channel(), output_dim,
-					output_dim, _phase);
+			o_blob = create_em_oblob(num, _args->output_channel(), output_w,
+					output_h, _phase);
 
 #else
-			o_blob = create_oblob(num, _args->output_channel(), output_dim, output_dim, _phase);
+			o_blob = create_oblob(num, _args->output_channel(), output_w, output_h, _phase);
 #endif
 			_col_data = create_opblob(1, _args->output_channel(),
-					input_dim * _args->kernel_size(),
-					input_dim * _args->kernel_size(), _phase);
+					input_w * _args->kernel_size(),
+					input_h * _args->kernel_size(), _phase);
 		} else {
-			o_blob->resize(num, _args->output_channel(), output_dim,
-					output_dim);
+			o_blob->resize(num, _args->output_channel(), output_w,
+					output_h);
 			_col_data->resize(1, _args->output_channel(),
-					input_dim * _args->kernel_size(),
-					input_dim * _args->kernel_size());
+					input_w * _args->kernel_size(),
+					input_h * _args->kernel_size());
 		}
 	}
 

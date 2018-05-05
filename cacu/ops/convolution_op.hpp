@@ -214,13 +214,16 @@ public:
 		blob *s_blob_ = (blob*)s_blob;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
-			//gradient propagation
-			for (int g = 0; g < _group; ++g)
-			//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);
-			cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
-			//col2img
-			//unpadded
-			cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
+			if(_NEED_BACK_PROPAGATE_FEATURE)
+			{
+				//gradient propagation
+				for (int g = 0; g < _group; ++g)
+				//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);
+					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
+				//col2img
+				//unpadded
+				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
+			}
 			//weights gradient
 			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
 			for (int g = 0; g < _group; ++g)

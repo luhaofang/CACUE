@@ -88,6 +88,14 @@ public:
 		}
 	}
 
+	inline void load_weights(std::ifstream &is)
+	{
+		for(int i = 0 ; i < _ops->size(); ++i)
+		{
+			_ops->at(i)->load(is);
+		}
+	}
+
 protected:
 
 	vector<operator_base*> *_ops;

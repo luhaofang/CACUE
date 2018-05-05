@@ -134,7 +134,7 @@ void cacu_abs_grad(float *x, float *diff, const int length, float *grad);
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-void cacu_isaxb(float *x, const int length, const float a, int *index_,
+void cacu_isaxb(float *x, const int channel, const int width, const int height, const float a, int *index_,
 		const float b, float *y);
 
 unsigned int argmax(float *data, const int length);

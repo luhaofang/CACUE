@@ -105,6 +105,7 @@ void network::forward_propagate() {
 }
 
 void network::back_propagate() {
+	get_op(0)->__NEED_BACK_PROPAGATE__(false);
 	for (int i = _layers->size() - 1; i >= 0; --i) {
 		_layers->at(i)->grad();
 		//LOG_DEBUG("backward layer: %d",i);
@@ -145,16 +146,29 @@ void network::load_weights(chars_t modelpath) {
 	LOG_INFO("Initialize model by : %s", modelpath.c_str());
 }
 
-void network::load_weights_from(chars_t modelpath, int op_num) {
+void network::load_weights_from(chars_t modelpath, int op_start, int op_end) {
 	std::ifstream is(modelpath, ios::binary);
 	is.precision(std::numeric_limits<float_t>::digits10);
 	if (!is)
 		LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
-	for (int i = op_num; i < op_count(); ++i) {
+	CHECK_LE_OP(op_end,op_count(),"end index must less than current op count!");
+	CHECK_LT_OP(op_start,op_end,"start index must less than end index!");
+	for (int i = op_start; i < op_end; ++i) {
+		//LOG_DEBUG("%d", i);
 		get_op(i)->load(is);
 	}
 	is.close();
-	LOG_INFO("Initialize model from op[%d] by : %s", op_num, modelpath.c_str());
+	LOG_INFO("Initialize model from op[%d] to op[%d] by : %s", op_start, op_end, modelpath.c_str());
+}
+
+void network::load_weights_from(std::ifstream &is, int op_start, int op_end) {
+
+	CHECK_LE_OP(op_end,op_count(),"end index must less than current op count!");
+	CHECK_LT_OP(op_start,op_end,"start index must less than end index!");
+	for (int i = op_start; i < op_end; ++i) {
+		get_op(i)->load(is);
+	}
+	LOG_INFO("Initialize model from op[%d] to op[%d]", op_start, op_end);
 }
 
 void network::save_weights(chars_t modelpath) {

@@ -75,6 +75,9 @@ public:
 
 	layer_block& operator <<(layer_base &layer_);
 
+	void load_weights(chars_t modelpath);
+
+
 private:
 
 	vector<layer_base*> *_layers;

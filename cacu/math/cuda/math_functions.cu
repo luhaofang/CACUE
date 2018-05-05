@@ -56,13 +56,16 @@ extern "C" void cacu_saxpy_atomic_cuda(float *x, float a, float *y,
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_ISAXB_CUDA(float *x, const int length, const float a,
+__global__ void _k_CACU_ISAXB_CUDA(float *x, const int channel, const int width, const int height, const float a,
 		int *index_, const float b, float *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
 	int threadid = bid * THREADNUM + tid;
+	float *xp,*yp;
+	int c_length = width * height;
+	int length = channel* c_length;
 
 	if (index_[0] >= 0) {
 
@@ -72,9 +75,15 @@ __global__ void _k_CACU_ISAXB_CUDA(float *x, const int length, const float a,
 
 		__syncthreads();
 
-		if (threadid == 0)
-			y[index_[0]] = a * x[index_[0]] + b;
-	} else {
+		for (int i = threadid ; i < c_length; i += BLOCKNUM * THREADNUM)
+		{
+			xp = x + i;
+			yp = y + i;
+			if (tid == 0)
+				yp[index_[i] * c_length] = a * xp[index_[i] * c_length] + b;
+		}
+	}
+	else {
 		for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 			y[i] = 0;
 		}
@@ -85,10 +94,10 @@ __global__ void _k_CACU_ISAXB_CUDA(float *x, const int length, const float a,
  * @cacu_isaxdb_cuda
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_cuda(float *x, const int length, const float a,
+extern "C" void cacu_isaxb_cuda(float *x, const int channel, const int width, const int height, const float a,
 		int *index_, const float b, float *y) {
 
-	_k_CACU_ISAXB_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, index_, b, y);
+	_k_CACU_ISAXB_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, channel, width, height, a, index_, b, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 

@@ -107,6 +107,26 @@ void blob::copy2diff(vec_t &data_) {
 	_tdiff->copy2data(&data_[0]);
 }
 
+void blob::output_bin(chars_t path_)
+{
+	std::ofstream os(path_, ios::binary);
+	os.precision(numeric_limits<float_t>::digits10);
+	if (!os)
+		LOG_FATAL("file %s cannot be opened!", path_.c_str());
+#if __USE_DEVICE__ == ON
+	vec_t _v(_length);
+	device_copy2host(&_v[0], (float_t*)_s_data, _length);
+	for (int i = 0; i < _length; ++i) {
+			os.write((char*) (&_v[i]), sizeof(cacu::float_t));
+		}
+#else
+	for (int i = 0; i < _length; ++i) {
+		os.write((char*) (_s_data + i), sizeof(cacu::float_t));
+	}
+#endif
+	os.close();
+}
+
 /*
  * serializa blob data, output data to model file
  */

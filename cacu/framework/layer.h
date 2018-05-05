@@ -60,6 +60,7 @@ public:
 
 	layer* op(op_name op_, blob_base * blob_, op_args * args_);
 
+
 	template<class OPTYPE>
 	inline OPTYPE *& get_op(int i) const {
 		return (OPTYPE*&) _ops->at(i);

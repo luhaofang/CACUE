@@ -171,6 +171,16 @@ public:
 				blob_->size())
 				;
 			return new math_op(blob_->at(0));
+		case CACU_DILATED_CONVOLUTION:
+			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
+					blob_->size())
+			;
+			return new dilated_convolution_op(blob_->at(0), d_args_);
+		case CACU_COMBINATION:
+			CHECK_GE_OP(blob_->size(), 2, "blobs size must >= 2 vs %d",
+					blob_->size())
+			;
+			return new combination_op(blob_, d_args_);
 		default:
 			LOG_FATAL("No op is founded as: %d", op_name_)
 			;

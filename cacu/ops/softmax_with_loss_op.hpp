@@ -98,7 +98,10 @@ public:
 		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
 		cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(), s_blob_->width(), s_blob_->height(), o_blob_->s_data());
-		cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+		//cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+		//LOG_DEBUG("%d,%d,%d",o_blob_->width(), o_blob_->height(),labels_->count());
+		//CHECK_EQ_OP(o_blob_->channel_length(),labels_->count(), "%d,%d", o_blob_->count(),labels_->count());
+		cacu_cross_entropy_multi(o_blob_->s_data(),o_blob_->num(),o_blob_->channel(), o_blob_->width(), o_blob_->height(),labels_->s_data(),o_blob_->s_diff());
 #endif
 
 #if __USEMBEDDING__ == ON
@@ -111,6 +114,7 @@ public:
 #endif
 #endif
 		_loss[0] *= normalizer();
+		_loss[0] /= o_blob_->channel_length();
 	}
 
 	virtual const void grad() override {
@@ -135,8 +139,9 @@ public:
 		//CE LOSS BACK PROPGATION
 		for (int i = 0; i < s_blob_->num(); ++i)
 		{
-			cacu_isaxb(o_blob_->p_data(i),s_blob_->length(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-			cacu_scalex(s_blob_->p_diff(i), s_blob_->length(), normalizer() * _loss_weight);
+			cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
+			//cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)10,labels_->p_data(i),(float_t)0, s_blob_->p_diff(i));
+			cacu_scalex(s_blob_->p_diff(i), s_blob_->length(), normalizer() * _loss_weight / o_blob_->channel_length());
 		}
 
 #endif

@@ -25,24 +25,25 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SUM_ELEMWISE_OP_HPP_
-#define SUM_ELEMWISE_OP_HPP_
+#ifndef COMBINATION_OP_HPP_
+#define COMBINATION_OP_HPP_
+
 
 namespace cacu {
 
-class sum_elemwise_op: public operator_base {
+class combination_op: public operator_base {
 
 public:
 
-	sum_elemwise_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_SUM_ELEMWISE) {
+	combination_op(blobs *&data, data_args *&args_) :
+			operator_base(data, args_, CACU_COMBINATION) {
 		check();
 		initial();
 		init_weights();
 		echo();
 	}
 
-	~sum_elemwise_op() {
+	~combination_op() {
 
 	}
 
@@ -54,10 +55,10 @@ public:
 					s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
 					s_blobs->at(0)->height(), _phase);
 #else
-			o_blob = create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase);
+			o_blob = create_oblob(s_blobs->at(0)->num()*s_blobs->size(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase);
 #endif
 		} else {
-			o_blob->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+			o_blob->resize(s_blobs->at(0)->num()*s_blobs->size(), s_blobs->at(0)->channel(),
 					s_blobs->at(0)->width(), s_blobs->at(0)->height());
 		}
 	}
@@ -95,7 +96,7 @@ public:
 		blob *o_blob_ = (blob*)o_blob;
 		for (unsigned int j = 0; j < s_blobs->size(); ++j) {
 			blob *s_blob_ = (blob *)s_blobs->at(j);
-			cacu_saxpy(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), s_blob_->count());
+			cacu_copy(s_blob_->s_data(),s_blob_->count(), o_blob_->p_data(j*s_blobs->at(0)->num()));
 		}
 #endif
 	}
@@ -115,7 +116,7 @@ public:
 
 		for (unsigned int j = 0; j < (s_blobs)->size(); ++j) {
 			blob *s_blob_ = (blob *)s_blobs->at(j);
-			cacu_copy(o_blob_->s_diff(),s_blob_->count(),s_blob_->s_diff());
+			cacu_copy(o_blob_->p_diff(j*s_blobs->at(0)->num()),s_blob_->count(),s_blob_->s_diff());
 		}
 #endif
 	}
@@ -129,7 +130,7 @@ public:
 	}
 
 	virtual const void echo() override {
-		LOG_INFO("create sum_elemwise op:");
+		LOG_INFO("create combination op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
