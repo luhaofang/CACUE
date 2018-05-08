@@ -80,4 +80,17 @@ void layer_block::load_weights(chars_t modelpath)
 	is.close();
 }
 
+void layer_block::save_weights(chars_t modelpath)
+{
+	std::ofstream os(modelpath, ios::binary);
+	os.precision(std::numeric_limits<float_t>::digits10);
+	if (!os)
+		LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
+	for(int i =0 ; i < _layers->size(); ++i)
+	{
+		_layers->at(i)->save_weights(os);
+	}
+	os.close();
+}
+
 }

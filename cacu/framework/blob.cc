@@ -26,6 +26,7 @@
 
 #include "blob.h"
 
+#include "../math/utils/rand_t.h"
 #include "../utils/data_printer.h"
 
 using namespace std;
@@ -127,6 +128,26 @@ void blob::output_bin(chars_t path_)
 	os.close();
 }
 
+void blob::input_bin(chars_t path_, int n)
+{
+	std::ifstream is(path_, ios::binary);
+	is.precision(numeric_limits<float_t>::digits10);
+	if (!is)
+		LOG_FATAL("file %s cannot be opened!", path_.c_str());
+#if __USE_DEVICE__ == ON
+	vec_t _v(_cube_length);
+	for (int i = 0; i < _cube_length; i++) {
+		is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
+	}
+	device_copy2dev(p_data(n), &_v[0], _cube_length);
+#else
+	for (int i = 0; i < _cube_length; i++) {
+		is.read(reinterpret_cast<char*>(p_data(n) + i), sizeof(float_t));
+	}
+#endif
+	is.close();
+}
+
 /*
  * serializa blob data, output data to model file
  */
@@ -142,6 +163,34 @@ void blob::load(std::ifstream& is) {
 	is.read(reinterpret_cast<char*>(&length_), sizeof(dsize_t));
 	CHECK_EQ_OP(length_,_length,"parameter length is not equal to local length: %d vs %d!",length_,_length);
 	_tdata->load(is);
+}
+
+void blob::set_init_type(param_init_type type, float_t value) {
+	vec_t w(_length);
+	switch (type) {
+	case constant:
+		for (int i = 0; i < _length; ++i)
+			w[i] = value;
+		break;
+	case xavier:
+		value = sqrt((float_t) 3.0 / (channel() * height() * width()));
+		for (int i = 0; i < _length; ++i)
+			w[i] = urand(-value, value);
+		break;
+	case gaussian:
+		for (int i = 0; i < _length; ++i)
+			w[i] = gaussrand(value);
+		break;
+	case msra:
+		value = sqrt((float_t) 2.0 / (channel() * height() * width()));
+		for (int i = 0; i < _length; ++i)
+			w[i] = gaussrand(value);
+		break;
+	default:
+		break;
+	}
+	_tdata->copy2data(&w[0]);
+	vec_t().swap(w);
 }
 
 

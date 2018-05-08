@@ -192,4 +192,14 @@ void network::set_phase(phase_type phase_) {
 		_ops->at(i)->set_phase(phase_);
 	}
 }
+
+void network::set_update_weight(bool isupdate_)
+{
+	for (unsigned int i = 0; i < _ops->size(); ++i) {
+		_ops->at(i)->set_is_update_weight(isupdate_);
+	}
+}
+
+
+
 }

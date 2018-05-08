@@ -77,6 +77,16 @@ public:
 
 	void load_weights(chars_t modelpath);
 
+	void save_weights(chars_t modelpath);
+
+	inline void set_update_weight(bool isupdate_)
+	{
+		for (unsigned int i = 0; i < _layers->size(); ++i) {
+			for (unsigned int j = 0; j < _layers->at(i)->op_count(); ++j)
+				_layers->at(i)->op(j)->set_is_update_weight(isupdate_);
+		}
+	}
+
 
 private:
 

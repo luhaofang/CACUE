@@ -96,6 +96,14 @@ public:
 		}
 	}
 
+	inline void save_weights(std::ofstream &os)
+	{
+		for(int i = 0 ; i < _ops->size(); ++i)
+		{
+			_ops->at(i)->save(os);
+		}
+	}
+
 protected:
 
 	vector<operator_base*> *_ops;

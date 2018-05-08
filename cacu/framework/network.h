@@ -112,6 +112,8 @@ public:
 
 	void set_phase(phase_type phase_);
 
+	void set_update_weight(bool isupdate_);
+
 private:
 
 	vector<layer_base*> *_layers;

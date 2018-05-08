@@ -133,6 +133,8 @@ public:
 
 	void output_bin(chars_t path_);
 
+	void input_bin(chars_t path_, int i);
+
 	inline dsize_t calculate_size() {
 		return test == _phase ?
 				_length * sizeof(float_t) : 2 * _length * sizeof(float_t);
@@ -193,6 +195,8 @@ public:
 			_s_diff = _tdiff->pdata();
 		}
 	}
+
+	void set_init_type(param_init_type type, float_t value);
 
 protected:
 
