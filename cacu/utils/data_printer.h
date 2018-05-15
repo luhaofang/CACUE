@@ -51,6 +51,31 @@ inline void cacu_print(DTYPE *data, size_t length)
 }
 
 
+inline void cacu_bprint(blob *data_, phase_type phase_)
+{
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	for(int n =0 ; n < data_->num();++n)
+		for(int c = 0; c < data_->channel(); ++c)
+			for(int h = 0; h < data_->height(); ++h){
+				if(phase_ == train)
+					device_print(data_->p_diff(n) + c * data_->channel_length() + h * data_->height(), data_->width());
+				else
+					device_print(data_->p_data(n) + c * data_->channel_length() + h * data_->height(), data_->width());
+			}
+#endif
+#else
+	for(int n =0 ; n < data_->num();++n)
+		for(int c = 0; c < data_->channel(); ++c)
+			for(int h = 0; h < data_->height(); ++h){
+				if(phase_ == train)
+					cacu_print_cpu(data_->p_diff(n) + c * data_->channel_length() + h * data_->height(), data_->width());
+				else
+					cacu_print_cpu(data_->p_data(n) + c * data_->channel_length() + h * data_->height(), data_->width());
+			}
+#endif
+}
+
 }
 
 

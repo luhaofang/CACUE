@@ -32,13 +32,25 @@ using namespace cacu;
 
 namespace cacu_tools {
 
-void serializer::blob_serialize(blob *data, chars_t output) {
+void serializer::blob_serialize(blob *data, chars_t output, phase_type phase_) {
 	std::ofstream os(output, ios::binary);
 	os.precision(std::numeric_limits<cacu::float_t>::digits10);
-
+#if __USE_DEVICE__ == ON
+	vec_t data_(data->count());
+	if(phase_ == train)
+		device_copy2host(&data_[0],data->s_diff(),data->count());
+	else
+		device_copy2host(&data_[0],data->s_data(),data->count());
 	for (int i = 0; i < data->count(); ++i)
-		os << data->s_data()[i] << endl;
-
+		os << data_[i] << endl;
+#else
+	if(phase_ == train)
+		for (int i = 0; i < data->count(); ++i)
+			os << data->s_data()[i] << endl;
+	else
+		for (int i = 0; i < data->count(); ++i)
+			os << data->s_diff()[i] << endl;
+#endif
 	os.close();
 }
 

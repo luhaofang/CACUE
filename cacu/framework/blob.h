@@ -97,9 +97,17 @@ public:
 	/**
 	 *
 	 */
-	inline void set_value(float_t value_)
+	inline void set_data(float_t value_)
 	{
 		_tdata->set_value(value_);
+	}
+
+	/**
+	 *
+	 */
+	inline void set_diff(float_t value_)
+	{
+		_tdiff->set_value(value_);
 	}
 
 	/**
@@ -117,6 +125,12 @@ public:
 
 	/*
 	 * copy data dsize_to blob, if blob is established in gpu, io op is needed
+	 * where i is the start piece index in blob
+	 */
+	void copy2data(float_t *data_, dsize_t i);
+
+	/*
+	 * copy data dsize_to blob, if blob is established in gpu, io op is needed
 	 */
 	void copy2data(vec_t &data_);
 
@@ -130,6 +144,8 @@ public:
 	 * copy data dsize_to blob's diff, if blob is established in gpu, io op is needed
 	 */
 	void copy2diff(vec_t &data_);
+
+	void load_from(chars_t path_);
 
 	void output_bin(chars_t path_);
 

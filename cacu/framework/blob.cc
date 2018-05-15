@@ -23,11 +23,12 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+#include <stdlib.h>
 #include "blob.h"
 
 #include "../math/utils/rand_t.h"
 #include "../utils/data_printer.h"
+
 
 using namespace std;
 
@@ -42,6 +43,7 @@ blob::blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 	if (train == phase) {
 		_tdiff = new tensor<float_t>(_length);
 		_s_diff = _tdiff->pdata();
+		//_tdiff->set_value(_value);
 	}
 }
 
@@ -78,6 +80,10 @@ void blob::copy2data(vec_t &data_, dsize_t i) {
 	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
 			data_.size(), _cube_length);
 	_tdata->copy2data(i*_cube_length, _cube_length, &data_[0]);
+}
+
+void blob::copy2data(float_t *data_, dsize_t i) {
+	_tdata->copy2data(i*_cube_length, _cube_length, data_);
 }
 
 /*
@@ -143,6 +149,33 @@ void blob::input_bin(chars_t path_, int n)
 #else
 	for (int i = 0; i < _cube_length; i++) {
 		is.read(reinterpret_cast<char*>(p_data(n) + i), sizeof(float_t));
+	}
+#endif
+	is.close();
+}
+
+void blob::load_from(chars_t path_)
+{
+	std::ifstream is(path_, ios::binary);
+	is.precision(numeric_limits<float_t>::digits10);
+	if (!is)
+		LOG_FATAL("file %s cannot be opened!", path_.c_str());
+#if __USE_DEVICE__ == ON
+	vec_t _v(_length);
+	string line = "";
+	int i= 0;
+	while(getline(is, line))
+	{
+		_v[i] = strtof(line.c_str(), NULL);
+		i+=1;
+	}
+	device_copy2dev(s_data(), &_v[0], _length);
+#else
+	int i= 0;
+	while(getline(is, line))
+	{
+		s_data[i] = strtof(line.c_str(), NULL);
+		i+=1;
 	}
 #endif
 	is.close();

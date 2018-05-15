@@ -197,6 +197,10 @@ void network::set_update_weight(bool isupdate_)
 {
 	for (unsigned int i = 0; i < _ops->size(); ++i) {
 		_ops->at(i)->set_is_update_weight(isupdate_);
+		if(_ops->at(i)->_TYPE()==CACU_BATCH_NORMALIZE)
+		{
+			((batch_normalize_op *)_ops->at(i))->set_is_use_global_stats(isupdate_==false);
+		}
 	}
 }
 

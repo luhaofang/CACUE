@@ -108,6 +108,10 @@ public:
 
 	virtual const void op() override {
 
+		col_offset = o_blob->channel() / _group * _col_data->channel_length();
+		w_offset = _w->count() / _group / _group;
+		out_offset = _w->num() / _group * s_blob->channel_length();
+
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -134,7 +138,7 @@ public:
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
-
+			col_data_->blob_size();
 			//gradient propagation
 			for (int g = 0; g < _group; ++g)
 			//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);
@@ -147,20 +151,17 @@ public:
 			//cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 				cacu_sgemv(TRANS,o_blob_->p_data(i),bias_multiplier->count(),bias_multiplier->s_data(),o_blob_->channel(),(float_t)(1),_bias->s_diff(),(float_t)(1));
 		}
-
-		//cacu_print(col_data_->s_data(),100);
-		//cacu_print(o_blob_->s_data(),100);
-
+		//cacu_print(o_blob_->s_data(),o_blob->count());
+		//cacu_print(_w->s_data(),100);
 #endif
 
 	}
 
 	virtual const void grad() override {
 
-		col_offset = s_blob->channel() / _group * _col_data->width()
-						* _col_data->height();
+		col_offset = o_blob->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * o_blob->width() * o_blob->height();
+		out_offset = _w->num() / _group * s_blob->channel_length();
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -199,22 +200,27 @@ public:
 		blob *col_data_ = (blob*)_col_data;
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
+		//cacu_bprint(o_blob_,train);
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//padded data if needed & img2col change
 			cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->height(), o_blob_->channel(), s_blob_->width(), s_blob_->height(),_args->pad(), _args->pad(), col_data_->s_diff());
+
 			//forward convolution data
-			for (int g = 0; g < _group; ++g)
+			for (int g = 0; g < _group; ++g){
 				cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_diff() + col_offset * g, s_blob_->channel_length(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, s_blob_->p_diff(i) + out_offset * g,(float_t)0);
-			//weights gradient
-			cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(),o_blob->width(),o_blob->height(),o_blob->channel(),s_blob_->width(),s_blob_->height(),_args->pad(),_args->pad(), col_data_->s_diff());
-			for (int g = 0; g < _group; ++g)
-				cacu_sgemm(TRANS,NOTRANS,col_data_->s_diff() + col_offset * g, _w->length() / _group, s_blob_->channel_length(), s_blob_->p_data(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
+				//weights gradient
+				//cacu_img2col_pad(s_blob_->p_diff(i), _args->kernel_size(), _args->stride(),o_blob->width(),o_blob->height(),o_blob->channel(),s_blob_->width(),s_blob_->height(),_args->pad(),_args->pad(), col_data_->s_diff());
+				cacu_sgemm(TRANS, NOTRANS, col_data_->s_diff() + col_offset * g, _w->length() / _group, s_blob_->channel_length(), s_blob_->p_data(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
+				//cacu_bprint(_w,train);
+			}
 			//add bias
 			if(_is_use_bias)
 			cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_diff(), _bias->count(),(float_t)(1),o_blob_->p_diff(i),(float_t)(1));
 			//cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 		}
+
+		//cacu_print(_w->s_diff(),100);
 #endif
 	}
 

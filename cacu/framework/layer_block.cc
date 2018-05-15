@@ -93,4 +93,17 @@ void layer_block::save_weights(chars_t modelpath)
 	os.close();
 }
 
+void layer_block::set_update_weight(bool isupdate_)
+{
+	for (unsigned int i = 0; i < _layers->size(); ++i) {
+		for (unsigned int j = 0; j < _layers->at(i)->op_count(); ++j){
+			_layers->at(i)->op(j)->set_is_update_weight(isupdate_);
+			if(_layers->at(i)->op(j)->_TYPE()==CACU_BATCH_NORMALIZE)
+			{
+				((batch_normalize_op *)_layers->at(i)->op(j))->set_is_use_global_stats(isupdate_==false);
+			}
+		}
+	}
+}
+
 }

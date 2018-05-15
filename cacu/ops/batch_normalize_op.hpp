@@ -219,51 +219,71 @@ public:
 		blob *x_ = (blob*)_x;
 
 		float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
-		if (!use_global_stats)
+		if (_phase == train)
 		{
-			float_t bias_correction_factor = m > 1.0 ? (m) / (m - 1.0) : 1.0;
+			if(!use_global_stats){
 
-			//cacu_print(_mean->s_data(), _mean->count());
-			//cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, dim_sum_->s_data(),0, s_blob_->length()/s_blob_->channel());
-			cacu_sgemv(TRANS, s_blob_->s_data(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(),0);
-			//cacu_print(_mutipler->s_data(), _mean->count());
-			//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _mean->s_data(), 0, s_blob_->channel());
-			cacu_sgemv(NOTRANS, dim_sum_->s_data(), _mean->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _mean->s_data(), 0);
-			//cacu_print(_mean->s_data(), _mean->count());
-			cacu_scalex(_mean->s_data(), _mean->count(), (1.0 / m));
+				float_t bias_correction_factor = m > 1.0 ? (m) / (m - 1.0) : 1.0;
 
-			for (int i = 0; i < s_blob_->num(); ++i)
-			cacu_ssxpy(_mean->s_data(),(float_t)(-1),_mean->count(),s_blob_->p_data(i),(float_t)(1),s_blob_->length(),o_blob_->p_data(i));
+				//cacu_print(_mean->s_data(), _mean->count());
+				//cacu_sumbysize(BYWIDTH, s_blob_->s_data(), s_blob_->count(),1, dim_sum_->s_data(),0, s_blob_->length()/s_blob_->channel());
+				cacu_sgemv(TRANS, s_blob_->s_data(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(),0);
+				//cacu_print(_mutipler->s_data(), _mean->count());
+				//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _mean->s_data(), 0, s_blob_->channel());
+				cacu_sgemv(NOTRANS, dim_sum_->s_data(), _mean->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _mean->s_data(), 0);
+				//cacu_print(_mean->s_data(), _mean->count());
+				cacu_scalex(_mean->s_data(), _mean->count(), (1.0 / m));
 
-			//for saving space here we use x_ for container calculate x^2
-			cacu_sqr(o_blob_->s_data(), o_blob_->count(), x_->s_data());
+				for (int i = 0; i < s_blob_->num(); ++i)
+				cacu_ssxpy(_mean->s_data(),(float_t)(-1),_mean->count(),s_blob_->p_data(i),(float_t)(1),s_blob_->length(),o_blob_->p_data(i));
 
-			//cacu_sumbysize(BYWIDTH, x_->s_data(), o_blob_->count(), 1,dim_sum_->s_data(), 0, o_blob_->length()/o_blob_->channel());
-			cacu_sgemv(TRANS, x_->s_data(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(), (float_t)(0));
-			//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), o_blob_->channel() * o_blob_->num(), 1, _var->s_data(), 0, o_blob_->channel());
-			cacu_sgemv(NOTRANS, dim_sum_->s_data(), _var->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _var->s_data(), (float_t)(0));
-			cacu_scalex(_var->s_data(), _var->count(), (1.0 / m));
+				//for saving space here we use x_ for container calculate x^2
+				cacu_sqr(o_blob_->s_data(), o_blob_->count(), x_->s_data());
 
-			cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
+				//cacu_sumbysize(BYWIDTH, x_->s_data(), o_blob_->count(), 1,dim_sum_->s_data(), 0, o_blob_->length()/o_blob_->channel());
+				cacu_sgemv(TRANS, x_->s_data(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(), (float_t)(0));
+				//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), o_blob_->channel() * o_blob_->num(), 1, _var->s_data(), 0, o_blob_->channel());
+				cacu_sgemv(NOTRANS, dim_sum_->s_data(), _var->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _var->s_data(), (float_t)(0));
+				cacu_scalex(_var->s_data(), _var->count(), (1.0 / m));
 
-			for (int i = 0; i < s_blob_->num(); ++i) {
-				cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
-				cacu_cdxsize(o_blob_->p_data(i), s_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
-				//save for train
-				cacu_copy(o_blob_->p_data(i),s_blob_->length(), x_->p_data(i));
-				cacu_cxsize(o_blob_->p_data(i), s_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
-				cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
+
+				for (int i = 0; i < s_blob_->num(); ++i) {
+					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+					cacu_cdxsize(o_blob_->p_data(i), s_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
+					//save for train
+					cacu_copy(o_blob_->p_data(i),s_blob_->length(), x_->p_data(i));
+					cacu_cxsize(o_blob_->p_data(i), s_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
+					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+				}
+
+				cacu_saxpby(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), moving_average_fraction, _moving_scalar->count());
+
+				//update history
+				//cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
+				//cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+
+				cacu_saxpby(_mean->s_data(), moving_average_fraction, _history_mean->s_data(), 1.0 - moving_average_fraction, _mean->count());
+				cacu_saxpby(_var->s_data(), moving_average_fraction, _history_var->s_data(), 1.0 - moving_average_fraction, _var->count());
 			}
+			else{
+				//calculate unbiased estimate
+				//cacu_cdxsize(_history_var->s_data(),_history_var->count(),_moving_scalar->s_data(),1,_var->s_data());
+				//cacu_cdxsize(_history_mean->s_data(),_history_mean->count(),_moving_scalar->s_data(),1,_mean->s_data());
 
-			cacu_saxpby(_one->s_data(), (float_t)(1), _moving_scalar->s_data(), moving_average_fraction, _moving_scalar->count());
+				//LOG_DEBUG("fuck");
+				cacu_copy(_history_var->s_data(),_history_var->count(),_var->s_data());
+				cacu_copy(_history_mean->s_data(),_history_var->count(),_mean->s_data());
 
-			//update history
-			//cacu_saxpby(_mean->s_data(), (float_t)(1), _history_mean->s_data(), moving_average_fraction, _mean->count());
-			//cacu_saxpby(_var->s_data(), bias_correction_factor, _history_var->s_data(), moving_average_fraction, _var->count());
+				cacu_stdbychannel(_var->s_data(), _std->count(), _std->s_data(), epsilon);
 
-			cacu_saxpby(_mean->s_data(), moving_average_fraction, _history_mean->s_data(), 1.0 - moving_average_fraction, _mean->count());
-			cacu_saxpby(_var->s_data(), moving_average_fraction, _history_var->s_data(), 1.0 - moving_average_fraction, _var->count());
-
+				for (int i = 0; i < s_blob_->num(); ++i) {
+					cacu_ssxpy(_mean->s_data(), (float_t)(-1), _mean->count(), s_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+					cacu_cdxsize(o_blob_->p_data(i), s_blob_->length(), _std->s_data(), _std->count(), o_blob_->p_data(i));
+					cacu_cxsize(o_blob_->p_data(i), s_blob_->length(), _scale->s_data(), _scale->count(), o_blob_->p_data(i));
+					cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
+				}
+			}
 		}
 		else {
 
@@ -271,6 +291,7 @@ public:
 			//cacu_cdxsize(_history_var->s_data(),_history_var->count(),_moving_scalar->s_data(),1,_var->s_data());
 			//cacu_cdxsize(_history_mean->s_data(),_history_mean->count(),_moving_scalar->s_data(),1,_mean->s_data());
 
+			//LOG_DEBUG("fuck");
 			cacu_copy(_history_var->s_data(),_history_var->count(),_var->s_data());
 			cacu_copy(_history_mean->s_data(),_history_var->count(),_mean->s_data());
 
@@ -435,18 +456,24 @@ public:
 		set_param_init_type(_type, _shift, value);
 	}
 
-	bool use_global_stats = true;
-
 	float_t moving_average_fraction = 0.9;
 
 	float_t epsilon = 0.00001;
 
 	inline virtual const void set_phase(phase_type phase_) override {
 		_phase = phase_;
+		/*
 		if (train == _phase)
 			use_global_stats = false;
 		else
 			use_global_stats = true;
+		*/
+	}
+
+	inline void set_is_use_global_stats(bool use_global_stats_)
+	{
+		LOG_INFO("Use global stats: %d",use_global_stats_);
+		use_global_stats = use_global_stats_;
 	}
 
 private:
@@ -474,6 +501,9 @@ private:
 	blob *_one = NULL;
 	blob *_mutipler = NULL;
 	blob *_num_mutipler = NULL;
+
+	bool use_global_stats = true;
+
 
 };
 }

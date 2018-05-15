@@ -70,12 +70,13 @@ namespace cacu {
 			case ADD:
 				s_blob->_CHECK_SIZE_EQ(_data);
 				cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
-				cacu_saxpy(o_blob_->s_data(), (float_t)1, _data->s_data(), _data->count());
+				cacu_saxpy(_data->s_data(), (float_t)1, o_blob_->s_data(), _data->count());
 				break;
 			case SUB:
 				s_blob->_CHECK_SIZE_EQ(_data);
 				cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_saxpy(_data->s_data(), (float_t)-1, o_blob_->s_data(), _data->count());
+				//cacu_print(o_blob_->s_data(),100);
 				break;
 			case MUL:
 				//s_blob->_CHECK_SIZE_EQ(_data);
