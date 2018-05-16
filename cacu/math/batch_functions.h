@@ -81,6 +81,7 @@ inline void cacu_cxsize(const DTYPE *x, int length, const DTYPE *a, int size,
 template<typename DTYPE>
 inline void cacu_cdxsize(const DTYPE *x, int length, const DTYPE *a, int size,
 		DTYPE *y) {
+	assert(length % size == 0);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_cdxsize_cuda(x, length, a, size, y);

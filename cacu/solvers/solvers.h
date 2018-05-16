@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "solver_base.h"
 #include "sgd_solver.h"
+#include "adam_solver.h"
+#include "rmsprop_solver.h"
 
 
 #endif

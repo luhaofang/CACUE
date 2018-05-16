@@ -269,7 +269,7 @@ void train_net() {
 				step_index += 1;
 			}
 			//net->predict();
-			sgd->train_iter();
+			sgd->train_iter(i);
 			gettimeofday(&end, NULL);
 		}
 

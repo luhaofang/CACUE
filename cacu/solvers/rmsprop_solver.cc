@@ -25,27 +25,28 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "sgd_solver.h"
+
+#include "rmsprop_solver.h"
+
+#include <math.h>
 
 namespace cacu {
 
-sgd_solver::sgd_solver(network *&net_) :
+rmsprop_solver::rmsprop_solver(network *&net_) :
 		solver_base(net_) {
-
-	_momentum = 0.9f;
-	_history_v = cacu_allocator::create_blobs();
+	_history_r = cacu_allocator::create_blobs();
 	for (int i = 0; i < _net->op_count(); ++i) {
 		operator_base* op_ = _net->get_op(i);
 		for (int j = 0; j < op_->weights_size(); ++j) {
-			blob *history_w = op_->get_weight(j)->copy_create(test, 0);
-			_history_v->push_back(history_w);
+			blob *history_w_r = op_->get_weight(j)->copy_create(train, 0);
+			_history_r->push_back(history_w_r);
 		}
 	}
 }
 
-sgd_solver::~sgd_solver() {
+rmsprop_solver::~rmsprop_solver() {
 
-	delete _history_v;
+	delete _history_r;
 
 }
 
@@ -53,20 +54,29 @@ sgd_solver::~sgd_solver() {
  * update weight value
  * where weight_index_ is the weight index in _history_v
  */
-void sgd_solver::update_weight(weight* w_, int weight_index_, int step_) {
+void rmsprop_solver::update_weight(weight* w_, int weight_index_, int step_) {
 
 	if (w_->update()) {
-		blob* history_ = (blob*)_history_v->at(weight_index_);
+
+		blob* history_r = (blob*)_history_r->at(weight_index_);
 		float_t learn_rate_ = w_->lr() * _global_lr;
 		//normalization
 		__NORMALIZE__(w_);
 		//add regular
 		__REGULARIZE__(w_, weight_index_);
 		//history_v update
-		cacu_saxpby(w_->s_diff(), (float_t)(-1) * learn_rate_, history_->s_data(),
-			_momentum, w_->count());
+		cacu_sqr(w_->s_diff(),w_->count(),w_->s_diff());
+		cacu_saxpby(w_->s_diff(), (float_t)(1 - _beta), history_r->s_data(),
+						_beta, w_->count());
+		cacu_copy(history_r->s_data(),history_r->count(), history_r->s_diff());
+		cacu_scalex(history_r->s_diff(), history_r->count(), 1.0 / (1.0 - std::pow(_beta, step_)));
+		cacu_root(history_r->s_diff(),history_r->count(),history_r->s_diff());
+		cacu_sdxsize<float_t>(history_r->s_diff(),history_r->count(), _epsilon, 1.0, history_r->s_diff());
+		w_->set_diff((-1.0)*learn_rate_);
+		cacu_cdxsize(w_->s_diff(), w_->count(), history_r->s_diff(), history_r->count(), w_->s_diff());
+
 		//update to weight
-		cacu_saxpy(history_->s_data(), (float_t)(1), w_->s_data(), w_->count());
+		cacu_saxpy(w_->s_diff(), (float_t)(1), w_->s_data(), w_->count());
 	}
 }
 

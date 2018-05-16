@@ -53,7 +53,8 @@ enum param_init_type {
 	constant = 10,
 	xavier = 11,
 	gaussian = 12,
-	msra = 13
+	msra = 13,
+	evenly = 14
 };
 
 /**

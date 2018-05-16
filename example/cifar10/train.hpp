@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 
 #include "../../cacu/solvers/sgd_solver.h"
+#include "../../cacu/solvers/adam_solver.h"
 
 #include "../../cacu/cacu.h"
 #include "../../cacu/config.h"
@@ -50,7 +51,7 @@ void train_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 10000;
+	int max_iter = 5000;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -61,12 +62,12 @@ void train_net()
 	//set random seed
 	set_rand_seed();
 
-	network *net = create_cifar_test_net(batch_size,train);
-	net->load_weights_from("/home/haofang/experiment/cifar10/cifar10_quick_normal.model",10);
+	network *net = create_cifar_quick_net(batch_size,train);
+	//net->load_weights_from("/home/haofang/experiment/cifar10/cifar10_quick_normal.model",10);
 	//net->load_weights("C:/Users/Haofang.Lu/Desktop/git/cacue_vs/example/cifar10/model_3000.model");
-	sgd_solver *sgd = new sgd_solver(net);
+	adam_solver *sgd = new adam_solver(net);
 	sgd->set_lr(0.001f);
-	sgd->set_momentum(0.9f);
+	//sgd->set_momentum(0.9f);
 	sgd->set_weight_decay(0.004f);
 	//sgd->set_regularize(regularize_type::L1);
 
@@ -79,8 +80,8 @@ void train_net()
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
 
-	//load_data_bymean(datapath, meanfile, full_data, full_label);
-	load_data(datapath, full_data, full_label);
+	load_data_bymean(datapath, meanfile, full_data, full_label);
+	//load_data(datapath, full_data, full_label);
 
 	blob *input_data = (blob*)net->input_blobs()->at(0);
 	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
@@ -104,7 +105,7 @@ void train_net()
 			step_index += 1;
 		}
 		
-		sgd->train_iter();
+		sgd->train_iter(i);
 		
 		gettime(&end);
 
@@ -118,7 +119,7 @@ void train_net()
 
 			logger << ((softmax_with_loss_op*)net->get_op(net->op_count() - 1))->loss() << endl;
 			logger.flush();
-
+			/*
 			cout << "rawdata:";
 			cacu_print(net->get_op(0)->in_data<blob>()->s_data(), 10);
 			cout << "visualized:";
@@ -132,13 +133,14 @@ void train_net()
 
 		if(i % 4000 == 0)
 			sgd->set_lr_iter(0.1f);
-
+		/*
 		if (i % 1000 == 0)
 		{
 			ostringstream oss;
 			oss << "/home/haofang/experiment/cifar10/model_" << i << ".model";
 			net->save_weights(oss.str());
 		}
+		*/
 
 	}
 	LOG_INFO("optimization is done!");

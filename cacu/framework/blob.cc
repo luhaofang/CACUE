@@ -219,6 +219,10 @@ void blob::set_init_type(param_init_type type, float_t value) {
 		for (int i = 0; i < _length; ++i)
 			w[i] = gaussrand(value);
 		break;
+	case evenly:
+		for (int i = 0; i < _length; ++i)
+			w[i] = urand(-value, value);
+		break;
 	default:
 		break;
 	}

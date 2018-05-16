@@ -44,7 +44,7 @@ public:
 	 * update weight value
 	 * where weight_index_ is the weight index in _history_v
 	 */
-	void update_weight(weight* w_, int weight_index_);
+	void update_weight(weight* w_, int weight_index_, int step_);
 
 	inline void set_momentum(float_t momentum_) {
 		_momentum = momentum_;

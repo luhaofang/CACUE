@@ -219,7 +219,7 @@ void train_net() {
 			}
 			cacu_sdxsize(input_data->s_data(), input_data->count(),
 					(float_t) -127.5, (float_t) 128.0, input_data->s_data());
-			sgd->train_iter();
+			sgd->train_iter(i);
 			gettimeofday(&end, NULL);
 		}
 

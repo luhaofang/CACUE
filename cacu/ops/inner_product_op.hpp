@@ -140,10 +140,10 @@ public:
 		//gradient propagation
 		cacu_sgemm(NOTRANS,NOTRANS,_w->s_data(),_w->length(),_w->num(), o_blob_->s_diff(), o_blob_->num(), 1 ,s_blob_->s_diff(), 0);
 		//weights gradient
-		cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), o_blob_->length(),1,_w->s_diff(),1);
+		cacu_sgemm(NOTRANS,TRANS,s_blob_->s_data(), s_blob_->length(), o_blob_->num(), o_blob_->s_diff(), _args->output_channel(),1,_w->s_diff(),1);
 		if(_is_use_bias)
 		//bias gradient
-		cacu_sgemv(NOTRANS,o_blob_->s_diff(),o_blob_->channel(),bias_multiplier->s_data(),bias_multiplier->count(),(float_t)(1),_bias->s_diff(),(float_t)(1));
+		cacu_sgemv(NOTRANS,o_blob_->s_diff(),_args->output_channel(),bias_multiplier->s_data(),bias_multiplier->count(),(float_t)(1),_bias->s_diff(),(float_t)(1));
 		//cacu_sumbysize(BYHEIGHT,o_blob_->s_diff(),o_blob_->count(),1 ,_bias->s_diff(),1,_bias->count());
 #endif
 

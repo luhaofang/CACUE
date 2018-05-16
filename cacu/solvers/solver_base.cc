@@ -54,7 +54,8 @@ solver_base::~solver_base() {
 void solver_base::crop_grad(blob* g_) {
 }
 
-void solver_base::train_iter() {
+
+void solver_base::train_iter(int step_) {
 	_net->set_phase(train);
 
 	_net->forward_propagate();
@@ -66,7 +67,7 @@ void solver_base::train_iter() {
 	for (int i = 0; i < _net->op_count(); ++i) {
 		operator_base* op_ = _net->get_op(i);
 		for (int j = 0; j < op_->weights_size(); ++j) {
-			update_weight(op_->get_weight(j), weight_index_);
+			update_weight(op_->get_weight(j), weight_index_, step_);
 			weight_index_++;
 		}
 	}
