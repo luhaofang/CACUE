@@ -69,10 +69,10 @@ void adam_solver::update_weight(weight* w_, int weight_index_, int step_) {
 		//add regular
 		__REGULARIZE__(w_, weight_index_);
 		//history_v update
-		cacu_saxpby(w_->s_diff(), (float_t)(1 - _alpha), history_s->s_data(),
+		cacu_saxpby(w_->s_diff(), (float_t)(1.0 - _alpha), history_s->s_data(),
 				_alpha, w_->count());
 		cacu_sqr(w_->s_diff(),w_->count(),w_->s_diff());
-		cacu_saxpby(w_->s_diff(), (float_t)(1 - _beta), history_r->s_data(),
+		cacu_saxpby(w_->s_diff(), (float_t)(1.0 - _beta), history_r->s_data(),
 						_beta, w_->count());
 		cacu_copy(history_s->s_data(),history_s->count(), history_s->s_diff());
 		cacu_copy(history_r->s_data(),history_r->count(), history_r->s_diff());

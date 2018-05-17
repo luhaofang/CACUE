@@ -462,12 +462,12 @@ public:
 
 	inline virtual const void set_phase(phase_type phase_) override {
 		_phase = phase_;
-		/*
-		if (train == _phase)
-			use_global_stats = false;
-		else
-			use_global_stats = true;
-		*/
+		if(_scale->update()){
+			if (train == _phase)
+				use_global_stats = false;
+			else
+				use_global_stats = true;
+		}
 	}
 
 	inline void set_is_use_global_stats(bool use_global_stats_)

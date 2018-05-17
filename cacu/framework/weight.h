@@ -67,7 +67,7 @@ public:
 		_update = update_;
 	}
 
-	inline float_t update() const {
+	inline bool update() const {
 		return _update;
 	}
 

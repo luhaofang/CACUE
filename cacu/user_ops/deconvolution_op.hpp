@@ -138,7 +138,7 @@ public:
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
-			col_data_->blob_size();
+			//col_data_->blob_size();
 			//gradient propagation
 			for (int g = 0; g < _group; ++g)
 			//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);

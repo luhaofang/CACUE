@@ -44,7 +44,6 @@ weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
 
 weight::~weight() {
 }
-;
 
 void weight::set_init_type(param_init_type type, float_t value) {
 	vec_t w(_length);
