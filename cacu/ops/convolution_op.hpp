@@ -214,7 +214,7 @@ public:
 		blob *s_blob_ = (blob*)s_blob;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
-			if(_NEED_BACK_PROPAGATE_FEATURE)
+			//if(_NEED_BACK_PROPAGATE_FEATURE)
 			{
 				//gradient propagation
 				for (int g = 0; g < _group; ++g)

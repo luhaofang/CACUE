@@ -67,10 +67,12 @@ public:
 		return _regularize;
 	}
 
+
+
 	/*
-	 * where weight_index denote the weight's id in sovler's vector
+	 * applicate to the weights update
 	 */
-	virtual void update_weight(weight* w_, int weight_index_, int step_) = 0;
+	void updates(int step_);
 
 	void crop_grad(blob* g_);
 
@@ -83,6 +85,8 @@ public:
 	inline void set_lr_iter(float_t lr_rate_) {
 		this->_global_lr *= lr_rate_;
 	}
+
+	inline network* net(){return _net;}
 
 protected:
 
@@ -104,6 +108,11 @@ protected:
 	 * where i is the index of _w
 	 */
 	void __NORMALIZE__(weight *w_);
+
+	/*
+	 * where weight_index denote the weight's id in sovler's vector
+	 */
+	virtual void update_weight(weight* w_, int weight_index_, int step_) = 0;
 
 private:
 

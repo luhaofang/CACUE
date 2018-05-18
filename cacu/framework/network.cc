@@ -105,7 +105,7 @@ void network::forward_propagate() {
 }
 
 void network::back_propagate() {
-	get_op(0)->__NEED_BACK_PROPAGATE__(false);
+	//et_op(0)->__NEED_BACK_PROPAGATE__(false);
 	for (int i = _layers->size() - 1; i >= 0; --i) {
 		_layers->at(i)->grad();
 		//LOG_DEBUG("backward layer: %d",i);

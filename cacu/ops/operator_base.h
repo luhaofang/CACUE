@@ -188,7 +188,7 @@ public:
 
 	inline void set_is_update_weight(bool _update)
 	{
-		LOG_INFO("Fix the operator's weight!");
+		//LOG_INFO("Fix the operator's weight!");
 		for (int i = 0; i < _weights->size(); ++i)
 			_weights->at(i)->set_update(_update);
 	}
@@ -219,9 +219,9 @@ public:
 		return _OP_TYPE;
 	}
 
-	inline void __NEED_BACK_PROPAGATE__(bool need_back_propagate_){
-		_NEED_BACK_PROPAGATE_FEATURE = need_back_propagate_;
-	}
+	//inline void __NEED_BACK_PROPAGATE__(bool need_back_propagate_){
+	//	_NEED_BACK_PROPAGATE_FEATURE = need_back_propagate_;
+	//}
 
 protected:
 

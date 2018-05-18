@@ -41,12 +41,6 @@ public:
 
 	~adam_solver();
 
-	/**
-	 * update weight value
-	 * where weight_index_ is the weight index in _history_v
-	 */
-	void update_weight(weight* w_, int weight_index_, int step_);
-
 	inline void set_epsilon(float_t epsilon_) {
 		_epsilon = epsilon_;
 	}
@@ -76,6 +70,12 @@ public:
 	}
 
 protected:
+
+	/**
+	 * update weight value
+	 * where weight_index_ is the weight index in _history_v
+	 */
+	void update_weight(weight* w_, int weight_index_, int step_);
 
 private:
 

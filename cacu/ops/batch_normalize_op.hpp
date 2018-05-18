@@ -472,7 +472,7 @@ public:
 
 	inline void set_is_use_global_stats(bool use_global_stats_)
 	{
-		LOG_INFO("Use global stats: %d",use_global_stats_);
+		//LOG_INFO("Use global stats: %d",use_global_stats_);
 		use_global_stats = use_global_stats_;
 	}
 
