@@ -41,6 +41,7 @@ using namespace cv;
 #include <vector>
 
 #include "../cacu/definition.h"
+#include "../cacu/framework/blob.h"
 
 #include "../tools/string_utils.h"
 #include "../cacu/tensor/cuda/cuda_utils.h"
@@ -66,6 +67,9 @@ namespace cacu_tools {
 		static void resize_imread_gpu(cacu::float_t *p_data, const char* file_path_, int resize_h, int resize_w);
 
 		static void clip_imread_gpu(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
+
+		static void imwrite_gpu(blob *blob_, const char* file_path_);
+
 #endif
 #endif
 
@@ -74,6 +78,8 @@ namespace cacu_tools {
 		static void resize_imread(cacu::float_t *p_data, const char* file_path_, int resize_h, int resize_w);
 
 		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
+
+		static void imwrite(blob *blob_, const char* file_path_);
 		//*/
 
 #if __USE_DEVICE__ == ON

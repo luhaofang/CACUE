@@ -38,6 +38,8 @@ namespace cacu {
 void cuda_set_device(unsigned int device_id) {
 	struct cudaDeviceProp device_prop;
 	if (cudaGetDeviceProperties(&device_prop, device_id) == cudaSuccess) {
+
+
 		cout << "======================================================="
 				<< endl;
 		cout << "device " << device_id << ": " << device_prop.name << endl;

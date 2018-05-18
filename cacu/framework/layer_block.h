@@ -51,6 +51,16 @@ public:
 		return NULL;
 	}
 
+	template<class OPTYPE>
+	inline OPTYPE* top_op(){
+		if (_layers->size() != 0)
+		{
+			layer *top_layer_=layers(length() - 1);
+			return top_layer_->get_op<OPTYPE>(top_layer_->op_count()-1);
+		}
+		return NULL;
+	}
+
 	inline layer* layers(int i) const {
 		return (layer*) _layers->at(i);
 	}

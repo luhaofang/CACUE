@@ -200,6 +200,8 @@ namespace cacu {
 			this->_data = data_;
 		}
 
+		inline blob* get_data(){return _data;}
+
 	private:
 
 		math_op_name _FUNC;
