@@ -26,6 +26,7 @@
  */
 
 #include "imageio_utils.h"
+#include "../cacu/utils/data_printer.h"
 
 using namespace std;
 using namespace cacu;
@@ -133,32 +134,50 @@ void imageio_utils::clip_imread_gpu(cacu::float_t *p_data,
 	dst.release();
 }
 
-void imageio_utils::imwrite_gpu(blob *blob_, const char* file_path_)
+void imageio_utils::imwrite_gpu(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height)
 {
 
-	vec_t data_(blob_->count());
-	device_copy2host(&data_[0], blob_->s_data(), blob_->count());
+	vec_t data_(num*3*width*height);
+	device_copy2host(&data_[0], sdata_, data_.size());
+
 	int start_h , start_w, index;
 
-	int h_size,w_size = std::sqrt(blob_->num());
-	h_size = blob_->num() / w_size;
-	if(blob_->num() % w_size != 0 && w_size != 1)
-		w_size += 1;
-	cv::Mat src(cv::Size(blob_->width() * w_size, blob_->height() * h_size), CV_8UC3, cv::Scalar(0));
 
-	for (int n = 0; n < blob_->num(); ++n)
+	float_t min = data_[0];
+	float_t max = data_[0];
+	for(int i = 1 ; i < data_.size(); ++i)
 	{
-		start_h = n / w_size * blob_->height();
-		start_w = n % w_size * blob_->width();
-		for (int y = 0; y < blob_->height(); ++y)
-			for (int x = 0; x < blob_->width(); ++x) {
-				index = n * blob_->length() + y * blob_->width() + x;
+		if(data_[i] < min)
+			min = data_[i];
+		if(data_[i] > max)
+			max = data_[i];
+	}
+	float_t span = max - min;
 
-				src.at<cv::Vec3b>(y + start_h, x + start_w)[0] = (data_[index]);
-				src.at<cv::Vec3b>(y + start_h, x + start_w)[1] = (data_[index + blob_->channel_length()]);
-				src.at<cv::Vec3b>(y + start_h, x + start_w)[2] = (data_[index + blob_->channel_length() * 2]);
+	device_copy2host(&data_[0], sdata_, data_.size());
+
+	int h_size,w_size = std::sqrt(num);
+	int channel_length = width * height;
+	int length = channel_length*3;
+	h_size = num / w_size;
+	if(num % w_size != 0 && w_size != 1)
+		w_size += 1;
+	cv::Mat src(cv::Size(width * w_size, height * h_size), CV_8UC3, cv::Scalar(0));
+
+	for (int n = 0; n < num; ++n)
+	{
+		start_h = n / w_size * height;
+		start_w = n % w_size * width;
+		for (int y = 0; y < height; ++y)
+			for (int x = 0; x < width; ++x) {
+				index = n * length + y * width + x;
+
+				src.at<cv::Vec3b>(y + start_h, x + start_w)[0] = (data_[index] - min) / span * 255;
+				src.at<cv::Vec3b>(y + start_h, x + start_w)[1] = (data_[index + channel_length] - min)/ span * 255;
+				src.at<cv::Vec3b>(y + start_h, x + start_w)[2] = (data_[index + channel_length * 2] - min)/ span * 255;
 			}
 	}
+
 	cv::imwrite(file_path_,src);
 	LOG_INFO("Output image to : %s",file_path_);
 	vec_t().swap(data_);
@@ -262,30 +281,46 @@ void imageio_utils::clip_imread(cacu::float_t *p_data,
 	dst.release();
 }
 
-void imageio_utils::imwrite(blob *blob_, const char* file_path_)
+void imageio_utils::imwrite(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height)
 {
-	int h_size,w_size = std::sqrt(blob_->num());
-	h_size = blob_->num() / w_size;
-	if(blob_->num() % w_size != 0 && w_size != 1)
-		w_size += 1;
-	cv::Mat src(cv::Size(blob_->width() * w_size, blob_->height() * h_size), CV_8UC3, cv::Scalar(0));
+	vec_t data_(num*3*width*height);
+	cacu_copy_cpu(sdata_, data_.size(), &data_[0]);
 	int start_h , start_w, index;
-	//cv::Vec3b setdata;
-	for (unsigned int n = 0; n < blob_->num(); n++)
+	float_t min = data_[0];
+	float_t max = data_[0];
+	for(int i = 1 ; i < data_.size(); ++i)
 	{
-		start_h = n / w_size * blob_->height();
-		start_w = n % w_size * blob_->width();
-		for (unsigned int y = 0; y < blob_->height(); y++)
-			for (unsigned int x = 0; x < blob_->width(); x++) {
-				index = n * blob_->length() + y * blob_->width() + x;
-				//setdata = ;
-				src.at<cv::Vec3b>(y + start_h, x + start_w)[0] = (blob_->s_data()[index]);
-				src.at<cv::Vec3b>(y + start_h, x + start_w)[1] = (blob_->s_data()[index + blob_->channel_length()]);
-				src.at<cv::Vec3b>(y + start_h, x + start_w)[2] = (blob_->s_data()[index + blob_->channel_length() * 2]);
+		if(data_[i] < min)
+			min = data_[i];
+		if(data_[i] > max)
+			max = data_[i];
+	}
+	float_t span = max - min;
+	cacu_copy_cpu(sdata_, data_.size(), &data_[0]);
+	int h_size,w_size = std::sqrt(num);
+	int channel_length = width * height;
+	int length = channel_length*3;
+	h_size = num / w_size;
+	if(num % w_size != 0 && w_size != 1)
+		w_size += 1;
+	cv::Mat src(cv::Size(width * w_size, height * h_size), CV_8UC3, cv::Scalar(0));
+
+	for (int n = 0; n < num; ++n)
+	{
+		start_h = n / w_size * height;
+		start_w = n % w_size * width;
+		for (int y = 0; y < height; ++y)
+			for (int x = 0; x < width; ++x) {
+				index = n * length + y * width + x;
+
+				src.at<cv::Vec3b>(y + start_h, x + start_w)[0] = (data_[index] - min) / span * 255;
+				src.at<cv::Vec3b>(y + start_h, x + start_w)[1] = (data_[index + channel_length] - min)/ span * 255;
+				src.at<cv::Vec3b>(y + start_h, x + start_w)[2] = (data_[index + channel_length * 2] - min)/ span * 255;
 			}
 	}
 	cv::imwrite(file_path_,src);
 	LOG_INFO("Output image to : %s",file_path_);
+	vec_t().swap(data_);
 	src.release();
 }
 //*/

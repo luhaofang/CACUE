@@ -185,6 +185,11 @@ public:
 		_loss_weight = weight_;
 	}
 
+	inline float_t get_loss()
+	{
+		return _loss[0];
+	}
+
 private:
 
 	float_t *_loss;

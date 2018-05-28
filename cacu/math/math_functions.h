@@ -47,14 +47,14 @@ namespace cacu {
  * math y = a*x + y:
  * length: the input data's size
  */
-void cacu_saxpy(float *x, const float a, float *y, const int length);
+void cacu_saxpy(const float *x, const float a, float *y, const int length);
 
 /**
  * @cacu_saxpby
  * math y = a*x + b*y:
  * length: the input data's size
  */
-void cacu_saxpby(float *x, const float a, float *y, const float b,
+void cacu_saxpby(const float *x, const float a, float *y, const float b,
 	const int length);
 
 /**
@@ -69,7 +69,7 @@ void cacu_scalex(float *x, const int length, const float a);
  * math z = a*X*y + b*z:
  * trans_: whether x is needed to transpose
  */
-void cacu_sgemv(TRANSPOSE trans_, float *x, const int x_height, float *y,
+void cacu_sgemv(TRANSPOSE trans_, const float *x, const int x_height, const float *y,
 	const int x_width, const float alpha, float *z, const float beta);
 
 /**
@@ -78,8 +78,8 @@ void cacu_sgemv(TRANSPOSE trans_, float *x, const int x_height, float *y,
  * transx_: whether x is need to transpose
  * transy_: whether y is need to transpose((rand() % ( max - min + 1)) + min);
  */
-void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float *x,
-	const int x_height, const int x_width, float *y, const int y_width,
+void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, const float *x,
+	const int x_height, const int x_width, const float *y, const int y_width,
 	const float alpha, float *z, const float beta);
 
 /**
@@ -87,7 +87,7 @@ void cacu_sgemm(TRANSPOSE transx_, TRANSPOSE transy_, float *x,
  * math y = ax + y:
  * length: the input data's size
  */
-void cacu_saxpy_atomic(float *x, const float a, float *y,
+void cacu_saxpy_atomic(const float *x, const float a, float *y,
 	const int length);
 
 /**
@@ -95,7 +95,7 @@ void cacu_saxpy_atomic(float *x, const float a, float *y,
  * math y = ax + y:
  * length: the input data's size
  */
-void cacu_saxpy_cpu(float *x, const float a, float *y,
+void cacu_saxpy_cpu(const float *x, const float a, float *y,
 	const int length);
 
 /**
@@ -124,20 +124,20 @@ void mask_vector_lt(float *vector_, const int length, float *mask);
  * math y = x:
  * length: the input data's size
  */
-void cacu_copy(float *x, const int length, float *y);
+void cacu_copy(const float *x, const int length, float *y);
 
-void cacu_abs(float *x, const int length, float *y);
+void cacu_abs(const float *x, const int length, float *y);
 
-void cacu_abs_grad(float *x, float *diff, const int length, float *grad);
+void cacu_abs_grad(const float *x, float *diff, const int length, float *grad);
 
 /**
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-void cacu_isaxb(float *x, const int channel, const int width, const int height, const float a, int *index_,
+void cacu_isaxb(const float *x, const int channel, const int width, const int height, const float a, const int *index_,
 		const float b, float *y);
 
-unsigned int argmax(float *data, const int length);
+unsigned int argmax(const float *data, const int length);
 
 void cacu_transpose(float *mtx, const int m, const int n);
 

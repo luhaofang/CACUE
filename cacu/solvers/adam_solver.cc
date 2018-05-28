@@ -63,7 +63,8 @@ void adam_solver::update_weight(weight* w_, int weight_index_, int step_) {
 	if (w_->update()) {
 		blob* history_s = (blob*)_history_s->at(weight_index_);
 		blob* history_r = (blob*)_history_r->at(weight_index_);
-		float_t learn_rate_ = w_->lr() * _global_lr;
+		float_t learn_rate_ = w_->lr() * _global_lr * std::sqrt(1.0 - pow(_beta, step_)) /
+			      (1.0 - pow(_alpha, step_));
 		//normalization
 		__NORMALIZE__(w_);
 		//add regular

@@ -59,7 +59,7 @@ inline void cacu_relu(float_t *x, int length) {
  * math if(x[i]<0)?g[i] = g[i]:g[i] = 0;
  * gradient for activation use relu functions.
  */
-inline void cacu_relu_grad(float_t *x, float_t *g, int length) {
+inline void cacu_relu_grad(const float_t *x, float_t *g, int length) {
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -92,7 +92,7 @@ inline void cacu_leaky_relu(float_t *x, float_t a, int length) {
  * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
  * gradient for activation use leaky_relu functions.
  */
-inline void cacu_leaky_relu_grad(float_t *x, float_t *g, float_t a,
+inline void cacu_leaky_relu_grad(const float_t *x, float_t *g, float_t a,
 		int length) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -126,7 +126,7 @@ inline void cacu_prelu(float_t *x, const float_t *slopes, const int num,
  * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
  * gradient for activation use leaky_relu functions.
  */
-inline void cacu_prelu_grad(float_t *x, float_t *g, const float_t *slopes,
+inline void cacu_prelu_grad(const float_t *x, float_t *g, const float_t *slopes,
 		float_t * g_slopes, const int num, const int channel,
 		const int c_length) {
 #if __USE_DEVICE__ == ON
@@ -144,7 +144,7 @@ inline void cacu_prelu_grad(float_t *x, float_t *g, const float_t *slopes,
  * math softmax;
  * for activation use softmax functions.
  */
-inline void cacu_softmax(float_t *x, int num, int channel, int width,
+inline void cacu_softmax(const float_t *x, int num, int channel, int width,
 		int height, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -161,7 +161,7 @@ inline void cacu_softmax(float_t *x, int num, int channel, int width,
  * math tanh;
  * for activation use tanh functions.
  */
-inline void cacu_tanh(float_t *x, int length, float_t *y) {
+inline void cacu_tanh(const float_t *x, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_tanh_cuda(x, length, y);
@@ -177,7 +177,7 @@ inline void cacu_tanh(float_t *x, int length, float_t *y) {
  * math tanh;
  * gradient for activation use tanh functions.
  */
-inline void cacu_tanh_grad(float_t *x, float_t *g, int length, float_t *y) {
+inline void cacu_tanh_grad(const float_t *x, const float_t *g, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_tanh_grad_cuda(x, g, length, y);
@@ -193,7 +193,7 @@ inline void cacu_tanh_grad(float_t *x, float_t *g, int length, float_t *y) {
 * math tanh;
 * for activation use tanh functions.
 */
-inline void cacu_htanh(float_t *x, int length, float_t *y) {
+inline void cacu_htanh(const float_t *x, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_htanh_cuda(x, length, y);
@@ -209,7 +209,7 @@ inline void cacu_htanh(float_t *x, int length, float_t *y) {
 * math tanh;
 * gradient for activation use tanh functions.
 */
-inline void cacu_htanh_grad(float_t *x, float_t *g, int length, float_t *y) {
+inline void cacu_htanh_grad(const float_t *x, const float_t *g, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_htanh_grad_cuda(x, g, length, y);
@@ -225,7 +225,7 @@ inline void cacu_htanh_grad(float_t *x, float_t *g, int length, float_t *y) {
  * math sigmoid;
  * for activation use sigmoid functions.
  */
-inline void cacu_sigmoid(float_t *x, int length, float_t *y) {
+inline void cacu_sigmoid(const float_t *x, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sigmoid_cuda(x, length, y);
@@ -241,7 +241,7 @@ inline void cacu_sigmoid(float_t *x, int length, float_t *y) {
  * math tanh;
  * gradient for activation use tanh functions.
  */
-inline void cacu_sigmoid_grad(float_t *x, float_t *g, int length, float_t *y) {
+inline void cacu_sigmoid_grad(const float_t *x, const float_t *g, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sigmoid_grad_cuda(x, g, length, y);

@@ -74,21 +74,21 @@ inline void cuda_setvalue(DTYPE *data_, DTYPE value, dsize_t length) {
 }
 
 template<typename DTYPE>
-inline void cuda_copy2dev(DTYPE *d_data_, DTYPE* s_values, dsize_t length) {
+inline void cuda_copy2dev(DTYPE *d_data_,const DTYPE* s_values, dsize_t length) {
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),
 					length * sizeof(DTYPE), cudaMemcpyHostToDevice));
 }
 
 template<typename DTYPE>
-inline void cuda_copy2host(DTYPE *d_data_, DTYPE* s_values, dsize_t length) {
+inline void cuda_copy2host(DTYPE *d_data_, const DTYPE* s_values, dsize_t length) {
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),
 					length * sizeof(DTYPE), cudaMemcpyDeviceToHost));
 }
 
 template<typename DTYPE>
-void cuda_print(DTYPE* data_, dsize_t length) {
+void cuda_print(const DTYPE* data_, dsize_t length) {
 	vector<DTYPE> v(length);
 	cuda_copy2host(&v[0], data_, length);
 	for (dsize_t i = 0; i < length; ++i)

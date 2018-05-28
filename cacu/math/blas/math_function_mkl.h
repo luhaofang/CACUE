@@ -34,12 +34,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cacu{
 
-inline void cacu_saxpy_mkl(float *x,const float a, float *y, const int length)
+inline void cacu_saxpy_mkl(const float *x,const float a, float *y, const int length)
 {
 	cblas_saxpy(length, a, x, 1, y, 1);
 }
 
-inline void cacu_saxpby_mkl(float *x,const float a, float *y,const float b, const int length)
+inline void cacu_saxpby_mkl(const float *x,const float a, float *y,const float b, const int length)
 {
 	cblas_saxpby(length, a, x, 1, b, y, 1);
 }
@@ -49,13 +49,13 @@ inline void cacu_scalex_mkl(float *x,const float a, const int length)
 	cblas_sscal(length, a, x, 1);
 }
 
-inline void cacu_sgemv_mkl(CBLAS_TRANSPOSE trans, float *x, const int x_height, float *y, const int x_width,const float alpha,float *z,const float beta)
+inline void cacu_sgemv_mkl(CBLAS_TRANSPOSE trans, const float *x, const int x_height, const float *y, const int x_width,const float alpha,float *z,const float beta)
 {
 	int m = x_height,n = x_width;
 	cblas_sgemv(CBLAS_LAYOUT::CblasColMajor, trans, m, n, alpha, x, m, y, 1, beta, z, 1);
 }
 
-inline void cacu_sgemm_mkl(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float *x, const int x_height, const int x_width, float *y, const int y_width, const float alpha,float *z,const float beta)
+inline void cacu_sgemm_mkl(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, const float *x, const int x_height, const int x_width, const float *y, const int y_width, const float alpha,float *z,const float beta)
 {
 	int m = x_height,n = y_width,k = x_width;
 	int lda = (transx == CBLAS_TRANSPOSE::CblasNoTrans) ? m : k;
@@ -63,7 +63,7 @@ inline void cacu_sgemm_mkl(CBLAS_TRANSPOSE transx, CBLAS_TRANSPOSE transy, float
 	cblas_sgemm(CBLAS_LAYOUT::CblasColMajor, transx, transy, m, n, k, alpha, x, lda, y, ldb, beta, z, m);
 }
 
-inline void cacu_copy_mkl(float *x, const int x_length,float *y)
+inline void cacu_copy_mkl(const float *x, const int x_length,float *y)
 {
 	cblas_scopy(x_length,x,1,y,1);
 }

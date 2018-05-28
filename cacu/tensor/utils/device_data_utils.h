@@ -75,14 +75,14 @@ inline void device_refresh(DTYPE *data_, const dsize_t length) {
 }
 
 template<typename DTYPE>
-inline void device_copy2dev(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
+inline void device_copy2dev(DTYPE *d_data_, const DTYPE* s_values, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_copy2dev(d_data_, s_values, length);
 #endif
 }
 
 template<typename DTYPE>
-inline void device_copy2host(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
+inline void device_copy2host(DTYPE *d_data_,const DTYPE* s_values, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_copy2host(d_data_, s_values, length);
 #endif
@@ -96,7 +96,7 @@ inline void device_free(DTYPE* data_) {
 }
 
 template<typename DTYPE>
-inline void device_print(DTYPE* data_, const dsize_t length) {
+inline void device_print(const DTYPE* data_, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_print(data_, length);
 #endif

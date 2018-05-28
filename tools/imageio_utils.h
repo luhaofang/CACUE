@@ -39,6 +39,8 @@ using namespace cv;
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <math.h>
 
 #include "../cacu/definition.h"
 #include "../cacu/framework/blob.h"
@@ -68,7 +70,7 @@ namespace cacu_tools {
 
 		static void clip_imread_gpu(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
 
-		static void imwrite_gpu(blob *blob_, const char* file_path_);
+		static void imwrite_gpu(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height);
 
 #endif
 #endif
@@ -79,7 +81,7 @@ namespace cacu_tools {
 
 		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
 
-		static void imwrite(blob *blob_, const char* file_path_);
+		static void imwrite(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height);
 		//*/
 
 #if __USE_DEVICE__ == ON

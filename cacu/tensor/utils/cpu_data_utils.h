@@ -43,7 +43,7 @@ namespace cacu {
  * length: the input data's size
  */
 template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const dsize_t length, DTYPE *y) {
+void cacu_copy_cpu(const DTYPE *x,const dsize_t length, DTYPE *y) {
 	for (int i = 0; i < length; ++i) {
 		y[i] = x[i];
 	}
@@ -58,7 +58,7 @@ inline void cacu_memset(DTYPE *x, DTYPE value,const dsize_t length) {
 }
 
 template<typename DTYPE>
-inline void cacu_print_cpu(DTYPE *data,const dsize_t length) {
+inline void cacu_print_cpu(const DTYPE *data,const dsize_t length) {
 	for (int i = 0; i < length; ++i)
 		cout << data[i] << ",";
 	cout << endl;

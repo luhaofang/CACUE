@@ -55,7 +55,7 @@ void cuda_set_device(unsigned int device_id) {
 				<< endl;
 	} else
 		cout << "device " << device_id
-				<< " not found, please check your device num or select an available device!";
+				<< " not found, please check your device num or select an available device!" << endl;
 	CUDA_CHECK(cudaSetDevice(device_id));
 	create_cublas_handle();
 }
