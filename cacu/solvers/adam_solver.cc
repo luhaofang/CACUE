@@ -28,6 +28,7 @@
 
 #include "adam_solver.h"
 
+#include "../../tools/string_utils.h"
 #include <math.h>
 
 namespace cacu {
@@ -79,7 +80,7 @@ void adam_solver::update_weight(weight* w_, int weight_index_, int step_) {
 		cacu_copy(history_r->s_data(),history_r->count(), history_r->s_diff());
 		cacu_scalex(history_s->s_diff(), history_s->count(), 1.0 / (1.0 - std::pow(_alpha, step_)));
 		cacu_scalex(history_r->s_diff(), history_r->count(), 1.0 / (1.0 - std::pow(_beta, step_)));
-		cacu_scalex(history_s->s_diff(), history_s->count(), learn_rate_ * (-1.0));
+		cacu_scalex(history_s->s_diff(), history_s->count(), learn_rate_ * _direction);
 		cacu_root(history_r->s_diff(),history_r->count(),history_r->s_diff());
 		cacu_sdxsize<float_t>(history_r->s_diff(),history_r->count(), _epsilon, 1.0, history_r->s_diff());
 		cacu_cdxsize(history_s->s_diff(), history_s->count(), history_r->s_diff(), history_r->count(), w_->s_diff());
@@ -87,6 +88,29 @@ void adam_solver::update_weight(weight* w_, int weight_index_, int step_) {
 		//update to weight
 		cacu_saxpy(w_->s_diff(), (float_t)(1), w_->s_data(), w_->count());
 	}
+}
+
+void adam_solver::load_param(chars_t config_)
+{
+
+	ifstream is = ifstream(config_);
+	is.precision(numeric_limits<float>::digits10);
+	if (!is)
+		LOG_FATAL("file %s cannot be opened!", config_.c_str());
+	string file_ = "";
+	vector<string> vec;
+	while (getline(is, file_)) {
+		vec = split(file_, ":");
+		if(vec[0] == "learning_rate")
+			this->set_lr(strtof(vec[1].c_str(), NULL));
+		if(vec[0] == "weight_decay")
+			this->set_weight_decay(strtof(vec[1].c_str(), NULL));
+		if(vec[0] == "alpha")
+			this->set_alpha(strtof(vec[1].c_str(), NULL));
+		if(vec[0] == "beta")
+			this->set_beta(strtof(vec[1].c_str(), NULL));
+	}
+	is.close();
 }
 
 }

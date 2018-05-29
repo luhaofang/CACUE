@@ -98,7 +98,7 @@ public:
 		_phase = phase_;
 	}
 
-	float_t _negative_slope = 0.01f;
+	float_t _negative_slope = 0.2f;
 
 private:
 

@@ -456,7 +456,7 @@ public:
 		set_param_init_type(_type, _shift, value);
 	}
 
-	float_t moving_average_fraction = 0.9;
+	float_t moving_average_fraction = 0.95;
 
 	float_t epsilon = 0.00001;
 

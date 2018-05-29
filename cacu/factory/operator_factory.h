@@ -101,6 +101,11 @@ public:
 					blob_->size())
 			;
 			return new softmax_with_loss_op(blob_, d_args_);
+		case CACU_SIGMOID_LOSS:
+			CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
+					blob_->size())
+			;
+			return new sigmoid_with_loss_op(blob_, d_args_);
 		case CACU_MSE_LOSS:
 			CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
 					blob_->size())

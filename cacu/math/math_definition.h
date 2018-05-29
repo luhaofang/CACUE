@@ -60,7 +60,14 @@ enum normalize_type {
 	norm_l2 = 41
 };
 
+/*
+ * solver type for weights update in optimization methods.
+ *
+ */
+enum grad_direction_type {
+	maximize,
+	minimize
+};
+
 }
-
-
 #endif
