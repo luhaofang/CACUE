@@ -71,7 +71,7 @@ void weight::set_init_type(param_init_type type, float_t value) {
 		break;
 	}
 	_tdata->copy2data(&w[0]);
-	vec_t().swap(w);
+	//vec_t().swap(w);
 }
 
 /*
@@ -89,7 +89,7 @@ void weight::serializa_group(std::ostream& os, int group) {
 		for (auto w : _v)
 			os.write((char*) (&w), sizeof(w));
 	}
-	vec_t().swap(_v);
+	//vec_t().swap(_v);
 #else
 
 	os.write((char*)(&length), sizeof(length));
@@ -99,7 +99,7 @@ void weight::serializa_group(std::ostream& os, int group) {
 		cacu_copy_cpu(p_data_, _v.size(), &_v[0]);
 		for (auto w : _v) os.write((char*)(&w), sizeof(w));
 	}
-	vec_t().swap(_v);
+	//vec_t().swap(_v);
 #endif
 }
 
@@ -121,7 +121,7 @@ void weight::load_group(std::ifstream& is, int group) {
 		p_data_ = s_data() + n * _v.size();
 		device_copy2dev(p_data_, &_v[0], _v.size());
 	}
-	vec_t().swap(_v);
+	//vec_t().swap(_v);
 #else
 	vec_t _v(_channel_length * (_channel / group));
 	int length_;
@@ -133,7 +133,7 @@ void weight::load_group(std::ifstream& is, int group) {
 		p_data_ = s_data() + n * _v.size();
 		cacu_copy_cpu(&_v[0], _v.size(), p_data_);
 	}
-	vec_t().swap(_v);
+	//vec_t().swap(_v);
 #endif
 }
 

@@ -39,7 +39,7 @@ class tensor {
 
 public:
 
-	tensor(dsize_t length);
+	tensor(const dsize_t length);
 
 	~tensor();
 
@@ -70,20 +70,20 @@ public:
 	/*
 	 * resize tensor size
 	 */
-	void resize(dsize_t length, DTYPE value);
+	void resize(const dsize_t length, const DTYPE value);
 
 	/*
 	 * copy data from host RAM to tensor memory
 	 */
-	void copy2data(DTYPE* data_);
+	void copy2data(const DTYPE* data_);
 	/*
 	 * copy data from host RAM to tensor memory
 	 */
-	void copy2data(dsize_t sp, dsize_t length, DTYPE* data_);
+	void copy2data(const dsize_t sp, const dsize_t length, const DTYPE* data_);
 
-	void set_value(DTYPE value);
+	void set_value(const DTYPE value);
 
-	void set_value(dsize_t sp, dsize_t length, DTYPE value);
+	void set_value(const dsize_t sp, const dsize_t length, const DTYPE value);
 
 	/*
 	 * refresh data
@@ -100,7 +100,7 @@ public:
 	/*
 	 * memcopy data, host2host dev2dev
 	 */
-	void _memcopy(DTYPE* data_);
+	void _memcopy(const DTYPE* data_);
 
 private:
 
@@ -113,7 +113,7 @@ private:
 };
 
 template<typename DTYPE>
-tensor<DTYPE>::tensor(dsize_t length) {
+tensor<DTYPE>::tensor(const dsize_t length) {
 
 	_length = length;
 #if __USE_DEVICE__ == ON
@@ -139,12 +139,12 @@ tensor<DTYPE>::~tensor() {
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::_memcopy(DTYPE* data_) {
+inline void tensor<DTYPE>::_memcopy(const DTYPE* data_) {
 	cacu_copy(data_, _length, _pdata);
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::resize(dsize_t length, DTYPE value) {
+inline void tensor<DTYPE>::resize(const dsize_t length, const DTYPE value) {
 	_length = length;
 #if __USE_DEVICE__ == ON
 	device_free(_pdata);
@@ -159,7 +159,7 @@ inline void tensor<DTYPE>::resize(dsize_t length, DTYPE value) {
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::copy2data(DTYPE* data_) {
+inline void tensor<DTYPE>::copy2data(const DTYPE* data_) {
 #if __USE_DEVICE__ == ON
 	device_copy2dev(_pdata, data_, _length);
 #else
@@ -168,7 +168,7 @@ inline void tensor<DTYPE>::copy2data(DTYPE* data_) {
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::copy2data(dsize_t sp, dsize_t length, DTYPE* data_) {
+inline void tensor<DTYPE>::copy2data(const dsize_t sp, const dsize_t length, const DTYPE* data_) {
 #if __USE_DEVICE__ == ON
 	device_copy2dev(_pdata + sp, data_, length);
 #else
@@ -177,7 +177,7 @@ inline void tensor<DTYPE>::copy2data(dsize_t sp, dsize_t length, DTYPE* data_) {
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::set_value(DTYPE value) {
+inline void tensor<DTYPE>::set_value(const DTYPE value) {
 #if __USE_DEVICE__ == ON
 	device_setvalue<DTYPE>(_pdata, value, _length);
 #else
@@ -187,7 +187,7 @@ inline void tensor<DTYPE>::set_value(DTYPE value) {
 }
 
 template<typename DTYPE>
-inline void tensor<DTYPE>::set_value(dsize_t sp, dsize_t length, DTYPE value) {
+inline void tensor<DTYPE>::set_value(const dsize_t sp, const dsize_t length, const DTYPE value) {
 #if __USE_DEVICE__ == ON
 	device_setvalue<DTYPE>(_pdata + sp, value, length);
 #else
@@ -209,11 +209,11 @@ template<typename DTYPE>
 void tensor<DTYPE>::serializa(std::ostream& os) {
 #if __USE_DEVICE__ == ON
 	os.write((char*) (&_length), sizeof(_length));
-	vec_t _v(_length);
+	DTYPE *_v = (DTYPE *) malloc(_length * sizeof(DTYPE));
 	device_copy2host(&_v[0], (DTYPE*) _pdata, _length);
-	for (int i = 0; i < _v.size(); ++i)
-		os.write((char*) (&_v[i]), sizeof(DTYPE));
-	vec_t().swap(_v);
+	for (int i = 0; i < _length; ++i)
+		os.write((char*) (_v + i), sizeof(DTYPE));
+	free(_v);
 #else
 	os.write((char*)(&_length), sizeof(_length));
 	for(dsize_t i = 0; i < _length; ++i)
@@ -224,12 +224,12 @@ void tensor<DTYPE>::serializa(std::ostream& os) {
 template<typename DTYPE>
 void tensor<DTYPE>::load(std::ifstream& is) {
 #if __USE_DEVICE__ == ON
-	vec_t _v(_length);
+	DTYPE *_v = (DTYPE *) malloc(_length * sizeof(DTYPE));
 	for (int i = 0; i < _length; i++) {
-		is.read(reinterpret_cast<char*>(&_v[i]), sizeof(DTYPE));
+		is.read(reinterpret_cast<char*>(_v+ i), sizeof(DTYPE));
 	}
-	device_copy2dev((DTYPE*) _pdata, &_v[0], _length);
-	vec_t().swap(_v);
+	device_copy2dev((DTYPE*) _pdata, _v, _length);
+	free(_v);
 #else
 	for (int i = 0; i < _length; i++) {
 		is.read(reinterpret_cast<char*>(_pdata + i), sizeof(DTYPE));

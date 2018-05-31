@@ -135,6 +135,21 @@ inline void cacu_img2col_pad(const float_t *x, const int kernel_size,
 #endif
 }
 
+inline void cacu_img2col_pad_dilated(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, const int d_size, float_t *y) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_img2col_pad_dilated_cuda(x, kernel_size, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, d_size, y);
+#endif
+#else
+	cacu_img2col_pad_dilated_cpu(x, kernel_size, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, d_size, y);
+#endif
+}
+
 /*
  *channel: channel of input data
  *kernel_size: pooling window size
@@ -158,6 +173,25 @@ inline void cacu_col2img_pad(const float_t *x, const int kernel_size,
 #else
 	cacu_col2img_pad_cpu(x, kernel_size, stride, input_w, input_h, channel,
 			output_w, output_h, pad_w, pad_h, y);
+#endif
+}
+
+inline void cacu_col2img_pad_dilated(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, const int d_size, float_t *y) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	if (kernel_size != 1)
+	cacu_col2img_pad_cuda(x, kernel_size, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, y);
+	else
+	cacu_col2img_pad_1x1_cuda(x, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, y);
+#endif
+#else
+	cacu_col2img_pad_dilated_cpu(x, kernel_size, stride, input_w, input_h, channel,
+			output_w, output_h, pad_w, pad_h, d_size, y);
 #endif
 }
 

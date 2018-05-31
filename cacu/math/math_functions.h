@@ -128,7 +128,7 @@ void cacu_copy(const float *x, const int length, float *y);
 
 void cacu_abs(const float *x, const int length, float *y);
 
-void cacu_abs_grad(const float *x, float *diff, const int length, float *grad);
+void cacu_abs_grad(const float *x, float *diff, const int length, const float *grad);
 
 /**
  * @cacu_isaxdb

@@ -240,6 +240,49 @@ void cacu_img2col_pad_cpu(const float_t *x, const int kernel_size,
 		}
 }
 
+void cacu_img2col_pad_dilated_cpu(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, const int d_size, float_t *y) {
+	int cin_length = input_w * input_h;
+	int kernel_length = kernel_size * kernel_size;
+	int output_size = output_w * output_h;
+	float_t *yp;
+	int out_start;
+	int i, j, c, ki, kj;
+	int in_w, in_h, out_w, out_h;
+	int input_w_ = input_w + 2 * pad_w;
+	int input_h_ = input_h + 2 * pad_h;
+
+
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
+#endif
+	for (i = 0; i < output_h; ++i)
+		for (j = 0; j < output_w; ++j) {
+			out_start = (i * output_w + j);
+			out_h = i * stride;
+			out_w = j * stride;
+
+			for (c = 0; c < channel; ++c) {
+				yp = y + c * kernel_length * output_size;
+				for (ki = 0; ki < kernel_size; ++ki)
+					for (kj = 0; kj < kernel_size; ++kj) {
+						in_h = out_h + ki * d_size;
+						in_w = out_w + kj * d_size;
+						in_h = (in_h >= input_h_) ? out_h + ki : in_h;
+						in_w = (in_w >= input_w_) ? out_w + kj : in_w;
+
+						if (in_w >= pad_w && in_w < input_w + pad_w
+								&& in_h >= pad_h && in_h < input_h + pad_h)
+							yp[(ki * kernel_size + kj) * output_size + out_start] =
+									x[(in_h - pad_h) * input_w + in_w - pad_w
+											+ c * cin_length];
+					}
+			}
+		}
+}
+
 /*
  *channel: channel of input data
  *kernel_size: pooling window size
@@ -278,6 +321,59 @@ void cacu_col2img_pad_cpu(const float_t *x, const int kernel_size,
 					for (kj = 0; kj < kernel_size; ++kj) {
 						in_h = out_h + ki;
 						in_w = out_w + kj;
+						if (in_w >= pad_w && in_w < input_w + pad_w
+								&& in_h >= pad_h && in_h < input_h + pad_h)
+							yp[(in_h - pad_h) * input_w + in_w - pad_w] += x[(ki
+									* kernel_size + kj + c * k_size)
+									* cout_length + sd_out];
+					}
+			}
+		}
+	}
+}
+
+/*
+ *channel: channel of input data
+ *kernel_size: pooling window size
+ *stride: stride move of the kernel
+ *input_dim: width of input data
+ *output_dim: width of output data
+ */
+void cacu_col2img_pad_dilated_cpu(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, const int d_size, float_t *y) {
+	int sd_out, sn_out;
+
+	int block_size = kernel_size * kernel_size * channel;
+	int k_size = kernel_size * kernel_size;
+	int cout_length = output_w * output_h;
+	int cin_length = input_w * input_h;
+	float_t *yp;
+
+	int row, col, c, ki, kj;
+	int in_h, in_w, out_h, out_w;
+	int input_w_ = input_w + 2 * pad_w;
+	int input_h_ = input_h + 2 * pad_h;
+
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
+#endif
+	//for output_dim's location
+	for (row = 0; row < output_h; ++row) {
+		for (col = 0; col < output_w; ++col) {
+
+			out_h = row * stride;
+			out_w = col * stride;
+			sd_out = (row * output_w + col);
+			for (c = 0; c < channel; ++c) {
+				yp = y + c * cin_length;
+				for (ki = 0; ki < kernel_size; ++ki)
+					for (kj = 0; kj < kernel_size; ++kj) {
+						in_h = out_h + ki * d_size;
+						in_w = out_w + kj * d_size;
+						in_h = (in_h >= input_h_) ? out_h + ki : in_h;
+						in_w = (in_w >= input_w_) ? out_w + kj : in_w;
 						if (in_w >= pad_w && in_w < input_w + pad_w
 								&& in_h >= pad_h && in_h < input_h + pad_h)
 							yp[(in_h - pad_h) * input_w + in_w - pad_w] += x[(ki

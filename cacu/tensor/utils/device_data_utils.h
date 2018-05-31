@@ -52,7 +52,7 @@ inline DTYPE* device_malloc(const dsize_t length) {
 }
 
 template<typename DTYPE>
-inline DTYPE* device_malloc_v(const dsize_t length, DTYPE value) {
+inline DTYPE* device_malloc_v(const dsize_t length, const DTYPE value) {
 #if __PARALLELTYPE__ == __CUDA__
 	return cuda_malloc_v(length, value);
 #else
@@ -61,7 +61,7 @@ inline DTYPE* device_malloc_v(const dsize_t length, DTYPE value) {
 }
 
 template<typename DTYPE>
-inline void device_setvalue(DTYPE *data_, DTYPE value, const dsize_t length) {
+inline void device_setvalue(DTYPE *data_,const DTYPE value, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_setvalue(data_, value, length);
 #endif

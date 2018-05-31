@@ -40,23 +40,23 @@ namespace cacu {
 /**
  * for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_cuda(float_t *x, int length);
+extern "C" void cacu_relu_cuda(float_t *x, const int length);
 
 /**
  * gradient for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_grad_cuda(const float_t *x, float_t *g, int length);
+extern "C" void cacu_relu_grad_cuda(const float_t *x, float_t *g, const int length);
 
 /**
  * for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_cuda(float_t *x, float_t a, int length);
+extern "C" void cacu_leaky_relu_cuda(float_t *x, const float_t a, const int length);
 
 /**
  * gradient for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_grad_cuda(const float_t *x, float_t *g, float_t a,
-		int length);
+extern "C" void cacu_leaky_relu_grad_cuda(const float_t *x, float_t *g, const float_t a,
+		const int length);
 
 extern "C" void cacu_prelu_cuda(float_t *x, const float_t *slopes,
 		const int num, const int channel, const int c_length);
@@ -74,12 +74,12 @@ extern "C" void cacu_softmax_cuda(const float_t *x, const int num, const int cha
 /**
  * for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_cuda(const float_t *x, int length, float_t *y);
+extern "C" void cacu_tanh_cuda(const float_t *x, const int length, float_t *y);
 
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_grad_cuda(const float_t *x, const float_t *g, int length,
+extern "C" void cacu_tanh_grad_cuda(const float_t *x, const float_t *g, const int length,
 		float_t *y);
 
 /**
@@ -97,12 +97,12 @@ extern "C" void cacu_htanh_grad_cuda(const float_t *x, const float_t *g, const i
 /**
  * for activation use sigmoid functions in cuda
  */
-extern "C" void cacu_sigmoid_cuda(const float_t *x, int length, float_t *y);
+extern "C" void cacu_sigmoid_cuda(const float_t *x, const int length, float_t *y);
 
 /**
  * gradient for activation use sigmoid functions in cuda
  */
-extern "C" void cacu_sigmoid_grad_cuda(const float_t *x, const float_t *g, int length,
+extern "C" void cacu_sigmoid_grad_cuda(const float_t *x, const float_t *g, const int length,
 		float_t *y);
 
 }

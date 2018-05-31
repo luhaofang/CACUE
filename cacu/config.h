@@ -45,7 +45,7 @@ namespace cacu {
 #define __CUDNN__ 0XC
 #endif
 
-//cuda & cublas
+//cuda && cublas
 #ifndef __CUDA__
 #define __CUDA__ 0XD
 #endif

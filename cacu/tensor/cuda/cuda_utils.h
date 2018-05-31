@@ -45,60 +45,69 @@ void cuda_release();
 
 void cuda_free(void* data_);
 
+
+
 template<typename DTYPE>
-inline DTYPE* cuda_malloc(dsize_t length) {
+inline DTYPE* cuda_malloc(const dsize_t length) {
 	DTYPE* data_;
 	CUDA_CHECK(cudaMalloc((void** ) (&data_), length * sizeof(DTYPE)));
 	return data_;
 }
 
 template<typename DTYPE>
-inline DTYPE* cuda_malloc_v(dsize_t length, DTYPE value) {
+inline DTYPE* cuda_malloc_v(const dsize_t length, const DTYPE value) {
 	DTYPE* data_;
 	CUDA_CHECK(cudaMalloc((void** ) (&data_), length * sizeof(DTYPE)));
-	vector<DTYPE> d(length, value);
+	DTYPE *v = (DTYPE *) malloc(length * sizeof(DTYPE));
+	for(int i = 0; i < length; ++i)
+		v[i] = value;
 	CUDA_CHECK(
-			cudaMemcpy((void* ) (data_), (void* ) (&d[0]),
+			cudaMemcpy((void* ) (data_), (void* ) (v),
 					length * sizeof(DTYPE), cudaMemcpyHostToDevice));
-	vector<DTYPE>().swap(d);
+	free(v);
 	return data_;
 }
 
-template<typename DTYPE>
-inline void cuda_setvalue(DTYPE *data_, DTYPE value, dsize_t length) {
-	vector<DTYPE> v(length, value);
-	CUDA_CHECK(
-			cudaMemcpy((void* ) (data_), (void* ) (&v[0]),
-					length * sizeof(DTYPE), cudaMemcpyHostToDevice));
-	vector<DTYPE>().swap(v);
-}
 
 template<typename DTYPE>
-inline void cuda_copy2dev(DTYPE *d_data_,const DTYPE* s_values, dsize_t length) {
+inline void cuda_setvalue(DTYPE *data_, const DTYPE value, const dsize_t length) {
+	DTYPE *v = (DTYPE *) malloc(length * sizeof(DTYPE));
+	for(int i = 0; i < length; ++i)
+		v[i] = value;
+	CUDA_CHECK(
+			cudaMemcpy((void* ) (data_), (void* ) (v),
+					length * sizeof(DTYPE), cudaMemcpyHostToDevice));
+	free(v);
+}
+
+
+template<typename DTYPE>
+inline void cuda_copy2dev(DTYPE *d_data_,const DTYPE* s_values, const dsize_t length) {
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),
 					length * sizeof(DTYPE), cudaMemcpyHostToDevice));
 }
 
 template<typename DTYPE>
-inline void cuda_copy2host(DTYPE *d_data_, const DTYPE* s_values, dsize_t length) {
+inline void cuda_copy2host(DTYPE *d_data_, const DTYPE* s_values, const dsize_t length) {
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),
 					length * sizeof(DTYPE), cudaMemcpyDeviceToHost));
 }
 
 template<typename DTYPE>
-void cuda_print(const DTYPE* data_, dsize_t length) {
-	vector<DTYPE> v(length);
-	cuda_copy2host(&v[0], data_, length);
+void cuda_print(const DTYPE* data_, const dsize_t length) {
+	DTYPE *v = (DTYPE *) malloc(length * sizeof(DTYPE));
+	cuda_copy2host(v, data_, length);
 	for (dsize_t i = 0; i < length; ++i)
 		cout << v[i] << ",";
 	cout << endl;
-	vector<DTYPE>().swap(v);
+	free(v);
+
 }
 
 template<typename DTYPE>
-inline void cuda_refresh(DTYPE *data_, dsize_t length) {
+inline void cuda_refresh(DTYPE *data_, const dsize_t length) {
 	CUDA_CHECK(cudaMemset((void* ) (data_), (DTYPE ) 0, length * sizeof(DTYPE)));
 }
 

@@ -86,6 +86,9 @@ public:
 		//check blob size
 		CHECK_EQ_OP(s_blobs->at(0)->channel(), 1, "source data must = 1 vs %d !",
 				s_blobs->at(0)->channel());
+		CHECK_EQ_OP(s_blobs->at(0)->count(), s_blobs->at(1)->count(), "source data must equal %d vs %d !",
+					s_blobs->at(0)->count(),s_blobs->at(1)->count());
+
 	}
 
 	virtual const void op() override {
@@ -109,18 +112,17 @@ public:
 
 		cacu_sigmoid(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 #if __USE_DEVICE__ == ON
-		cuda_copy2host(_temp, o_blob_->s_data(), s_blob_->count());
+		cuda_copy2host(_temp, s_blob_->s_data(), s_blob_->count());
 		cuda_copy2host(_target, labels_->s_data(), s_blob_->count());
 #else
-		cacu_copy(o_blob_->s_data(), s_blob_->count(), _temp);
+		cacu_copy(s_blob_->s_data(), s_blob_->count(), _temp);
 		cacu_copy(labels_->s_data(), s_blob_->count(), _target);
 #endif
 
 		for(int i = 0 ; i< s_blob_->count(); ++i)
 		{
-			_loss[0] -= _temp[i] * (_target[i] - (_temp[i] >= 0)) -
-			        log(1 + exp(_temp[i] - 2 * _temp[i] * (_temp[i] >= 0)));
-		}
+			_loss[0] -= _temp[i] * (_target[i] - (_temp[i] >= 0.0)) - log(1.0 + exp(_temp[i] - 2 * _temp[i] * (_temp[i] >= 0.0)));
+ 		}
 
 		_loss[0] *= normalizer();
 		//_loss[0] /= o_blob_->channel_length();

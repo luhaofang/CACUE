@@ -45,8 +45,8 @@ namespace cacu {
  * warning: take seriously this function may create accumulated error when width is large enough
  */
 template<typename DTYPE>
-inline void cacu_sumbysize(SUM SUMTYPE, const DTYPE *x, int length,
-		const float_t alpha, DTYPE *y, const float_t beta, int width) {
+inline void cacu_sumbysize(SUM SUMTYPE, const DTYPE *x, const int length,
+		const float_t alpha, DTYPE *y, const float_t beta, const int width) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sumbysize_cuda(SUMTYPE, x, length, alpha, y, beta, width);
@@ -62,7 +62,7 @@ inline void cacu_sumbysize(SUM SUMTYPE, const DTYPE *x, int length,
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
  */
 template<typename DTYPE>
-inline void cacu_cxsize(const DTYPE *x, int length, const DTYPE *a, int size,
+inline void cacu_cxsize(const DTYPE *x, const int length, const DTYPE *a, const int size,
 		DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -79,7 +79,7 @@ inline void cacu_cxsize(const DTYPE *x, int length, const DTYPE *a, int size,
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
  */
 template<typename DTYPE>
-inline void cacu_cdxsize(const DTYPE *x, int length, const DTYPE *a, int size,
+inline void cacu_cdxsize(const DTYPE *x, const int length, const DTYPE *a, const int size,
 		DTYPE *y) {
 	assert(length % size == 0);
 #if __USE_DEVICE__ == ON
@@ -114,8 +114,8 @@ inline void cacu_sdxsize(DTYPE *x, const int length, const DTYPE a, const DTYPE 
  * a & b are corresponding scalars for x, y
  */
 template<typename DTYPE>
-inline void cacu_ssxpy(const DTYPE *x, const DTYPE a, int size, const DTYPE *y,
-		const DTYPE b, int length, DTYPE *z) {
+inline void cacu_ssxpy(const DTYPE *x, const DTYPE a, const int size, const DTYPE *y,
+		const DTYPE b, const int length, DTYPE *z) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_ssxpy_cuda(x, a, size, y, b, length, z);
@@ -130,7 +130,7 @@ inline void cacu_ssxpy(const DTYPE *x, const DTYPE a, int size, const DTYPE *y,
  * math y[i] = x[i]^2 :
  */
 template<typename DTYPE>
-inline void cacu_sqr(const DTYPE *x, int length, DTYPE *y) {
+inline void cacu_sqr(const DTYPE *x, const int length, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sqr_cuda(x, length, y);
@@ -145,7 +145,7 @@ inline void cacu_sqr(const DTYPE *x, int length, DTYPE *y) {
  * math y[i] = sqrt(x[i]) :
  */
 template<typename DTYPE>
-inline void cacu_root(const DTYPE *x, int length, DTYPE *y) {
+inline void cacu_root(const DTYPE *x, const int length, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_root_cuda(x, length, y);
@@ -160,7 +160,7 @@ inline void cacu_root(const DTYPE *x, int length, DTYPE *y) {
  * math std[i] = sqrt(varience[i] + epsilon) :
  */
 template<typename DTYPE>
-inline void cacu_stdbychannel(const DTYPE *varience, int length, DTYPE *std,
+inline void cacu_stdbychannel(const DTYPE *varience, const int length, DTYPE *std,
 		const DTYPE epsilon) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -183,7 +183,7 @@ inline void cacu_stdbychannel(const DTYPE *varience, int length, DTYPE *std,
  */
 template<typename DTYPE>
 inline void cacu_bn_rou_grad(const DTYPE *x, const DTYPE *d_x,
-		const DTYPE *mean, const DTYPE *std, int num, int length, int channel,
+		const DTYPE *mean, const DTYPE *std, const int num, const int length, const int channel,
 		DTYPE *d_rou) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -207,7 +207,7 @@ inline void cacu_bn_rou_grad(const DTYPE *x, const DTYPE *d_x,
  */
 template<typename DTYPE>
 inline void cacu_bn_mu_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
-		const DTYPE *std, const DTYPE *d_rou, int num, int length, int channel,
+		const DTYPE *std, const DTYPE *d_rou, const int num, const int length, const int channel,
 		DTYPE *d_mean) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -232,8 +232,8 @@ inline void cacu_bn_mu_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
  */
 template<typename DTYPE>
 inline void cacu_bn_dx_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
-		const DTYPE *std, const DTYPE *d_rou, const DTYPE *d_mean, int num,
-		int length, int channel, DTYPE *dx) {
+		const DTYPE *std, const DTYPE *d_rou, const DTYPE *d_mean, const int num,
+		const int length, const int channel, DTYPE *dx) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_bn_dx_grad_cuda(x, d_x, mean, std, d_rou, d_mean, num, length, channel,
@@ -253,8 +253,8 @@ inline void cacu_bn_dx_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
  * d_gamma: gradient of gamma
  */
 template<typename DTYPE>
-inline void cacu_bn_gamma_grad(const DTYPE *_x, const DTYPE *d_y, int num,
-		int length, int channel, DTYPE *d_gamma) {
+inline void cacu_bn_gamma_grad(const DTYPE *_x, const DTYPE *d_y, const int num,
+		const int length, const int channel, DTYPE *d_gamma) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_bn_gamma_grad_cuda(_x, d_y, num, length, channel, d_gamma);
@@ -270,7 +270,7 @@ inline void cacu_bn_gamma_grad(const DTYPE *_x, const DTYPE *d_y, int num,
  * scale by element wise.
  */
 template<typename DTYPE>
-inline void cacu_ssx(const DTYPE *x, int length, DTYPE *y) {
+inline void cacu_ssx(const DTYPE *x, const int length, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_ssx_cuda(x, length, y);
@@ -285,8 +285,8 @@ inline void cacu_ssx(const DTYPE *x, int length, DTYPE *y) {
  * alloc data by group
  */
 template<typename DTYPE>
-inline void cacu_group_alloc(int num, int channel, int channel_length,
-		int group, DTYPE *y) {
+inline void cacu_group_alloc(const int num, const int channel, const int channel_length,
+		const int group, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_group_alloc_cuda(num, channel, channel_length, group, y);
@@ -301,8 +301,8 @@ inline void cacu_group_alloc(int num, int channel, int channel_length,
  * combine data by group
  */
 template<typename DTYPE>
-inline void cacu_group_combine(int num, int channel, int channel_length,
-		int group, DTYPE *y) {
+inline void cacu_group_combine(const int num, const int channel, const int channel_length,
+		const int group, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_group_combine_cuda(num, channel, channel_length, group, y);

@@ -92,10 +92,20 @@ extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_size,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);
 
+extern "C" void cacu_img2col_pad_dilated_cuda(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, const int d_size, float_t *y);
+
 extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);
+
+extern "C" void cacu_col2img_pad_dilated_cuda(const float_t *x, const int kernel_size,
+		const int stride, const int input_w, const int input_h,
+		const int channel, const int output_w, const int output_h,
+		const int pad_w, const int pad_h, const int d_size, float_t *y);
 
 extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x,
 		const int stride, const int input_w, const int input_h,

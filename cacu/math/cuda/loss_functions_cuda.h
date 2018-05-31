@@ -40,16 +40,16 @@ namespace cacu{
 /**
  * for cross entropy use loss functions in cuda
  */
-extern "C" void cacu_cross_entropy_cuda(float_t *x, int num, int length,const int *label_, float_t *loss_);
+extern "C" void cacu_cross_entropy_cuda(const float_t *x, const int num, const int length,const int *label_, float_t *loss_);
 
-extern "C" void cacu_cross_entropy_multi_cuda(float_t *x, const int num, const int channel, const int width, const int height,
+extern "C" void cacu_cross_entropy_multi_cuda(const float_t *x, const int num, const int channel, const int width, const int height,
 		const int *label_, float_t *loss_);
 
 /**
  * @cacu_multi_label_trans
  * transform the softmax label to multi sigmoid labels
  */
-extern "C" void cacu_multi_label_trans_cuda(int num, int output_num,const int *label_, const int *trans_labels_);
+extern "C" void cacu_multi_label_trans_cuda(const int num, const int output_num,const int *label_, const int *trans_labels_);
 
 
 }

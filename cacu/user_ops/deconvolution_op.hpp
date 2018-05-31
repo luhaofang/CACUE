@@ -90,7 +90,7 @@ public:
 		_w = create_param("w", s_blob->channel(), _args->output_channel(),
 				_args->kernel_size(), _args->kernel_size(), _phase);
 
-		_bias = create_param("bias", s_blob->channel(), 1, 1, 1, _phase);
+		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
 		_bias->set_lr(2.0);
 	}
 
@@ -149,7 +149,8 @@ public:
 
 			if(_is_use_bias)
 			//cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
-				cacu_sgemv(TRANS,o_blob_->p_data(i),bias_multiplier->count(),bias_multiplier->s_data(),o_blob_->channel(),(float_t)(1),_bias->s_diff(),(float_t)(1));
+				cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_data(), _bias->count(),(float_t)(1),o_blob_->p_data(i),(float_t)(1));
+
 		}
 		//cacu_print(o_blob_->s_data(),o_blob->count());
 		//cacu_print(_w->s_data(),100);
@@ -216,7 +217,7 @@ public:
 			}
 			//add bias
 			if(_is_use_bias)
-			cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_diff(), _bias->count(),(float_t)(1),o_blob_->p_diff(i),(float_t)(1));
+				cacu_sgemv(TRANS,o_blob_->p_diff(i),bias_multiplier->count(),bias_multiplier->s_data(),o_blob_->channel(),(float_t)(1),_bias->s_diff(),(float_t)(1));
 			//cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 		}
 
@@ -275,7 +276,7 @@ public:
 
 protected:
 
-	bool _is_use_bias = false;
+	bool _is_use_bias = true;
 
 	weight *_w;
 

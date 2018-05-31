@@ -305,8 +305,8 @@ void cacu_isaxb(const float *x, const int channel, const int width, const int he
 			for(int w =0; w < width; ++w)
 			{
 				index =  h * width + w;
-				xp = x + index;
-				yp = y + index;
+				xp = (float_t*)&x[index];
+				yp = (float_t*)&y[index];
 				yp[index_[index]*c_length] = a * xp[index_[index]*c_length] + b;
 			}
 	}
@@ -392,7 +392,8 @@ void cacu_copy(const float *x, const int length, float *y) {
 	cacu_copy_cublas(x, length, y);
 #endif
 #else
-	memcpy(y, x, length * sizeof(float));
+	for(int i = 0 ; i < length; ++i)
+		y[i] = x[i];
 #endif
 }
 
@@ -419,7 +420,7 @@ void cacu_abs(const float *x, const int length, float *y) {
 #endif
 }
 
-void cacu_abs_grad(const float *x, float *diff, const int length, float *grad) {
+void cacu_abs_grad(const float *x, float *diff, const int length, const float *grad) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_abs_grad_cuda(x, diff, length , grad);

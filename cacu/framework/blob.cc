@@ -156,13 +156,14 @@ void blob::input_bin(chars_t path_, int n)
 
 void blob::load_from(chars_t path_)
 {
+	string line = "";
 	std::ifstream is(path_, ios::binary);
 	is.precision(numeric_limits<float_t>::digits10);
 	if (!is)
 		LOG_FATAL("file %s cannot be opened!", path_.c_str());
 #if __USE_DEVICE__ == ON
 	vec_t _v(_length);
-	string line = "";
+
 	int i= 0;
 	while(getline(is, line))
 	{
@@ -174,7 +175,7 @@ void blob::load_from(chars_t path_)
 	int i= 0;
 	while(getline(is, line))
 	{
-		s_data[i] = strtof(line.c_str(), NULL);
+		s_data()[i] = strtof(line.c_str(), NULL);
 		i+=1;
 	}
 #endif
@@ -227,7 +228,7 @@ void blob::set_init_type(param_init_type type, float_t value) {
 		break;
 	}
 	_tdata->copy2data(&w[0]);
-	vec_t().swap(w);
+	//vec_t().swap(w);
 }
 
 
