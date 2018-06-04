@@ -24,7 +24,7 @@ TEST_CASE("blas")
 {
 	SECTION("cublas functions test"){
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 		cuda_set_device(0);
 		set_rand_seed();

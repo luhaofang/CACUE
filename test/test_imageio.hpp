@@ -13,7 +13,7 @@ TEST_CASE("imageio")
 		blob *b = new blob(4,3,224,224,255,test);
 
 		string filepath = "/home/haofang/test.jpg";
-		imageio_utils::imwrite_gpu(b->s_data(),filepath.c_str(),b->num(),b->width(),b->height());
+		imageio_utils::imwrite(b->s_data(),filepath.c_str(),b->num(),b->width(),b->height());
 
 		//delete b;
 

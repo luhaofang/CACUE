@@ -29,6 +29,7 @@
 #define LOSS_FUNCTIONS_CPU_H_
 
 #include <algorithm>
+#include <cmath>
 #include "../../definition.h"
 
 namespace cacu {
@@ -42,7 +43,7 @@ void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
 		const int *label_, float_t *loss_);
 
 void cacu_cross_entropy_multi_cpu(float_t *x, const int num, const int channel, const int width, const int height,
-		const int *label_, float_t *loss_);
+		const float_t *label_, float_t *loss_);
 
 }
 

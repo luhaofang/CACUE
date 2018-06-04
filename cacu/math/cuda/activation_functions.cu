@@ -35,7 +35,7 @@
 
 namespace cacu {
 
-__global__ void _k_CACU_RELU_CUDA(float_t *x, const int length) {
+__global__ void _k_CACU_RELU_CUDA(float_t *x, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -51,7 +51,7 @@ __global__ void _k_CACU_RELU_CUDA(float_t *x, const int length) {
 /**
  * for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_cuda(float_t *x, const int length) {
+extern "C" void cacu_relu_cuda(float_t *x, int length) {
 
 	_k_CACU_RELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length);
 
@@ -59,7 +59,7 @@ extern "C" void cacu_relu_cuda(float_t *x, const int length) {
 
 }
 
-__global__ void _k_CACU_RELU_GRAD_CUDA(const float_t *x, float_t *g, const int length) {
+__global__ void _k_CACU_RELU_GRAD_CUDA(float_t *x, float_t *g, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -76,7 +76,7 @@ __global__ void _k_CACU_RELU_GRAD_CUDA(const float_t *x, float_t *g, const int l
 /**
  * gradient for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_grad_cuda(const float_t *x, float_t *g, const int length) {
+extern "C" void cacu_relu_grad_cuda(float_t *x, float_t *g, int length) {
 
 	_k_CACU_RELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length);
 
@@ -84,7 +84,7 @@ extern "C" void cacu_relu_grad_cuda(const float_t *x, float_t *g, const int leng
 
 }
 
-__global__ void _k_CACU_LEAKY_RELU_CUDA(float_t *x, const float_t a, const int length) {
+__global__ void _k_CACU_LEAKY_RELU_CUDA(float_t *x, float_t a, int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -101,7 +101,7 @@ __global__ void _k_CACU_LEAKY_RELU_CUDA(float_t *x, const float_t a, const int l
 /**
  * for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_cuda(float_t *x, const float_t a, const int length) {
+extern "C" void cacu_leaky_relu_cuda(float_t *x, float_t a, int length) {
 
 	_k_CACU_LEAKY_RELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a, length);
 
@@ -109,8 +109,8 @@ extern "C" void cacu_leaky_relu_cuda(float_t *x, const float_t a, const int leng
 
 }
 
-__global__ void _k_CACU_LEAKY_RELU_GRAD_CUDA(const float_t *x, float_t *g, const float_t a,
-		const int length) {
+__global__ void _k_CACU_LEAKY_RELU_GRAD_CUDA(float_t *x, float_t *g, float_t a,
+		int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -127,8 +127,8 @@ __global__ void _k_CACU_LEAKY_RELU_GRAD_CUDA(const float_t *x, float_t *g, const
 /**
  * gradient for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_grad_cuda(const float_t *x, float_t *g, const float_t a,
-		const int length) {
+extern "C" void cacu_leaky_relu_grad_cuda(float_t *x, float_t *g, float_t a,
+		int length) {
 
 	_k_CACU_LEAKY_RELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, a, length);
 
@@ -167,7 +167,7 @@ extern "C" void cacu_prelu_cuda(float_t *x, const float_t *slopes,
 
 }
 
-__global__ void _k_CACU_PRELU_GRAD_CUDA(const float_t *x, float_t *g,
+__global__ void _k_CACU_PRELU_GRAD_CUDA(float_t *x, float_t *g,
 		const float_t *slopes, float_t * g_slopes, const int num,
 		const int channel, const int c_length) {
 
@@ -190,7 +190,7 @@ __global__ void _k_CACU_PRELU_GRAD_CUDA(const float_t *x, float_t *g,
 /**
  * gradient for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_prelu_grad_cuda(const float_t *x, float_t *g,
+extern "C" void cacu_prelu_grad_cuda(float_t *x, float_t *g,
 		const float_t *slopes, float_t * g_slopes, const int num,
 		const int channel, const int c_length) {
 
@@ -201,7 +201,7 @@ extern "C" void cacu_prelu_grad_cuda(const float_t *x, float_t *g,
 
 }
 
-__global__ void _k_CACU_SOFTMAX_CUDA(const float_t *x, const int num,
+__global__ void _k_CACU_SOFTMAX_CUDA(float_t *x, const int num,
 		const int channel, const int width, const int height, float_t *y) {
 
 	int tid = threadIdx.x;
@@ -219,8 +219,8 @@ __global__ void _k_CACU_SOFTMAX_CUDA(const float_t *x, const int num,
 	for (int i = bid; i < length; i += BLOCKNUM) {
 
 		index = i / c_length * p_length + i % c_length;
-		xp = (float_t*)&x[index];
-		yp = (float_t*)&y[index];
+		xp = x + index;
+		yp = y + index;
 
 		if (tid == 0) {
 			max_data[0] = xp[0];
@@ -265,7 +265,7 @@ __global__ void _k_CACU_SOFTMAX_CUDA(const float_t *x, const int num,
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_cuda(const float_t *x, const int num, const int channel,
+extern "C" void cacu_softmax_cuda(float_t *x, const int num, const int channel,
 		const int width, const int height, float_t *y) {
 
 	_k_CACU_SOFTMAX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, num, channel, width,
@@ -275,7 +275,7 @@ extern "C" void cacu_softmax_cuda(const float_t *x, const int num, const int cha
 
 }
 
-__global__ void _k_CACU_TANH_CUDA(const float_t *x, int length, float_t *y) {
+__global__ void _k_CACU_TANH_CUDA(float_t *x, int length, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -292,13 +292,13 @@ __global__ void _k_CACU_TANH_CUDA(const float_t *x, int length, float_t *y) {
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_cuda(const float_t *x, const int length, float_t *y) {
+extern "C" void cacu_tanh_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_TANH_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_TANH_GRAD_CUDA(const float_t *x, const float_t *g, const int length,
+__global__ void _k_CACU_TANH_GRAD_CUDA(float_t *x, float_t *g, int length,
 		float_t *y) {
 
 	int tid = threadIdx.x;
@@ -315,14 +315,14 @@ __global__ void _k_CACU_TANH_GRAD_CUDA(const float_t *x, const float_t *g, const
 /**
  * gradient for activation use half tanh functions in cuda
  */
-extern "C" void cacu_tanh_grad_cuda(const float_t *x, const float_t *g, const int length,
+extern "C" void cacu_tanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
 	_k_CACU_TANH_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_HTANH_CUDA(const float_t *x, int length, float_t *y) {
+__global__ void _k_CACU_HTANH_CUDA(float_t *x, int length, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -339,13 +339,13 @@ __global__ void _k_CACU_HTANH_CUDA(const float_t *x, int length, float_t *y) {
 /**
  * gradient for activation use half tanh functions in cuda
  */
-extern "C" void cacu_htanh_cuda(const float_t *x, const int length, float_t *y) {
+extern "C" void cacu_htanh_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_HTANH_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_HTANH_GRAD_CUDA(const float_t *x,const float_t *g, const int length,
+__global__ void _k_CACU_HTANH_GRAD_CUDA(float_t *x, float_t *g, int length,
 		float_t *y) {
 
 	int tid = threadIdx.x;
@@ -362,14 +362,14 @@ __global__ void _k_CACU_HTANH_GRAD_CUDA(const float_t *x,const float_t *g, const
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_htanh_grad_cuda(const float_t *x, float_t *g, const int length,
+extern "C" void cacu_htanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
 	_k_CACU_HTANH_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_SIGMOID_CUDA(const float_t *x, int length, float_t *y) {
+__global__ void _k_CACU_SIGMOID_CUDA(float_t *x, int length, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -386,13 +386,13 @@ __global__ void _k_CACU_SIGMOID_CUDA(const float_t *x, int length, float_t *y) {
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_sigmoid_cuda(const float_t *x, const int length, float_t *y) {
+extern "C" void cacu_sigmoid_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_SIGMOID_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_SIGMOID_GRAD_CUDA(const float_t *x, const float_t *g, const int length,
+__global__ void _k_CACU_SIGMOID_GRAD_CUDA(float_t *x, float_t *g, int length,
 		float_t *y) {
 
 	int tid = threadIdx.x;
@@ -409,7 +409,7 @@ __global__ void _k_CACU_SIGMOID_GRAD_CUDA(const float_t *x, const float_t *g, co
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_sigmoid_grad_cuda(const float_t *x, const float_t *g, const int length,
+extern "C" void cacu_sigmoid_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
 	_k_CACU_SIGMOID_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 

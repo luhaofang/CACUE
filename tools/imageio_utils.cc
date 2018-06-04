@@ -134,7 +134,7 @@ void imageio_utils::clip_imread_gpu(cacu::float_t *p_data,
 	dst.release();
 }
 
-void imageio_utils::imwrite_gpu(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height)
+void imageio_utils::imwrite_gpu(const cacu::float_t *sdata_, const char* file_path_, const int num, const int width, const int height)
 {
 
 	vec_t data_(num*3*width*height);
@@ -143,8 +143,8 @@ void imageio_utils::imwrite_gpu(const float_t *sdata_, const char* file_path_, c
 	int start_h , start_w, index;
 
 
-	float_t min = data_[0];
-	float_t max = data_[0];
+	cacu::float_t min = data_[0];
+	cacu::float_t max = data_[0];
 	for(int i = 1 ; i < data_.size(); ++i)
 	{
 		if(data_[i] < min)
@@ -152,7 +152,7 @@ void imageio_utils::imwrite_gpu(const float_t *sdata_, const char* file_path_, c
 		if(data_[i] > max)
 			max = data_[i];
 	}
-	float_t span = max - min;
+	cacu::float_t span = max - min;
 
 	device_copy2host(&data_[0], sdata_, data_.size());
 
@@ -281,13 +281,13 @@ void imageio_utils::clip_imread(cacu::float_t *p_data,
 	dst.release();
 }
 
-void imageio_utils::imwrite(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height)
+void imageio_utils::imwrite(const cacu::float_t *sdata_, const char* file_path_, const int num, const int width, const int height)
 {
 	vec_t data_(num*3*width*height);
 	cacu_copy_cpu(sdata_, data_.size(), &data_[0]);
 	int start_h , start_w, index;
-	float_t min = data_[0];
-	float_t max = data_[0];
+	cacu::float_t min = data_[0];
+	cacu::float_t max = data_[0];
 	for(int i = 1 ; i < data_.size(); ++i)
 	{
 		if(data_[i] < min)
@@ -295,7 +295,7 @@ void imageio_utils::imwrite(const float_t *sdata_, const char* file_path_, const
 		if(data_[i] > max)
 			max = data_[i];
 	}
-	float_t span = max - min;
+	cacu::float_t span = max - min;
 	cacu_copy_cpu(sdata_, data_.size(), &data_[0]);
 	int h_size,w_size = std::sqrt(num);
 	int channel_length = width * height;

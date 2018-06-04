@@ -40,5 +40,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "test_detection.hpp"
 #include "test_deconv.hpp"
 #include "test_imageio.hpp"
+#include "test_sigmoid_loss.hpp"
 
 #endif

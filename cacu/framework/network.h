@@ -75,7 +75,14 @@ public:
 	void set_weights_type(param_init_type type_, float_t value);
 
 	inline void set_weight(int op_id, param_init_type type_, float_t value) {
-		get_op(op_id)->get_weight(0)->set_init_type(type_, value);
+		CHECK_GT_OP(_ops->at(op_id)->weights_size(), 0, "weight size must > 0 vs %s", _ops->at(op_id)->weights_size());
+		_ops->at(op_id)->get_weight(0)->set_init_type(type_, value);
+	}
+
+	template<class OPTYPE>
+	inline OPTYPE *&get_op(int i, op_name type_name_) {
+		CHECK_EQ_OP(type_name_, _ops->at(i)->_TYPE(), "Op type must be equal!");
+		return (OPTYPE*&)_ops->at(i);
 	}
 
 	inline operator_base *&get_op(int i) {

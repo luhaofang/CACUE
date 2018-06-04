@@ -28,13 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "time_utils.h"
 
-
 namespace cacu_tools {
 
-#ifdef _WIN32
-
-	void gettimeofday_win32(timeval *tp, void *tzp)
+	void time_utils::start()
 	{
+
+#ifdef _WIN32		
 		time_t clock;
 		struct tm tm;
 		SYSTEMTIME wtm;
@@ -48,25 +47,45 @@ namespace cacu_tools {
 		tm.tm_sec = wtm.wSecond;
 		tm.tm_isdst = -1;
 		clock = mktime(&tm);
-		tp->tv_sec = clock;
-		tp->tv_usec = wtm.wMilliseconds * 1000;
+		_start_s = clock;
+		_start_u = wtm.wMilliseconds * 1000;
+
+#elif defined(__linux)	
+		struct timeval tp;
+		gettimeofday(&tp, NULL);
+		_start_s = tp.tv_sec;
+		_start_u = tp.tv_usec;
+#endif
 	}
 
-	void gettime(timeval *tp)
+	void time_utils::end()
 	{
-		gettimeofday_win32(tp, NULL);
-	}
 
+#ifdef _WIN32		
+		time_t clock;
+		struct tm tm;
+		SYSTEMTIME wtm;
 
-#elif defined(__linux)
+		GetLocalTime(&wtm);
+		tm.tm_year = wtm.wYear - 1900;
+		tm.tm_mon = wtm.wMonth - 1;
+		tm.tm_mday = wtm.wDay;
+		tm.tm_hour = wtm.wHour;
+		tm.tm_min = wtm.wMinute;
+		tm.tm_sec = wtm.wSecond;
+		tm.tm_isdst = -1;
+		clock = mktime(&tm);
+		_end_s = clock;
+		_end_u = wtm.wMilliseconds * 1000;
 
-	void gettime(struct timeval *tp)
-	{
-		gettimeofday(tp, NULL);
-	}
-
+#elif defined(__linux)	
+		struct timeval tp;
+		gettimeofday(&tp, NULL);
+		_end_s = tp.tv_sec;
+		_end_u = tp.tv_usec;
 #endif
 
+	}
 
 
 }

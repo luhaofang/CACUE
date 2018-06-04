@@ -58,10 +58,10 @@ void test_net()
 	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
-	vector<vec_i> full_label;
+	vector<vec_t> full_label;
 	load_test_data_bymean(datapath, meanfile, full_data, full_label);
 
-	vec_i _full_label;
+	vec_t _full_label;
 	for(int i = 0; i < full_label.size(); ++i)
 		_full_label.push_back(full_label[i][0]);
 
@@ -73,8 +73,7 @@ void test_net()
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
-	timeval start;
-	timeval end;
+	time_utils *timer = new time_utils();
 	unsigned long diff;
 
 	int step_index = 0;
@@ -82,7 +81,7 @@ void test_net()
 	int allcount = 0;
 	for (int i = 0; i < max_iter; ++i)
 	{
-		gettime(&start);
+		timer->start();
 
 		input_data->resize(batch_size, 3, 32, 32);
 		for (int j = 0; j < batch_size; ++j)
@@ -102,14 +101,13 @@ void test_net()
 			}
 		}
 		allcount += batch_size;
-		batch_size = urandint(10, 100);
+		batch_size = 100;//urandint(10, 100);
 		LOG_DEBUG("batch_size: %d", batch_size);
-		gettime(&end);
+		timer->end();
 
 		if (i % 1 == 0) {
-			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
-				- start.tv_usec;
-			LOG_INFO("iter_%d, %ld ms/iter", i, diff / 1000);
+
+			LOG_INFO("iter_%d, %ld ms/iter", i, timer->get_time_span() / 1000);
 		}
 		if (step_index == kCIFARBatchSize)
 			break;

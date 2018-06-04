@@ -195,9 +195,10 @@ public:
 		return NULL;
 	}
 
+	/*
 	template<class OPTYPE>
 	static OPTYPE*& trans_op(operator_base* const op_) {
-		/*
+
 		 switch (op_->_TYPE()) {
 		 case CACU_INNERPRODUCT:
 		 return (inner_product_op*&) op_;
@@ -248,9 +249,10 @@ public:
 		 ;
 		 return NULL;
 		 }
-		 */
+
 		return NULL;
 	}
+	//*/
 };
 
 }

@@ -78,21 +78,20 @@ void train_net()
 	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
-	vector<vec_i> full_label;
+	vector<vec_t> full_label;
 
 	load_data_bymean(datapath, meanfile, full_data, full_label);
 	//load_data(datapath, full_data, full_label);
 
 	blob *input_data = (blob*)net->input_blobs()->at(0);
-	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
+	blob *input_label = (blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
-	timeval start;
-	timeval end;
+	time_utils *timer = new time_utils();
 	unsigned long diff;
 	for (int i = 1 ; i < max_iter; ++i)
 	{
-		gettime(&start);
+		timer->start();
 		//batch_size = 200;
 		//input_data->resize(batch_size,3,32,32);
 		//input_label->resize(batch_size,1,1,1);
@@ -107,12 +106,10 @@ void train_net()
 		
 		sgd->train_iter(i);
 		
-		gettime(&end);
+		timer->end();
 
 		if(i % 10 == 0){
-			diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
-				- start.tv_usec;
-			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), diff / 1000);
+			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), timer->get_time_span() / 1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count() - 1))->echo();
 			//net->get_op(10)->echo();
 			//net->get_op(10)->echo();
@@ -147,7 +144,7 @@ void train_net()
 	net->save_weights("/home/haofang/experiment/cifar10/cifar10_quick_test.model");
 
 	vector<vec_t>().swap(full_data);
-	vector<vec_i>().swap(full_label);
+	vector<vec_t>().swap(full_label);
 	logger.close();
 	delete net;
 	delete sgd;

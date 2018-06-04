@@ -114,20 +114,20 @@ void network::back_propagate() {
 
 void network::set_weights_type(param_init_type type_, float_t value) {
 	for (int i = op_count() - 1; i >= 0; --i) {
-		for (int j = 0; j < get_op(i)->weights_size(); ++j) {
-			get_op(i)->get_weight(j)->set_init_type(type_, value);
+		for (int j = 0; j < _ops->at(i)->weights_size(); ++j) {
+			_ops->at(i)->get_weight(j)->set_init_type(type_, value);
 		}
 	}
 }
 
 void network::output_blobs() {
 	for (int i = 0; i < op_count(); ++i) {
-		blob_base * bp = get_op(i)->out_data<blob_base>();
+		blob_base * bp = _ops->at(i)->out_data<blob_base>();
 		if (bp != NULL && bp->is_output())
 			LOG_DEBUG("%d", i);
 		else if (bp == NULL) {
-			for (int j = 0; j < get_op(i)->out_datas()->size(); ++j) {
-				if (get_op(i)->out_datas()->at(j)->is_output())
+			for (int j = 0; j < _ops->at(i)->out_datas()->size(); ++j) {
+				if (_ops->at(i)->out_datas()->at(j)->is_output())
 					LOG_DEBUG("%d:%d", i, j);
 			}
 		}
@@ -140,7 +140,7 @@ void network::load_weights(chars_t modelpath) {
 	if (!is)
 		LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
 	for (int i = 0; i < op_count(); ++i) {
-		get_op(i)->load(is);
+		_ops->at(i)->load(is);
 	}
 	is.close();
 	LOG_INFO("Initialize model by : %s", modelpath.c_str());
@@ -155,7 +155,7 @@ void network::load_weights_from(chars_t modelpath, int op_start, int op_end) {
 	CHECK_LT_OP(op_start,op_end,"start index must less than end index!");
 	for (int i = op_start; i < op_end; ++i) {
 		//LOG_DEBUG("%d", i);
-		get_op(i)->load(is);
+		_ops->at(i)->load(is);
 	}
 	is.close();
 	LOG_INFO("Initialize model from op[%d] to op[%d] by : %s", op_start, op_end, modelpath.c_str());
@@ -166,7 +166,7 @@ void network::load_weights_from(std::ifstream &is, int op_start, int op_end) {
 	CHECK_LE_OP(op_end,op_count(),"end index must less than current op count!");
 	CHECK_LT_OP(op_start,op_end,"start index must less than end index!");
 	for (int i = op_start; i < op_end; ++i) {
-		get_op(i)->load(is);
+		_ops->at(i)->load(is);
 	}
 	LOG_INFO("Initialize model from op[%d] to op[%d]", op_start, op_end);
 }
@@ -175,7 +175,7 @@ void network::save_weights(chars_t modelpath) {
 	std::ofstream os(modelpath, ios::binary);
 	os.precision(std::numeric_limits<float_t>::digits10);
 	for (int i = 0; i < op_count(); ++i) {
-		get_op(i)->save(os);
+		_ops->at(i)->save(os);
 	}
 	os.close();
 	LOG_INFO("The model is saved at : %s", modelpath.c_str());

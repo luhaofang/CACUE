@@ -40,69 +40,69 @@ namespace cacu {
 /**
  * for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_cuda(float_t *x, const int length);
+extern "C" void cacu_relu_cuda(float_t *x, int length);
 
 /**
  * gradient for activation use relu functions in cuda
  */
-extern "C" void cacu_relu_grad_cuda(const float_t *x, float_t *g, const int length);
+extern "C" void cacu_relu_grad_cuda(float_t *x, float_t *g, int length);
 
 /**
  * for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_cuda(float_t *x, const float_t a, const int length);
+extern "C" void cacu_leaky_relu_cuda(float_t *x, float_t a, int length);
 
 /**
  * gradient for activation use leaky_relu functions in cuda
  */
-extern "C" void cacu_leaky_relu_grad_cuda(const float_t *x, float_t *g, const float_t a,
-		const int length);
+extern "C" void cacu_leaky_relu_grad_cuda(float_t *x, float_t *g, float_t a,
+		int length);
 
 extern "C" void cacu_prelu_cuda(float_t *x, const float_t *slopes,
 		const int num, const int channel, const int c_length);
 
-extern "C" void cacu_prelu_grad_cuda(const float_t *x, float_t *g,
+extern "C" void cacu_prelu_grad_cuda(float_t *x, float_t *g,
 		const float_t *slopes, float_t * g_slopes, const int num,
 		const int channel, const int c_length);
 
 /**
  * for activation use softmax functions in cuda
  */
-extern "C" void cacu_softmax_cuda(const float_t *x, const int num, const int channel,
+extern "C" void cacu_softmax_cuda(float_t *x, const int num, const int channel,
 		const int width, const int height, float_t *y);
 
 /**
  * for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_cuda(const float_t *x, const int length, float_t *y);
+extern "C" void cacu_tanh_cuda(float_t *x, int length, float_t *y);
 
 /**
  * gradient for activation use tanh functions in cuda
  */
-extern "C" void cacu_tanh_grad_cuda(const float_t *x, const float_t *g, const int length,
+extern "C" void cacu_tanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y);
 
 /**
  * for activation use half tanh functions in cuda
  */
-extern "C" void cacu_htanh_cuda(const float_t *x, const int length, float_t *y);
+extern "C" void cacu_htanh_cuda(float_t *x, const int length, float_t *y);
 
 /**
 * @cacu_htanh_grad
 * math half tanh;
 * for activation use half tanh functions.
 */
-extern "C" void cacu_htanh_grad_cuda(const float_t *x, const float_t *g, const int length, float_t *y);
+extern "C" void cacu_htanh_grad_cuda(float_t *x, float_t *g, const int length, float_t *y);
 
 /**
  * for activation use sigmoid functions in cuda
  */
-extern "C" void cacu_sigmoid_cuda(const float_t *x, const int length, float_t *y);
+extern "C" void cacu_sigmoid_cuda(float_t *x, int length, float_t *y);
 
 /**
  * gradient for activation use sigmoid functions in cuda
  */
-extern "C" void cacu_sigmoid_grad_cuda(const float_t *x, const float_t *g, const int length,
+extern "C" void cacu_sigmoid_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y);
 
 }

@@ -49,7 +49,7 @@ void cacu_relu_cpu(float_t *x, const int length) {
  * math if(x[i]<0)?g[i] = g[i]:g[i] = 0;
  * gradient for activation use relu functions.
  */
-void cacu_relu_grad_cpu(const float_t *x, float_t *g, const int length) {
+void cacu_relu_grad_cpu(float_t *x, float_t *g, const int length) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)
@@ -81,7 +81,7 @@ void cacu_leaky_relu_cpu(float_t *x, const float_t a, const int length) {
  * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
  * gradient for activation use leaky_relu functions.
  */
-void cacu_leaky_relu_grad_cpu(const float_t *x, float_t *g, const float_t a,
+void cacu_leaky_relu_grad_cpu(float_t *x, float_t *g, const float_t a,
 		const int length) {
 	int i;
 #if __OPENMP__ == ON
@@ -116,7 +116,7 @@ void cacu_prelu_cpu(float_t *x, const float_t *slopes, const int num,
  * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
  * gradient for activation use leaky_relu functions.
  */
-void cacu_prelu_grad_cpu(const float_t *x, float_t *g, const float_t *slopes,
+void cacu_prelu_grad_cpu(float_t *x, float_t *g, const float_t *slopes,
 		float_t * g_slopes, const int num, const int channel,
 		const int c_length) {
 	int i;
@@ -136,7 +136,7 @@ void cacu_prelu_grad_cpu(const float_t *x, float_t *g, const float_t *slopes,
  * math softmax;
  * for activation use softmax functions.
  */
-void cacu_softmax_cpu(const float_t *x, const int num, const int channel,
+void cacu_softmax_cpu(float_t *x, const int num, const int channel,
 		const int width, const int height, float_t *y) {
 	float_t *xp, *yp, max_, sum_;
 	int n, i;
@@ -149,8 +149,8 @@ void cacu_softmax_cpu(const float_t *x, const int num, const int channel,
 #endif
 	for (n = 0; n < length; ++n) {
 		index = n / c_length * p_length + n % c_length;
-		xp = (float_t*)&x[index];
-		yp = (float_t*)&y[index];
+		xp = x + index;
+		yp = y + index;
 		max_ = xp[0];
 		sum_ = 0;
 		for (i = 1; i < channel; ++i)
@@ -170,7 +170,7 @@ void cacu_softmax_cpu(const float_t *x, const int num, const int channel,
  * math tanh;
  * for activation use tanh functions.
  */
-void cacu_tanh_cpu(const float_t *x, const int length, float_t *y) {
+void cacu_tanh_cpu(float_t *x, const int length, float_t *y) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)
@@ -185,7 +185,7 @@ void cacu_tanh_cpu(const float_t *x, const int length, float_t *y) {
  * math tanh;
  * for activation use tanh functions.
  */
-void cacu_tanh_grad_cpu(const float_t *x, const float_t *g, const int length, float_t *y) {
+void cacu_tanh_grad_cpu(float_t *x, float_t *g, const int length, float_t *y) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)
@@ -200,7 +200,7 @@ void cacu_tanh_grad_cpu(const float_t *x, const float_t *g, const int length, fl
 * math half tanh;
 * for activation use tanh functions.
 */
-void cacu_htanh_cpu(const float_t *x, const int length, float_t *y) {
+void cacu_htanh_cpu(float_t *x, const int length, float_t *y) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)
@@ -215,7 +215,7 @@ void cacu_htanh_cpu(const float_t *x, const int length, float_t *y) {
 * math half tanh;
 * for activation use tanh functions.
 */
-void cacu_htanh_grad_cpu(const float_t *x, const float_t *g, const int length, float_t *y) {
+void cacu_htanh_grad_cpu(float_t *x, float_t *g, const int length, float_t *y) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)
@@ -231,7 +231,7 @@ void cacu_htanh_grad_cpu(const float_t *x, const float_t *g, const int length, f
  * math tanh;
  * for activation use tanh functions.
  */
-void cacu_sigmoid_cpu(const float_t *x, const int length, float_t *y) {
+void cacu_sigmoid_cpu(float_t *x, const int length, float_t *y) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)
@@ -246,7 +246,7 @@ void cacu_sigmoid_cpu(const float_t *x, const int length, float_t *y) {
  * math sigmoid;
  * for activation use sigmoid functions.
  */
-void cacu_sigmoid_grad_cpu(const float_t *x, const float_t *g, const int length,
+void cacu_sigmoid_grad_cpu(float_t *x, float_t *g, const int length,
 		float_t *y) {
 	int i;
 #if __OPENMP__ == ON

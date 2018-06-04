@@ -70,7 +70,7 @@ namespace cacu_tools {
 
 		static void clip_imread_gpu(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
 
-		static void imwrite_gpu(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height);
+		static void imwrite_gpu(const cacu::float_t *sdata_, const char* file_path_, const int num, const int width, const int height);
 
 #endif
 #endif
@@ -81,7 +81,7 @@ namespace cacu_tools {
 
 		static void clip_imread(cacu::float_t *p_data, const char* file_path_, int clip_size_h, int clip_size_w);
 
-		static void imwrite(const float_t *sdata_, const char* file_path_, const int num, const int width, const int height);
+		static void imwrite(const cacu::float_t *sdata_, const char* file_path_, const int num, const int width, const int height);
 		//*/
 
 #if __USE_DEVICE__ == ON

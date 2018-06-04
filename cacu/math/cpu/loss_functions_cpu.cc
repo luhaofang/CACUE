@@ -53,7 +53,7 @@ void cacu_cross_entropy_cpu(float_t *x, const int num, const int length,
 
 
 void cacu_cross_entropy_multi_cpu(float_t *x, const int num, const int channel, const int width, const int height,
-		const int *label_, float_t *loss_){
+		const float_t *label_, float_t *loss_){
 
 	float *xp;
 	int *lp;
@@ -72,7 +72,7 @@ void cacu_cross_entropy_multi_cpu(float_t *x, const int num, const int channel, 
 				{
 					index = h * width + w;
 					xp = x + n * length + index;
-					loss_[0] -= (label_[index + n * c_length] >= 0) ? log(max(xp[label_[index + n * c_length]*c_length], float_t(_MIN_FLT_))) : 0;
+					loss_[0] -= (label_[index + n * c_length] >= 0) ? log(max(xp[(int)label_[index + n * c_length]*c_length], float_t(_MIN_FLT_))) : 0;
 				}
 		}
 

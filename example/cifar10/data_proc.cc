@@ -73,7 +73,7 @@ void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
 }
 
 void readdata(string filename, vector<vec_t> &data_blob,
-	vector<vec_i> &labels) {
+	vector<vec_t> &labels) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
 	if (!data_file)
 		LOG_FATAL("file %s cannot be opened!", filename.c_str());
@@ -81,22 +81,22 @@ void readdata(string filename, vector<vec_t> &data_blob,
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
-		labels.push_back(vec_i(1, (unsigned int)((label_char))));
+		labels.push_back(vec_t(1, (cacu::float_t)((unsigned char)(label_char))));
 		char buffer[kCIFARImageNBytes];
 		data_file.read(buffer, kCIFARImageNBytes);
 		vec_t datas(kCIFARImageNBytes);
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = ((cacu::float_t) ((unsigned char)(buffer[j]))) / 255.0;
-			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])))/ 255.0;
-			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize])))/ 255.0;
+			datas[j] = ((cacu::float_t) ((unsigned char)(buffer[j]))- 127.5) / 127.5;
+			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])) - 127.5)/ 127.5;
+			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize])) - 127.5)/ 127.5;
 		}
 		data_blob.push_back(datas);
 	}
 }
 
 void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
-		vector<vec_i> &labels) {
+		vector<vec_t> &labels) {
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
 	if(!data_file)
 		LOG_FATAL("file %s cannot be opened!",filename.c_str());
@@ -104,7 +104,7 @@ void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 	for (unsigned int i = 0; i < kCIFARBatchSize; i++) {
 		char label_char;
 		data_file.read(&label_char, 1);
-		labels.push_back(vec_i(1, (unsigned int)((label_char))));
+		labels.push_back(vec_t(1, (cacu::float_t)((unsigned char)(label_char))));
 		char buffer[kCIFARImageNBytes];
 		data_file.read(buffer, kCIFARImageNBytes);
 		vec_t datas(kCIFARImageNBytes);
@@ -118,7 +118,7 @@ void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
 	}
 }
 
-void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels)
+void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_t> &labels)
 {
 
 	vec_t mean(kCIFARImageNBytes);
@@ -132,7 +132,7 @@ void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob
 	}
 }
 
-void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
+void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_t> &labels)
 {
 
 	for (int i = 1; i <= 5; i++) {
@@ -142,7 +142,7 @@ void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
 	}
 }
 
-void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels)
+void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_t> &labels)
 {
 
 	vec_t mean(kCIFARImageNBytes);
@@ -156,7 +156,7 @@ void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data
 	}
 }
 
-void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
+void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_t> &labels)
 {
 
 	{

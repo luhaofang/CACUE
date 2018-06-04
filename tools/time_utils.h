@@ -40,25 +40,36 @@
 
 namespace cacu_tools {
 
+
+	class time_utils
+	{
+	public:
+
 #ifdef _WIN32
 
-	struct timeval {
-		long tv_sec;
-		long tv_usec;
-	};
-
-void gettimeofday_win32(timeval *tp, void *tzp);
-
-void gettime(struct timeval *tp);
-
-
-#elif defined(__linux)
-
-	void gettime(struct timeval *tp);
+		struct timeval {
+			long tv_sec;
+			long tv_usec;
+		};
 
 #endif
+		void start();
 
+		void end();
 
+		inline long get_time_span()
+		{
+			return 1000000 * (_end_s - _start_s) + _end_u - _start_u;
+		}
+
+	private:
+
+		long _start_s;
+		long _end_s;
+
+		long _start_u;
+		long _end_u;
+	};
 
 }
 

@@ -24,15 +24,16 @@ using namespace cacu;
 
 TEST_CASE("deconv") {
 	SECTION("deconv functions test"){
-	cuda_set_device(2);
+	//cuda_set_device(2);
 	set_rand_seed();
 	blob_base *b = new blob(1,16,32,32,1,train);
 	((blob *)b)->load_from("/home/haofang/git/mtcnn-caffe/demo/testdata.txt");
-	data_args *args = new data_args(3,3,1,1,16);
+	data_args *args = new data_args(32,4,2,1,16);
 	//cacu_bprint(((blob*)b));
 
-	deconvolution_op *op_ = new deconvolution_op(b,args);
+	convolution_op *op_ = new convolution_op(b,args);
 	op_->set_weight_init_type(constant,1);
+	op_->set_bias_init_type(constant,1);
 	cacu_print(op_->get_weight(0)->s_data(),op_->get_weight(0)->count());
 	op_->infer();
 	op_->out_data<blob>()->set_diff(1);
@@ -45,7 +46,9 @@ TEST_CASE("deconv") {
 
 	//blob *data_ = new blob(1,16,32,32,0,train);
 	//data_->set_init_type(gaussian,1);
-	serializer::blob_serialize(op_->in_data<blob>(),"/home/haofang/git/mtcnn-caffe/demo/cacudata.txt", train);
+	serializer::blob_serialize(op_->get_weight(0),"/home/haofang/git/mtcnn-caffe/demo/cacudata_w.txt", train);
+	serializer::blob_serialize(op_->out_data<blob>(),"/home/haofang/git/mtcnn-caffe/demo/cacudata.txt", test);
+	serializer::blob_serialize(op_->in_data<blob>(),"/home/haofang/git/mtcnn-caffe/demo/cacudiff.txt", train);
 }
 
 }
