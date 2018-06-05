@@ -80,7 +80,7 @@ network* create_Pnet(dsize_t batch_size, phase_type phase_) {
 		cls_blobs->push_back(conv4_1->get_oblob());
 		cls_blobs->push_back(label_);
 		cls->op(CACU_SOFTMAX_LOSS,cls_blobs);
-		cls->get_op<softmax_with_loss_op>(0)->set_loss_weight(0.7);
+		cls->get_op<softmax_with_loss_op>(0, CACU_SOFTMAX_LOSS)->set_loss_weight(0.7);
 	}
 	else
 		cls->op(CACU_SOFTMAX,conv4_1->get_oblob());
@@ -92,7 +92,7 @@ network* create_Pnet(dsize_t batch_size, phase_type phase_) {
 		roi_blobs->push_back(conv4_2->get_oblob());
 		roi_blobs->push_back(roi_label_);
 		roi->op(CACU_MSE_LOSS,roi_blobs);
-		roi->get_op<mse_loss_op>(0)->set_loss_weight(0.3);
+		roi->get_op<mse_loss_op>(0, CACU_SOFTMAX_LOSS)->set_loss_weight(0.3);
 		*net << roi;
 	}
 
@@ -152,7 +152,7 @@ network* create_Rnet(dsize_t batch_size, phase_type phase_) {
 		cls_blobs->push_back(conv4_1->get_oblob());
 		cls_blobs->push_back(label_);
 		cls->op(CACU_SOFTMAX_LOSS,cls_blobs);
-		cls->get_op<softmax_with_loss_op>(0)->set_loss_weight(0.7);
+		cls->get_op<softmax_with_loss_op>(0, CACU_SOFTMAX_LOSS)->set_loss_weight(0.7);
 	}
 	else
 		cls->op(CACU_SOFTMAX,conv4_1->get_oblob());
@@ -164,7 +164,7 @@ network* create_Rnet(dsize_t batch_size, phase_type phase_) {
 		roi_blobs->push_back(conv4_2->get_oblob());
 		roi_blobs->push_back(roi_label_);
 		roi->op(CACU_MSE_LOSS,roi_blobs);
-		roi->get_op<mse_loss_op>(0)->set_loss_weight(0.3);
+		roi->get_op<mse_loss_op>(0, CACU_MSE_LOSS)->set_loss_weight(0.3);
 		*net << roi;
 	}
 
@@ -213,7 +213,7 @@ network* create_Onet(dsize_t batch_size, phase_type phase_) {
 	*net << conv4;
 	layer *conv_fc = new layer(new data_args(256, 3, 1, 0, conv4->get_oblob()->channel()));
 	conv_fc->op(CACU_CONVOLUTION, conv4->get_oblob())->op(CACU_DROPOUT)->op(CACU_PRELU);
-	conv_fc->get_op<dropout_op>(1)->set_ratio(0.25);
+	conv_fc->get_op<dropout_op>(1, CACU_DROPOUT)->set_ratio(0.25);
 	*net << conv_fc;
 	layer *split = new layer();
 	split->op(CACU_SPLIT,conv_fc->get_oblob(), new op_args(2));
@@ -231,7 +231,7 @@ network* create_Onet(dsize_t batch_size, phase_type phase_) {
 		cls_blobs->push_back(conv4_1->get_oblob());
 		cls_blobs->push_back(label_);
 		cls->op(CACU_SOFTMAX_LOSS,cls_blobs);
-		cls->get_op<softmax_with_loss_op>(0)->set_loss_weight(0.7);
+		cls->get_op<softmax_with_loss_op>(0, CACU_SOFTMAX_LOSS)->set_loss_weight(0.7);
 	}
 	else
 		cls->op(CACU_SOFTMAX,conv4_1->get_oblob());
@@ -243,7 +243,7 @@ network* create_Onet(dsize_t batch_size, phase_type phase_) {
 		roi_blobs->push_back(conv4_2->get_oblob());
 		roi_blobs->push_back(roi_label_);
 		roi->op(CACU_MSE_LOSS,roi_blobs);
-		roi->get_op<mse_loss_op>(0)->set_loss_weight(0.3);
+		roi->get_op<mse_loss_op>(0, CACU_MSE_LOSS)->set_loss_weight(0.3);
 		*net << roi;
 	}
 

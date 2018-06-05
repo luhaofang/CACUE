@@ -41,16 +41,13 @@ public:
 		initial();
 		init_weights();
 
-		_loss = (float_t*) malloc(sizeof(float_t));
-		_loss[0] = 0;
+		_loss = 0.0;
 
 		echo();
 	}
 
 	~sigmoid_with_loss_op() {
-		free(_loss);
-		free(_temp);
-		free(_target);
+
 	}
 
 	virtual const void initial() override {
@@ -62,16 +59,10 @@ public:
 #else
 			o_blob = create_oblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),train);
 
-			_temp = (float_t*) malloc(o_blob->count() * sizeof(float_t));
-			_target = (float_t*) malloc(o_blob->count() * sizeof(float_t));
 #endif
 		} else {
 			o_blob->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
 					s_blobs->at(0)->width(), s_blobs->at(0)->height());
-			free(_temp);
-			_temp = (float_t*) malloc(o_blob->count() * sizeof(float_t));
-			free(_target);
-			_target = (float_t*) malloc(o_blob->count() * sizeof(float_t));
 		}
 	}
 
@@ -93,7 +84,7 @@ public:
 
 	virtual const void op() override {
 
-		_loss[0] = 0.0;
+		_loss = 0.0;
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -108,23 +99,27 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blobs->at(0);
-		blob *labels_ = (blob*)s_blobs->at(1);
+		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
 		cacu_sigmoid(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+
+		vec_t _temp(o_blob->count());
+		vec_i _target(o_blob->count());
+
 #if __USE_DEVICE__ == ON
-		cuda_copy2host(_temp, s_blob_->s_data(), s_blob_->count());
-		cuda_copy2host(_target, labels_->s_data(), s_blob_->count());
+		cuda_copy2host(&_temp[0], s_blob_->s_data(), s_blob_->count());
+		cuda_copy2host(&_target[0], labels_->s_data(), s_blob_->count());
 #else
-		cacu_copy(s_blob_->s_data(), s_blob_->count(), _temp);
-		cacu_copy(labels_->s_data(), s_blob_->count(), _target);
+		cacu_copy(s_blob_->s_data(), s_blob_->count(), &_temp[0]);
+		cacu_copy(labels_->s_data(), s_blob_->count(), &_target[0]);
 #endif
 
 		for(int i = 0 ; i< s_blob_->count(); ++i)
 		{
-			_loss[0] -= _temp[i] * (_target[i] - (_temp[i] >= 0.0)) - log(1.0 + exp(_temp[i] - 2 * _temp[i] * (_temp[i] >= 0.0)));
+			_loss -= _temp[i] * (_target[i] - (_temp[i] >= 0.0)) - log(1.0 + exp(_temp[i] - 2 * _temp[i] * (_temp[i] >= 0.0)));
  		}
 
-		_loss[0] *= normalizer();
+		_loss *= normalizer();
 		//_loss[0] /= o_blob_->channel_length();
 #endif
 	}
@@ -146,11 +141,22 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blobs->at(0);
-		blob *labels_ = (blob*)s_blobs->at(1);
+		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+
+		vec_i _target(o_blob->count());
+#if __USE_DEVICE__ == ON
+		cuda_copy2host(&_target[0], labels_->s_data(), s_blob_->count());
+#else
+		cacu_copy(labels_->s_data(), s_blob_->count(), &_target[0]);
+#endif
 
 		//CE LOSS BACK PROPGATION
 		cacu_copy(o_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
-		cacu_saxpy(labels_->s_data(),-1.0, s_blob_->s_diff(),s_blob_->count());
+		for(int i = 0; i < s_blob_->num(); ++i)
+		{
+			if(_target[i] == 1)
+				cacu_sdxsize(s_blob_->p_diff(i), 1, (float_t)-1.0, (float_t)1.0, s_blob_->p_diff(i));
+		}
 		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight );
 
 #endif
@@ -166,9 +172,9 @@ public:
 
 	virtual const void echo() override
 	{
-		LOG_INFO("loss : %f", _loss[0]);
+		LOG_INFO("loss : %f", _loss);
 		if(_loss_weight != 1.0)
-			LOG_INFO("weighted loss : %f", _loss[0] * _loss_weight);
+			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override
@@ -186,7 +192,7 @@ public:
 	}
 
 	inline float_t loss() {
-		return _loss[0];
+		return _loss;
 	}
 
 	inline void set_loss_weight(float_t weight_)
@@ -194,19 +200,11 @@ public:
 		_loss_weight = weight_;
 	}
 
-	inline float_t get_loss()
-	{
-		return _loss[0];
-	}
-
 private:
 
-	float_t *_loss;
+	float_t _loss = 0.0;
 
 	float_t _loss_weight = 1.0;
-
-	float_t *_temp;
-	float_t *_target;
 };
 }
 

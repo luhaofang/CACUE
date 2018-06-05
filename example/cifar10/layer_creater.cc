@@ -36,7 +36,7 @@ layer_block* conv_layer(blob_base* data, int output_channel,
 	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad,
 		data->channel()));
 	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op); //->op(CACU_BATCH_NORMALIZE);
-	l->get_op<convolution_op>(0)->set_group(3);
+	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(3);
 	clock_t end = clock();
 	*lb << l;
 	return lb;

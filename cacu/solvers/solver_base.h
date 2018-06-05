@@ -67,7 +67,7 @@ public:
 		return _regularize;
 	}
 
-	virtual void load_param(chars_t config_) = 0;
+
 
 	/*
 	 * applicate to the weights update
@@ -88,9 +88,20 @@ public:
 
 	inline network* net(){return _net;}
 
-	inline void update_direction(grad_direction_type grad_direction_){
-		_grad_direction = grad_direction_;
-		_direction = _grad_direction == minimize ? 1.0 : -1.0;
+	inline void update_direction(grad_direction_type direction_)
+	{
+		switch(direction_){
+		case maximize:
+			_direction = -1.0;
+			break;
+		case minimize:
+			_direction = 1.0;
+			break;
+		default:
+			_direction = 1.0;
+			break;
+		}
+
 	}
 
 protected:
@@ -102,6 +113,8 @@ protected:
 	regularize_type _regularize = L2;
 
 	network *_net;
+
+	float_t _direction = 1.0;
 
 	/**
 	 * add regular to gradient
@@ -119,15 +132,11 @@ protected:
 	 */
 	virtual void update_weight(weight* w_, int weight_index_, int step_) = 0;
 
-	float_t _direction = 1.0;
-
 private:
 
 	blobs* _temp;
 
 	int _batch_size;
-
-	grad_direction_type _grad_direction;
 
 };
 }

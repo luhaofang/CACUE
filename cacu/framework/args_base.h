@@ -31,7 +31,6 @@
 
 #include <vector>
 #include <stdarg.h>
-#include "../utils/log.h"
 
 using namespace std;
 

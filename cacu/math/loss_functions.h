@@ -59,7 +59,7 @@ inline void cacu_cross_entropy(float_t *x, int num, int length,
  * for loss use cross entropy functions.
  */
 inline void cacu_cross_entropy_multi(float_t *x, const int num, const int channel, const int width, const int height,
-		const float_t *label_, float_t *loss_) {
+		const int *label_, float_t *loss_) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_cross_entropy_multi_cuda(x, num, channel, width, height, label_, loss_);

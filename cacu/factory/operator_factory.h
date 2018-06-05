@@ -101,6 +101,7 @@ public:
 					blob_->size())
 			;
 			return new softmax_with_loss_op(blob_, d_args_);
+
 		case CACU_SIGMOID_LOSS:
 			CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
 					blob_->size())
@@ -198,7 +199,7 @@ public:
 	/*
 	template<class OPTYPE>
 	static OPTYPE*& trans_op(operator_base* const op_) {
-
+		/*
 		 switch (op_->_TYPE()) {
 		 case CACU_INNERPRODUCT:
 		 return (inner_product_op*&) op_;
@@ -252,7 +253,7 @@ public:
 
 		return NULL;
 	}
-	//*/
+	*/
 };
 
 }

@@ -1,7 +1,6 @@
 /*
  Copyright (c) 2016, David lu
  All rights reserved.
-
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  * Redistributions of source code must retain the above copyright
@@ -12,7 +11,6 @@
  * Neither the name of the <organization> nor the
  names of its contributors may be used to endorse or promote products
  derived from this software without specific prior written permission.
-
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,9 +23,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TOOLS_MTCNN_H_
-#define TOOLS_MTCNN_H_
-
 #include <math.h>
 
 #include "../../cacu/detection/detection_definition.h"
@@ -39,14 +34,14 @@
 using namespace cacu;
 using namespace cacu_detection;
 
-inline void rect2square(rect *rect_, dsize_t width, dsize_t height) {
+inline void rect2square(rect *&rect_, dsize_t width, dsize_t height) {
 	float_t w = (float_t) (rect_->r - rect_->l);
 	float_t h = (float_t) (rect_->b - rect_->t);
 	float_t l = std::max(w, h);
-	rect_->l = std::max(0, (dsize_t) ((float_t) rect_->l + w * 0.5 - l * 0.5));
-	rect_->t = std::max(0, (dsize_t) ((float_t) rect_->t + h * 0.5 - l * 0.5));
-	rect_->r = (dsize_t) std::min((float_t) width, (float_t) rect_->l + l);
-	rect_->b = (dsize_t) std::min((float_t) height, (float_t) rect_->t + l);
+	rect_->l = std::max(0, rect_->l + (dsize_t)(w * 0.5 - l * 0.5));
+	rect_->t = std::max(0, rect_->t + (dsize_t)(h * 0.5 - l * 0.5));
+	rect_->r = std::min(width, rect_->l + (dsize_t)l);
+	rect_->b = std::min(height, rect_->t + (dsize_t)l);
 }
 
 void generate_scales(dsize_t width, dsize_t height, vec_t *&scales) {
@@ -89,7 +84,7 @@ void detect_Pnet_face(blob *cls_prob, blob *roi, dsize_t max_side,
 	float_t *proi = roi->s_data();
 #endif
 	for (int i = 0; i < cls_prob->channel_length(); ++i) {
-		if (pcls[i] >= threshold) {
+		if (pcls[i] > threshold) {
 			x = i % cls_prob->width();
 			y = i / cls_prob->width();
 			rect * boundingbox =
@@ -106,8 +101,8 @@ void detect_Pnet_face(blob *cls_prob, blob *roi, dsize_t max_side,
 									+ proi[roi->channel_length() * 3 + i]
 											* block_size * scale), pcls[i]);
 			rect2square(boundingbox, width, height);
-			if (boundingbox->r > boundingbox->l
-					&& boundingbox->b > boundingbox->t)
+			if (boundingbox->r > 32 + boundingbox->l
+					&& boundingbox->b > 32 + boundingbox->t)
 				proposal->push_back(boundingbox);
 			else
 				delete boundingbox;
@@ -133,7 +128,7 @@ void filter_Rnet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 		proi = proi_s + i * roi->length();
 		rect_ = proposal->at(index);
 
-		if (pcls[1] >= threshold) {
+		if (pcls[1] > threshold) {
 			w = (float_t) (rect_->r - rect_->l);
 			h = (float_t) (rect_->b - rect_->t);
 			rect_->l += (dsize_t) (proi[0] * w);
@@ -154,7 +149,7 @@ void filter_Rnet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 		}
 		index++;
 	}
-	NMS(proposal, 0.7, nms_iou);
+
 }
 
 void filter_Onet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
@@ -175,7 +170,7 @@ void filter_Onet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 		proi = proi_s + i * roi->length();
 		rect_ = proposal->at(index);
 
-		if (pcls[1] >= threshold) {
+		if (pcls[1] > threshold) {
 			w = (float_t) (rect_->r - rect_->l);
 			h = (float_t) (rect_->b - rect_->t);
 			rect_->l += (dsize_t) (proi[0] * w);
@@ -196,8 +191,4 @@ void filter_Onet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 		}
 		index++;
 	}
-	NMS(proposal, 0.7, nms_iom);
 }
-
-
-#endif

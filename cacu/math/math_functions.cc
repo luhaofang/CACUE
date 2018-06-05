@@ -287,7 +287,7 @@ void mask_vector_lt(float *vector_, const int length, float *mask) {
  * @cacu_isaxdb
  * y[index] = x[index]*a + b
  */
-void cacu_isaxb(float *x, const int channel, const int width, const int height, const float a, const float_t *index_,
+void cacu_isaxb(float *x, const int channel, const int width, const int height, const float a, int *index_,
 		const float b, float *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -307,7 +307,7 @@ void cacu_isaxb(float *x, const int channel, const int width, const int height, 
 				index =  h * width + w;
 				xp = x + index;
 				yp = y + index;
-				yp[(int)index_[index]*c_length] = a * xp[(int)index_[index]*c_length] + b;
+				yp[index_[index]*c_length] = a * xp[index_[index]*c_length] + b;
 			}
 	}
 	else

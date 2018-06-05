@@ -78,7 +78,6 @@ void layer_block::load_weights(chars_t modelpath)
 		_layers->at(i)->load_weights(is);
 	}
 	is.close();
-	LOG_INFO("Initialize model by : %s", modelpath.c_str());
 }
 
 void layer_block::save_weights(chars_t modelpath)
@@ -92,7 +91,6 @@ void layer_block::save_weights(chars_t modelpath)
 		_layers->at(i)->save_weights(os);
 	}
 	os.close();
-	LOG_INFO("The model is saved at : %s", modelpath.c_str());
 }
 
 void layer_block::set_update_weight(bool isupdate_)

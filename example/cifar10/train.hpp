@@ -65,7 +65,7 @@ void train_net()
 	network *net = create_cifar_quick_net(batch_size,train);
 	//net->load_weights_from("/home/haofang/experiment/cifar10/cifar10_quick_normal.model",10);
 	//net->load_weights("C:/Users/Haofang.Lu/Desktop/git/cacue_vs/example/cifar10/model_3000.model");
-	adam_solver *sgd = new adam_solver(net);
+	sgd_solver *sgd = new sgd_solver(net);
 	sgd->set_lr(0.001f);
 	//sgd->set_momentum(0.9f);
 	sgd->set_weight_decay(0.004f);
@@ -78,13 +78,13 @@ void train_net()
 	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
-	vector<vec_t> full_label;
+	vector<vec_i> full_label;
 
 	load_data_bymean(datapath, meanfile, full_data, full_label);
 	//load_data(datapath, full_data, full_label);
 
 	blob *input_data = (blob*)net->input_blobs()->at(0);
-	blob *input_label = (blob*)net->input_blobs()->at(1);
+	bin_blob *input_label = (bin_blob*)net->input_blobs()->at(1);
 
 	int step_index = 0;
 	time_utils *timer = new time_utils();
@@ -109,6 +109,7 @@ void train_net()
 		timer->end();
 
 		if(i % 10 == 0){
+
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), timer->get_time_span() / 1000);
 			((softmax_with_loss_op*)net->get_op(net->op_count() - 1))->echo();
 			//net->get_op(10)->echo();
@@ -141,13 +142,15 @@ void train_net()
 
 	}
 	LOG_INFO("optimization is done!");
-	net->save_weights("/home/haofang/experiment/cifar10/cifar10_quick_test.model");
+	//net->save_weights("/home/haofang/experiment/cifar10/cifar10_quick_test.model");
 
 	vector<vec_t>().swap(full_data);
-	vector<vec_t>().swap(full_label);
+	vector<vec_i>().swap(full_label);
 	logger.close();
 	delete net;
 	delete sgd;
+
+	delete timer;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__

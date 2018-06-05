@@ -57,7 +57,7 @@ extern "C" void cacu_saxpy_atomic_cuda(float *x, float a, float *y,
 }
 
 __global__ void _k_CACU_ISAXB_CUDA(float *x, const int channel, const int width, const int height, const float a,
-		const float_t *index_, const float b, float *y) {
+		int *index_, const float b, float *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -80,7 +80,7 @@ __global__ void _k_CACU_ISAXB_CUDA(float *x, const int channel, const int width,
 			xp = x + i;
 			yp = y + i;
 			if (tid == 0)
-				yp[(int)index_[i] * c_length] = a * xp[(int)index_[i] * c_length] + b;
+				yp[index_[i] * c_length] = a * xp[index_[i] * c_length] + b;
 		}
 	}
 	else {
@@ -95,7 +95,7 @@ __global__ void _k_CACU_ISAXB_CUDA(float *x, const int channel, const int width,
  * y[index] = x[index]*a + b
  */
 extern "C" void cacu_isaxb_cuda(float *x, const int channel, const int width, const int height, const float a,
-		const float_t *index_, const float b, float *y) {
+		int *index_, const float b, float *y) {
 
 	_k_CACU_ISAXB_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, channel, width, height, a, index_, b, y);
 

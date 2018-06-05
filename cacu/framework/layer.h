@@ -61,9 +61,13 @@ public:
 	layer* op(op_name op_, blob_base * blob_, op_args * args_);
 
 
-	template<class OPTYPE>
-	inline OPTYPE *& get_op(int i) const {
-		return (OPTYPE*&) _ops->at(i);
+	template<typename OPTYPE>
+	inline OPTYPE *&get_op(int i, op_name optype_) const {
+		if(optype_ == _ops->at(i)->_TYPE())
+			return (OPTYPE*&)_ops->at(i);
+		else{
+			LOG_FATAL("Shot! You are using a wrong type operator casting!");
+		}
 	}
 
 	inline operator_base *&get_head_op() {

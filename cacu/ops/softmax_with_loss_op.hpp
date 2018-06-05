@@ -41,13 +41,12 @@ public:
 		initial();
 		init_weights();
 
-		_loss = (float_t*) malloc(sizeof(float_t));
-		_loss[0] = 0;
+		_loss = 0.0;
+
 		echo();
 	}
 
 	~softmax_with_loss_op() {
-		free(_loss);
 	}
 
 	virtual const void initial() override {
@@ -80,12 +79,11 @@ public:
 
 	virtual const void op() override {
 
-		_loss[0] = 0.0;
-
+		_loss = 0.0;
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
-		em_blob *labels_ = (em_blob*) s_blobs->at(1);
+		em_bin_blob *labels_ = (em_bin_blob*) s_blobs->at(1);
 
 		cacu_softmax_cpu(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(),
 				o_blob_->width(), s_blob_->height(), o_blob_->s_data());
@@ -95,23 +93,26 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blobs->at(0);
-		blob *labels_ = (blob*)s_blobs->at(1);
+		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
 		cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(), s_blob_->width(), s_blob_->height(), o_blob_->s_data());
+		//cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
+		//LOG_DEBUG("%d,%d,%d",o_blob_->width(), o_blob_->height(),labels_->count());
+		//CHECK_EQ_OP(o_blob_->channel_length(),labels_->count(), "%d,%d", o_blob_->count(),labels_->count());
 		cacu_cross_entropy_multi(o_blob_->s_data(),o_blob_->num(),o_blob_->channel(), o_blob_->width(), o_blob_->height(),labels_->s_data(),o_blob_->s_diff());
 #endif
 
 #if __USEMBEDDING__ == ON
-		cacu_copy_cpu(o_blob_->s_diff(), 1, _loss);
+		cacu_copy_cpu(o_blob_->s_diff(), 1, &_loss);
 #else
 #if __USE_DEVICE__ == ON
-		cuda_copy2host(_loss, o_blob_->s_diff(), 1);
+		cuda_copy2host(&_loss, o_blob_->s_diff(), 1);
 #else
-		cacu_copy(o_blob_->s_diff(), 1 ,_loss);
+		cacu_copy(o_blob_->s_diff(), 1 ,&_loss);
 #endif
 #endif
-		_loss[0] *= normalizer();
-		_loss[0] /= o_blob_->channel_length();
+		_loss *= normalizer();
+		_loss /= o_blob_->channel_length();
 	}
 
 	virtual const void grad() override {
@@ -119,7 +120,7 @@ public:
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
-		em_blob *labels_ = (em_blob*) s_blobs->at(1);
+		em_bin_blob *labels_ = (em_bin_blob*) s_blobs->at(1);
 
 		//CE LOSS BACK PROPGATION
 		for (int i = 0; i < s_blob_->num(); ++i) {
@@ -131,12 +132,13 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blobs->at(0);
-		blob *labels_ = (blob*)s_blobs->at(1);
+		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
 		//CE LOSS BACK PROPGATION
 		for (int i = 0; i < s_blob_->num(); ++i)
 		{
 			cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
+			//cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)10,labels_->p_data(i),(float_t)0, s_blob_->p_diff(i));
 			cacu_scalex(s_blob_->p_diff(i), s_blob_->length(), normalizer() * _loss_weight / o_blob_->channel_length());
 		}
 
@@ -153,9 +155,9 @@ public:
 
 	virtual const void echo() override
 	{
-		LOG_INFO("loss : %f", _loss[0]);
+		LOG_INFO("loss : %f", _loss);
 		if(_loss_weight != 1.0)
-			LOG_INFO("weighted loss : %f", _loss[0] * _loss_weight);
+			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override
@@ -173,7 +175,7 @@ public:
 	}
 
 	inline float_t loss() {
-		return _loss[0];
+		return _loss;
 	}
 
 	inline void set_loss_weight(float_t weight_)
@@ -181,14 +183,9 @@ public:
 		_loss_weight = weight_;
 	}
 
-	inline float_t get_loss()
-	{
-		return _loss[0];
-	}
-
 private:
 
-	float_t *_loss;
+	float_t _loss = 0.0;
 
 	float_t _loss_weight = 1.0;
 };

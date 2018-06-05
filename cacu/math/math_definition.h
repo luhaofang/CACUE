@@ -47,8 +47,8 @@ typedef enum {
  *
  */
 enum regularize_type {
-	L1 = 30,
-	L2 = 31
+	L1,
+	L2
 };
 
 /*
@@ -56,15 +56,14 @@ enum regularize_type {
  *
  */
 enum normalize_type {
-	norm_l1 = 40,
-	norm_l2 = 41
+	norm_l1,
+	norm_l2
 };
 
 enum grad_direction_type {
-	maximize,
-	minimize
+	minimize,
+	maximize
 };
-
 
 }
 

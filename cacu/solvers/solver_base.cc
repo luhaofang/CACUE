@@ -44,8 +44,6 @@ solver_base::solver_base(network *&net_) {
 	}
 
 	_batch_size = _net->input_blobs()->at(0)->num();
-
-	_grad_direction = maximize;
 }
 
 solver_base::~solver_base() {

@@ -52,8 +52,6 @@ public:
 
 	}
 
-	void load_param(chars_t config_);
-
 protected:
 
 	/**

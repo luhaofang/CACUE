@@ -58,10 +58,10 @@ void test_net()
 	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
-	vector<vec_t> full_label;
+	vector<vec_i> full_label;
 	load_test_data_bymean(datapath, meanfile, full_data, full_label);
 
-	vec_t _full_label;
+	vec_i _full_label;
 	for(int i = 0; i < full_label.size(); ++i)
 		_full_label.push_back(full_label[i][0]);
 
@@ -73,7 +73,7 @@ void test_net()
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
-	time_utils *timer = new time_utils();
+	time_utils *timer= new time_utils();
 	unsigned long diff;
 
 	int step_index = 0;
@@ -115,6 +115,7 @@ void test_net()
 
 	LOG_INFO("precious: %f,%f", count / allcount,count);
 	delete net;
+	delete timer;
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();

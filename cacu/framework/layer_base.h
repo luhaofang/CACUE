@@ -58,11 +58,6 @@ public:
 	virtual ~layer_base() {
 		delete _args;
 		_args = NULL;
-		for (size_t i = 0; i < _ops->size(); ++i) {
-			delete _ops->at(i);
-			_ops->at(i) = NULL;
-		}
-		delete _ops;
 	}
 
 

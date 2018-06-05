@@ -135,15 +135,20 @@ public:
 				o_blob = NULL;
 			}
 			if (o_blobs != NULL)
+			{
 				delete o_blobs;
+				o_blobs = NULL;
+			}
 		}
 		for (unsigned int i = 0; i < _weights->size(); ++i) {
 			delete _weights->at(i);
 			_weights->at(i) = NULL;
 		}
 		delete _weights;
+		_weights = NULL;
 
 		delete _storage_blobs;
+		_storage_blobs = NULL;
 	}
 
 	virtual const void check() = 0;

@@ -46,11 +46,11 @@ using namespace cacu_tools;
 const int KIMAGESIZE = 3 * 224 * 224;
 
 
-void readdata(const char* filename, cacu::float_t *data_);
+void readdata(const char* filename, float_t *data_);
 
-void readdata(const char* filename, cacu::float_t *data_,cacu::float_t *mean_);
+void readdata(const char* filename, float_t *data_,float_t *mean_);
 
-void clipreaddata(const char* filename, cacu::float_t *data_,cacu::float_t *mean_);
+void clipreaddata(const char* filename, float_t *data_,float_t *mean_);
 
 vec_t compute_mean(chars_t &filepath, chars_t &filelist);
 

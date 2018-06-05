@@ -41,13 +41,13 @@ public:
 		initial();
 		init_weights();
 
-		_loss = (float_t*) malloc(sizeof(float_t));
-		_loss[0] = 0;
+		_loss = 0.0;
+
 		echo();
 	}
 
 	~mse_loss_op() {
-		free(_loss);
+
 	}
 
 	virtual const void initial() override {
@@ -78,7 +78,7 @@ public:
 
 	virtual const void op() override {
 
-		_loss[0] = 0.0;
+		_loss = 0.0;
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -126,9 +126,9 @@ public:
 #endif
 
 #if __USE_DEVICE__ == ON
-		cuda_copy2host(_loss, o_blob_->s_diff(), 1);
+		cuda_copy2host(&_loss, o_blob_->s_diff(), 1);
 #else
-		cacu_copy(o_blob_->s_diff(), 1 ,_loss);
+		cacu_copy(o_blob_->s_diff(), 1 ,&_loss);
 #endif
 
 	}
@@ -165,9 +165,9 @@ public:
 
 	virtual const void echo() override
 	{
-		LOG_INFO("mse loss : %f", _loss[0]);
+		LOG_INFO("mse loss : %f", _loss);
 		if (_loss_weight != 1.0)
-			LOG_INFO("weighted mse loss : %f", _loss[0] * _loss_weight);
+			LOG_INFO("weighted mse loss : %f", _loss * _loss_weight);
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override
@@ -185,7 +185,7 @@ public:
 	}
 
 	inline float_t loss() {
-		return _loss[0];
+		return _loss;
 	}
 
 	inline void set_loss_weight(float_t weight_) {
@@ -194,7 +194,7 @@ public:
 
 private:
 
-	float_t *_loss;
+	float_t _loss = 0.0;
 
 	float_t _loss_weight = 1.0;
 };

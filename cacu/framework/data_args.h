@@ -67,11 +67,6 @@ public:
 		return this->at(4);
 	}
 
-	inline void arguments()
-	{
-		LOG_INFO("arguments:(%d, %d, %d, %d, %d)", output_channel(),kernel_size(),stride(),pad(),channel());
-	}
-
 private:
 
 };

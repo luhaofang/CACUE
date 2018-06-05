@@ -25,17 +25,17 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONVOLUTION_OP_HPP_
-#define CONVOLUTION_OP_HPP_
+#ifndef DILATED_CONVOLUTION_OP_HPP_
+#define DILATED_CONVOLUTION_OP_HPP_
 
 namespace cacu {
 
-class convolution_op: public operator_base {
+class dilated_convolution_op: public operator_base {
 
 public:
 
 	//output_channel, kernel_size, stride, pad, input_dim, channel
-	convolution_op(blob_base *&data, data_args *&args_) :
+	dilated_convolution_op(blob_base *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_CONVOLUTION) {
 
 		check();
@@ -44,7 +44,7 @@ public:
 		echo();
 	}
 
-	~convolution_op() {
+	~dilated_convolution_op() {
 
 	}
 
@@ -72,6 +72,10 @@ public:
 					output_h * _args->kernel_size(), _phase);
 			_bias_multiplier = create_opblob(1, 1, output_w, output_h,
 					(float_t) (1), _phase);
+			_temp = create_opblob(_args->output_channel(), s_blob->channel(),
+					_args->kernel_size(), _args->kernel_size(), _phase);
+			_mask = create_opblob(_args->output_channel(), s_blob->channel(),
+								_args->kernel_size(), _args->kernel_size(), _phase);
 		} else {
 
 			o_blob->resize(s_blob->num(), _args->output_channel(), output_w,
@@ -80,6 +84,10 @@ public:
 					output_w * _args->kernel_size(),
 					output_h * _args->kernel_size());
 			_bias_multiplier->resize(1, 1, output_w, output_h, (float_t) (1));
+			_temp->resize(_args->output_channel(), s_blob->channel(),
+								_args->kernel_size(), _args->kernel_size(), _phase);
+			_mask->resize(_args->output_channel(), s_blob->channel(),
+											_args->kernel_size(), _args->kernel_size(), _phase);
 		}
 	}
 
@@ -144,13 +152,23 @@ public:
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
 
+		if(_phase == test)
+			_ratio = 0.0;
+
+		rand_vector(_mask->s_data(),_mask->count(), _ratio);
+		//cacu_print(_mask->s_data(), 100);
+		cacu_copy(_w->s_data(),_w->count(), _temp->s_data());
+		cacu_ssx(_mask->s_data(),_temp->count(),_temp->s_data());
+		cacu_scalex(_temp->s_data(),_temp->count(), 1.0 / (1.0 - _ratio));
+		//cacu_print(_temp->s_data(), 100);
+		//cacu_print(_w->s_data(), 100);
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//padded data if needed & img2col change
 			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(), o_blob_->width(), o_blob_->height(),_args->pad(), _args->pad(), col_data_->s_data());
 			//mycnn_tools::cacu_output(col_data_->s_data(),col_data_->count(),"/home/seal/1.txt");
 			//forward convolution data
 			for (int g = 0; g < _group; ++g)
-			cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->channel_length(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
+			cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->channel_length(),_temp->length() / _group, _temp->s_data() + w_offset * g, _temp->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
 			//cacu_print(o_blob_->p_data(i),1000);
 			//add bias
 			if(_is_use_bias)
@@ -214,25 +232,26 @@ public:
 		blob *s_blob_ = (blob*)s_blob;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
-			//if(_NEED_BACK_PROPAGATE_FEATURE)
-			{
-				//gradient propagation
-				for (int g = 0; g < _group; ++g)
-				//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);
-					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
-				//col2img
-				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
-			}
+			//gradient propagation
+			for (int g = 0; g < _group; ++g)
+			//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);
+			cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _temp->num() / _group, _temp->s_data() + w_offset * g, _temp->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
+			//col2img
+			//unpadded
+			cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
 			//weights gradient
 			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
 			for (int g = 0; g < _group; ++g)
-			cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g, _w->length() / _group, o_blob_->channel_length(), o_blob_->p_diff(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
+			cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g, _temp->length() / _group, o_blob_->channel_length(), o_blob_->p_diff(i) + out_offset * g, _temp->num() / _group, 1, _temp->s_diff() + w_offset * g, 1);
 			//bias gradient
 			if(_is_use_bias)
 			//cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 			cacu_sgemv(TRANS,o_blob_->p_diff(i),bias_multiplier->count(),bias_multiplier->s_data(),o_blob_->channel(),(float_t)(1),_bias->s_diff(),(float_t)(1));
 		}
+		cacu_ssx(_mask->s_data(),_temp->count(),_temp->s_diff());
+		cacu_scalex(_temp->s_diff(),_temp->count(),1.0/(1.0-_ratio));
+		cacu_copy(_temp->s_diff(),_temp->count(),_w->s_diff());
+
 #endif
 	}
 
@@ -268,6 +287,7 @@ public:
 	{
 		o_blob->_RESET_DATA();
 		_w->_RESET_DIFF();
+		_temp->_RESET_DIFF();
 		if (_is_use_bias)
 			_bias->_RESET_DIFF();
 		_col_data->_RESET_DATA();
@@ -298,21 +318,31 @@ public:
 	void set_is_use_bias(bool switcher_) {
 		_is_use_bias = switcher_;
 	}
-	;
+
+	void set_ratio(float_t ratio_) {
+		_ratio = ratio_;
+	}
+
 
 protected:
 
-	bool _is_use_bias = true;
+	bool _is_use_bias = false;
 
 	weight *_w;
 
 	weight *_bias;
+
+	blob *_temp = NULL;
+
+	blob *_mask = NULL;
 
 	blob *_col_data = NULL;
 
 	blob *_bias_multiplier = NULL;
 
 	int _group = 1;
+
+	float_t _ratio = 0.0;
 
 private:
 

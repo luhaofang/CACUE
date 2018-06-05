@@ -50,18 +50,18 @@ void readdata(chars_t filename, cacu::float_t *data_);
 
 void readdata(chars_t filename, vector<vec_t> &data_blob,vec_t &mean);
 
-void readdata(string filename, vector<vec_t> &data_blob, vector<vec_t> &labels);
+void readdata(string filename, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
 void readdata(string filename, vector<vec_t> &data_blob, vec_t &mean,
-		vector<vec_t> &labels);
+		vector<vec_i> &labels);
 
-void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_t> &labels);
+void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
-void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_t> &labels);
+void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
-void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_t> &labels);
+void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
-void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_t> &labels);
+void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
 
 vec_t compute_mean(chars_t &filepath, int filecount);
 

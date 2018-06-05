@@ -52,7 +52,7 @@ inline DTYPE* device_malloc(const dsize_t length) {
 }
 
 template<typename DTYPE>
-inline DTYPE* device_malloc_v(const dsize_t length, const DTYPE value) {
+inline DTYPE* device_malloc_v(const dsize_t length, DTYPE value) {
 #if __PARALLELTYPE__ == __CUDA__
 	return cuda_malloc_v(length, value);
 #else
@@ -61,7 +61,7 @@ inline DTYPE* device_malloc_v(const dsize_t length, const DTYPE value) {
 }
 
 template<typename DTYPE>
-inline void device_setvalue(DTYPE *data_,const DTYPE value, const dsize_t length) {
+inline void device_setvalue(DTYPE *data_, DTYPE value, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_setvalue(data_, value, length);
 #endif
@@ -75,14 +75,14 @@ inline void device_refresh(DTYPE *data_, const dsize_t length) {
 }
 
 template<typename DTYPE>
-inline void device_copy2dev(DTYPE *d_data_, const DTYPE* s_values, const dsize_t length) {
+inline void device_copy2dev(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_copy2dev(d_data_, s_values, length);
 #endif
 }
 
 template<typename DTYPE>
-inline void device_copy2host(DTYPE *d_data_,const DTYPE* s_values, const dsize_t length) {
+inline void device_copy2host(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_copy2host(d_data_, s_values, length);
 #endif
@@ -96,7 +96,7 @@ inline void device_free(DTYPE* data_) {
 }
 
 template<typename DTYPE>
-inline void device_print(const DTYPE* data_, const dsize_t length) {
+inline void device_print(DTYPE* data_, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_print(data_, length);
 #endif
