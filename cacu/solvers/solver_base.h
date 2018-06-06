@@ -67,7 +67,7 @@ public:
 		return _regularize;
 	}
 
-
+	virtual void load_param(chars_t config_) = 0;
 
 	/*
 	 * applicate to the weights update

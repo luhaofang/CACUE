@@ -30,6 +30,8 @@
 
 #include <math.h>
 
+#include "../../tools/string_utils.h"
+
 namespace cacu {
 
 adam_solver::adam_solver(network *&net_) :
@@ -87,6 +89,29 @@ void adam_solver::update_weight(weight* w_, int weight_index_, int step_) {
 		//update to weight
 		cacu_saxpy(w_->s_diff(), (float_t)(1.0), w_->s_data(), w_->count());
 	}
+}
+
+void adam_solver::load_param(chars_t config_)
+{
+
+	ifstream is = ifstream(config_);
+	is.precision(numeric_limits<float>::digits10);
+	if (!is)
+		LOG_FATAL("file %s cannot be opened!", config_.c_str());
+	string file_ = "";
+	vector<string> vec;
+	while (getline(is, file_)) {
+		vec = split(file_, ":");
+		if(vec[0] == "learning_rate")
+			this->set_lr(strtof(vec[1].c_str(), NULL));
+		if(vec[0] == "weight_decay")
+			this->set_weight_decay(strtof(vec[1].c_str(), NULL));
+		if(vec[0] == "alpha")
+			this->set_alpha(strtof(vec[1].c_str(), NULL));
+		if(vec[0] == "beta")
+			this->set_beta(strtof(vec[1].c_str(), NULL));
+	}
+	is.close();
 }
 
 }
