@@ -39,6 +39,7 @@ public:
 		check();
 		initial();
 		init_weights();
+		_loss = 0.0;
 		echo();
 
 	}
@@ -53,14 +54,17 @@ public:
 		int channel = s_blob->channel();
 		int num = s_blob->num();
 		int output_length = s_blob->length() / _args->at(0);
+
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, output_channel, 1, 1, _phase);
+			_sets = create_em_opblob(s_blobs->at(0)->num(),
+					1, 1, 1, test);
 #else
-			o_blob = create_oblob(num, output_length, 1, 1, _phase);
+			_sets = create_opblob(s_blobs->at(0)->num(),1, 1, 1,test);
+
 #endif
 		} else {
-			o_blob->resize(num, output_length, 1, 1);
+			_sets->resize(s_blobs->at(0)->num(),1, 1, 1,test);
 		}
 
 	}
@@ -100,20 +104,33 @@ public:
 				o_blob_->_sync(i);
 			}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
-		blob *x_ = (blob*)_x;
-		bin_blob *index_ = (bin_blob*)_index;
-		if(_phase == train) {
-			for(int i = 0; i < s_blob_->num(); ++i) {
-				cacu_copy(s_blob_->p_data(i),s_blob_->length(),x_->s_data());
-				cacu_row_max_pooling(x_->s_data(),x_->count(),o_blob_->length(),o_blob_->p_data(i));
-				cacu_row_max_pooling_index(s_blob_->p_data(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i),index_->p_data(i));
-			}
+
+		blob *a_blob_ = (blob*)s_blobs->at(0);
+		blob *p_blob_ = (blob*)s_blobs->at(1);
+		blob *n_blob_ = (blob*)s_blobs->at(2);
+
+		float_t a_p_dist_ = 0;
+		float_t a_n_dist_ = 0;
+		float_t dist_ = 0;
+
+		_loss = 0.0;
+
+		cacu_copy(p_blob_->s_data(),p_blob_->count(),p_blob_->s_diff());
+		cacu_saxpby(a_blob_->s_data(),(float_t)(1.0), p_blob_->s_diff(), (float_t)(-1.0), a_blob_->count());
+		cacu_copy(n_blob_->s_data(),n_blob_->count(),n_blob_->s_diff());
+		cacu_saxpby(a_blob_->s_data(),(float_t)(1.0), n_blob_->s_diff(), (float_t)(-1.0), a_blob_->count());
+
+		for(int i = 0; i< a_blob_->num(); ++i){
+			cacu_sgemv(NOTRANS, p_blob_->p_diff(i), 1, p_blob_->s_diff(), p_blob_->length(), (float_t)(1.0), &a_p_dist_, (float_t)(1.0));
+			cacu_sgemv(NOTRANS, n_blob_->p_diff(i), 1, n_blob_->s_diff(), n_blob_->length(), (float_t)(1.0), &a_n_dist_, (float_t)(1.0));
+
+			dist_ = _margin + a_p_dist_ - a_n_dist_;
+			if(dist_ > 0.0)
+				_sets->set_pdata(1,i);
+			else
+				_sets->set_pdata(0,i);
+			_loss += (dist_ > 0.0) ? dist_ : 0.0;
 		}
-		else
-		for(int i = 0; i < s_blob_->num(); ++i)
-		cacu_row_max_pooling(s_blob_->p_data(i),s_blob_->length(),o_blob_->length(),o_blob_->p_data(i));
 #endif
 	}
 
@@ -129,12 +146,29 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
-		bin_blob *index_ = (bin_blob*)_index;
+		blob *a_blob_ = (blob*)s_blobs->at(0);
+		blob *p_blob_ = (blob*)s_blobs->at(1);
+		blob *n_blob_ = (blob*)s_blobs->at(2);
 
-		for(int i = 0; i < s_blob_->num(); ++i)
-		cacu_row_max_pooling_grad(o_blob_->p_diff(i), o_blob_->length(), s_blob_->p_diff(i), index_->p_data(i));
+		cacu_copy(n_blob_->s_data(), a_blob_->count(), a_blob_->s_diff());
+		cacu_saxpby(p_blob_->s_data(),(float_t)(-1.0), a_blob_->s_diff(), (float_t)(1.0), a_blob_->count());
+
+		cacu_copy(p_blob_->s_data(), a_blob_->count(), p_blob_->s_diff());
+		cacu_saxpby(a_blob_->s_data(),(float_t)(-1.0), p_blob_->s_diff(), (float_t)(1.0), a_blob_->count());
+
+		cacu_copy(a_blob_->s_data(), a_blob_->count(), n_blob_->s_diff());
+		cacu_saxpby(n_blob_->s_data(),(float_t)(-1.0), n_blob_->s_diff(), (float_t)(1.0), a_blob_->count());
+
+		for(int i = 0; i < a_blob_->num(); ++i)
+		{
+			cacu_cxsize(a_blob_->p_diff(i),a_blob_->length(),_sets->p_data(i), 1, a_blob_->p_diff(i));
+			cacu_cxsize(p_blob_->p_diff(i),p_blob_->length(),_sets->p_data(i), 1, p_blob_->p_diff(i));
+			cacu_cxsize(n_blob_->p_diff(i),n_blob_->length(),_sets->p_data(i), 1, n_blob_->p_diff(i));
+		}
+
+		cacu_scalex(a_blob_->s_diff(), a_blob_->count(), normalizer() * _loss_weight );
+		cacu_scalex(n_blob_->s_diff(), a_blob_->count(), normalizer() * _loss_weight );
+		cacu_scalex(p_blob_->s_diff(), a_blob_->count(), normalizer() * _loss_weight );
 #endif
 	}
 
@@ -147,28 +181,43 @@ public:
 	}
 
 	virtual const void echo() override {
-		LOG_INFO("create triplet_loss op:");
-		LOG_INFO("channel: %d, input_dim: %d, output_length: %d",
-				s_blob->channel(), s_blob->height(), o_blob->length());
+		LOG_INFO("loss : %f", _loss);
+		if(_loss_weight != 1.0)
+			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
 	}
 
 	inline virtual const void LOOP_INIT_DATA_() override
 	{
-		o_blob->_RESET_DATA();
-		_index->_RESET_DATA();
+
 	}
 
 	inline virtual const void set_phase(phase_type phase_) override {
 		_phase = phase_;
 	}
 
+	float_t normalizer() {
+		blob_base* blob_ = s_blobs->at(0);
+		return ((float_t) (1) / blob_->num());
+	}
+
+	inline float_t loss() {
+			return _loss;
+	}
+
+	inline void set_loss_weight(float_t weight_)
+	{
+		_loss_weight = weight_;
+	}
+
 private:
 
-	bin_blob *_index = NULL;
+	blob* _sets;
 
-	blob *_x = NULL;
+	float_t _margin;
 
 	float_t _loss;
+
+	float_t _loss_weight = 1.0;
 
 };
 }

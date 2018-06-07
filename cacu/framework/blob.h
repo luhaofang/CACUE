@@ -111,6 +111,22 @@ public:
 	}
 
 	/**
+	 *
+	 */
+	inline void set_pdata(float_t value_, int i)
+	{
+		_tdata->set_value(i, _cube_length, value_);
+	}
+
+	/**
+	 *
+	 */
+	inline void set_pdiff(float_t value_, int i)
+	{
+		_tdiff->set_value(i, _cube_length, value_);
+	}
+
+	/**
 	 * copy dest blob data to local blob
 	 */
 	void copy_blob(blob* blob_);

@@ -44,35 +44,35 @@ namespace cacu{
  * accumulate the value by width or height , width is the matrix array's width dim which stored in row -major format.
  * sum by width y is (length/ width) height dim, sum by height y is width dim.
  */
-extern "C" void cacu_sumbysize_cuda(SUM SUMTYPE ,const float_t *x, int length,const float_t alpha, float_t *y,const float_t beta, int width);
+extern "C" void cacu_sumbysize_cuda(SUM SUMTYPE ,float_t *x, int length,const float_t alpha, float_t *y,const float_t beta, int width);
 
 /**
  * @cacu_cxsize_cuda
  * math y[i] = a[j]*x[i] :
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
  */
-extern "C" void cacu_cxsize_cuda(const float_t *x, int length,const float_t *a, int size,float_t *y);
+extern "C" void cacu_cxsize_cuda(float_t *x, int length,float_t *a, int size,float_t *y);
 
 /**
  * @cacu_sxsize_cuda
  * math y[i] = a*x[i] :
  * x is a length dim array list, a is the corresponding scalar.
  */
-extern "C" void cacu_sxsize_cuda(const float_t *x, int length,const float_t a, float_t *y);
+extern "C" void cacu_sxsize_cuda(float_t *x, int length,const float_t a, float_t *y);
 
 /**
  * @cacu_cdxsize_cuda
  * math y[i] = x[i] / a[j] :
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
  */
-extern "C" void cacu_cdxsize_cuda(const float_t *x, int length,const float_t *a, int size, float_t *y);
+extern "C" void cacu_cdxsize_cuda(float_t *x, int length,float_t *a, int size, float_t *y);
 
 /**
  * @cacu_sdxsize
  * math y[i] = (x[i] + a) / b:
  * x is a length dim array list, a is the corresponding denominator.
  */
-extern "C" void cacu_sdxsize_cuda(float_t *x, const int length, const float_t a, const float_t b, float_t *y);
+extern "C" void cacu_sdxsize_cuda(float_t *x, int length, const float_t a, const float_t b, float_t *y);
 
 /**
  * @cacu_ssxpy_cuda
@@ -80,25 +80,25 @@ extern "C" void cacu_sdxsize_cuda(float_t *x, const int length, const float_t a,
  * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).
  * a & b are corresponding scalars for x, y
  */
-extern "C" void cacu_ssxpy_cuda(const float_t *x,const float_t a, int size,const float_t *y,const float_t b, int length, float_t *z);
+extern "C" void cacu_ssxpy_cuda(float_t *x,const float_t a, int size,float_t *y,const float_t b, int length, float_t *z);
 
 /**
  * @cacu_sqr_cuda
  * math y[i] = x[i]^2 :
  */
-extern "C" void cacu_sqr_cuda(const float_t *x, int length, float_t *y);
+extern "C" void cacu_sqr_cuda(float_t *x, int length, float_t *y);
 
 /**
  * @cacu_root_cuda
  * math y[i] = sqrt(x[i]) :
  */
-extern "C" void cacu_root_cuda(const float_t *x, int length, float_t *y);
+extern "C" void cacu_root_cuda(float_t *x, int length, float_t *y);
 
 /**
  * @cacu_stdbychannel_cuda
  * math std[i] = sqrt(varience[i] + epsilon) :
  */
-extern "C" void cacu_stdbychannel_cuda(const float_t *varience, int length, float_t *std,const float_t epsilon);
+extern "C" void cacu_stdbychannel_cuda(float_t *varience, int length, float_t *std,const float_t epsilon);
 
 /**
  * @cacu_bn_rou_grad_cuda

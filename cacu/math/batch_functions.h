@@ -45,7 +45,7 @@ namespace cacu {
  * warning: take seriously this function may create accumulated error when width is large enough
  */
 template<typename DTYPE>
-inline void cacu_sumbysize(SUM SUMTYPE, const DTYPE *x, int length,
+inline void cacu_sumbysize(SUM SUMTYPE, DTYPE *x, int length,
 		const float_t alpha, DTYPE *y, const float_t beta, int width) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -62,7 +62,7 @@ inline void cacu_sumbysize(SUM SUMTYPE, const DTYPE *x, int length,
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
  */
 template<typename DTYPE>
-inline void cacu_cxsize(const DTYPE *x, int length, const DTYPE *a, int size,
+inline void cacu_cxsize(DTYPE *x, int length, DTYPE *a, int size,
 		DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -79,7 +79,7 @@ inline void cacu_cxsize(const DTYPE *x, int length, const DTYPE *a, int size,
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
  */
 template<typename DTYPE>
-inline void cacu_cdxsize(const DTYPE *x, int length, const DTYPE *a, int size,
+inline void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size,
 		DTYPE *y) {
 	assert(length % size == 0);
 #if __USE_DEVICE__ == ON
@@ -114,8 +114,8 @@ inline void cacu_sdxsize(DTYPE *x, const int length, const DTYPE a, const DTYPE 
  * a & b are corresponding scalars for x, y
  */
 template<typename DTYPE>
-inline void cacu_ssxpy(const DTYPE *x, const DTYPE a, int size, const DTYPE *y,
-		const DTYPE b, int length, DTYPE *z) {
+inline void cacu_ssxpy(DTYPE *x, const DTYPE a, const int size, DTYPE *y,
+		const DTYPE b, const int length, DTYPE *z) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_ssxpy_cuda(x, a, size, y, b, length, z);
@@ -130,7 +130,7 @@ inline void cacu_ssxpy(const DTYPE *x, const DTYPE a, int size, const DTYPE *y,
  * math y[i] = x[i]^2 :
  */
 template<typename DTYPE>
-inline void cacu_sqr(const DTYPE *x, int length, DTYPE *y) {
+inline void cacu_sqr(DTYPE *x, int length, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sqr_cuda(x, length, y);
@@ -145,7 +145,7 @@ inline void cacu_sqr(const DTYPE *x, int length, DTYPE *y) {
  * math y[i] = sqrt(x[i]) :
  */
 template<typename DTYPE>
-inline void cacu_root(const DTYPE *x, int length, DTYPE *y) {
+inline void cacu_root(DTYPE *x, int length, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_root_cuda(x, length, y);
@@ -160,7 +160,7 @@ inline void cacu_root(const DTYPE *x, int length, DTYPE *y) {
  * math std[i] = sqrt(varience[i] + epsilon) :
  */
 template<typename DTYPE>
-inline void cacu_stdbychannel(const DTYPE *varience, int length, DTYPE *std,
+inline void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std,
 		const DTYPE epsilon) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__

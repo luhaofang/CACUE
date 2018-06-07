@@ -41,7 +41,7 @@ namespace cacu {
  * warning: take seriously this function may create accumulated error when width is large enough
  */
 template<typename DTYPE>
-void cacu_sumbysize_cpu(SUM SUMTYPE, const DTYPE *x, int length,
+void cacu_sumbysize_cpu(SUM SUMTYPE, DTYPE *x, int length,
 		const float_t alpha, DTYPE *y, const float_t beta, int width) {
 	int height = length / width;
 	int b, i;
@@ -75,7 +75,7 @@ void cacu_sumbysize_cpu(SUM SUMTYPE, const DTYPE *x, int length,
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
  */
 template<typename DTYPE>
-void cacu_cxsize_cpu(const DTYPE *x, int length, const DTYPE *a,
+void cacu_cxsize_cpu(DTYPE *x, int length, DTYPE *a,
 		int size, DTYPE *y) {
 	int block_size = length / size;
 	DTYPE *yp;
@@ -96,7 +96,7 @@ void cacu_cxsize_cpu(const DTYPE *x, int length, const DTYPE *a,
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
  */
 template<typename DTYPE>
-void cacu_cdxsize_cpu(const DTYPE *x, int length, const DTYPE *a,
+void cacu_cdxsize_cpu(DTYPE *x, int length, DTYPE *a,
 		int size, DTYPE *y) {
 	int block_size = length / size;
 	DTYPE *yp;
@@ -133,8 +133,8 @@ void cacu_sdxsize_cpu(DTYPE *x, int length, DTYPE a, DTYPE b, DTYPE *y) {
  * a & b are corresponding scalars for x, y
  */
 template<typename DTYPE>
-void cacu_ssxpy_cpu(const DTYPE *x, const DTYPE a, int size,
-		const DTYPE *y, const DTYPE b, int length, DTYPE *z) {
+void cacu_ssxpy_cpu(DTYPE *x, const DTYPE a, int size,
+		DTYPE *y, const DTYPE b, int length, DTYPE *z) {
 	int block_size = length / size;
 	DTYPE *zp;
 	int i, j;
@@ -153,7 +153,7 @@ void cacu_ssxpy_cpu(const DTYPE *x, const DTYPE a, int size,
  * math y[i] = x[i]^2 :
  */
 template<typename DTYPE>
-void cacu_sqr_cpu(const DTYPE *x, int length, DTYPE *y) {
+void cacu_sqr_cpu(DTYPE *x, int length, DTYPE *y) {
 	int j;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(j)
@@ -167,7 +167,7 @@ void cacu_sqr_cpu(const DTYPE *x, int length, DTYPE *y) {
  * math y[i] = sqrt(x[i]) :
  */
 template<typename DTYPE>
-void cacu_root_cpu(const DTYPE *x, int length, DTYPE *y) {
+void cacu_root_cpu(DTYPE *x, int length, DTYPE *y) {
 	int j;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(j)
@@ -181,7 +181,7 @@ void cacu_root_cpu(const DTYPE *x, int length, DTYPE *y) {
  * math std[i] = sqrt(varience[i] + epsilon) :
  */
 template<typename DTYPE>
-void cacu_stdbychannel_cpu(const DTYPE *varience, int length, DTYPE *std,
+void cacu_stdbychannel_cpu(DTYPE *varience, int length, DTYPE *std,
 		const DTYPE epsilon) {
 	int j;
 #if __OPENMP__ == ON
@@ -348,7 +348,7 @@ void cacu_bn_gamma_grad_cpu(const DTYPE *_x, const DTYPE *d_y, int num,
  * scale by element wise.
  */
 template<typename DTYPE>
-void cacu_ssx_cpu(const DTYPE *x, int length, DTYPE *y) {
+void cacu_ssx_cpu(DTYPE *x, int length, DTYPE *y) {
 	int i;
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i)
