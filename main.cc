@@ -11,7 +11,7 @@
 //#include "example/frcnn/test.hpp"
 
 //#include "example/imagenet/train_modified.hpp"
-#include "example/generate/train_cifar.hpp"
+#include "example/gan/train_cifar.hpp"
 //#include "example/generate/test.hpp"
 
 

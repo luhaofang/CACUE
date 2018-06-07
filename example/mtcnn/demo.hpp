@@ -28,7 +28,7 @@
 #ifndef DEMO_HPP_
 #define DEMO_HPP_
 
-#include <libpng/png.h>
+//#include <libpng/png.h>
 #include <opencv2/opencv.hpp>
 
 #include <string>
@@ -66,10 +66,8 @@ void face_detect(chars_t file_name) {
 	//		"/home/seal/cuda-workspace/CACUE_N/example/mtcnn/model/Onet.model");
 	Onet->load_weights("/home/haofang/experiment/mtcnn/models/Onet.model");
 
-	float_t thresholds[3] = { 0.5, 0.5, 0.6 };
-	struct timeval start;
-	struct timeval end;
-	gettimeofday(&start, NULL);
+	cacu::float_t thresholds[3] = { 0.5, 0.5, 0.6 };
+
 	cv::Mat src = cv::imread(file_name, cv::IMREAD_COLOR);
 	if (!src.data)
 		LOG_FATAL("file %s cannot be opened!", file_name.c_str());
@@ -96,12 +94,12 @@ void face_detect(chars_t file_name) {
 		for (dsize_t y = 0; y < hs; y++)
 			for (dsize_t x = 0; x < ws; x++) {
 				index = y * ws + x;
-				temp_[index] = (((float_t) dst.at<cv::Vec3b>(y, x)[0] - 127.5)
+				temp_[index] = (((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0] - 127.5)
 						/ 128);
-				temp_[ws * hs + index] = (((float_t) dst.at<cv::Vec3b>(y, x)[1]
+				temp_[ws * hs + index] = (((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1]
 						- 127.5) / 128);
 				temp_[2 * ws * hs + index] =
-						(((float_t) dst.at<cv::Vec3b>(y, x)[2] - 127.5) / 128);
+						(((cacu::float_t) dst.at<cv::Vec3b>(y, x)[2] - 127.5) / 128);
 			}
 		((blob *) Pnet->input_blobs()->at(0))->copy2data(temp_);
 		vec_t().swap(temp_);
@@ -134,12 +132,12 @@ void face_detect(chars_t file_name) {
 			for (dsize_t y = 0; y < 24; y++)
 				for (dsize_t x = 0; x < 24; x++) {
 					index = y * 24 + x;
-					temp_[index] = (((float_t) dst.at<cv::Vec3b>(y, x)[0]
+					temp_[index] = (((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0]
 							- 127.5) / 128);
 					temp_[24 * 24 + index] =
-							(((float_t) dst.at<cv::Vec3b>(y, x)[1] - 127.5)
+							(((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1] - 127.5)
 									/ 128);
-					temp_[2 * 24 * 24 + index] = (((float_t) dst.at<cv::Vec3b>(
+					temp_[2 * 24 * 24 + index] = (((cacu::float_t) dst.at<cv::Vec3b>(
 							y, x)[2] - 127.5) / 128);
 				}
 			((blob *) Rnet->input_blobs()->at(0))->copy2data(temp_, i);
@@ -167,12 +165,12 @@ void face_detect(chars_t file_name) {
 			for (dsize_t y = 0; y < 48; y++)
 				for (dsize_t x = 0; x < 48; x++) {
 					index = y * 48 + x;
-					temp_[index] = (((float_t) dst.at<cv::Vec3b>(y, x)[0]
+					temp_[index] = (((cacu::float_t) dst.at<cv::Vec3b>(y, x)[0]
 							- 127.5) / 128);
 					temp_[48 * 48 + index] =
-							(((float_t) dst.at<cv::Vec3b>(y, x)[1] - 127.5)
+							(((cacu::float_t) dst.at<cv::Vec3b>(y, x)[1] - 127.5)
 									/ 128);
-					temp_[2 * 48 * 48 + index] = (((float_t) dst.at<cv::Vec3b>(
+					temp_[2 * 48 * 48 + index] = (((cacu::float_t) dst.at<cv::Vec3b>(
 							y, x)[2] - 127.5) / 128);
 				}
 			((blob *) Onet->input_blobs()->at(0))->copy2data(temp_, i);
@@ -186,10 +184,8 @@ void face_detect(chars_t file_name) {
 				proposals);
 	}
 	LOG_DEBUG("proposal: %d", proposals->size());
-	gettimeofday(&end, NULL);
-	unsigned long diff = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec
-		- start.tv_usec;
-	LOG_INFO("time cost:%ld ms", diff / 1000);
+
+	//LOG_INFO("time cost:%ld ms", diff / 1000);
 	for (dsize_t i = 0; i < proposals->size(); ++i) {
 		cv::rectangle(src,
 				cv::Rect(proposals->at(i)->l, proposals->at(i)->t,

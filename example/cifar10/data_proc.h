@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DATA_PROC_H_
 
 #include <time.h>
+#include <vector>
 
 #include "../../cacu/cacu.h"
 

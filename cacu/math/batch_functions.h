@@ -270,7 +270,7 @@ inline void cacu_bn_gamma_grad(const DTYPE *_x, const DTYPE *d_y, int num,
  * scale by element wise.
  */
 template<typename DTYPE>
-inline void cacu_ssx(const DTYPE *x, int length, DTYPE *y) {
+inline void cacu_ssx(DTYPE *x, int length, DTYPE *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_ssx_cuda(x, length, y);

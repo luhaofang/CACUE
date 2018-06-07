@@ -23,6 +23,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
 #include <stdlib.h>
 #include "blob.h"
 
@@ -128,7 +129,7 @@ void blob::output_bin(chars_t path_)
 		}
 #else
 	for (int i = 0; i < _length; ++i) {
-		os.write((char*) (_s_data + i), sizeof(cacu::float_t));
+		os.write((char*) (s_data() + i), sizeof(cacu::float_t));
 	}
 #endif
 	os.close();
@@ -160,9 +161,10 @@ void blob::load_from(chars_t path_)
 	is.precision(numeric_limits<float_t>::digits10);
 	if (!is)
 		LOG_FATAL("file %s cannot be opened!", path_.c_str());
+	string line = "";
 #if __USE_DEVICE__ == ON
 	vec_t _v(_length);
-	string line = "";
+	
 	int i= 0;
 	while(getline(is, line))
 	{
@@ -174,7 +176,7 @@ void blob::load_from(chars_t path_)
 	int i= 0;
 	while(getline(is, line))
 	{
-		s_data[i] = strtof(line.c_str(), NULL);
+		s_data()[i] = strtof(line.c_str(), NULL);
 		i+=1;
 	}
 #endif

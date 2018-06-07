@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../cacu/utils/log.h"
 #include "../../cacu/math/math_functions.h"
 
+using namespace std;
 using namespace cacu;
 
 

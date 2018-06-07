@@ -40,17 +40,17 @@ using namespace cacu;
 using namespace cacu_detection;
 
 inline void rect2square(rect *rect_, dsize_t width, dsize_t height) {
-	float_t w = (float_t) (rect_->r - rect_->l);
-	float_t h = (float_t) (rect_->b - rect_->t);
-	float_t l = std::max(w, h);
-	rect_->l = std::max(0, (dsize_t) ((float_t) rect_->l + w * 0.5 - l * 0.5));
-	rect_->t = std::max(0, (dsize_t) ((float_t) rect_->t + h * 0.5 - l * 0.5));
-	rect_->r = (dsize_t) std::min((float_t) width, (float_t) rect_->l + l);
-	rect_->b = (dsize_t) std::min((float_t) height, (float_t) rect_->t + l);
+	cacu::float_t w = (cacu::float_t) (rect_->r - rect_->l);
+	cacu::float_t h = (cacu::float_t) (rect_->b - rect_->t);
+	cacu::float_t l = std::max(w, h);
+	rect_->l = std::max(0, (dsize_t) ((cacu::float_t) rect_->l + w * 0.5 - l * 0.5));
+	rect_->t = std::max(0, (dsize_t) ((cacu::float_t) rect_->t + h * 0.5 - l * 0.5));
+	rect_->r = (dsize_t) std::min((cacu::float_t) width, (cacu::float_t) rect_->l + l);
+	rect_->b = (dsize_t) std::min((cacu::float_t) height, (cacu::float_t) rect_->t + l);
 }
 
 void generate_scales(dsize_t width, dsize_t height, vec_t *&scales) {
-	float_t pr_scale = 1.0;
+	cacu::float_t pr_scale = 1.0;
 	dsize_t w, h;
 	if (std::min(width, height) > 1000) {
 		pr_scale = 1000.0 / std::min(width, height);
@@ -62,8 +62,8 @@ void generate_scales(dsize_t width, dsize_t height, vec_t *&scales) {
 		h = dsize_t(height * pr_scale);
 	}
 
-	float_t factor = 0.709;
-	float_t factor_count = 0;
+	cacu::float_t factor = 0.709;
+	cacu::float_t factor_count = 0;
 	dsize_t minl = std::min(h, w);
 	while (minl >= 12) {
 		scales->push_back(pr_scale * std::pow(factor, factor_count));
@@ -73,20 +73,20 @@ void generate_scales(dsize_t width, dsize_t height, vec_t *&scales) {
 }
 
 void detect_Pnet_face(blob *cls_prob, blob *roi, dsize_t max_side,
-		float_t scale, dsize_t width, dsize_t height, float_t threshold,
+		cacu::float_t scale, dsize_t width, dsize_t height, cacu::float_t threshold,
 		vector<rect*> *&proposal) {
-	float_t block_size = 12.0;
+	cacu::float_t block_size = 12.0;
 	dsize_t in_side = 2 * max_side + 11;
-	float_t stride = 0;
+	cacu::float_t stride = 0;
 	dsize_t x, y;
 	if (max_side != 1)
-		stride = (float_t) (in_side - 12) / (max_side - 1);
+		stride = (cacu::float_t) (in_side - 12) / (max_side - 1);
 #if __USE_DEVICE__ == ON
-	float_t *pcls = cls_prob->s_data_cpu() + cls_prob->channel_length();
-	float_t *proi = roi->s_data_cpu();
+	cacu::float_t *pcls = cls_prob->s_data_cpu() + cls_prob->channel_length();
+	cacu::float_t *proi = roi->s_data_cpu();
 #else
-	float_t *pcls = cls_prob->s_data() + cls_prob->channel_length();
-	float_t *proi = roi->s_data();
+	cacu::float_t *pcls = cls_prob->s_data() + cls_prob->channel_length();
+	cacu::float_t *proi = roi->s_data();
 #endif
 	for (int i = 0; i < cls_prob->channel_length(); ++i) {
 		if (pcls[i] >= threshold) {
@@ -116,17 +116,17 @@ void detect_Pnet_face(blob *cls_prob, blob *roi, dsize_t max_side,
 }
 
 void filter_Rnet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
-		float_t threshold, vector<rect*> *&proposal) {
+		cacu::float_t threshold, vector<rect*> *&proposal) {
 #if __USE_DEVICE__ == ON
-	float_t *pcls_s = cls_prob->s_data_cpu();
-	float_t *proi_s = roi->s_data_cpu();
+	cacu::float_t *pcls_s = cls_prob->s_data_cpu();
+	cacu::float_t *proi_s = roi->s_data_cpu();
 #else
-	float_t *pcls_s = cls_prob->s_data();
-	float_t *proi_s = roi->s_data();
+	cacu::float_t *pcls_s = cls_prob->s_data();
+	cacu::float_t *proi_s = roi->s_data();
 #endif
 	rect* rect_;
-	float_t w, h;
-	float_t *pcls, *proi;
+	cacu::float_t w, h;
+	cacu::float_t *pcls, *proi;
 	int index = 0;
 	for (int i = 0; i < cls_prob->num(); ++i) {
 		pcls = pcls_s + i * cls_prob->length();
@@ -134,8 +134,8 @@ void filter_Rnet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 		rect_ = proposal->at(index);
 
 		if (pcls[1] >= threshold) {
-			w = (float_t) (rect_->r - rect_->l);
-			h = (float_t) (rect_->b - rect_->t);
+			w = (cacu::float_t) (rect_->r - rect_->l);
+			h = (cacu::float_t) (rect_->b - rect_->t);
 			rect_->l += (dsize_t) (proi[0] * w);
 			rect_->t += (dsize_t) (proi[1] * h);
 			rect_->r += (dsize_t) (proi[2] * w);
@@ -158,17 +158,17 @@ void filter_Rnet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 }
 
 void filter_Onet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
-		float_t threshold, vector<rect*> *&proposal) {
+		cacu::float_t threshold, vector<rect*> *&proposal) {
 #if __USE_DEVICE__ == ON
-	float_t *pcls_s = cls_prob->s_data_cpu();
-	float_t *proi_s = roi->s_data_cpu();
+	cacu::float_t *pcls_s = cls_prob->s_data_cpu();
+	cacu::float_t *proi_s = roi->s_data_cpu();
 #else
-	float_t *pcls_s = cls_prob->s_data();
-	float_t *proi_s = roi->s_data();
+	cacu::float_t *pcls_s = cls_prob->s_data();
+	cacu::float_t *proi_s = roi->s_data();
 #endif
 	rect* rect_;
-	float_t w, h;
-	float_t *pcls, *proi;
+	cacu::float_t w, h;
+	cacu::float_t *pcls, *proi;
 	int index = 0;
 	for (int i = 0; i < cls_prob->num(); ++i) {
 		pcls = pcls_s + i * cls_prob->length();
@@ -176,8 +176,8 @@ void filter_Onet_face(blob *cls_prob, blob *roi, dsize_t width, dsize_t height,
 		rect_ = proposal->at(index);
 
 		if (pcls[1] >= threshold) {
-			w = (float_t) (rect_->r - rect_->l);
-			h = (float_t) (rect_->b - rect_->t);
+			w = (cacu::float_t) (rect_->r - rect_->l);
+			h = (cacu::float_t) (rect_->b - rect_->t);
 			rect_->l += (dsize_t) (proi[0] * w);
 			rect_->t += (dsize_t) (proi[1] * h);
 			rect_->r += (dsize_t) (proi[2] * w);

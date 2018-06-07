@@ -24,7 +24,7 @@ using namespace cacu;
 
 TEST_CASE("deconv") {
 	SECTION("deconv functions test"){
-	cuda_set_device(2);
+	//cuda_set_device(2);
 	set_rand_seed();
 	blob_base *b = new blob(1,16,32,32,1,train);
 	((blob *)b)->load_from("/home/haofang/git/mtcnn-caffe/demo/testdata.txt");

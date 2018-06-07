@@ -35,7 +35,6 @@
 #include "../../cacu/solvers/solvers.h"
 
 #include "../../tools/string_utils.h"
-#include "../frcnn/tools_frcnn.h"
 
 #include "generate_models_cifar.h"
 #include "../cifar10/data_proc.h"
@@ -50,7 +49,7 @@ void train_net() {
 	int test_iter = 100;
 	int train_test_iter = 100;
 
-	string root_path = "/home/haofang/experiment/imagenet/";
+	string root_path = "c:/Desktop/experiment/cifar10/";
 
 	//set gpu device if training by gpu
 #if __USE_DEVICE__ == ON
@@ -101,23 +100,23 @@ void train_net() {
 
 	adam_solver *gsgd = new adam_solver(gnet);
 	gsgd->set_regularize(cacu::regularize_type::L2);
-	gsgd->load_param("/home/haofang/experiment/generative/g_solver.txt");
-//	gsgd->set_alpha(0.5);
-//	gsgd->set_beta(0.999);
-//	gsgd->set_lr(0.0002);
-//	gsgd->set_weight_decay(0.01);
+//	gsgd->load_param("/home/haofang/experiment/generative/g_solver.txt");
+	gsgd->set_alpha(0.5);
+	gsgd->set_beta(0.999);
+	gsgd->set_lr(0.0001);
+	gsgd->set_weight_decay(0.01);
 
 
 	adam_solver *dsgd = new adam_solver(dnet);
 	dsgd->set_regularize(cacu::regularize_type::L2);
-	dsgd->load_param("/home/haofang/experiment/generative/d_solver.txt");
-//	dsgd->set_alpha(0.5);
-//	dsgd->set_beta(0.999);
-//	dsgd->set_lr(0.0002);
-//	dsgd->set_weight_decay(0.01);
+//  dsgd->load_param("/home/haofang/experiment/generative/d_solver.txt");
+	dsgd->set_alpha(0.5);
+	dsgd->set_beta(0.999);
+	dsgd->set_lr(0.0001);
+	dsgd->set_weight_decay(0.01);
 
-	string datapath = "/home/haofang/data/cifar10/";
-	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
+	string datapath = "c:/Desktop/data/cifar10/";
+	string meanfile = "c:/Desktop/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -234,7 +233,7 @@ void train_net() {
 			ostringstream oss;
 
 			oss << root_path << "../generative/" << "test_" << i << ".jpg";
-			imageio_utils::imwrite_gpu(((blob*)generator->get_oblob()),oss.str().c_str());
+			imageio_utils::imwrite(((blob*)generator->get_oblob()),oss.str().c_str());
 		}
 		if (i % 10000 == 0) {
 			ostringstream oss;

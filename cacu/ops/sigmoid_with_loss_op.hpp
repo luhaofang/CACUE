@@ -111,7 +111,7 @@ public:
 		cuda_copy2host(&_target[0], labels_->s_data(), s_blob_->count());
 #else
 		cacu_copy(s_blob_->s_data(), s_blob_->count(), &_temp[0]);
-		cacu_copy(labels_->s_data(), s_blob_->count(), &_target[0]);
+		cacu_sdxsize(labels_->s_data(), s_blob_->count(), 0, 1, &_target[0]);
 #endif
 
 		for(int i = 0 ; i< s_blob_->count(); ++i)
@@ -147,7 +147,7 @@ public:
 #if __USE_DEVICE__ == ON
 		cuda_copy2host(&_target[0], labels_->s_data(), s_blob_->count());
 #else
-		cacu_copy(labels_->s_data(), s_blob_->count(), &_target[0]);
+		cacu_sdxsize(labels_->s_data(), s_blob_->count(), 0, 1, &_target[0]);
 #endif
 
 		//CE LOSS BACK PROPGATION
