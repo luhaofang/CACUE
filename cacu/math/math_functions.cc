@@ -32,8 +32,6 @@
 
 namespace cacu {
 
-
-
 	/**
 	* @cacu_saxpy
 	* math y = a*x + y:
@@ -392,7 +390,8 @@ void cacu_copy(float *x, const int length, float *y) {
 	cacu_copy_cublas(x, length, y);
 #endif
 #else
-	memcpy(y, x, length * sizeof(float));
+	for(int i = 0;i<length; ++i)
+		y[i] = x[i];
 #endif
 }
 

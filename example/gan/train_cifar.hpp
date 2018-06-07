@@ -49,7 +49,7 @@ void train_net() {
 	int test_iter = 100;
 	int train_test_iter = 100;
 
-	string root_path = "c:/Desktop/experiment/cifar10/";
+	string root_path = "/home/haofang/data/cifar10/";
 
 	//set gpu device if training by gpu
 #if __USE_DEVICE__ == ON
@@ -115,8 +115,8 @@ void train_net() {
 	dsgd->set_lr(0.0001);
 	dsgd->set_weight_decay(0.01);
 
-	string datapath = "c:/Desktop/data/cifar10/";
-	string meanfile = "c:/Desktop/data/cifar10/mean.binproto";
+	string datapath = "/home/haofang/data/cifar10/";
+	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;

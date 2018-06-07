@@ -28,6 +28,7 @@
 #ifndef MATH_FUCNTIONS_HPP_
 #define MATH_FUNCTIONS_HPP_
 
+#include <string>
 #include "math_definition.h"
 #include "../config.h"
 #include "../definition.h"
