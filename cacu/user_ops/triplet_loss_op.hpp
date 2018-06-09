@@ -40,7 +40,7 @@ public:
 		initial();
 		init_weights();
 		_loss = 0.0;
-		echo();
+		//echo();
 
 	}
 

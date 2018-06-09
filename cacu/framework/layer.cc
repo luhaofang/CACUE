@@ -46,6 +46,7 @@ layer* layer::op(op_name op_) {
 		blobs_->push_back(out_blob);
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
 	return this;
 }
 
@@ -58,6 +59,7 @@ layer* layer::op(op_name op_, blob_base *blob_) {
 	blobs_->push_back(blob_);
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
 	return this;
 }
 
@@ -73,6 +75,7 @@ layer* layer::op(op_name op_, blob_base *blob_, data_args *&args_) {
 	blobs_->push_back(blob_);
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
 	return this;
 }
 
@@ -84,6 +87,7 @@ layer* layer::op(op_name op_, blobs *blobs_) {
 		blobs_->push_back(out_blob);
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
 	return this;
 }
 
@@ -97,6 +101,7 @@ layer* layer::op(op_name op_, blobs *blobs_, data_args *&args_) {
 		blobs_->push_back(out_blob);
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
 	return this;
 }
 
@@ -110,6 +115,7 @@ layer* layer::op(op_name op_, blob_base *blob_, op_args *args_) {
 	blobs_->push_back(blob_);
 	add_op(operator_factory::create_op(op_, blobs_, _args, args_));
 	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
 	return this;
 }
 

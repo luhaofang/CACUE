@@ -1,4 +1,5 @@
 #include "../tools/imageio_utils.h"
+#include "../example/frcnn/tools_frcnn.h"
 
 #include <time.h>
 
@@ -21,3 +22,17 @@ TEST_CASE("imageio")
 
 }
 
+TEST_CASE("readimg")
+{
+	SECTION("imageio functions test"){
+
+		blob *b = new blob(1,3,224,224,255,test);
+
+		string filepath = "/home/haofang/data/faces/Emile Hirsch/Emile Hirsch_18967.jpg";
+		resize_readimg(b->s_data(),filepath.c_str(),224,224);
+
+		//delete b;
+
+	}
+
+}

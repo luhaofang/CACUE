@@ -39,7 +39,7 @@ namespace cacu {
 			check();
 			initial();
 			init_weights();
-			echo();
+			//echo();
 		}
 
 		~half_tanh_op() {

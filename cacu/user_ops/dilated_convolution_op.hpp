@@ -41,7 +41,7 @@ public:
 		check();
 		initial();
 		init_weights();
-		echo();
+		//echo();
 	}
 
 	~dilated_convolution_op() {

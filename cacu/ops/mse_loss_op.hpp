@@ -43,7 +43,7 @@ public:
 
 		_loss = 0.0;
 
-		echo();
+		//echo();
 	}
 
 	~mse_loss_op() {

@@ -43,7 +43,7 @@ public:
 
 		_loss = 0.0;
 
-		echo();
+		//echo();
 	}
 
 	~sigmoid_with_loss_op() {

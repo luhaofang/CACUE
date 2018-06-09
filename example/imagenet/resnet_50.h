@@ -44,23 +44,23 @@ layer_block* conv_shortcut_block(blob_base* data,int output_channel, int output_
 
 	layer *shortcut = new layer(new data_args(output_channel, 1, s_stride, 0, data->channel()));
 	shortcut->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	shortcut->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	shortcut->get_op<convolution_op>(0)->set_is_use_bias(false);
+	shortcut->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	shortcut->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	layer *l1 = new layer(new data_args(output_channel, kernel_size, stride, pad, shortcut->get_oblob()->channel()));
 	l1->op(CACU_CONVOLUTION, shortcut->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	l1->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l1->get_op<convolution_op>(0)->set_is_use_bias(false);
+	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	layer *l2 = new layer(new data_args(output_channel_s, 1, stride, 0, l1->get_oblob()->channel()));
 	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
-	l2->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l2->get_op<convolution_op>(0)->set_is_use_bias(false);
+	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	layer *l3 = new layer(new data_args(output_channel_s, 1, s_stride, 0, split->get_oblobs()->at(1)->channel()));
 	l3->op(CACU_CONVOLUTION, split->get_oblobs()->at(1))->op(CACU_BATCH_NORMALIZE);
-	l3->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l3->get_op<convolution_op>(0)->set_is_use_bias(false);
+	l3->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	l3->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	blobs *b = new blobs();
 	b->push_back(l2->get_oblob());
@@ -82,18 +82,18 @@ layer_block* identity_block(blob_base* data,int output_channel, int output_chann
 
 	layer *shortcut = new layer(new data_args(output_channel, 1, s_stride, 0, split->get_oblobs()->at(0)->channel()));
 	shortcut->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	shortcut->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	shortcut->get_op<convolution_op>(0)->set_is_use_bias(false);
+	shortcut->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	shortcut->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	layer *l1 = new layer(new data_args(output_channel, kernel_size, stride, pad, shortcut->get_oblob()->channel()));
 	l1->op(CACU_CONVOLUTION, shortcut->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	l1->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l1->get_op<convolution_op>(0)->set_is_use_bias(false);
+	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	layer *l2 = new layer(new data_args(output_channel_s, 1, stride, 0, l1->get_oblob()->channel()));
 	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
-	l2->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l2->get_op<convolution_op>(0)->set_is_use_bias(false);
+	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	blobs *b = new blobs();
 	b->push_back(split->get_oblobs()->at(1));
@@ -153,16 +153,16 @@ network* create_res50net(int batch_size_,phase_type phase_)
 
 	if(phase_ == train){
 		layer_block *loss_ = loss_layer((blob*)ave_pool->get_oblob(), label_, 1000);
-		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+		loss_->layers(0)->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_weight_init_type(msra);
+		loss_->layers(0)->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_bias_init_type(constant);
 
 		*net << loss_;
 	}
 	else
 	{
 		layer_block *predict_ = predict_layer((blob*)ave_pool->get_oblob(), 1000);
-		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+		predict_->layers(0)->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_weight_init_type(msra);
+		predict_->layers(0)->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_bias_init_type(constant);
 		*net << predict_;
 	}
 	return net;

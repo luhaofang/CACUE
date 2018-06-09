@@ -121,7 +121,7 @@ layer_block* create_generator_32(blob *blob_, phase_type phase_)
 	deconv2_2->layers(0)->get_op<deconvolution_op>(0,CACU_DECONVOLUTION)->set_bias_init_type(constant);
 	deconv2_2->layers(0)->get_op<deconvolution_op>(0,CACU_DECONVOLUTION)->get_weight(1)->set_decay(0);
 
-	layer_block *deconv3_2 = deconv_block_nobatchN(deconv2_2->get_oblob(), 3, 4, 2, 1,CACU_TANH);
+	layer_block *deconv3_2 = deconv_block_nobatchN(deconv2_2->get_oblob(), 3, 4, 2, 1, CACU_TANH);
 	deconv3_2->layers(0)->get_op<deconvolution_op>(0,CACU_DECONVOLUTION)->set_weight_init_type(gaussian,0.01);
 	deconv3_2->layers(0)->get_op<deconvolution_op>(0,CACU_DECONVOLUTION)->set_bias_init_type(constant);
 	deconv3_2->layers(0)->get_op<deconvolution_op>(0,CACU_DECONVOLUTION)->get_weight(1)->set_decay(0);

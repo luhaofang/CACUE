@@ -43,9 +43,9 @@ layer_block* conv_block_mobile(blob_base* data,int output_channel, int kernel_si
 	clock_t start = clock();
 	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
 	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	l->get_op<convolution_op>(0)->set_weight_init_type(msra);
-	l->get_op<convolution_op>(0)->set_is_use_bias(usebias);
-	l->get_op<convolution_op>(0)->set_group(group);
+	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
+	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
+	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(group);
 	clock_t end = clock();
 	*lb << l;
 	return lb;
@@ -127,16 +127,16 @@ network* create_mobilenet(int batch_size_,phase_type phase_)
 
 	if(phase_ == train){
 		layer_block *loss_ = loss_layer((blob*)ave_pool->get_oblob(), label_, 1000);
-		loss_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-		loss_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+		loss_->layers(0)->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_weight_init_type(msra);
+		loss_->layers(0)->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_bias_init_type(constant);
 
 		*net << ave_pool << loss_;
 	}
 	else
 	{
 		layer_block *predict_ = predict_layer((blob*)ave_pool->get_oblob(), 1000);
-		predict_->layers(0)->get_op<inner_product_op>(0)->set_weight_init_type(msra);
-		predict_->layers(0)->get_op<inner_product_op>(0)->set_bias_init_type(constant);
+		predict_->layers(0)->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_weight_init_type(msra);
+		predict_->layers(0)->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_bias_init_type(constant);
 
 		*net << ave_pool << predict_;
 	}

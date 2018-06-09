@@ -39,7 +39,7 @@ public:
 		check();
 		initial();
 		init_weights();
-		echo();
+		//echo();
 	}
 
 	~inner_product_op() {
