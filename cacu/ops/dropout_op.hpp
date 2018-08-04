@@ -46,7 +46,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
@@ -65,15 +65,15 @@ public:
 
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 		return;
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 
@@ -109,7 +109,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 #if __USEMBEDDING__ == ON
@@ -140,15 +140,15 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		return;
 	}
 
-	virtual const void echo() override
+	void echo() 
 	{
 		LOG_INFO("create dropout op:");
 		LOG_INFO(
@@ -157,12 +157,12 @@ public:
 				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		_rand_vect->_RESET_DATA();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

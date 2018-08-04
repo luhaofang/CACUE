@@ -38,6 +38,16 @@ using namespace std;
 namespace cacu{
 
 
+inline void CACUE_PRINTER()
+{
+	cout << " ______     ______     ______     __  __     ______    " << endl;
+	cout << "/\\  ___\\   /\\  __ \\   /\\  ___\\   /\\ \\/\\ \\   /\\  ___\\   " << endl;
+	cout << "\\ \\ \\____  \\ \\  __ \\  \\ \\ \\____  \\ \\ \\_\\ \\  \\ \\  __\\   " << endl;
+	cout << " \\ \\_____\\  \\ \\_\\ \\_\\  \\ \\_____\\  \\ \\_____\\  \\ \\_____\\ " << endl;
+	cout << "  \\/_____/   \\/_/\\/_/   \\/_____/   \\/_____/   \\/_____/ " << endl;
+	cout << "                                                       " << endl;
+}
+
 template<typename DTYPE>
 inline void cacu_print(DTYPE *data, size_t length)
 {

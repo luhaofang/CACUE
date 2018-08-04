@@ -47,7 +47,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(),
@@ -90,7 +90,7 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		_scale = create_param("scale", s_blob->channel(), 1, 1, 1, _phase);
 		_scale->set_init_type(constant, 1);
 		_shift = create_param("shift", s_blob->channel(), 1, 1, 1, _phase);
@@ -105,7 +105,7 @@ public:
 		_std = create_opblob(s_blob->channel(), 1, 1, 1, _phase);
 	}
 
-	virtual const void check() override {
+	void check()  {
 		//training for batch_size
 		if (train == _phase) {
 			//CHECK_GT_OP(s_blob->num(), 1 ,"batch size for training must > 1 vs %d",s_blob->num());
@@ -114,7 +114,7 @@ public:
 			use_global_stats = true;
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -307,7 +307,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -387,7 +387,7 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 
 		_history_mean->load(is);
 		//_history_mean->set_data(0);
@@ -401,7 +401,7 @@ public:
 		_shift->load(is);
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 
 		_history_mean->serializa(os);
 		_history_var->serializa(os);
@@ -410,7 +410,7 @@ public:
 		_shift->serializa(os);
 	}
 
-	virtual const void echo() override
+	void echo() 
 	{
 		LOG_INFO("create batch_normalize op:");
 		LOG_INFO(
@@ -419,7 +419,7 @@ public:
 				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		o_blob->_RESET_DATA();
 
@@ -460,7 +460,7 @@ public:
 
 	float_t epsilon = 0.00001;
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 		if(_scale->update()){
 			if (train == _phase)

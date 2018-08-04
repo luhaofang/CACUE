@@ -48,7 +48,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial() {
 
 		int output_w = (s_blob->width() + 2 * _args->pad()
 				- _args->kernel_size()) / _args->stride() + 1;
@@ -83,7 +83,7 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights() {
 		_w = create_param("w", _args->output_channel(), s_blob->channel(),
 				_args->kernel_size(), _args->kernel_size(), _phase);
 
@@ -91,7 +91,7 @@ public:
 		_bias->set_lr(2);
 	}
 
-	virtual const void check() override {
+	void check() {
 		//output_channel > 0
 		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
 				_args->output_channel());
@@ -104,7 +104,7 @@ public:
 
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 		col_offset = s_blob->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
@@ -143,11 +143,15 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
-
+		time_utils *t = new time_utils();
+		long ts = 0;
 		for (int i = 0; i < s_blob_->num(); ++i) {
+			t->start();
 			//padded data if needed & img2col change
 			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(), o_blob_->width(), o_blob_->height(),_args->pad(), _args->pad(), col_data_->s_data());
 			//mycnn_tools::cacu_output(col_data_->s_data(),col_data_->count(),"/home/seal/1.txt");
+			t->end();
+			ts += t->get_time_span();
 			//forward convolution data
 			for (int g = 0; g < _group; ++g)
 			cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->channel_length(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
@@ -157,10 +161,12 @@ public:
 			cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_data(), _bias->count(),(float_t)(1),o_blob_->p_data(i),(float_t)(1));
 			//cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 		}
+		//LOG_DEBUG("conv pad time cost: %d ms",ts / 1000);
+		delete t;
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 		col_offset = s_blob->channel() / _group * _col_data->width()
 				* _col_data->height();
@@ -236,7 +242,7 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		if (_group != 1) {
 			_w->load_group(is, _group);
 		} else
@@ -245,7 +251,7 @@ public:
 			_bias->load(is);
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		if (_group != 1) {
 			_w->serializa_group(os, _group);
 		} else
@@ -254,7 +260,7 @@ public:
 			_bias->serializa(os);
 	}
 
-	virtual const void echo() override
+	void echo() 
 	{
 		LOG_INFO("create convolution op:");
 		LOG_INFO(
@@ -264,7 +270,7 @@ public:
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		o_blob->_RESET_DATA();
 		_w->_RESET_DIFF();
@@ -273,7 +279,7 @@ public:
 		_col_data->_RESET_DATA();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 
@@ -292,6 +298,7 @@ public:
 				_args->channel(), group);
 		CHECK_EQ_OP(s_blob->channel() % group, 0,
 				"channel mod group must == 0 vs %d", _args->channel() % group);
+		LOG_INFO("group set: %d", group);
 		this->_group = group;
 	}
 

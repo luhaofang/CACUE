@@ -48,7 +48,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 
 		int input_dim = s_blob->width();
 		int channel = s_blob->channel();
@@ -69,18 +69,18 @@ public:
 
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 		//kernel_size > 0
 		CHECK_EQ_OP(s_blobs->size(), 3, "number of blobs must equal to 3 vs %d", s_blobs->size());
 		CHECK_EQ_OP(s_blobs->at(0)->count(), s_blobs->at(1)->count(), "input blob size must equal to %d vs %d", s_blobs->at(0)->count(), s_blobs->at(1)->count());
 		CHECK_EQ_OP(s_blobs->at(1)->count(), s_blobs->at(2)->count(), "input blob size must equal to %d vs %d", s_blobs->at(1)->count(), s_blobs->at(2)->count());
 	}
 
-	virtual const void op() override {
+	void op()  {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -134,7 +134,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -172,26 +172,26 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		return;
 	}
 
-	virtual const void echo() override {
+	void echo()  {
 		LOG_INFO("loss : %f", _loss);
 		if(_loss_weight != 1.0)
 			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

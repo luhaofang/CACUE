@@ -80,6 +80,31 @@ void cacu_softmax_cpu(float_t *x, const int num, const int channel,
 		const int width, const int height, float_t *y);
 
 /**
+ * @cacu_elu
+ * math y[i] = (max(x[i], float_t(0))
+		        + alpha * (exp(min(x[i], float_t(0))) - float_t(1))) :
+ * for activation use elu functions.
+ */
+void cacu_elu_cpu(float_t *x, const int length, const float_t alpha, float_t *y);
+
+/**
+ * @cacu_elu_grad
+ * math g[i] = (grad[i] * ((x[i] > 0)
+		          + (alpha + y[i]) * (x[i] <= 0)))
+ * gradient for activation use elu functions.
+ */
+void cacu_elu_grad_cpu(float_t *x, float_t *g, const int length, const float_t alpha, float_t *y, float_t *grad);
+
+
+/**
+ * @cacu_exp
+ * math exp;
+ * for activation use exp functions.
+ */
+void cacu_exp_cpu(float_t *x, const int length, float_t *y);
+
+
+/**
  * @cacu_tanh
  * math tanh;
  * for activation use tanh functions.

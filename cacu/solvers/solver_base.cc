@@ -44,6 +44,8 @@ solver_base::solver_base(network *&net_) {
 	}
 
 	_batch_size = _net->input_blobs()->at(0)->num();
+
+	_direction = 1.0;
 }
 
 solver_base::~solver_base() {
@@ -60,6 +62,7 @@ void solver_base::updates(int step_){
 	for (int i = 0; i < _net->op_count(); ++i) {
 		operator_base* op_ = _net->get_op(i);
 		for (int j = 0; j < op_->weights_size(); ++j) {
+			cacu_scalex(op_->get_weight(j)->s_diff(),op_->get_weight(j)->count(),_direction);
 			update_weight(op_->get_weight(j), weight_index_, step_);
 			weight_index_++;
 		}

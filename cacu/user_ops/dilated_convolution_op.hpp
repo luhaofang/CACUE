@@ -48,7 +48,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 
 		int output_w = (s_blob->width() + 2 * _args->pad()
 				- _args->kernel_size()) / _args->stride() + 1;
@@ -91,7 +91,7 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		_w = create_param("w", _args->output_channel(), s_blob->channel(),
 				_args->kernel_size(), _args->kernel_size(), _phase);
 
@@ -99,7 +99,7 @@ public:
 		_bias->set_lr(2);
 	}
 
-	virtual const void check() override {
+	void check()  {
 		//output_channel > 0
 		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
 				_args->output_channel());
@@ -112,7 +112,7 @@ public:
 
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 		col_offset = s_blob->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
@@ -178,7 +178,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 		col_offset = s_blob->channel() / _group * _col_data->width()
 				* _col_data->height();
@@ -255,7 +255,7 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		if (_group != 1) {
 			_w->load_group(is, _group);
 		} else
@@ -264,7 +264,7 @@ public:
 			_bias->load(is);
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		if (_group != 1) {
 			_w->serializa_group(os, _group);
 		} else
@@ -273,7 +273,7 @@ public:
 			_bias->serializa(os);
 	}
 
-	virtual const void echo() override
+	void echo() 
 	{
 		LOG_INFO("create convolution op:");
 		LOG_INFO(
@@ -283,7 +283,7 @@ public:
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		o_blob->_RESET_DATA();
 		_w->_RESET_DIFF();
@@ -293,7 +293,7 @@ public:
 		_col_data->_RESET_DATA();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

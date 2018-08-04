@@ -47,7 +47,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), 1, 1,
@@ -62,7 +62,7 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		_w = create_param("w", s_blob->channel(), _args->output_channel() / s_blob->channel(), s_blob->width(),
 				s_blob->height(), _phase);
 
@@ -70,11 +70,11 @@ public:
 		_bias->set_lr(2);
 	}
 
-	virtual const void check() override {
+	void check()  {
 		CHECK_EQ_OP(_args->output_channel() % s_blob->channel(), 0, "Output data channel must integer times of input data channel: (%d)", _args->output_channel() % s_blob->channel());
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -111,7 +111,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -152,19 +152,19 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		_w->load(is);
 		if (_is_use_bias)
 			_bias->load(is);
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		_w->serializa(os);
 		if (_is_use_bias)
 			_bias->serializa(os);
 	}
 
-	virtual const void echo() override
+	void echo() 
 	{
 		LOG_INFO("create p_inner_product op:");
 		LOG_INFO(
@@ -173,7 +173,7 @@ public:
 				o_blob->height());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		o_blob->_RESET_DATA();
 
@@ -182,7 +182,7 @@ public:
 			_bias->_RESET_DIFF();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

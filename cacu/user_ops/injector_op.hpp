@@ -46,7 +46,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 		if (o_blob == NULL) {
 			o_blob = s_blob;
 			_mean->resize(1, o_blob->channel(), 1, 1);
@@ -55,15 +55,15 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 		return;
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -104,19 +104,19 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
-
-	}
-
-	virtual const void load(std::ifstream& is) override {
+	void grad()  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void echo() override
+	void save(std::ostream& os)  {
+		return;
+	}
+
+	void echo() 
 	{
 		LOG_INFO("create injector op:");
 		LOG_INFO(
@@ -125,12 +125,12 @@ public:
 				o_blob->height());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		return;
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

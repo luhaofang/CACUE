@@ -157,6 +157,58 @@ inline void cacu_softmax(float_t *x, int num, int channel, int width,
 }
 
 /**
+ * @cacu_exp
+ * math exp;
+ * for activation use exp functions.
+ */
+inline void cacu_exp(float_t *x, int length, float_t *y) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_exp_cuda(x, length, y);
+#endif
+#else
+	cacu_exp_cpu(x, length, y);
+#endif
+
+}
+
+/**
+ * @cacu_elu
+ * math y[i] = (max(x[i], float_t(0))
+		        + alpha * (exp(min(x[i], float_t(0))) - float_t(1)))
+ * for activation use elu functions.
+ */
+inline void cacu_elu(float_t *x, const int length, const float_t alpha, float_t *y) {
+
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_elu_cuda(x, length, alpha, y);
+#endif
+#else
+	cacu_elu_cpu(x, length, alpha, y);
+#endif
+
+}
+
+/**
+ * @cacu_elu_grad
+ * math g[i] = (grad[i] * ((x[i] > 0)
+		          + (alpha + y[i]) * (x[i] <= 0)))
+ * gradient for activation use elu functions.
+ */
+inline void cacu_elu_grad(float_t *x, float_t *g, int length, const float_t alpha, float_t *y, float_t *grad) {
+
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_elu_grad_cuda(x, g, length, alpha, y, grad);
+#endif
+#else
+	cacu_elu_grad_cpu(x, g, length, alpha, y, grad);
+#endif
+
+}
+
+/**
  * @cacu_tanh
  * math tanh;
  * for activation use tanh functions.

@@ -46,22 +46,22 @@ namespace cacu {
 
 		}
 
-		virtual const void initial() override {
+		void initial()  {
 			if (o_blob == NULL)
 				o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
 			else
 				o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
 		}
 
-		virtual const void init_weights() override {
+		void init_weights()  {
 			return;
 		}
 
-		virtual const void check() override {
+		void check()  {
 			return;
 		}
 
-		virtual const void op() override {
+		void op()  {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
@@ -111,7 +111,7 @@ namespace cacu {
 
 		}
 
-		virtual const void grad() override {
+		void grad()  {
 			blob *o_blob_ = (blob*)o_blob;
 			blob *s_blob_ = (blob*)s_blob;
 
@@ -159,15 +159,15 @@ namespace cacu {
 			}
 		}
 
-		virtual const void load(std::ifstream& is) override {
+		void load(std::ifstream& is)  {
 			return;
 		}
 
-		virtual const void save(std::ostream& os) override {
+		void save(std::ostream& os)  {
 			return;
 		}
 
-		virtual const void echo() override {
+		void echo()  {
 
 			if (_FUNC == MASK_LT) {
 				blob *o_blob_ = (blob*)o_blob;
@@ -186,11 +186,11 @@ namespace cacu {
 			}
 		}
 
-		inline virtual const void LOOP_INIT_DATA_() override {
+		inline void LOOP_INIT_DATA_()  {
 			return;
 		}
 
-		inline virtual const void set_phase(phase_type phase_) override {
+		inline void set_phase(phase_type phase_)  {
 			_phase = phase_;
 		}
 

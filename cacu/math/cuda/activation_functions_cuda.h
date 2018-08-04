@@ -71,6 +71,22 @@ extern "C" void cacu_prelu_grad_cuda(float_t *x, float_t *g,
 extern "C" void cacu_softmax_cuda(float_t *x, const int num, const int channel,
 		const int width, const int height, float_t *y);
 
+
+/**
+ * for activation use tanh functions in cuda
+ */
+extern "C" void cacu_exp_cuda(float_t *x, int length, float_t *y);
+
+/**
+ * for activation use selu functions in cuda
+ */
+extern "C" void cacu_elu_cuda(float_t *x, const int length, const float_t alpha, float_t *y);
+
+/**
+ * gradient for activation use selu functions in cuda
+ */
+extern "C" void cacu_elu_grad_cuda(float_t *x, float_t *g, const int length, const float_t alpha, float_t *y, float_t *grad);
+
 /**
  * for activation use tanh functions in cuda
  */

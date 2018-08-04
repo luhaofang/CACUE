@@ -46,7 +46,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
@@ -62,11 +62,11 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 
 		CHECK_GE_OP(s_blobs->size(), 2, "blobs size must >= 2 vs %d",
 				s_blobs->size());
@@ -78,7 +78,7 @@ public:
 
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -100,7 +100,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -120,15 +120,15 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		return;
 	}
 
-	virtual const void echo() override {
+	void echo()  {
 		LOG_INFO("create sum_elemwise op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
@@ -137,12 +137,12 @@ public:
 				o_blob->height());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		o_blob->_RESET_DATA();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

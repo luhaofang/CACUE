@@ -24,79 +24,52 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef MNIST_DATA_PROC_H_
+#define MNIST_DATA_PROC_H_
 
-#ifndef DEFINITION_H_
-#define DEFINITION_H_
-
-#include <stdio.h>
+#include <time.h>
 #include <vector>
-#include <map>
-#include <string>
 
-#include <iosfwd>
-#include <fstream>
-#include <istream>
-#include <ostream>
-#include <iostream>
-#include <limits.h>
+#include "../../cacu/cacu.h"
 
+#include "../../tools/imageio_utils.h"
+
+
+using namespace cacu;
+using namespace cacu_tools;
 using namespace std;
 
-namespace cacu{
 
-/*
- * Definition for numerical limitation
- */
-#ifdef _WIN32
+const int kMNISTImageNBytes = 28 * 28;
+const int kMNISTBatchSize = 60000;
+const int kMNISTDataSize = 28 * 28;
+const int kMNISTDataCount = 60000;
 
-#define _MAX_INT_ INT_MAX
-#define _MIN_FLT_ FLT_MIN
+void readdata_mnist(chars_t filename, vector<vec_t> &data_blob);
 
-#elif defined(__linux)
+void readdata_mnist(chars_t filename, cacu::float_t *data_);
 
-#define _MAX_INT_ __INT_MAX__
-#define _MIN_FLT_ __FLT_MIN__
+void readdata_mnist(chars_t filename, vector<vec_t> &data_blob,vec_t &mean);
+
+void readdata_mnist(string filename, vector<vec_t> &data_blob, vector<vec_i> &labels);
+
+void readdata_mnist(string filename, vector<vec_t> &data_blob, vec_t &mean,
+		vector<vec_i> &labels);
+
+void load_data_mnist(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
+
+void load_data_bymean_mnist(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
+
+void load_test_data_mnist(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels);
+
+void load_test_data_bymean_mnist(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels);
+
+vec_t compute_mean_mnist(chars_t &filepath, int filecount);
+
+void make_mean_mnist(chars_t filepath, chars_t meanfile);
 
 
-#elif defined(__APPLE__)
 
-#define _MAX_INT_ INT_MAX
-#define _MIN_FLT_ 1.175494351e-38F
-
-
-#endif
-
-
-/*
- * Definition for data structure
- */
-
-typedef float float_t;
-
-typedef int dsize_t;
-
-typedef string chars_t;
-
-typedef map<chars_t, float_t> CACU_ARGS;
-
-typedef vector<float_t> vec_t;
-
-typedef vector<int> vec_i;
-
-typedef vector<float_t*> vec_f;
-
-/*
- */
-
-#ifndef ON
-#define ON 1
-#endif
-
-#ifndef OFF
-#define OFF	0
-#endif
-
-}
 
 
 #endif

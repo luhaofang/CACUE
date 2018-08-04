@@ -38,7 +38,10 @@
 #include "../framework/data_args.h"
 #include "../framework/op_args.h"
 
+#include "../../tools/time_utils.h"
+
 #include "../factory/framework_factory.h"
+using namespace cacu_tools;
 
 namespace cacu {
 
@@ -151,22 +154,22 @@ public:
 		_storage_blobs = NULL;
 	}
 
-	virtual const void check() = 0;
+	virtual void check() = 0;
 
-	virtual const void grad() = 0;
+	virtual void grad() = 0;
 
-	virtual const void load(std::ifstream &is) = 0;
+	virtual void load(std::ifstream &is) = 0;
 
-	virtual const void save(std::ostream &os) = 0;
+	virtual void save(std::ostream &os) = 0;
 
-	virtual const void echo() = 0;
+	virtual void echo() = 0;
 
-	virtual const void LOOP_INIT_DATA_() = 0;
+	virtual void LOOP_INIT_DATA_() = 0;
 
-	virtual const void set_phase(phase_type phase_) = 0;
+	virtual void set_phase(phase_type phase_) = 0;
 
-	inline blobs *&out_datas() {
-		return o_blobs;
+	inline blobs *&out_datas() const{
+		return (blobs *&)o_blobs;
 	}
 
 	template<typename BTYPE>
@@ -174,8 +177,8 @@ public:
 		return (BTYPE *&) o_blob;
 	}
 
-	inline blobs *&in_datas() {
-		return s_blobs;
+	inline blobs *&in_datas() const{
+		return (blobs *&)s_blobs;
 	}
 
 	template<typename BTYPE>
@@ -199,16 +202,20 @@ public:
 	}
 
 	inline void infer() {
-
+		time_utils *t = new time_utils();
 		blob_base *blob_ = (s_blobs == NULL) ? s_blob : s_blobs->at(0);
 		if (!blob_->_IS_MOTIFIED()) {
 			(s_blobs == NULL) ? blob_->_MOTIFY() : s_blobs->_MOTIFY();
 			initial();
 		}
+		t->start();
 		//reset the data's values
 		LOOP_INIT_DATA_();
 		//forward propagation
 		op();
+		t->end();
+		//LOG_DEBUG("%d operator infer time cost: %d ms", _OP_TYPE, t->get_time_span() / 1000);
+		delete t;
 	}
 
 	inline void set_blob(blob_base *&blob_) {
@@ -342,11 +349,11 @@ protected:
 		return new blobs();
 	}
 
-	virtual const void init_weights() = 0;
+	virtual void init_weights() = 0;
 
-	virtual const void op() = 0;
+	virtual void op() = 0;
 
-	virtual const void initial() = 0;
+	virtual void initial() = 0;
 
 	bool _NEED_BACK_PROPAGATE_FEATURE = true;
 

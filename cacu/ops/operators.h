@@ -61,6 +61,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tanh_op.hpp"
 #include "half_tanh_op.hpp"
 #include "sigmoid_op.hpp"
+#include "selu_op.hpp"
 
 #include "softmax_with_loss_op.hpp"
 #include "mse_loss_op.hpp"
@@ -82,6 +83,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../user_ops/dilated_convolution_op.hpp"
 #include "../user_ops/combination_op.hpp"
 #include "../user_ops/triplet_loss_op.hpp"
+#include "../user_ops/shuffle_channel_op.hpp"
 
 #include "../user_ops/roi_pooling_op.hpp"
 #include "../user_ops/injector_op.hpp"

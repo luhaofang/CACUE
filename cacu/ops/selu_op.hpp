@@ -25,42 +25,40 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FEATURE_COMBINE_OP_HPP_
-#define FEATURE_COMBINE_OP_HPP_
+#ifndef SELU_OP_HPP_
+#define SELU_OP_HPP_
 
 namespace cacu {
 
-class feature_combine_op: public operator_base {
+class selu_op: public operator_base {
 
 public:
 
-	feature_combine_op(blob_base *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_FEATURE_COMBINE) {
+	selu_op(blob_base *&data) :
+			operator_base(data, CACU_SELU) {
 		check();
 		initial();
 		init_weights();
 		//echo();
 	}
 
-	~feature_combine_op() {
+	~selu_op() {
 
 	}
 
 	void initial()  {
-		_units_count = _args->at(0);
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num() / _units_count,
-					s_blob->channel() * _units_count, s_blob->width(),
-					s_blob->height(), _phase);
+			o_blob = s_blob;
+			_rand_vect = create_em_opblob(s_blob->num(), s_blob->channel(),
+					s_blob->width(), s_blob->height(), test);
 #else
-			o_blob = create_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->width(), s_blob->height(), _phase);
+			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
 #endif
-		} else
-			o_blob->resize(s_blob->num() / _units_count,
-					s_blob->channel() * _units_count, s_blob->width(),
-					s_blob->height());
-
+		} else {
+			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
+								s_blob->height());
+		}
 	}
 
 	void init_weights()  {
@@ -68,38 +66,24 @@ public:
 	}
 
 	void check()  {
-		int mod = s_blob->num() % _args->at(0);
-		CHECK_EQ_OP(mod, 0,
-				"s_blob num must be integral multiple of units count vs %d!",
-				mod);
-		o_blob->_CHECK_SIZE_EQ(s_blob);
+		return;
 	}
 
 	void op()  {
+
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
 
-		int output_num = s_blob->num() / _units_count;
-		for (int i = 0; i < output_num; ++i) {
-			for (int j = 0; j < _units_count; ++j) {
-				cacu_copy_cpu(s_blob_->p_data(i * _units_count + j),
-						s_blob_->length(),
-						o_blob_->p_data(i) + j * s_blob_->length());
-			}
-		}
+		cacu_elu_cpu(s_blob_->s_data(), o_blob_->count(), _alpha, o_blob_->s_data());
+		cacu_scalex_cpu(o_blob_->s_data(), o_blob_->count(), _lamda);
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
 
-		int output_num = s_blob->num() / _units_count;
-		for(int i = 0; i < output_num;++i)
-		{
-			for(int j = 0; j < _units_count; ++j)
-			{
-				cacu_copy(s_blob_->p_data(i*_units_count+j), s_blob_->length(), o_blob_->p_data(i)+j*s_blob_->length());
-			}
-		}
+		cacu_elu(s_blob_->s_data(), o_blob_->count(), _alpha, o_blob_->s_data());
+		cacu_scalex(o_blob_->s_data(), o_blob_->count(), _lamda);
+
 #endif
 	}
 
@@ -109,27 +93,15 @@ public:
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
 
-		int output_num = s_blob->num() / _units_count;
-		for (int i = 0; i < output_num; ++i) {
-			for (int j = 0; j < _units_count; ++j) {
-				cacu_copy(o_blob_->p_diff_d(i) + j * s_blob_->length(),
-						s_blob_->length(),
-						s_blob_->p_diff_d(i * _units_count + j));
-				s_blob_->_sync(i * _units_count + j);
-			}
-		}
+		cacu_selu_grad_cpu(s_blob_->s_data(), s_blob_->s_diff(), o_blob_->count(), _alpha, o_blob_->s_data(), o_blob_->s_diff());
+		cacu_scalex_cpu(s_blob_->s_diff(), s_blob_->count(), _lamda);
+
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
 
-		int output_num = s_blob->num() / _units_count;
-		for(int i = 0; i < output_num;++i)
-		{
-			for(int j = 0; j < _units_count; ++j)
-			{
-				cacu_copy(o_blob_->p_diff(i)+j*s_blob_->length(), s_blob_->length(), s_blob_->p_diff(i*_units_count+j));
-			}
-		}
+		cacu_elu_grad(s_blob_->s_data(), s_blob_->s_diff(), o_blob_->count(), _alpha, o_blob_->s_data(), o_blob_->s_diff());
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), _lamda);
 #endif
 	}
 
@@ -141,18 +113,17 @@ public:
 		return;
 	}
 
-	void echo() 
-	{
-		LOG_INFO("create feature combine op:");
+	void echo()  {
+		LOG_INFO("create selu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blob->channel(), s_blob->width(), s_blob->height(),
 				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
-	inline void LOOP_INIT_DATA_() 
+	inline void LOOP_INIT_DATA_()
 	{
-		o_blob->_RESET_DATA();
+		return;
 	}
 
 	inline void set_phase(phase_type phase_)  {
@@ -161,9 +132,11 @@ public:
 
 private:
 
-	//combine unit counts
-	int _units_count;
+	const float_t _alpha = 1.6732632423543772848170429916717;
+
+	const float_t _lamda = 1.0507009873554804934193349852946;
 };
 }
+
 
 #endif

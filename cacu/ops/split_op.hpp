@@ -48,7 +48,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 		if (o_blobs == NULL) {
 			o_blobs = create_oblobs();
 			for (int i = 0; i < _split_count; ++i) {
@@ -69,17 +69,17 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 		//split count > 0
 		CHECK_GT_OP(_split_count, 0, "output_channel must > 0 vs %d",
 				_split_count);
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -99,7 +99,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -122,15 +122,15 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		return;
 	}
 
-	virtual const void echo() override {
+	void echo()  {
 		LOG_INFO("create split op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), split_num: %d",
@@ -139,12 +139,12 @@ public:
 				o_blobs->at(0)->height(), _split_count);
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		o_blobs->_RESET_DATA();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

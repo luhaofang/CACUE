@@ -46,43 +46,43 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 		if (o_blob == NULL)
 			o_blob = s_blob;
 		else
 			o_blob->_NEED_MOTIFY();
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 		return;
 	}
 
-	virtual const void op() override {
+	void op()  {
 		blob *o_blob_ = (blob*) o_blob;
 		blob *s_blob_ = (blob*) s_blob;
 		cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 		blob *o_blob_ = (blob*) o_blob;
 		blob *s_blob_ = (blob*) s_blob;
 		cacu_leaky_relu_grad(s_blob_->s_data(), o_blob_->s_diff(),
 				_negative_slope, s_blob_->count());
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		return;
 	}
 
-	virtual const void echo() override {
+	void echo()  {
 		LOG_INFO("create leaky_relu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
@@ -90,11 +90,11 @@ public:
 				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override {
+	inline void LOOP_INIT_DATA_()  {
 		return;
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

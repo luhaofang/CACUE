@@ -25,41 +25,43 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FEATURE_COMBINE_OP_HPP_
-#define FEATURE_COMBINE_OP_HPP_
+#ifndef SHUFFLE_CHANNEL_OP_HPP_
+#define SHUFFLE_CHANNEL_OP_HPP_
 
 namespace cacu {
 
-class feature_combine_op: public operator_base {
+class shuffle_channel_op: public operator_base {
 
 public:
 
-	feature_combine_op(blob_base *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_FEATURE_COMBINE) {
+	shuffle_channel_op(blob_base *&data, data_args *&args_) :
+			operator_base(data, args_, CACU_SHUFFLE_CHANNEL) {
 		check();
 		initial();
 		init_weights();
 		//echo();
 	}
 
-	~feature_combine_op() {
+	~shuffle_channel_op() {
 
 	}
 
 	void initial()  {
-		_units_count = _args->at(0);
+
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num() / _units_count,
-					s_blob->channel() * _units_count, s_blob->width(),
-					s_blob->height(), _phase);
+			o_blob = s_blob;
+			_rand_vect = create_em_opblob(s_blob->num(), s_blob->channel(),
+					s_blob->width(), s_blob->height(), test);
 #else
-			o_blob = create_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->width(), s_blob->height(), _phase);
+			o_blob = s_blob;
+			_rand_vect = create_opblob(s_blob->num(),s_blob->channel(),s_blob->width(),s_blob->height(), test);
 #endif
-		} else
-			o_blob->resize(s_blob->num() / _units_count,
-					s_blob->channel() * _units_count, s_blob->width(),
-					s_blob->height());
+		} else {
+			o_blob->_NEED_MOTIFY();
+			_rand_vect->resize(s_blob->num(), s_blob->channel(),
+					s_blob->width(), s_blob->height());
+		}
 
 	}
 
@@ -68,67 +70,72 @@ public:
 	}
 
 	void check()  {
-		int mod = s_blob->num() % _args->at(0);
-		CHECK_EQ_OP(mod, 0,
-				"s_blob num must be integral multiple of units count vs %d!",
-				mod);
-		o_blob->_CHECK_SIZE_EQ(s_blob);
+		return;
 	}
 
 	void op()  {
+
+		float_t scale_ = 1.0 / (1 - _ratio);
+
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *rand_vect_ = (em_blob*) _rand_vect;
 
-		int output_num = s_blob->num() / _units_count;
-		for (int i = 0; i < output_num; ++i) {
-			for (int j = 0; j < _units_count; ++j) {
-				cacu_copy_cpu(s_blob_->p_data(i * _units_count + j),
-						s_blob_->length(),
-						o_blob_->p_data(i) + j * s_blob_->length());
+		if (train == _phase) {
+			for (int i = 0; i < s_blob_->num(); ++i) {
+				rand_vector(rand_vect_->p_data_d(i), rand_vect_->length(),
+						_ratio);
+				cacu_ssx(rand_vect_->p_data_d(i), o_blob_->length(),
+						o_blob_->p_data_d(i));
+				cacu_scalex(o_blob_->p_data_d(i), o_blob_->length(), scale_);
+				o_blob_->_sync(i);
+				rand_vect_->_sync(i);
 			}
 		}
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
+		blob *rand_vect_ = (blob*)_rand_vect;
 
-		int output_num = s_blob->num() / _units_count;
-		for(int i = 0; i < output_num;++i)
+		if(train == _phase)
 		{
-			for(int j = 0; j < _units_count; ++j)
-			{
-				cacu_copy(s_blob_->p_data(i*_units_count+j), s_blob_->length(), o_blob_->p_data(i)+j*s_blob_->length());
-			}
+			rand_vector(rand_vect_->s_data(),rand_vect_->count(), _ratio);
+			//cacu_output(o_blob_->s_data(),o_blob_->count(),"/home/seal/1.txt");
+			cacu_ssx(rand_vect_->s_data(), o_blob_->count(), o_blob_->s_data());
+			//cacu_output(o_blob_->s_data(),o_blob_->count(),"/home/seal/2.txt");
+			cacu_scalex(o_blob_->s_data(), o_blob_->count(), scale_);
 		}
 #endif
 	}
 
 	void grad()  {
 
+		float_t scale_ = 1.0 / (1 - _ratio);
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *rand_vect_ = (em_blob*) _rand_vect;
 
-		int output_num = s_blob->num() / _units_count;
-		for (int i = 0; i < output_num; ++i) {
-			for (int j = 0; j < _units_count; ++j) {
-				cacu_copy(o_blob_->p_diff_d(i) + j * s_blob_->length(),
-						s_blob_->length(),
-						s_blob_->p_diff_d(i * _units_count + j));
-				s_blob_->_sync(i * _units_count + j);
+		if (train == _phase) {
+			for (int i = 0; i < s_blob_->num(); ++i) {
+				//ratio's scale implementation
+				cacu_ssx(rand_vect_->p_data_d(i), s_blob_->length(),
+						s_blob_->p_diff_d(i));
+				cacu_scalex(s_blob_->p_diff_d(i), o_blob_->length(), scale_);
+				s_blob_->_sync(i);
 			}
 		}
 #else
 		blob *o_blob_ = (blob*)o_blob;
 		blob *s_blob_ = (blob*)s_blob;
+		blob *rand_vect_ = (blob*)_rand_vect;
 
-		int output_num = s_blob->num() / _units_count;
-		for(int i = 0; i < output_num;++i)
+		if(train == _phase)
 		{
-			for(int j = 0; j < _units_count; ++j)
-			{
-				cacu_copy(o_blob_->p_diff(i)+j*s_blob_->length(), s_blob_->length(), s_blob_->p_diff(i*_units_count+j));
-			}
+			//ratio's scale implementation
+			cacu_ssx(rand_vect_->s_data(), s_blob_->count(), s_blob_->s_diff());
+			cacu_scalex(s_blob_->s_diff(), o_blob_->count(), scale_);
 		}
 #endif
 	}
@@ -141,29 +148,41 @@ public:
 		return;
 	}
 
-	void echo() 
+	void echo()
 	{
-		LOG_INFO("create feature combine op:");
+		LOG_INFO("create dropout op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blob->channel(), s_blob->width(), s_blob->height(),
 				o_blob->channel(), o_blob->width(), o_blob->height());
 	}
 
-	inline void LOOP_INIT_DATA_() 
+	inline void LOOP_INIT_DATA_()
 	{
-		o_blob->_RESET_DATA();
+		_rand_vect->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 
+	void set_ratio(float_t ratio_) {
+		CHECK_GE_OP(ratio_, 0.0,
+				"ratio must be a positive decimal larger than 0 vs %f!",
+				ratio_);
+		CHECK_LE_OP(ratio_, 1.0,
+				"ratio must be a positive decimal smaller than 1 vs %f!",
+				ratio_);
+		_ratio = ratio_;
+	}
+
 private:
 
-	//combine unit counts
-	int _units_count;
+	blob *_rand_vect = NULL;
+
+	float_t _ratio = 0.5;
 };
 }
+
 
 #endif

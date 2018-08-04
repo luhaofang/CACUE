@@ -48,7 +48,7 @@ public:
 
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 
 		int output_w = (s_blob->width() - _args->kernel_size())
 				/ _args->stride() + 1;
@@ -78,17 +78,17 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 		//kernel_size > 0
 		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
 				_args->kernel_size());
 	}
 
-	virtual const void op() override {
+	void op()  {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -107,7 +107,7 @@ public:
 #endif
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -127,15 +127,15 @@ public:
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		return;
 	}
 
-	virtual const void echo() override {
+	void echo()  {
 		LOG_INFO("create average pooling op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), kenrel_size: %d, stride: %d, pad: %d",
@@ -144,11 +144,11 @@ public:
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override {
+	inline void LOOP_INIT_DATA_()  {
 		o_blob->_RESET_DATA();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

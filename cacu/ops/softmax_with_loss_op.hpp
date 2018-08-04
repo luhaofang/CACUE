@@ -49,7 +49,7 @@ public:
 	~softmax_with_loss_op() {
 	}
 
-	virtual const void initial() override {
+	void initial()  {
 		if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blob = create_em_oblob(s_blobs->at(0)->num(),
@@ -64,11 +64,11 @@ public:
 		}
 	}
 
-	virtual const void init_weights() override {
+	void init_weights()  {
 		return;
 	}
 
-	virtual const void check() override {
+	void check()  {
 		//check blob size
 		CHECK_GT_OP(s_blobs->size(), 1, "source blob size > 1 vs %d !",
 				s_blobs->size());
@@ -77,7 +77,7 @@ public:
 				s_blobs->at(0)->channel());
 	}
 
-	virtual const void op() override {
+	void op()  {
 
 		_loss = 0.0;
 #if __USEMBEDDING__ == ON
@@ -115,7 +115,7 @@ public:
 		_loss /= o_blob_->channel_length();
 	}
 
-	virtual const void grad() override {
+	void grad()  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -138,34 +138,33 @@ public:
 		for (int i = 0; i < s_blob_->num(); ++i)
 		{
 			cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-			//cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)10,labels_->p_data(i),(float_t)0, s_blob_->p_diff(i));
 			cacu_scalex(s_blob_->p_diff(i), s_blob_->length(), normalizer() * _loss_weight / o_blob_->channel_length());
 		}
-
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight);
 #endif
 	}
 
-	virtual const void load(std::ifstream& is) override {
+	void load(std::ifstream& is)  {
 		return;
 	}
 
-	virtual const void save(std::ostream& os) override {
+	void save(std::ostream& os)  {
 		return;
 	}
 
-	virtual const void echo() override
+	void echo() 
 	{
 		LOG_INFO("loss : %f", _loss);
 		if(_loss_weight != 1.0)
 			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
 	}
 
-	inline virtual const void LOOP_INIT_DATA_() override
+	inline void LOOP_INIT_DATA_() 
 	{
 		o_blob->_RESET_DATA();
 	}
 
-	inline virtual const void set_phase(phase_type phase_) override {
+	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}
 

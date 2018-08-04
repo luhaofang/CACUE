@@ -157,6 +157,11 @@ public:
 					blob_->size())
 			;
 			return new tanh_op(blob_->at(0));
+		case CACU_SELU:
+			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
+					blob_->size())
+			;
+			return new selu_op(blob_->at(0));
 		case CACU_HTANH:
 			CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 				blob_->size())

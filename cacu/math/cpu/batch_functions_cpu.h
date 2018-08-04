@@ -168,7 +168,7 @@ void cacu_sqr_cpu(DTYPE *x, int length, DTYPE *y) {
  */
 template<typename DTYPE>
 void cacu_root_cpu(DTYPE *x, int length, DTYPE *y) {
-	int j;
+
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(j)
 #endif

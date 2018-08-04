@@ -60,7 +60,7 @@ void sgd_solver::update_weight(weight* w_, int weight_index_, int step_) {
 	if (w_->update()) {
 		blob* history_ = (blob*)_history_v->at(weight_index_);
 		float_t learn_rate_ = w_->lr() * _global_lr;
-		cacu_scalex(w_->s_diff(),w_->count(),_direction);
+		//cacu_scalex(w_->s_diff(),w_->count(),_direction);
 		//normalization
 		__NORMALIZE__(w_);
 		//add regular

@@ -165,6 +165,58 @@ void cacu_softmax_cpu(float_t *x, const int num, const int channel,
 	}
 }
 
+
+/**
+ * @cacu_elu
+ * math y[i] = x[i] = (max(x[i], float_t(0))
+		        + alpha * (exp(min(x[i], float_t(0))) - float_t(1)));
+ * for activation use elu functions.
+ */
+void cacu_elu_cpu(float_t *x, const int length, const float_t alpha, float_t *y) {
+	int i;
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i)
+#endif
+	for (i = 0; i < length; ++i) {
+		y[i] = (max(x[i], float_t(0))
+				        + alpha * (exp(min(x[i], float_t(0))) - float_t(1)));
+	}
+}
+
+/**
+ * @cacu_elu_grad
+ * math g[i] = (grad[i] * ((x[i] > 0)
+		          + (alpha + y[i]) * (x[i] <= 0)))
+ * gradient for activation use elu functions.
+ */
+void cacu_elu_grad_cpu(float_t *x, float_t *g, const int length, const float_t alpha, float_t *y, float_t *grad) {
+	int i;
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i)
+#endif
+	for (i = 0; i < length; ++i) {
+		//if (x[i] <= 0)
+		g[i] = (grad[i] * ((x[i] > 0)
+		          + (alpha + y[i]) * (x[i] <= 0)));
+
+	}
+}
+
+/**
+ * @cacu_exp
+ * math exp;
+ * for activation use exp functions.
+ */
+void cacu_exp_cpu(float_t *x, const int length, float_t *y) {
+	int i;
+#if __OPENMP__ == ON
+#pragma omp parallel for default(shared) private(i)
+#endif
+	for (i = 0; i < length; ++i) {
+		y[i] = exp(x[i]);
+	}
+}
+
 /**
  * @cacu_tanh
  * math tanh;

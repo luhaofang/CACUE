@@ -275,6 +275,81 @@ extern "C" void cacu_softmax_cuda(float_t *x, const int num, const int channel,
 
 }
 
+__global__ void _k_CACU_ELU_CUDA(float_t *x, const int length, const float_t alpha, float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] = (max(x[i], float_t(0))
+		        + alpha * (exp(min(x[i], float_t(0))) - float_t(1)));
+	}
+}
+
+/**
+ * for activation use elu functions in cuda
+ */
+extern "C" void cacu_elu_cuda(float_t *x, const int length, const float_t alpha, float_t *y) {
+
+	_k_CACU_ELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, alpha, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+
+}
+
+__global__ void _k_CACU_ELU_GRAD_CUDA(float_t *x, float_t *g, const int length, const float_t alpha, float_t *y, float_t *grad) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		g[i] = (grad[i] * ((x[i] > 0)
+		          + (alpha + y[i]) * (x[i] <= 0)));
+
+	}
+}
+
+/**
+ * gradient for activation use elu functions in cuda
+ */
+extern "C" void cacu_elu_grad_cuda(float_t *x, float_t *g, const int length, const float_t alpha, float_t *y, float_t *grad) {
+
+	_k_CACU_ELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, alpha, y, grad);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+
+}
+
+
+__global__ void _k_CACU_EXP_CUDA(float_t *x, int length, float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+
+		y[i] = std::exp(x[i]);
+	}
+
+}
+
+/**
+ * gradient for activation use tanh functions in cuda
+ */
+extern "C" void cacu_exp_cuda(float_t *x, int length, float_t *y) {
+	_k_CACU_EXP_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+
+	CUDA_CHECK(cudaThreadSynchronize());
+}
+
 __global__ void _k_CACU_TANH_CUDA(float_t *x, int length, float_t *y) {
 
 	int tid = threadIdx.x;

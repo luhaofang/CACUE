@@ -29,34 +29,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TEST_HPP_
 
 #include <time.h>
-#include <sys/time.h>
 
-#include "../../cacu.h"
+#include "../../cacu/cacu.h"
 
-#include "../../tools/imageio_utils.hpp"
+#include "../../tools/imageio_utils.h"
 
 #include "data_proc.h"
 #include "resnet_18.h"
 #include "resnet_50.h"
 #include "vgg_net.h"
 #include "mobilenet.h"
+#include "mnasnet.h"
 
 
 void test_net()
 {
-	int batch_size = 25;
+	int batch_size = 1;
 
 	int ALLIMAGE = 50000;
 
-	int max_iter = 2000;
+	int max_iter = 10;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
 #endif
 
-	network *net = create_res50net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_mobilenet(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	//network *net = create_vgg_16_net(batch_size, test);
 	//network *net = create_mobilenet(batch_size,test);
-	net->load_weights("/home/seal/4T/cacue/imagenet/res50net_120000.model");//vggnet_40000.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net_120000.model");//vggnet_40000.model");
 	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/mobilenet.model");
 	//net->check();
 	//op_injector *injector = new op_injector(net->get_op(29));
@@ -75,12 +76,13 @@ void test_net()
 	#if __PARALLELTYPE__ == __CUDA__
 		imageio_utils::load_mean_file_gpu(mean_->s_data(),meanfile);
 	#else
-		imageio_utils::load_mean_file(mean_->s_data(),meanfile);
+		//imageio_utils::load_mean_file(mean_->s_data(),meanfile);
 	#endif
 
+	
 	/**
 	 * read test list data into local memory
-	 */
+	*/
 	ifstream is(vallist);
 	is.precision(numeric_limits<float>::digits10);
 	if(!is)
@@ -93,6 +95,7 @@ void test_net()
 		full_label.push_back(label);
 	}
 	is.close();
+	
 
 	/**
 	 * read data for testing
@@ -101,12 +104,12 @@ void test_net()
 	blob *output_data = net->output_blob();
 
 	unsigned int max_index;
-	float_t count = 0;
+	cacu::float_t count = 0;
 
 	int step_index = 0;
 
-	struct timeval start;
-	struct timeval end;
+	time_utils *timer = new time_utils();
+
 	unsigned long diff;
 	for (int i = 0 ; i < max_iter; ++i)
 	{
@@ -121,12 +124,13 @@ void test_net()
 			step_index += 1;
 		}
 
-		gettimeofday(&start,NULL);
+		timer->start();
 
 		net->predict();
 
-		gettimeofday(&end,NULL);
+		timer->end();
 
+		
 		//injector->get_outblob_count();
 		for(int j = 0 ; j < batch_size ; ++j)
 		{
@@ -136,10 +140,9 @@ void test_net()
 				count += 1.0;
 			}
 		}
-
+		
 		if(i % 1 == 0){
-			diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-			LOG_INFO("iter_%d %f, %ld ms/iter", i, count, diff/1000);
+			LOG_INFO("iter_%d %f, %ld ms/iter", i, count, timer->get_time_span() / 1000 );
 		}
 		if (step_index == ALLIMAGE)
 			break;

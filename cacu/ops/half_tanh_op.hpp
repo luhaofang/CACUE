@@ -46,7 +46,7 @@ namespace cacu {
 
 		}
 
-		virtual const void initial() override {
+		void initial()  {
 			if (o_blob == NULL) {
 #if __USEMBEDDING__ == ON
 				o_blob = create_em_oblob(s_blob->num(), s_blob->channel(),
@@ -61,15 +61,15 @@ namespace cacu {
 			}
 		}
 
-		virtual const void init_weights() override {
+		void init_weights()  {
 			return;
 		}
 
-		virtual const void check() override {
+		void check()  {
 			return;
 		}
 
-		virtual const void op() override {
+		void op()  {
 
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
@@ -85,7 +85,7 @@ namespace cacu {
 #endif
 		}
 
-		virtual const void grad() override {
+		void grad()  {
 
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
@@ -103,15 +103,15 @@ namespace cacu {
 #endif
 		}
 
-		virtual const void load(std::ifstream& is) override {
+		void load(std::ifstream& is)  {
 			return;
 		}
 
-		virtual const void save(std::ostream& os) override {
+		void save(std::ostream& os)  {
 			return;
 		}
 
-		virtual const void echo() override {
+		void echo()  {
 			LOG_INFO("create half tanh op:");
 			LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
@@ -119,12 +119,12 @@ namespace cacu {
 				o_blob->height());
 		}
 
-		inline virtual const void LOOP_INIT_DATA_() override
+		inline void LOOP_INIT_DATA_() 
 		{
 			return;
 		}
 
-		inline virtual const void set_phase(phase_type phase_) override {
+		inline void set_phase(phase_type phase_)  {
 			_phase = phase_;
 		}
 
