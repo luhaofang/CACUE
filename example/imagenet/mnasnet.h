@@ -42,7 +42,7 @@ layer_block* dw_sep_conv_block(blob_base* data,int output_channel, int kernel_si
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
 	layer *dw = new layer(new data_args(data->channel(), kernel_size, stride, pad, data->channel()));
-	dw->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
+	dw->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(data->channel());
@@ -68,13 +68,13 @@ layer_block* ide_dw_sep_conv_block(blob_base* data,int dep_channel, int kernel_s
 	split->op(CACU_SPLIT, data ,new op_args(2));
 
 	layer *ide = new layer(new data_args(dep_channel, 1, stride, 0, data->channel()));
-	ide->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
+	ide->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE);
 	ide->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
 	ide->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
 	ide->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(1);
 
 	layer *dw = new layer(new data_args(dep_channel, kernel_size, 1, pad, dep_channel));
-	dw->op(CACU_CONVOLUTION, ide->get_oblob())->op(CACU_BATCH_NORMALIZE);
+	dw->op(CACU_CONVOLUTION, ide->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(dep_channel);
@@ -103,13 +103,13 @@ layer_block* ide_dw_sep_conv_nskip_block(blob_base* data, int output_channel, in
 	clock_t start = clock();
 
 	layer *ide = new layer(new data_args(dep_channel, 1, stride, 0, data->channel()));
-	ide->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
+	ide->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE);
 	ide->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
 	ide->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
 	ide->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(1);
 
 	layer *dw = new layer(new data_args(dep_channel, kernel_size, 1, pad, dep_channel));
-	dw->op(CACU_CONVOLUTION, ide->get_oblob())->op(CACU_BATCH_NORMALIZE);
+	dw->op(CACU_CONVOLUTION, ide->get_oblob())->op(CACU_BATCH_NORMALIZE)->op(activation_op);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(msra);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
 	dw->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(dep_channel);
@@ -125,6 +125,7 @@ layer_block* ide_dw_sep_conv_nskip_block(blob_base* data, int output_channel, in
 	return lb;
 }
 
+/*
 layer_block* ide_dw_sep_conv_shortcut_block(blob_base* data,int output_channel, int dep_channel, int kernel_size, int stride,int pad,int group = 1, op_name activation_op = CACU_RELU, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
@@ -168,7 +169,7 @@ layer_block* ide_dw_sep_conv_shortcut_block(blob_base* data,int output_channel, 
 	*lb << split << ide << dw << sep << shortcut << elemsum;
 	return lb;
 }
-
+*/
 
 network* create_mnasnet(int batch_size_,phase_type phase_)
 {
@@ -182,43 +183,43 @@ network* create_mnasnet(int batch_size_,phase_type phase_)
 	network *net = new network(input_datas_);
 
 	layer *conv_header = new layer(new data_args(32, 3, 2, 1, blob_->channel()));
-	conv_header->op(CACU_CONVOLUTION, blob_);
+	conv_header->op(CACU_CONVOLUTION, blob_)->op(CACU_BATCH_NORMALIZE)->op(CACU_RELU);
 
 	*net << conv_header;
 
 	layer_block *sep_conv1 = dw_sep_conv_block(conv_header->get_oblob(), 16, 3, 1, 1);
 
-	layer_block *mb_conv1_1 = ide_dw_sep_conv_block(sep_conv1->get_oblob(), 16, 3, 1, 1);
-	layer_block *mb_conv1_2 = ide_dw_sep_conv_block(mb_conv1_1->get_oblob(), 16, 3, 1, 1);
-	layer_block *mb_conv1_3 = ide_dw_sep_conv_shortcut_block(mb_conv1_2->get_oblob(), 24, 16, 3, 2, 1);
+	layer_block *mb_conv1_1 = ide_dw_sep_conv_block(sep_conv1->get_oblob(), 16*3, 3, 1, 1);
+	layer_block *mb_conv1_2 = ide_dw_sep_conv_block(mb_conv1_1->get_oblob(), 16*3, 3, 1, 1);
+	layer_block *mb_conv1_3 = ide_dw_sep_conv_nskip_block(mb_conv1_2->get_oblob(), 24, 16*3, 3, 2, 1);
 
 	*net << mb_conv1_1 << mb_conv1_2 << mb_conv1_3;
 
-	layer_block *mb_conv2_1 = ide_dw_sep_conv_block(mb_conv1_3->get_oblob(), 24, 5, 1, 2);
-	layer_block *mb_conv2_2 = ide_dw_sep_conv_block(mb_conv2_1->get_oblob(), 24, 5, 1, 2);
-	layer_block *mb_conv2_3 = ide_dw_sep_conv_shortcut_block(mb_conv2_2->get_oblob(), 40, 24, 5, 2, 2);
+	layer_block *mb_conv2_1 = ide_dw_sep_conv_block(mb_conv1_3->get_oblob(), 24*3, 5, 1, 2);
+	layer_block *mb_conv2_2 = ide_dw_sep_conv_block(mb_conv2_1->get_oblob(), 24*3, 5, 1, 2);
+	layer_block *mb_conv2_3 = ide_dw_sep_conv_nskip_block(mb_conv2_2->get_oblob(), 40, 24*3, 5, 2, 2);
 
 	*net << mb_conv2_1 << mb_conv2_2 << mb_conv2_3;
 
-	layer_block *mb_conv3_1 = ide_dw_sep_conv_block(mb_conv2_3->get_oblob(), 40, 5, 1, 2);
-	layer_block *mb_conv3_2 = ide_dw_sep_conv_block(mb_conv3_1->get_oblob(), 40, 5, 1, 2);
-	layer_block *mb_conv3_3 = ide_dw_sep_conv_shortcut_block(mb_conv3_2->get_oblob(), 80, 40, 5, 1, 2);
+	layer_block *mb_conv3_1 = ide_dw_sep_conv_block(mb_conv2_3->get_oblob(), 40*6, 5, 1, 2);
+	layer_block *mb_conv3_2 = ide_dw_sep_conv_block(mb_conv3_1->get_oblob(), 40*6, 5, 1, 2);
+	layer_block *mb_conv3_3 = ide_dw_sep_conv_nskip_block(mb_conv3_2->get_oblob(), 80, 40*6, 5, 2, 2);
 
 	*net << mb_conv3_1 << mb_conv3_2 << mb_conv3_3;
 
-	layer_block *mb_conv4_1 = ide_dw_sep_conv_block(mb_conv3_3->get_oblob(), 80, 3, 1, 1);
-	layer_block *mb_conv4_2 = ide_dw_sep_conv_shortcut_block(mb_conv4_1->get_oblob(), 96, 80, 3, 1, 1);
+	layer_block *mb_conv4_1 = ide_dw_sep_conv_block(mb_conv3_3->get_oblob(), 80*6, 3, 1, 1);
+	layer_block *mb_conv4_2 = ide_dw_sep_conv_nskip_block(mb_conv4_1->get_oblob(), 96, 80*6, 3, 1, 1);
 
 	*net << mb_conv4_1 << mb_conv4_2 ;
 
-	layer_block *mb_conv5_1 = ide_dw_sep_conv_block(mb_conv4_2->get_oblob(), 96, 5, 1, 2);
-	layer_block *mb_conv5_2 = ide_dw_sep_conv_block(mb_conv5_1->get_oblob(), 96, 5, 1, 2);
-	layer_block *mb_conv5_3 = ide_dw_sep_conv_block(mb_conv5_2->get_oblob(), 96, 5, 1, 2);
-	layer_block *mb_conv5_4 = ide_dw_sep_conv_shortcut_block(mb_conv5_3->get_oblob(), 192, 96, 5, 2, 2);
+	layer_block *mb_conv5_1 = ide_dw_sep_conv_block(mb_conv4_2->get_oblob(), 96*6, 5, 1, 2);
+	layer_block *mb_conv5_2 = ide_dw_sep_conv_block(mb_conv5_1->get_oblob(), 96*6, 5, 1, 2);
+	layer_block *mb_conv5_3 = ide_dw_sep_conv_block(mb_conv5_2->get_oblob(), 96*6, 5, 1, 2);
+	layer_block *mb_conv5_4 = ide_dw_sep_conv_nskip_block(mb_conv5_3->get_oblob(), 192, 96*6, 5, 2, 2);
 
 	*net << mb_conv5_1 << mb_conv5_2 << mb_conv5_3 << mb_conv5_4;
 
-	layer_block *mb_conv6_1 = ide_dw_sep_conv_nskip_block(mb_conv5_4->get_oblob(), 320, 192, 3, 1, 1);
+	layer_block *mb_conv6_1 = ide_dw_sep_conv_nskip_block(mb_conv5_4->get_oblob(), 320, 192*6, 3, 1, 1);
 
 	*net << mb_conv6_1;
 

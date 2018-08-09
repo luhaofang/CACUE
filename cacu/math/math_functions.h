@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MATH_FUCNTIONS_HPP_
-#define MATH_FUNCTIONS_HPP_
+#ifndef MATH_FUCNTIONS_H_
+#define MATH_FUCNTIONS_H_
 
 #include <string>
 #include "math_definition.h"

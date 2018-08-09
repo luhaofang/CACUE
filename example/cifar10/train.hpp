@@ -71,11 +71,11 @@ void train_net()
 	sgd->set_weight_decay(0.004f);
 	//sgd->set_regularize(regularize_type::L1);
 
-	std::ofstream logger("/home/haofang/experiment/cifar10/py/loss.txt", ios::binary);
+	std::ofstream logger("C:/Users/Haofang.Lu/Desktop/experiments/cifar10/py/loss.txt", ios::binary);
 	logger.precision(std::numeric_limits<cacu::float_t>::digits10);
 
-	string datapath = "/home/haofang/data/cifar10/";
-	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
+	string datapath = "C:/Users/Haofang.Lu/Desktop/data/cifar10/";
+	string meanfile = "C:/Users/Haofang.Lu/Desktop/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -142,7 +142,7 @@ void train_net()
 
 	}
 	LOG_INFO("optimization is done!");
-	//net->save_weights("/home/haofang/experiment/cifar10/cifar10_quick_test.model");
+	net->save_weights("C:/Users/Haofang.Lu/Desktop/experiments/cifar10/cifar10_quick_test.model");
 
 	vector<vec_t>().swap(full_data);
 	vector<vec_i>().swap(full_label);

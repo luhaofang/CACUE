@@ -85,7 +85,6 @@ void solver_base::train_iter(int step_) {
  */
 void solver_base::__REGULARIZE__(weight *w_, int weight_index_) {
 	float_t weight_decay_ = w_->decay() * _global_weight_decay;
-	blob* temp = (blob*) _temp->at(weight_index_);
 	switch (_regularize) {
 	case L1:
 		//temp->set_value(1);

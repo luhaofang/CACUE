@@ -55,6 +55,12 @@ namespace cacu_tools {
 		gettimeofday(&tp, NULL);
 		_start_s = tp.tv_sec;
 		_start_u = tp.tv_usec;
+
+#elif defined(__APPLE__)
+		struct timeval tp;
+		gettimeofday(&tp, NULL);
+		_start_s = tp.tv_sec;
+		_start_u = tp.tv_usec;
 #endif
 	}
 
@@ -79,6 +85,11 @@ namespace cacu_tools {
 		_end_u = wtm.wMilliseconds * 1000;
 
 #elif defined(__linux)	
+		struct timeval tp;
+		gettimeofday(&tp, NULL);
+		_end_s = tp.tv_sec;
+		_end_u = tp.tv_usec;
+#elif defined(__APPLE__)
 		struct timeval tp;
 		gettimeofday(&tp, NULL);
 		_end_s = tp.tv_sec;

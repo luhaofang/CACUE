@@ -62,7 +62,7 @@ public:
 	}
 
 	void op()  {
-		blob *o_blob_ = (blob*) o_blob;
+
 		blob *s_blob_ = (blob*) s_blob;
 		cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
 	}

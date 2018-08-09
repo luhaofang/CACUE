@@ -128,6 +128,11 @@ public:
 			at(i)->_MOTIFY();
 	}
 
+	template<typename BTYPE>
+	inline BTYPE*& astype(int i) const {
+		return (BTYPE *&)at(i);
+	}
+
 };
 }
 

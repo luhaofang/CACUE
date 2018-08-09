@@ -51,7 +51,6 @@ public:
 	void initial()  {
 		int input_w = s_blob->width();
 		int input_h= s_blob->height();
-		int channel = s_blob->channel();
 		int num = s_blob->num();
 
 		int output_w = (input_w - 1) * _args->stride()

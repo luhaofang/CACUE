@@ -25,17 +25,17 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MSE_LOSS_OP_HPP_
-#define MSE_LOSS_OP_HPP_
+#ifndef ABSE_LOSS_OP_HPP_
+#define ABSE_LOSS_OP_HPP_
 
 namespace cacu {
 
-class mse_loss_op: public operator_base {
+class abse_loss_op: public operator_base {
 
 public:
 
-	mse_loss_op(blobs *&data) :
-			operator_base(data, CACU_MSE_LOSS) {
+	abse_loss_op(blobs *&data) :
+			operator_base(data, CACU_ABSE_LOSS) {
 		check();
 
 		initial();
@@ -46,7 +46,7 @@ public:
 		//echo();
 	}
 
-	~mse_loss_op() {
+	~abse_loss_op() {
 
 	}
 
@@ -72,8 +72,8 @@ public:
 	void check()  {
 		//check blob size
 		CHECK_EQ_OP(s_blobs->at(0)->count(), s_blobs->at(1)->count(),
-						"source data must equal %d vs %d !", s_blobs->at(0)->count(),
-						s_blobs->at(1)->count());
+				"source data must equal %d vs %d !", s_blobs->at(0)->count(),
+				s_blobs->at(1)->count());
 		s_blobs->at(0)->_CHECK_SIZE_EQ(s_blobs->at(1));
 	}
 
@@ -120,8 +120,7 @@ public:
 			cacu_saxpby(s_blob1_->p_data(i), 0, o_blob_->p_data(i), 0,
 					s_blob1_->length());
 		}
-		cacu_sqr(o_blob_->s_data(), o_blob_->count(), o_blob_->s_diff());
-		cacu_scalex(o_blob_->s_diff(), o_blob_->count(), 0.5);
+		cacu_abs(o_blob_->s_data(), o_blob_->count(), o_blob_->s_diff());
 		cacu_sumbysize(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), normalizer(),
 				o_blob_->s_diff(), 0, o_blob_->count());
 #endif
@@ -131,6 +130,7 @@ public:
 #else
 		cacu_copy(o_blob_->s_diff(), 1 ,&_loss);
 #endif
+
 	}
 
 	void grad()  {
@@ -147,10 +147,10 @@ public:
 		blob *s_blob1_ = (blob*)s_blobs->at(0);
 		blob *s_blob2_ = (blob*)s_blobs->at(1);
 
-		cacu_copy(o_blob_->s_data(),o_blob_->count(),s_blob1_->s_diff());
+		cacu_abs_grad(o_blob_->s_data(), s_blob1_->s_diff(), s_blob1_->count(),o_blob_->s_diff());
 		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer());
-		cacu_copy(o_blob_->s_data(), o_blob_->count(), s_blob2_->s_diff());
-		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), -normalizer());
+		cacu_abs_grad(o_blob_->s_data(), s_blob2_->s_diff(), s_blob2_->count(),o_blob_->s_diff());
+		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), normalizer());
 		//cacu_print(s_blob_->s_diff(),s_blob_->count());
 #endif
 	}
@@ -163,14 +163,14 @@ public:
 		return;
 	}
 
-	void echo() 
+	void echo()
 	{
-		LOG_INFO("mse loss : %f", _loss);
+		LOG_INFO("abse loss : %f", _loss);
 		if (_loss_weight != 1.0)
-			LOG_INFO("weighted mse loss : %f", _loss * _loss_weight);
+			LOG_INFO("weighted abse loss : %f", _loss * _loss_weight);
 	}
 
-	inline void LOOP_INIT_DATA_() 
+	inline void LOOP_INIT_DATA_()
 	{
 		o_blob->_RESET_DATA();
 	}

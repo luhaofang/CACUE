@@ -54,8 +54,8 @@ void test_net()
 
 	network *net = create_cifar_quick_net(batch_size,test);
 
-	string datapath = "/home/haofang/data/cifar10/";
-	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
+	string datapath = "C:/Users/Haofang.Lu/Desktop/data/cifar10/";
+	string meanfile = "C:/Users/Haofang.Lu/Desktop/data/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -69,7 +69,7 @@ void test_net()
 
 	blob *output_data = net->output_blob();
 
-	net->load_weights("/home/haofang/experiment/cifar10/cifar10_quick_test.model");
+	net->load_weights("C:/Users/Haofang.Lu/Desktop/experiments/cifar10/cifar10_quick_test.model");
 
 	unsigned int max_index;
 	cacu::float_t count = 0;

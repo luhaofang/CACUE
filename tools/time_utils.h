@@ -36,6 +36,9 @@
 #elif defined(__linux)
 #include <sys/time.h>
 
+#elif defined(__APPLE__)
+
+#include <sys/time.h>
 #endif
 
 namespace cacu_tools {

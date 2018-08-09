@@ -25,6 +25,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef PERFORMANCE_HPP_
+#define PERFORMANCE_HPP_
 
 #include <time.h>
 
@@ -32,65 +34,63 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../tools/imageio_utils.h"
 
-#include "cifar_quick_net.h"
 #include "data_proc.h"
+#include "resnet_18.h"
+#include "resnet_50.h"
+#include "vgg_net.h"
+#include "mobilenet.h"
+#include "mnasnet.h"
 
-/*
-void train_net()
+
+void test_net()
 {
-	int batch_size = 100;
+	int batch_size = 1;
 
-	int max_iter = 5000;
+	int ALLIMAGE = 1;
+
+	int max_iter = 10;
 
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_set_device(0);
 #endif
 
-	network *net = create_cifar_quick_dy_net(batch_size,train);//create_cifar_test_net(batch_size,train);
+	network *net = create_mnasnet(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	//network *net = create_vgg_16_net(batch_size, test);
+	//network *net = create_mobilenet(batch_size,test);
+	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net_120000.model");//vggnet_40000.model");
+	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/mobilenet.model");
+	//net->check();
+	//op_injector *injector = new op_injector(net->get_op(29));
 
-	sgd_solver *sgd = new sgd_solver(net);
+	/**
+	 * read data for testing
+	 */
+	blob *input_data = (blob*)net->input_blobs()->at(0);
+	blob *output_data = net->output_blob();
 
-	sgd->set_lr(0.001f);
-
-	string datapath = "/home/seal/4T/cacue/cifar10/data/";
-	string meanfile = "/home/seal/4T/cacue/cifar10/data/mean.binproto";
-
-	vector<vec_t> full_data;
-	vector<vec_i> full_label;
-	load_data_bymean(datapath, meanfile, full_data, full_label);
-
-	em_blob *input_data = (em_blob*)net->input_blobs()->at(0);
-	em_bin_blob *input_label = (em_bin_blob*)net->input_blobs()->at(1);
+	unsigned int max_index;
+	cacu::float_t count = 0;
 
 	int step_index = 0;
-	clock_t start,end;
-	for (int i = 0 ; i < max_iter; ++i)
-	{
-		start = clock();
-		for (int j = 0 ; j < batch_size ; ++j)
-		{
-			if (step_index == kCIFARDataCount)
-				step_index = 0;
-			input_data->copy2data(full_data[step_index], j);
-			input_label->copy2data(full_label[step_index],j);
-			step_index += 1;
-		}
-		sgd->train_iter();
-		end = clock();
 
-		if(i % 1 == 0){
-			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i,sgd->lr(),end - start);
-			((softmax_with_loss_op*)net->get_op(net->op_count()-1))->echo();
-		}
+	time_utils *timer = new time_utils();
 
-		if(i == 4000)
-			sgd->set_lr_iter(0.1f);
+	for(int i = 0; i < 100; ++i){
+		input_data->set_init_type(gaussian,0.1);
+		timer->start();
+		net->predict();
+		timer->end();
 
+		LOG_INFO("one iter cost, %ld ms/iter", timer->get_time_span() / 1000 );
 	}
 
-	net->save_weights("/home/seal/4T/cacue/cifar10/data/cifar10_quick.model");
+	//injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
+
+	//delete injector;
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_release();
 #endif
 }
-*/
+
+
+#endif

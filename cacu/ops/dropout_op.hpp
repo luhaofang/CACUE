@@ -95,7 +95,6 @@ public:
 		}
 #else
 		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
 		blob *rand_vect_ = (blob*)_rand_vect;
 
 		if(train == _phase)

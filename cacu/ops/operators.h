@@ -42,6 +42,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "operator_base.h"
 
+/***********************************/
+/*        typical operators	       */
+/***********************************/
+
 #include "inner_product_op.hpp"
 #include "convolution_op.hpp"
 #include "batch_normalize_op.hpp"
@@ -66,13 +70,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "softmax_with_loss_op.hpp"
 #include "mse_loss_op.hpp"
 #include "sigmoid_with_loss_op.hpp"
+#include "abse_loss_op.hpp"
 
 #include "math_op.hpp"
 
 //#include "hinge_loss_op.h"
 
 /***********************************/
-/*        user operators	       */
+/*        custorm operators	       */
 /***********************************/
 
 #include "../user_ops/p_inner_product_op.hpp"

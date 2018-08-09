@@ -78,8 +78,6 @@ private:
 
 	float_t _epsilon = 1E-8;
 
-	float_t _alpha = 0.9;
-
 	float_t _beta = 0.999;
 
 };
