@@ -318,6 +318,8 @@ void train_net() {
 		 * ccloss
 		 */
 
+		xgsgd->update_direction(minimize);
+		ygsgd->update_direction(minimize);
 		/*
 		 * F(G(y)) -> y
 		 */
