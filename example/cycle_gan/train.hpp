@@ -62,20 +62,19 @@ void train_net() {
 	set_rand_seed();
 
 	//log output
-	std::ofstream logger(root_path + "res50netg_64.log",
+	std::ofstream xdlog(root_path + "xdiscriminator.log",
 			ios::binary);
-	logger.precision(std::numeric_limits<cacu::float_t>::digits10);
+	xdlog.precision(std::numeric_limits<cacu::float_t>::digits10);
+	//log output
+	std::ofstream ydlog(root_path + "ydiscriminator.log",
+			ios::binary);
+	ydlog.precision(std::numeric_limits<cacu::float_t>::digits10);
 
 	//log output
-	std::ofstream precious_logger(root_path +
-			"res50netd_64.log",
+	std::ofstream glog(root_path + "generator.log",
 			ios::binary);
-	precious_logger.precision(std::numeric_limits<cacu::float_t>::digits10);
-	//log output
-	std::ofstream precious_train_logger(root_path +
-			"res50net_train_precious.log",
-			ios::binary);
-	precious_train_logger.precision(std::numeric_limits<cacu::float_t>::digits10);
+	glog.precision(std::numeric_limits<cacu::float_t>::digits10);
+
 
 
 
@@ -153,7 +152,8 @@ void train_net() {
 	//string trainlist = "/home/haofang/experiment/imagenet/../../data/pascalvoc/VOCdevkit/VOC2012/object_list.txt";
 	string xdatapath = "";
 	string ydatapath = "";
-	string trainlist = "/home/haofang/experiment/generative/datalist.txt";
+	string xtrainlist = "/home/haofang/experiment/generative/datalist.txt";
+	string ytrainlist = "/home/haofang/experiment/generative/datalist.txt";
 
 	vector<string> xfull_data;
 	vector<string> yfull_data;
@@ -164,10 +164,10 @@ void train_net() {
 	/**
 	 * read train list data into local memory
 	 */
-	ifstream is = ifstream(xdatapath);
+	ifstream is = ifstream(xtrainlist);
 	is.precision(numeric_limits<float>::digits10);
 	if (!is)
-		LOG_FATAL("file %s cannot be opened!", trainlist.c_str());
+		LOG_FATAL("file %s cannot be opened!", xtrainlist.c_str());
 	string file_ = "";
 	while (getline(is, file_)) {
 		xfull_data.push_back(file_);
@@ -179,10 +179,10 @@ void train_net() {
 	/**
 	 * read train list data into local memory
 	 */
-	is = ifstream(ydatapath);
+	is = ifstream(ytrainlist);
 	is.precision(numeric_limits<float>::digits10);
 	if (!is)
-		LOG_FATAL("file %s cannot be opened!", trainlist.c_str());
+		LOG_FATAL("file %s cannot be opened!", ytrainlist.c_str());
 	while (getline(is, file_)) {
 		yfull_data.push_back(file_);
 	}
@@ -233,6 +233,10 @@ void train_net() {
 
 			step_index += 1;
 		}
+
+		/*
+		 * adversrial training process
+		 */
 
 		xgenerator->layers(0)->get_head_op()->in_data<blob>()->copy_blob(yblob_);
 		xgnet->forward_propagate();
@@ -315,7 +319,7 @@ void train_net() {
 		ygsgd->updates(i);
 
 		/*
-		 * ccloss
+		 * ccloss training process
 		 */
 
 		xgsgd->update_direction(minimize);
@@ -374,20 +378,22 @@ void train_net() {
 		ygsgd->updates(i);
 
 
-//		logger << dloss2 << endl;
-//		logger.flush();
-//
-//		precious_logger << dloss1 + dloss2 << endl;
-//		precious_logger.flush();
+		xdlog << xdlosst + xdlossf << endl;
+		xdlog.flush();
+
+		ydlog << ydlosst + ydlossf << endl;
+		ydlog.flush();
+
+		glog << xgloss + ygloss + ccloss << endl;
 
 		timer->end();
 
 		if (i % 1 == 0) {
 
-//			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, dsgd->lr(), timer->get_time_span() / 1000);
-//			LOG_INFO("discriminator loss : %f", (dloss1 + dloss2));
-//			LOG_INFO("generator loss : %f", dloss2);
-			//LOG_INFO("generator loss : %f", gloss);
+			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, xdsgd->lr(), timer->get_time_span() / 1000);
+			LOG_INFO("xdiscriminator loss : (t: %f , f: %f)", xdlosst, xdlossf);
+			LOG_INFO("ydiscriminator loss : (t: %f , f: %f)", ydlosst, ydlossf);
+			LOG_INFO("generator loss : (x: %f, y: %f, cc: %f)", xgloss, ygloss, ccloss);
 		}
 
 		if (i % 500000 == 0){
@@ -400,24 +406,36 @@ void train_net() {
 		if (i % 1000 == 0) {
 			ostringstream oss;
 
-			oss << root_path << "../generative/" << "test_" << i << "_64.jpg";
-			//imageio_utils::imwrite(((blob*)generator->get_oblob()),oss.str().c_str());
+			oss << root_path << "../generative/" << "x_" << i << "_" << img_size << ".jpg";
+			imageio_utils::imwrite(((blob*)xgenerator->get_oblob()),oss.str().c_str());
+
+			oss << root_path << "../generative/" << "y_" << i << "_" << img_size << ".jpg";
+			imageio_utils::imwrite(((blob*)ygenerator->get_oblob()),oss.str().c_str());
 		}
 		if (i % 10000 == 0) {
 			ostringstream oss;
 
-			oss << root_path << "models/" << "generator_" << i << "_64.model";
-			//generator->save_weights(oss.str());
+			oss << root_path << "models/" << "xgenerator_" << i << "_" << img_size << ".model";
+			xgenerator->save_weights(oss.str());
 			oss.str("");
-			oss << root_path << "models/" << "discriminator_" << i << "_64.model";
-			//discriminator->save_weights(oss.str());
+
+			oss << root_path << "models/" << "ygenerator_" << i << "_" << img_size << ".model";
+			ygenerator->save_weights(oss.str());
 			oss.str("");
+
+			oss << root_path << "models/" << "xdiscriminator_" << i << "_" << img_size << ".model";
+			xdiscriminator->save_weights(oss.str());
+			oss.str("");
+
+			oss << root_path << "models/" << "ydiscriminator_" << i << "_" << img_size << ".model";
+			ydiscriminator->save_weights(oss.str());
+
 		}
 	}
 
-	logger.close();
-	precious_logger.close();
-	precious_train_logger.close();
+	xdlog.close();
+	ydlog.close();
+	glog.close();
 
 	LOG_INFO("optimization is done!");
 
@@ -431,6 +449,7 @@ void train_net() {
 	delete mse_blobs,abse_blobs;
 	delete xblob_,x2yblob_,x2y2xblob_;
 	delete yblob_,y2xblob_,y2x2yblob_;
+	delete timer;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__

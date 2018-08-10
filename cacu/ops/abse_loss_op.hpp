@@ -150,7 +150,7 @@ public:
 		cacu_abs_grad(o_blob_->s_data(), s_blob1_->s_diff(), s_blob1_->count(),o_blob_->s_diff());
 		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer());
 		cacu_abs_grad(o_blob_->s_data(), s_blob2_->s_diff(), s_blob2_->count(),o_blob_->s_diff());
-		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), normalizer());
+		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), normalizer() * _loss_weight);
 		//cacu_print(s_blob_->s_diff(),s_blob_->count());
 #endif
 	}
