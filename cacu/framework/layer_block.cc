@@ -35,12 +35,15 @@ layer_block::layer_block() {
 }
 
 layer_block::~layer_block() {
+	/*
 	for(size_t i = 0; i < _layers->size(); ++i)
 	{
 		delete _layers->at(i);
 		_layers->at(i)= NULL;
 	}
+	*/
 	delete _layers;
+	_layers = NULL;
 }
 
 layer_block& layer_block::operator <<(layer_block* const &layer_block_) {

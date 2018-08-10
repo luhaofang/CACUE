@@ -48,11 +48,11 @@ public:
 	 */
 	network& operator <<(layer_block* const &layer_block_);
 
-	network& operator <<(layer_block &layer_block_);
+	network& operator <<(layer_block& layer_block_);
 
 	network& operator <<(layer_base* const &layer_);
 
-	network& operator <<(layer_base &layer_);
+	network& operator <<(layer_base& layer_);
 
 	inline layer *&layers(int i) {
 		return (layer*&) _layers->at(i);
@@ -129,7 +129,9 @@ private:
 
 	vector<operator_base*> *_ops;
 
-	blobs* _input_blobs;
+	blobs* _input_blobs = NULL;
+
+	void _ASSOCIATE_INPUT_DATA();
 
 };
 

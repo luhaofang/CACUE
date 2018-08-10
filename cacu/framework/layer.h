@@ -70,7 +70,7 @@ public:
 		}
 	}
 
-	inline operator_base *&get_head_op() {
+	inline operator_base *&get_head_op() const{
 		return _ops->at(0);
 	}
 

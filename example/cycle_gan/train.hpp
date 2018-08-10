@@ -152,8 +152,8 @@ void train_net() {
 	//string trainlist = "/home/haofang/experiment/imagenet/../../data/pascalvoc/VOCdevkit/VOC2012/object_list.txt";
 	string xdatapath = "";
 	string ydatapath = "";
-	string xtrainlist = "/home/haofang/experiment/generative/datalist.txt";
-	string ytrainlist = "/home/haofang/experiment/generative/datalist.txt";
+	string xtrainlist = "/home/haofang/experiment/generative/datalistx.txt";
+	string ytrainlist = "/home/haofang/experiment/generative/datalisty.txt";
 
 	vector<string> xfull_data;
 	vector<string> yfull_data;
@@ -193,7 +193,8 @@ void train_net() {
 	int X_ALL_DATA_SIZE = xfull_data.size();
 	int Y_ALL_DATA_SIZE = yfull_data.size();
 
-	int step_index = 0;
+	int step_index_x = 0;
+	int step_index_y = 0;
 	int step_index_test = 0;
 	int step_index_train = 0;
 	time_utils *timer = new time_utils();
@@ -215,29 +216,29 @@ void train_net() {
 		 * read original img data
 		 */
 		for (int j = 0; j < batch_size; ++j) {
-			if (step_index == X_ALL_DATA_SIZE) {
-				step_index = 0;
+			if (step_index_x == X_ALL_DATA_SIZE) {
+				step_index_x = 0;
 				random_shuffle(xfull_data.begin(), xfull_data.end());
 			}
-			if (step_index == X_ALL_DATA_SIZE) {
-				step_index = 0;
+			if (step_index_y == Y_ALL_DATA_SIZE) {
+				step_index_y = 0;
 				random_shuffle(xfull_data.begin(), xfull_data.end());
 			}
-			file_ = xfull_data[step_index];
+			file_ = xfull_data[step_index_x];
 			//load ximage data
 			readimg(xblob_->p_data(j),(xdatapath + file_).c_str());
 
-			file_ = yfull_data[step_index];
+			file_ = yfull_data[step_index_y];
 			//load yimage data
 			readimg(yblob_->p_data(j),(ydatapath + file_).c_str());
 
-			step_index += 1;
+			step_index_x += 1;
+			step_index_y += 1;
 		}
 
 		/*
 		 * adversrial training process
 		 */
-
 		xgenerator->layers(0)->get_head_op()->in_data<blob>()->copy_blob(yblob_);
 		xgnet->forward_propagate();
 		y2xblob_->copy_blob(xsuspicious);
@@ -250,6 +251,8 @@ void train_net() {
 		mse_op->in_datas()->astype<blob>(1)->set_data(1);
 		xdnet->forward_propagate();
 		mse_op->infer();
+		mse_op->grad();
+		cacu_copy(mse_op->in_datas()->astype<blob>(0)->s_diff(), mse_op->in_datas()->astype<blob>(0)->count(), xdnet->output_blob()->s_diff());
 		xdnet->back_propagate();
 		xdsgd->updates(i);
 		xdlosst = mse_op->loss();
@@ -290,6 +293,8 @@ void train_net() {
 		mse_op->in_datas()->astype<blob>(1)->set_data(1);
 		ydnet->forward_propagate();
 		mse_op->infer();
+		mse_op->grad();
+		cacu_copy(mse_op->in_datas()->astype<blob>(0)->s_diff(), mse_op->in_datas()->astype<blob>(0)->count(), ydnet->output_blob()->s_diff());
 		ydnet->back_propagate();
 		ydsgd->updates(i);
 		ydlosst = mse_op->loss();
@@ -321,9 +326,9 @@ void train_net() {
 		/*
 		 * ccloss training process
 		 */
-
 		xgsgd->update_direction(minimize);
 		ygsgd->update_direction(minimize);
+
 		/*
 		 * F(G(y)) -> y
 		 */
@@ -342,7 +347,6 @@ void train_net() {
 		ccloss = abse_op->loss();
 		abse_op->grad();
 		cacu_copy(abse_op->in_datas()->astype<blob>(0)->s_diff(),abse_op->in_datas()->astype<blob>(0)->count(),ysuspicious->s_diff());
-
 		ygnet->back_propagate();
 		cacu_copy(ygenerator->layers(0)->get_head_op()->in_data<blob>()->s_diff(),ygenerator->layers(0)->get_head_op()->in_data<blob>()->count(),xsuspicious->s_diff());
 		xgnet->back_propagate();
@@ -353,7 +357,6 @@ void train_net() {
 		/*
 		 * G(F(x)) -> x
 		 */
-
 		ygenerator->layers(0)->get_head_op()->in_data<blob>()->copy_blob(xblob_);
 		ygnet->forward_propagate();
 		x2yblob_->copy_blob(ysuspicious);
@@ -369,9 +372,8 @@ void train_net() {
 		ccloss += abse_op->loss();
 		abse_op->grad();
 		cacu_copy(abse_op->in_datas()->astype<blob>(0)->s_diff(),abse_op->in_datas()->astype<blob>(0)->count(),xsuspicious->s_diff());
-
 		xgnet->back_propagate();
-		cacu_copy(ygenerator->layers(0)->get_head_op()->in_data<blob>()->s_diff(),ygenerator->layers(0)->get_head_op()->in_data<blob>()->count(),ysuspicious->s_diff());
+		cacu_copy(xgenerator->layers(0)->get_head_op()->in_data<blob>()->s_diff(),xgenerator->layers(0)->get_head_op()->in_data<blob>()->count(),ysuspicious->s_diff());
 		ygnet->back_propagate();
 
 		xgsgd->updates(i);
@@ -441,6 +443,8 @@ void train_net() {
 
 	vector<string>().swap(xfull_data);
 	vector<string>().swap(yfull_data);
+
+	delete xdiscriminator,ydiscriminator,xgenerator,ygenerator;
 	delete xgnet, ygnet;
 	delete xgsgd, ygsgd;
 	delete xdnet, ydnet;

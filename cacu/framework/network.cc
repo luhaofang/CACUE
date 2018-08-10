@@ -38,7 +38,10 @@ network::network(blobs *&datas_) {
 
 network::~network() {
 
-	delete _input_blobs;
+	if(_input_blobs != NULL){
+		delete _input_blobs;
+		_input_blobs = NULL;
+	}
 	for (int i = 0; i < _layers->size(); ++i) {
 		for (size_t j = 0; j < _layers->at(i)->op_count(); ++j) {
 			delete _layers->at(i)->op(j);
@@ -46,7 +49,9 @@ network::~network() {
 		delete _layers->at(i);
 	}
 	delete _layers;
+	_layers = NULL;
 	delete _ops;
+	_ops = NULL;
 }
 
 /*
@@ -60,15 +65,17 @@ network& network::operator <<(layer_block* const &layer_block_) {
 		for (int j = 0; j < layer_block_->layer_bases(i)->op_count(); ++j)
 			_ops->push_back(layer_block_->layer_bases(i)->op(j));
 	}
+	_ASSOCIATE_INPUT_DATA();
 	return *this;
 }
 
-network& network::operator <<(layer_block &layer_block_) {
+network& network::operator <<(layer_block& layer_block_) {
 	for (int i = 0; i < layer_block_.length(); ++i) {
 		_layers->push_back(layer_block_.layer_bases(i));
 		for (int j = 0; j < layer_block_.layer_bases(i)->op_count(); ++j)
 			_ops->push_back(layer_block_.layer_bases(i)->op(j));
 	}
+	_ASSOCIATE_INPUT_DATA();
 	return *this;
 }
 
@@ -77,14 +84,16 @@ network& network::operator <<(layer_base* const &layer_) {
 	_layers->push_back(layer_);
 	for (int j = 0; j < layer_->op_count(); ++j)
 		_ops->push_back(layer_->op(j));
+	_ASSOCIATE_INPUT_DATA();
 	return *this;
 }
 
-network& network::operator <<(layer_base &layer_) {
+network& network::operator <<(layer_base& layer_) {
 
 	_layers->push_back(&layer_);
 	for (int j = 0; j < layer_.op_count(); ++j)
 		_ops->push_back(layer_.op(j));
+	_ASSOCIATE_INPUT_DATA();
 	return *this;
 }
 
@@ -205,6 +214,17 @@ void network::set_update_weight(bool isupdate_)
 	}
 }
 
+void network::_ASSOCIATE_INPUT_DATA()
+{
+	if(_input_blobs == NULL)
+	{
+		if(_ops->size() != 0)
+		{
+			_input_blobs = new blobs();
+			_input_blobs->push_back(_ops->at(0)->in_data<blob_base>());
+		}
+	}
+}
 
 
 }
