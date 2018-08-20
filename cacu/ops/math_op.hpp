@@ -34,12 +34,9 @@ namespace cacu {
 
 	public:
 
-		math_op(blob_base *&data) :
+		math_op(blobs *&data) :
 			operator_base(data, CACU_MATH) {
-			check();
-			initial();
-			init_weights();
-			//echo();
+			_INIT_OP();
 		}
 
 		~math_op() {
@@ -47,10 +44,13 @@ namespace cacu {
 		}
 
 		void initial()  {
-			if (o_blob == NULL)
-				o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
+			if (o_blobs == NULL){
+				o_blobs = create_oblobs();
+				o_blobs->push_back(create_oblob(s_blobs->at(0)->num(),
+						s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
+			}
 			else
-				o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height());
+				o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height());
 		}
 
 		void init_weights()  {
@@ -58,22 +58,23 @@ namespace cacu {
 		}
 
 		void check()  {
-			return;
+			CHECK_GT_OP(_o_args->size(), 0, "type of _o_args must = 1 vs %d",
+					_o_args->size());
 		}
 
 		void op()  {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
+			blob *o_blob_ = (blob*)o_blobs->at(0);
+			blob *s_blob_ = (blob*)s_blobs->at(0);
 
 			switch (_FUNC)
 			{
 			case ADD:
-				s_blob->_CHECK_SIZE_EQ(_data);
+				s_blob_->_CHECK_SIZE_EQ(_data);
 				cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_saxpy(_data->s_data(), (float_t)1, o_blob_->s_data(), _data->count());
 				break;
 			case SUB:
-				s_blob->_CHECK_SIZE_EQ(_data);
+				s_blob_->_CHECK_SIZE_EQ(_data);
 				cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 				cacu_saxpy(_data->s_data(), (float_t)-1, o_blob_->s_data(), _data->count());
 				//cacu_print(o_blob_->s_data(),100);
@@ -81,9 +82,9 @@ namespace cacu {
 			case MUL:
 				//s_blob->_CHECK_SIZE_EQ(_data);
 				cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
-				for (int i = 0; i < s_blob->num(); ++i)
+				for (int i = 0; i < s_blob_->num(); ++i)
 				{
-					for (int c = 0; c < s_blob->channel(); ++c)
+					for (int c = 0; c < s_blob_->channel(); ++c)
 						cacu_ssx(_data->s_data(), s_blob_->channel_length(),
 							o_blob_->p_data(i) + c * s_blob_->channel_length());
 				}
@@ -112,26 +113,26 @@ namespace cacu {
 		}
 
 		void grad()  {
-			blob *o_blob_ = (blob*)o_blob;
-			blob *s_blob_ = (blob*)s_blob;
+			blob *o_blob_ = (blob*)o_blobs->at(0);
+			blob *s_blob_ = (blob*)s_blobs->at(0);
 
 			switch (_FUNC)
 			{
 			case ADD:
-				s_blob->_CHECK_SIZE_EQ(_data);
+				s_blob_->_CHECK_SIZE_EQ(_data);
 				cacu_saxpy(o_blob_->s_diff(), (float_t)1, s_blob_->s_diff(), o_blob_->count());
 				cacu_saxpy(o_blob_->s_diff(), (float_t)1, _data->s_diff(), o_blob_->count());
 				break;
 			case SUB:
-				s_blob->_CHECK_SIZE_EQ(_data);
+				s_blob_->_CHECK_SIZE_EQ(_data);
 				cacu_saxpy(o_blob_->s_diff(), (float_t)1, s_blob_->s_diff(), o_blob_->count());
 				cacu_saxpy(o_blob_->s_diff(), (float_t)-1, _data->s_diff(), o_blob_->count());
 				break;
 			case MUL:
 				cacu_copy(s_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
-				for (int i = 0; i < s_blob->num(); ++i)
+				for (int i = 0; i < s_blob_->num(); ++i)
 				{
-					for (int c = 0; c < s_blob->channel(); ++c)
+					for (int c = 0; c < s_blob_->channel(); ++c)
 						cacu_ssx(o_blob_->p_diff(i) + c * s_blob_->channel_length(), s_blob_->channel_length(),
 							s_blob_->p_diff(i) + c * s_blob_->channel_length());
 				}
@@ -170,19 +171,19 @@ namespace cacu {
 		void echo()  {
 
 			if (_FUNC == MASK_LT) {
-				blob *o_blob_ = (blob*)o_blob;
+				blob *o_blob_ = (blob*)o_blobs->at(0);
 				LOG_INFO("Dimension loss: %f", o_blob_->s_diff()[0]);
 			}
 			else if (_FUNC == MASK_GT){
-				blob *o_blob_ = (blob*)o_blob;
+				blob *o_blob_ = (blob*)o_blobs->at(0);
 				LOG_INFO("Spasity loss: %f", o_blob_->s_diff()[0]);
 			}
 			else {
 				LOG_INFO("create math op:");
 				LOG_INFO(
 					"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-					s_blob->channel(), s_blob->width(), s_blob->height(),
-					o_blob->channel(), o_blob->width(), o_blob->height());
+					s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+					o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 			}
 		}
 
@@ -204,9 +205,9 @@ namespace cacu {
 
 	private:
 
-		math_op_name _FUNC;
+		math_op_name _FUNC = MASK_GT;
 
-		blob *_data;
+		blob *_data = NULL;
 
 
 	};

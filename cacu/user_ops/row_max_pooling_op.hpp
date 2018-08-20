@@ -34,13 +34,9 @@ class row_max_pooling_op: public operator_base {
 
 public:
 
-	row_max_pooling_op(blob_base *&data, data_args *&args_) :
+	row_max_pooling_op(blobs *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_ROW_MAX_POOLING) {
-		check();
-		initial();
-		init_weights();
-		//echo();
-
+		_INIT_OP();
 	}
 
 	~row_max_pooling_op() {

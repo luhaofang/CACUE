@@ -34,13 +34,9 @@ class p_inner_product_op: public operator_base {
 
 public:
 
-	p_inner_product_op(blob_base *&data, data_args *&args_) :
+	p_inner_product_op(blobs *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_P_INNERPRODUCT) {
-		check();
-		initial();
-		init_weights();
-		//echo();
-
+		_INIT_OP();
 	}
 
 	~p_inner_product_op() {
@@ -48,37 +44,37 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), 1, 1,
-					_phase);
-			_temp = create_em_opblob(1, s_blob->channel(), s_blob->height(),
-					s_blob->width(), _phase);
+			o_blobs = create_em_blobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), 1, 1,
+					_phase));
 #else
-			o_blob = create_oblob(s_blob->num(), _args->output_channel(), 1, 1, _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), _args->output_channel(), 1, 1, _phase));
 #endif
 		} else {
-			o_blob->resize(s_blob->num(), _args->output_channel(), 1, 1);
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), _args->output_channel(), 1, 1);
 		}
 	}
 
 	void init_weights()  {
-		_w = create_param("w", s_blob->channel(), _args->output_channel() / s_blob->channel(), s_blob->width(),
-				s_blob->height(), _phase);
+		_w = create_param("w", s_blobs->at(0)->channel(), _args->output_channel() / s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+				s_blobs->at(0)->height(), _phase);
 
 		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
 		_bias->set_lr(2);
 	}
 
 	void check()  {
-		CHECK_EQ_OP(_args->output_channel() % s_blob->channel(), 0, "Output data channel must integer times of input data channel: (%d)", _args->output_channel() % s_blob->channel());
+		CHECK_EQ_OP(_args->output_channel() % s_blobs->at(0)->channel(), 0, "Output data channel must integer times of input data channel: (%d)", _args->output_channel() % s_blobs->at(0)->channel());
 	}
 
 	void op()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		blob *temp_ = (blob*) _temp;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
@@ -96,8 +92,8 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		for(int i = 0; i < s_blob_->num(); ++i) {
 
@@ -114,8 +110,8 @@ public:
 	void grad()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		blob *temp_ = (blob*) _temp;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
@@ -134,16 +130,16 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 			
 		for (int i = 0; i < s_blob_->num(); ++i) {
 
 			for (int c = 0; c < s_blob_->channel(); ++c) {
 				//gradient propagation
-				cacu_sgemm(NOTRANS, NOTRANS, _w->p_data(c), _w->channel_length(), _w->channel(), o_blob_->p_diff(i) + c * _args->output_channel() / s_blob->channel(), 1, 1, s_blob_->p_diff(i) + c * s_blob_->channel_length(), 0);
+				cacu_sgemm(NOTRANS, NOTRANS, _w->p_data(c), _w->channel_length(), _w->channel(), o_blob_->p_diff(i) + c * _args->output_channel() / s_blob_->channel(), 1, 1, s_blob_->p_diff(i) + c * s_blob_->channel_length(), 0);
 				//weights gradient
-				cacu_sgemm(NOTRANS, TRANS, s_blob_->p_data(i) + c * s_blob_->channel_length(), s_blob_->channel_length(), 1, o_blob_->p_diff(i) + c * _args->output_channel() / s_blob->channel(), _args->output_channel() / s_blob->channel(), 1, _w->p_diff(c), 1);
+				cacu_sgemm(NOTRANS, TRANS, s_blob_->p_data(i) + c * s_blob_->channel_length(), s_blob_->channel_length(), 1, o_blob_->p_diff(i) + c * _args->output_channel() / s_blob_->channel(), _args->output_channel() / s_blob_->channel(), 1, _w->p_diff(c), 1);
 			}
 		}
 		if (_is_use_bias)
@@ -169,13 +165,13 @@ public:
 		LOG_INFO("create p_inner_product op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
+				o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 
 		_w->_RESET_DIFF();
 		if (_is_use_bias)
@@ -204,9 +200,9 @@ private:
 	//p_innerproduct_op use bias switcher
 	bool _is_use_bias = true;
 
-	weight *_w;
+	weight *_w = NULL;
 
-	weight *_bias;
+	weight *_bias = NULL;
 
 };
 }

@@ -34,12 +34,9 @@ class injector_op: public operator_base {
 
 public:
 
-	injector_op(blob_base *&data) :
+	injector_op(blobs *&data) :
 			operator_base(data, CACU_INJECTOR) {
-		check();
-		initial();
-		init_weights();
-		//echo();
+		_INIT_OP();
 	}
 
 	~injector_op() {
@@ -47,11 +44,11 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
-			o_blob = s_blob;
-			_mean->resize(1, o_blob->channel(), 1, 1);
-			_mask->resize(1, o_blob->channel(), o_blob->height(),
-					o_blob->width());
+		if (o_blobs == NULL) {
+			o_blobs = s_blobs;
+			_mean->resize(1, o_blobs->at(0)->channel(), 1, 1);
+			_mask->resize(1, o_blobs->at(0)->channel(), o_blobs->at(0)->height(),
+					o_blobs->at(0)->width());
 		}
 	}
 
@@ -66,8 +63,8 @@ public:
 	void op()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			cacu_sumbysize(BYWIDTH, s_blob_->p_data_d(i), s_blob_->length(), 1,
@@ -88,8 +85,8 @@ public:
 		}
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		for(int i = 0; i < s_blob_->num(); ++i)
 		{
@@ -121,8 +118,8 @@ public:
 		LOG_INFO("create injector op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
+				o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_() 

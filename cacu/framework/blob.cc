@@ -59,8 +59,7 @@ blob::~blob() {
  * copy dest blob data to local blob
  */
 void blob::copy_blob(blob* blob_) {
-	CHECK_EQ_OP(blob_->count(), _length, "blob size must be equal! %d vs %d",
-			blob_->count(), _length);
+	this->_CHECK_SIZE_EQ(blob_);
 	_tdata->copy2data(blob_->s_data());
 	CHECK_EQ_OP(blob_->phase(), _phase, "blob phase must be the same! %d vs %d",
 			blob_->phase(), _phase);

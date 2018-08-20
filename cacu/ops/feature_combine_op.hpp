@@ -34,12 +34,9 @@ class feature_combine_op: public operator_base {
 
 public:
 
-	feature_combine_op(blob_base *&data, data_args *&args_) :
+	feature_combine_op(blobs *&data, op_args *&args_) :
 			operator_base(data, args_, CACU_FEATURE_COMBINE) {
-		check();
-		initial();
-		init_weights();
-		//echo();
+		_INIT_OP();
 	}
 
 	~feature_combine_op() {
@@ -47,19 +44,21 @@ public:
 	}
 
 	void initial()  {
-		_units_count = _args->at(0);
-		if (o_blob == NULL) {
+		_units_count = _o_args->at(0);
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
+			o_blobs = create_em_oblobs();
 			o_blob = create_em_oblob(s_blob->num() / _units_count,
 					s_blob->channel() * _units_count, s_blob->width(),
 					s_blob->height(), _phase);
 #else
-			o_blob = create_oblob(s_blob->num()/_units_count, s_blob->channel()*_units_count, s_blob->width(), s_blob->height(), _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num()/_units_count, s_blobs->at(0)->channel()*_units_count, s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 #endif
 		} else
-			o_blob->resize(s_blob->num() / _units_count,
-					s_blob->channel() * _units_count, s_blob->width(),
-					s_blob->height());
+			o_blobs->at(0)->resize(s_blobs->at(0)->num() / _units_count,
+					s_blobs->at(0)->channel() * _units_count, s_blobs->at(0)->width(),
+					s_blobs->at(0)->height());
 
 	}
 
@@ -68,11 +67,14 @@ public:
 	}
 
 	void check()  {
-		int mod = s_blob->num() % _args->at(0);
+		if(_o_args == NULL)
+			LOG_FATAL("feature combine op args cannot equal to NULL!");
+		int mod = _o_args->at(0);
+		mod = s_blobs->at(0)->num() % mod;
 		CHECK_EQ_OP(mod, 0,
 				"s_blob num must be integral multiple of units count vs %d!",
 				mod);
-		o_blob->_CHECK_SIZE_EQ(s_blob);
+		o_blobs->at(0)->_CHECK_SIZE_EQ(s_blobs->at(0));
 	}
 
 	void op()  {
@@ -89,10 +91,10 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
-		int output_num = s_blob->num() / _units_count;
+		int output_num = s_blobs->at(0)->num() / _units_count;
 		for(int i = 0; i < output_num;++i)
 		{
 			for(int j = 0; j < _units_count; ++j)
@@ -119,10 +121,10 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
-		int output_num = s_blob->num() / _units_count;
+		int output_num = s_blobs->at(0)->num() / _units_count;
 		for(int i = 0; i < output_num;++i)
 		{
 			for(int j = 0; j < _units_count; ++j)
@@ -146,13 +148,13 @@ public:
 		LOG_INFO("create feature combine op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {
@@ -162,7 +164,7 @@ public:
 private:
 
 	//combine unit counts
-	int _units_count;
+	int _units_count = 0;
 };
 }
 

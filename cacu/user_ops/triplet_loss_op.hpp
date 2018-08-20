@@ -34,14 +34,9 @@ class triplet_loss_op: public operator_base {
 
 public:
 
-	triplet_loss_op(blobs *&data, data_args *&args_) :
+	triplet_loss_op(blobs *&data, op_args *&args_) :
 			operator_base(data, args_, CACU_TRIPLET_LOSS) {
-		check();
-		initial();
-		init_weights();
-		_loss = 0.0;
-		//echo();
-
+		_INIT_OP();
 	}
 
 	~triplet_loss_op() {
@@ -50,12 +45,10 @@ public:
 
 	void initial()  {
 
-		int input_dim = s_blob->width();
-		int channel = s_blob->channel();
-		int num = s_blob->num();
-		int output_length = s_blob->length() / _args->at(0);
+		_loss = 0.0;
+		_margin = _o_args->at(0);
 
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			_sets = create_em_opblob(s_blobs->at(0)->num(),
 					1, 1, 1, test);
@@ -64,7 +57,7 @@ public:
 
 #endif
 		} else {
-			_sets->resize(s_blobs->at(0)->num(),1, 1, 1,test);
+			_sets->resize(s_blobs->at(0)->num(),1, 1, 1);
 		}
 
 	}
@@ -74,7 +67,9 @@ public:
 	}
 
 	void check()  {
-		//kernel_size > 0
+		if(_o_args == NULL)
+			LOG_FATAL("tripletloss op args cannot equal to NULL!");
+		CHECK_GT_OP(_o_args->at(0), 0, "margin must > 0 vs %d", _o_args->at(0));
 		CHECK_EQ_OP(s_blobs->size(), 3, "number of blobs must equal to 3 vs %d", s_blobs->size());
 		CHECK_EQ_OP(s_blobs->at(0)->count(), s_blobs->at(1)->count(), "input blob size must equal to %d vs %d", s_blobs->at(0)->count(), s_blobs->at(1)->count());
 		CHECK_EQ_OP(s_blobs->at(1)->count(), s_blobs->at(2)->count(), "input blob size must equal to %d vs %d", s_blobs->at(1)->count(), s_blobs->at(2)->count());
@@ -211,11 +206,11 @@ public:
 
 private:
 
-	blob* _sets;
+	blob* _sets = NULL;
 
-	float_t _margin;
+	float_t _margin = 0.0;
 
-	float_t _loss;
+	float_t _loss = 0;
 
 	float_t _loss_weight = 1.0;
 

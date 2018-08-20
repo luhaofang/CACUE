@@ -28,29 +28,47 @@
 #ifndef OP_ARGS_H_
 #define OP_ARGS_H_
 
+#include <vector>
 
-#include "args_base.h"
+#include "../definition.h"
+#include "../utils/check_utils.h"
 
 using namespace std;
 
 namespace cacu {
 
-class op_args: public args_base<int> {
+class op_args : public vector<float_t>{
 
 public:
 
-	op_args(int args_) :
-			args_base<int>(args_, _ARGSEND) {
+	op_args(float_t args_) : vector<float_t>(){
+		this->push_back(args_);
+	}
 
+	op_args(float_t args1_,float_t args2_) : vector<float_t>(){
+		this->push_back(args1_);
+		this->push_back(args2_);
+	}
+
+	op_args(float_t args1_,float_t args2_,float_t args3_) : vector<float_t>(){
+		this->push_back(args1_);
+		this->push_back(args2_);
+		this->push_back(args3_);
+	}
+
+	op_args(float_t args1_,float_t args2_,float_t args3_,float_t args4_)  : vector<float_t>(){
+		this->push_back(args1_);
+		this->push_back(args2_);
+		this->push_back(args3_);
+		this->push_back(args4_);
 	}
 
 	~op_args() {
 
 	}
 
-private:
-
 };
+
 }
 
 #endif

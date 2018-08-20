@@ -34,13 +34,9 @@ class batch_normalize_op: public operator_base {
 
 public:
 
-	batch_normalize_op(blob_base *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_BATCH_NORMALIZE) {
-
-		check();
-		initial();
-		init_weights();
-		//echo();
+	batch_normalize_op(blobs *&data) :
+			operator_base(data, CACU_BATCH_NORMALIZE) {
+		_INIT_OP();
 	}
 
 	~batch_normalize_op() {
@@ -48,70 +44,70 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(),
-					s_blob->width(), s_blob->height(), _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 			//save for train
 			if (train == _phase)
-				_x = create_em_opblob(s_blob->num(), s_blob->channel(),
-						s_blob->width(), s_blob->height(), test);
+				_x = create_em_opblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+						s_blobs->at(0)->width(), s_blobs->at(0)->height(), test);
 			else
 				_x = NULL;
 
-			_dim_sum = create_em_opblob(1, s_blob->channel(), s_blob->width(),
-					s_blob->height(), test);
+			_dim_sum = create_em_opblob(1, s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+					s_blobs->at(0)->height(), test);
 #else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 			//save for train
 			if(train == _phase)
-			_x = create_opblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), test);
+			_x = create_opblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), test);
 			else
 			_x = NULL;
-			_dim_sum = create_opblob(s_blob->num(), s_blob->channel(), 1, 1, test);
+			_dim_sum = create_opblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), 1, 1, test);
 #endif
 			_moving_scalar = create_opblob(1, 1, 1, 1, test);
 			_one = create_opblob(1, 1, 1, 1, 1, test);
-			_mutipler = create_opblob(1, s_blob->channel_length(), 1, 1, 1.0,
+			_mutipler = create_opblob(1, s_blobs->at(0)->channel_length(), 1, 1, 1.0,
 					test);
-			_num_mutipler = create_opblob(1, s_blob->num(), 1, 1, 1.0, test);
+			_num_mutipler = create_opblob(1, s_blobs->at(0)->num(), 1, 1, 1.0, test);
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
-					s_blob->height());
+
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+				s_blobs->at(0)->height());
 			//save for train
 			if (_x != NULL)
-				_x->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
-						s_blob->height());
+				_x->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+						s_blobs->at(0)->height());
 
-			_dim_sum->resize(s_blob->num(), s_blob->channel(), 1, 1);
+			_dim_sum->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), 1, 1);
 
-			_mutipler->resize(1, s_blob->channel_length(), 1, 1, 1.0);
-			_num_mutipler->resize(1, s_blob->num(), 1, 1, 1.0);
+			_mutipler->resize(1, s_blobs->at(0)->channel_length(), 1, 1);
+			_mutipler->set_data(1.0);
+			_num_mutipler->resize(1, s_blobs->at(0)->num(), 1, 1);
+			_num_mutipler->set_data(1.0);
 		}
 	}
 
 	void init_weights()  {
-		_scale = create_param("scale", s_blob->channel(), 1, 1, 1, _phase);
+		_scale = create_param("scale", s_blobs->at(0)->channel(), 1, 1, 1, _phase);
 		_scale->set_init_type(constant, 1);
-		_shift = create_param("shift", s_blob->channel(), 1, 1, 1, _phase);
+		_shift = create_param("shift", s_blobs->at(0)->channel(), 1, 1, 1, _phase);
 		_shift->set_lr(2);
 
-		_mean = create_opblob(s_blob->channel(), 1, 1, 1, _phase);
-		_var = create_opblob(s_blob->channel(), 1, 1, 1, _phase);
+		_mean = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
+		_var = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
 
-		_history_mean = create_opblob(s_blob->channel(), 1, 1, 1, test);
-		_history_var = create_opblob(s_blob->channel(), 1, 1, 1, test);
+		_history_mean = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, test);
+		_history_var = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, test);
 
-		_std = create_opblob(s_blob->channel(), 1, 1, 1, _phase);
+		_std = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
 	}
 
 	void check()  {
-		//training for batch_size
-		if (train == _phase) {
-			//CHECK_GT_OP(s_blob->num(), 1 ,"batch size for training must > 1 vs %d",s_blob->num());
-			use_global_stats = false;
-		} else
-			use_global_stats = true;
+		return;
 	}
 
 	void op()  {
@@ -213,8 +209,8 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		blob *dim_sum_ = (blob*)_dim_sum;
 		blob *x_ = (blob*)_x;
 
@@ -358,8 +354,8 @@ public:
 		}
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		blob *dim_sum_ = (blob*)_dim_sum;
 		blob *x_ = (blob*)_x;
 
@@ -415,13 +411,13 @@ public:
 		LOG_INFO("create batch_normalize op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 
 		_scale->_RESET_DIFF();
 		_shift->_RESET_DIFF();
@@ -478,9 +474,9 @@ public:
 
 private:
 
-	weight *_scale;
+	weight *_scale = NULL;
 
-	weight *_shift;
+	weight *_shift = NULL;
 
 	blob *_mean = NULL;
 

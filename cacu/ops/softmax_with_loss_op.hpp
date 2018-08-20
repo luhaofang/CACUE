@@ -34,32 +34,29 @@ class softmax_with_loss_op: public operator_base {
 
 public:
 
-	softmax_with_loss_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_SOFTMAX_LOSS) {
-		check();
-
-		initial();
-		init_weights();
-
-		_loss = 0.0;
-
-		//echo();
+	softmax_with_loss_op(blobs *&data) :
+			operator_base(data, CACU_SOFTMAX_LOSS) {
+		_INIT_OP();
 	}
 
 	~softmax_with_loss_op() {
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		_loss = 0.0;
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blobs->at(0)->num(),
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(),
 					s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
-					s_blobs->at(0)->height(), train);
+					s_blobs->at(0)->height(), train));
 #else
-			o_blob = create_oblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),train);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(),train));
 #endif
 		} else {
-			o_blob->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
 					s_blobs->at(0)->width(), s_blobs->at(0)->height());
 		}
 	}
@@ -81,7 +78,7 @@ public:
 
 		_loss = 0.0;
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		em_bin_blob *labels_ = (em_bin_blob*) s_blobs->at(1);
 
@@ -91,7 +88,7 @@ public:
 				o_blob_->length(), labels_->s_data(), o_blob_->s_diff());
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
 		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
@@ -130,7 +127,7 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
 		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
@@ -161,7 +158,7 @@ public:
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {

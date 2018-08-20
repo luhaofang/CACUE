@@ -35,13 +35,9 @@ class deconvolution_op: public operator_base {
 public:
 
 	//output_channel, kernel_size, stride, pad, input_dim, channel
-	deconvolution_op(blob_base *&data, data_args *&args_) :
+	deconvolution_op(blobs *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_DECONVOLUTION) {
-
-		check();
-		initial();
-		init_weights();
-		//echo();
+		_INIT_OP();
 	}
 
 	~deconvolution_op() {
@@ -49,9 +45,9 @@ public:
 	}
 
 	void initial()  {
-		int input_w = s_blob->width();
-		int input_h= s_blob->height();
-		int num = s_blob->num();
+		int input_w = s_blobs->at(0)->width();
+		int input_h= s_blobs->at(0)->height();
+		int num = s_blobs->at(0)->num();
 
 		int output_w = (input_w - 1) * _args->stride()
 				+ _args->kernel_size() - _args->pad() * 2;
@@ -62,31 +58,34 @@ public:
 			output_w = input_w * _args->stride() - 2 * _args->pad();
 		if (_args->kernel_size() == 1)
 			output_h = input_h * _args->stride() - 2 * _args->pad();
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, _args->output_channel(), output_w,
+			o_blobs = create_em_oblobs();
+			o_blobs = create_em_oblob(num, _args->output_channel(), output_w,
 					output_h, _phase);
 
 #else
-			o_blob = create_oblob(num, _args->output_channel(), output_w, output_h, _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(num, _args->output_channel(), output_w, output_h, _phase));
 #endif
 			_col_data = create_opblob(1, _args->output_channel(),
 					input_w * _args->kernel_size(),
 					input_h * _args->kernel_size(), _phase);
-			_bias_multiplier = create_opblob(1, 1, output_w, output_h,
-								(float_t) (1), _phase);
+			_bias_multiplier = create_opblob(1, 1, output_w, output_h, _phase);
+			_bias_multiplier->set_data(1.0);
 		} else {
-			o_blob->resize(num, _args->output_channel(), output_w,
+			o_blobs->at(0)->resize(num, _args->output_channel(), output_w,
 					output_h);
 			_col_data->resize(1, _args->output_channel(),
 					input_w * _args->kernel_size(),
 					input_h * _args->kernel_size());
-			_bias_multiplier->resize(1, 1, output_w, output_h, (float_t) (1));
+			_bias_multiplier->resize(1, 1, output_w, output_h);
+			_bias_multiplier->set_data(1.0);
 		}
 	}
 
 	void init_weights()  {
-		_w = create_param("w", s_blob->channel(), _args->output_channel(),
+		_w = create_param("w", s_blobs->at(0)->channel(), _args->output_channel(),
 				_args->kernel_size(), _args->kernel_size(), _phase);
 
 		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
@@ -94,6 +93,8 @@ public:
 	}
 
 	void check()  {
+		if(_args == NULL)
+			LOG_FATAL("deconvolution data args cannot equal to NULL!");
 		//output_channel > 0
 		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
 				_args->output_channel());
@@ -107,13 +108,13 @@ public:
 
 	void op()  {
 
-		col_offset = o_blob->channel() / _group * _col_data->channel_length();
+		col_offset = o_blobs->at(0)->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * s_blob->channel_length();
+		out_offset = _w->num() / _group * s_blobs->at(0)->channel_length();
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		blob *col_data_ = (blob*) _col_data;
 		for (int i = 0; i < s_blob_->num(); ++i) {
 
@@ -131,8 +132,8 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		blob *col_data_ = (blob*)_col_data;
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
@@ -144,7 +145,7 @@ public:
 				cacu_sgemm(NOTRANS,TRANS, s_blob_->p_data(i) + out_offset * g, s_blob_->width() * s_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_data() + col_offset * g, 0);
 			//col2img
 			//unpadded
-			cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob->width(),o_blob->height(),o_blob->channel(),s_blob_->width(),s_blob_->height(),_args->pad(),_args->pad(), o_blob_->p_data(i));
+			cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->width(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),s_blob_->height(),_args->pad(),_args->pad(), o_blob_->p_data(i));
 
 			if(_is_use_bias)
 			//cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
@@ -159,13 +160,13 @@ public:
 
 	void grad()  {
 
-		col_offset = o_blob->channel() / _group * _col_data->channel_length();
+		col_offset = o_blobs->at(0)->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * s_blob->channel_length();
+		out_offset = _w->num() / _group * s_blobs->at(0)->channel_length();
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		blob *col_data_ = (blob*) _col_data;
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//padded data if needed & img2col change
@@ -195,8 +196,8 @@ public:
 						s_blob_->width() * s_blob_->height());
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		blob *col_data_ = (blob*)_col_data;
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
@@ -241,14 +242,14 @@ public:
 		LOG_INFO("create deconvolution op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), kenrel_size: %d, stride: %d, pad: %d",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height(),
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height(),
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 		_w->_RESET_DIFF();
 		if (_is_use_bias)
 			_bias->_RESET_DIFF();
@@ -277,9 +278,9 @@ protected:
 
 	bool _is_use_bias = true;
 
-	weight *_w;
+	weight *_w = NULL;
 
-	weight *_bias;
+	weight *_bias = NULL;
 
 	blob_base *_col_data = NULL;
 
@@ -289,11 +290,11 @@ protected:
 
 private:
 
-	int col_offset;
+	int col_offset = 0;
 
-	int w_offset;
+	int w_offset = 0;
 
-	int out_offset;
+	int out_offset = 0;
 
 };
 }

@@ -34,12 +34,9 @@ class selu_op: public operator_base {
 
 public:
 
-	selu_op(blob_base *&data) :
+	selu_op(blobs *&data) :
 			operator_base(data, CACU_SELU) {
-		check();
-		initial();
-		init_weights();
-		//echo();
+		_INIT_OP();
 	}
 
 	~selu_op() {
@@ -47,17 +44,19 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = s_blob;
-			_rand_vect = create_em_opblob(s_blob->num(), s_blob->channel(),
-					s_blob->width(), s_blob->height(), test);
+			o_blobs = create_em_oblobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 #else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 #endif
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
-								s_blob->height());
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+								s_blobs->at(0)->height());
 		}
 	}
 
@@ -72,14 +71,14 @@ public:
 	void op()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		cacu_elu_cpu(s_blob_->s_data(), o_blob_->count(), _alpha, o_blob_->s_data());
 		cacu_scalex_cpu(o_blob_->s_data(), o_blob_->count(), _lamda);
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		cacu_elu(s_blob_->s_data(), o_blob_->count(), _alpha, o_blob_->s_data());
 		cacu_scalex(o_blob_->s_data(), o_blob_->count(), _lamda);
@@ -90,15 +89,15 @@ public:
 	void grad()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		cacu_selu_grad_cpu(s_blob_->s_data(), s_blob_->s_diff(), o_blob_->count(), _alpha, o_blob_->s_data(), o_blob_->s_diff());
 		cacu_scalex_cpu(s_blob_->s_diff(), s_blob_->count(), _lamda);
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		cacu_elu_grad(s_blob_->s_data(), s_blob_->s_diff(), o_blob_->count(), _alpha, o_blob_->s_data(), o_blob_->s_diff());
 		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), _lamda);
@@ -117,8 +116,8 @@ public:
 		LOG_INFO("create selu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_()

@@ -34,13 +34,9 @@ class sigmoid_op: public operator_base {
 
 public:
 
-	sigmoid_op(blob_base *&data) :
+	sigmoid_op(blobs *&data) :
 			operator_base(data, CACU_SIGMOID) {
-		check();
-		initial();
-		init_weights();
-		//echo();
-
+		_INIT_OP();
 	}
 
 	~sigmoid_op() {
@@ -48,16 +44,19 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(),
-					s_blob->height(), s_blob->width(), _phase);
+			o_blobs = create_em_oblobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->height(), s_blobs->at(0)->width(), _phase));
 #else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->width(), s_blob->height(), _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 #endif
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->width(),
-					s_blob->height());
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+					s_blobs->at(0)->height());
 		}
 	}
 
@@ -72,15 +71,15 @@ public:
 	void op()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		cacu_sigmoid_cpu(s_blob_->s_data(), o_blob_->count(),
 				o_blob_->s_data());
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		cacu_sigmoid(s_blob_->s_data(), o_blob_->count(), o_blob_->s_data());
 #endif
@@ -90,15 +89,15 @@ public:
 	void grad()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		cacu_sigmoid_grad_cpu(o_blob_->s_data(), o_blob_->s_diff(),
 				s_blob_->count(), s_blob_->s_diff());
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		cacu_sigmoid_grad(o_blob_->s_data(), o_blob_->s_diff(), s_blob_->count(), s_blob_->s_diff());
 #endif
@@ -118,8 +117,8 @@ public:
 		LOG_INFO("create sigmoid op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
+				o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_()  {

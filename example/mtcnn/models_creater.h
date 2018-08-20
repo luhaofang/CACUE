@@ -212,8 +212,7 @@ network* create_Onet(dsize_t batch_size, phase_type phase_) {
 	conv4->op(CACU_CONVOLUTION, pool3->get_oblob())->op(CACU_PRELU);
 	*net << conv4;
 	layer *conv_fc = new layer(new data_args(256, 3, 1, 0, conv4->get_oblob()->channel()));
-	conv_fc->op(CACU_CONVOLUTION, conv4->get_oblob())->op(CACU_DROPOUT)->op(CACU_PRELU);
-	conv_fc->get_op<dropout_op>(1, CACU_DROPOUT)->set_ratio(0.25);
+	conv_fc->op(CACU_CONVOLUTION, conv4->get_oblob())->op(CACU_DROPOUT,new op_args(0.25))->op(CACU_PRELU);
 	*net << conv_fc;
 	layer *split = new layer();
 	split->op(CACU_SPLIT,conv_fc->get_oblob(), new op_args(2));

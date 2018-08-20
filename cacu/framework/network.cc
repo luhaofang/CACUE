@@ -29,6 +29,14 @@
 
 namespace cacu {
 
+
+
+network::network() {
+	_ops = new vector<operator_base*>();
+	_layers = new vector<layer_base*>();
+}
+
+
 network::network(blobs *&datas_) {
 	_input_blobs = datas_;
 

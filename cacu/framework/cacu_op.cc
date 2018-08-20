@@ -25,79 +25,71 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LAYER_BLOCK_H_
-#define LAYER_BLOCK_H_
-
-#include <vector>
-
-//#include "layer_base.h"
-#include "layer.h"
-
-using namespace std;
+#include "cacu_op.h"
 
 namespace cacu {
 
-class layer_block {
-
-public:
-
-	layer_block();
-
-	~layer_block();
-
-	inline blob_base * get_oblob() {
-		if (_layers->size() != 0)
-			return layers(length() - 1)->get_oblob();
-		return NULL;
-	}
-
-	template<class OPTYPE>
-	inline OPTYPE* top_op(){
-		if (_layers->size() != 0)
-		{
-			layer *top_layer_=layers(length() - 1);
-			return top_layer_->get_op<OPTYPE>(top_layer_->op_count()-1,
-					top_layer_->get_out_op()->_TYPE());
-		}
-		return NULL;
-	}
-
-	inline layer* layers(int i) const {
-		return (layer*) _layers->at(i);
-	}
-
-	inline layer_base*& pop_layer() const {
-		return _layers->at(length() - 1);
-	}
-
-	inline layer_base*& layer_bases(int i) const {
-		return _layers->at(i);
-	}
-
-	inline int length() const {
-		return _layers->size();
-	}
-
-	layer_block& operator <<(layer_block* const &layer_block_);
-
-	layer_block& operator <<(layer_block &layer_block_);
-
-	layer_block& operator <<(layer_base* const &layer_);
-
-	layer_block& operator <<(layer_base &layer_);
-
-	void load_weights(chars_t modelpath);
-
-	void save_weights(chars_t modelpath);
-
-	void set_update_weight(bool isupdate_);
-
-
-private:
-
-	vector<layer_base*> *_layers;
-};
-
+cacu_op::cacu_op(op_name op_type_)
+{
+	_op_type = op_type_;
+	blobs *_s_datas = new blobs();
+	_op = operator_factory::create_op(op_type_, _s_datas, NULL, NULL);
+	_INs = new vector<cacu_op*>();
 }
 
-#endif
+cacu_op::cacu_op(op_name op_type_, op_args *args_)
+{
+	_op_type = op_type_;
+	blobs *_s_datas = new blobs();
+	_op = operator_factory::create_op(op_type_, _s_datas, NULL, args_);
+	_INs = new vector<cacu_op*>();
+}
+
+cacu_op::cacu_op(op_name op_type_, blob_base *s_data_, op_args *args_)
+{
+	_op_type = op_type_;
+	blobs *_s_datas = new blobs();
+	_s_datas->push_back(s_data_);
+	_op = operator_factory::create_op(op_type_, _s_datas, NULL, args_);
+	_INs = new vector<cacu_op*>();
+}
+
+cacu_op::cacu_op(op_name op_type_, blob_base *s_data_, data_args *args_)
+{
+	_op_type = op_type_;
+	blobs *_s_datas = new blobs();
+	_s_datas->push_back(s_data_);
+	_op = operator_factory::create_op(op_type_, _s_datas, args_, NULL);
+	_INs = new vector<cacu_op*>();
+}
+
+/*
+ * cacu_op don't maintain the input operator list.
+ * don't need to release input cacu_op memory
+ */
+cacu_op::~cacu_op()
+{
+	delete _INs;
+	_INs = NULL;
+	delete _op;
+	_op = NULL;
+}
+
+
+cacu_op* cacu_op::operator << (cacu_op *&cacu_op_) {
+	this->_INs->push_back(cacu_op_);
+	return this;
+}
+
+cacu_op* cacu_op::operator >>(cacu_op *&cacu_op_) {
+	cacu_op_->_INs->push_back(this);
+	return cacu_op_;
+}
+
+cacu_op* cacu_op::operator <<(blob_base *&data_){
+	this->_op->in_datas()->push_back(data_);
+	data_->_REC();
+	return this;
+}
+
+}

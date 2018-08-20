@@ -49,100 +49,71 @@ class operator_base {
 
 public:
 
-	operator_base(blob_base *&data, data_args *&args_, op_name type_) {
-
-		s_blob = data;
-		s_blobs = NULL;
-		o_blob = NULL;
-		o_blobs = NULL;
-		_args = args_;
-		_o_args = NULL;
-		_phase = data->phase();
-		_OP_TYPE = type_;
-		data->_REC();
-
-		_weights = new vector<weight*>();
-		_storage_blobs = new blobs();
-	}
-
-	operator_base(blob_base *&data, op_name type_) {
-
-		s_blob = data;
-		s_blobs = NULL;
-		o_blob = NULL;
-		o_blobs = NULL;
-		_args = NULL;
-		_o_args = NULL;
-		_phase = data->phase();
-		_OP_TYPE = type_;
-		data->_REC();
-
-		_weights = new vector<weight*>();
-		_storage_blobs = new blobs();
-	}
-
-	operator_base(blob_base *&data, op_args *&args_, op_name type_) {
-
-		s_blob = data;
-		s_blobs = NULL;
-		o_blob = NULL;
-		o_blobs = NULL;
-		_args = NULL;
-		_o_args = args_;
-		_phase = data->phase();
-		_OP_TYPE = type_;
-		data->_REC();
-
-		_weights = new vector<weight*>();
-		_storage_blobs = new blobs();
-	}
-
 	operator_base(blobs *&data, data_args *&args_, op_name type_) {
 
-		s_blob = NULL;
 		s_blobs = data;
-		o_blob = NULL;
 		o_blobs = NULL;
 		_args = args_;
 		_o_args = NULL;
-		_phase = data->at(0)->phase();
+		_phase = test;
 		_OP_TYPE = type_;
+#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		data->_REC();
-
+#endif
 		_weights = new vector<weight*>();
 		_storage_blobs = new blobs();
+
+	}
+
+	operator_base(blobs *&data, op_args *&o_args_, op_name type_) {
+
+		s_blobs = data;
+		o_blobs = NULL;
+		_args = NULL;
+		_o_args = o_args_;
+		_phase = test;
+		_OP_TYPE = type_;
+#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
+		data->_REC();
+#endif
+		_weights = new vector<weight*>();
+		_storage_blobs = new blobs();
+
 	}
 
 	operator_base(blobs *&data, op_name type_) {
 
-		s_blob = NULL;
 		s_blobs = data;
-		o_blob = NULL;
 		o_blobs = NULL;
 		_args = NULL;
 		_o_args = NULL;
-		_phase = data->at(0)->phase();
+		_phase = test;
 		_OP_TYPE = type_;
+#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		data->_REC();
-
+#endif
 		_weights = new vector<weight*>();
 		_storage_blobs = new blobs();
+
 	}
 
 	virtual ~operator_base() {
 
 		delete _o_args;
 		if (_IS_ALLOC_OUTPUT) {
-			if (o_blob != NULL){
-				delete o_blob;
-				o_blob = NULL;
-			}
 			if (o_blobs != NULL)
 			{
 				delete o_blobs;
 				o_blobs = NULL;
 			}
 		}
+		//clear s_blobs, but don't need to release the blob memory
+		if( s_blobs != NULL){
+			s_blobs->clear();
+			delete s_blobs;
+			s_blobs = NULL;
+		}
+
 		for (unsigned int i = 0; i < _weights->size(); ++i) {
 			delete _weights->at(i);
 			_weights->at(i) = NULL;
@@ -155,6 +126,12 @@ public:
 	}
 
 	virtual void check() = 0;
+
+	virtual void init_weights() = 0;
+
+	virtual void op() = 0;
+
+	virtual void initial() = 0;
 
 	virtual void grad() = 0;
 
@@ -174,7 +151,7 @@ public:
 
 	template<typename BTYPE>
 	inline BTYPE *&out_data() const {
-		return (BTYPE *&) o_blob;
+		return (BTYPE *&) o_blobs->at(0);
 	}
 
 	inline blobs *&in_datas() const{
@@ -183,7 +160,7 @@ public:
 
 	template<typename BTYPE>
 	inline BTYPE *&in_data() const {
-		return (BTYPE *&) s_blob;
+		return (BTYPE *&) s_blobs->at(0);
 	}
 
 	inline int weights_size() const {
@@ -203,9 +180,9 @@ public:
 
 	inline void infer() {
 		time_utils *t = new time_utils();
-		blob_base *blob_ = (s_blobs == NULL) ? s_blob : s_blobs->at(0);
+		blob_base *blob_ = s_blobs->at(0);
 		if (!blob_->_IS_MOTIFIED()) {
-			(s_blobs == NULL) ? blob_->_MOTIFY() : s_blobs->_MOTIFY();
+			s_blobs->_MOTIFY();
 			initial();
 		}
 		t->start();
@@ -219,16 +196,62 @@ public:
 	}
 
 	inline void set_blob(blob_base *&blob_) {
-		s_blob->_CHECK_SIZE_EQ(blob_);
-		s_blob = blob_;
+		if(s_blobs->size() > 0){
+			s_blobs->at(0)->_CHECK_SIZE_EQ(blob_);
+			switch(s_blobs->at(0)->_TYPE()){
+			case __blob__:
+				delete (blob*)s_blobs->at(0);
+				break;
+			case __bin_blob__:
+				delete (bin_blob*)s_blobs->at(0);
+				break;
+			default:
+				delete s_blobs->at(0);
+				break;
+			}
+			s_blobs->at(0) = blob_;
+		}
+		else
+			s_blobs->push_back(blob_);
 	}
 
 	inline void set_blobs(blobs *&blobs_) {
-		s_blobs = blobs_;
+		if(s_blobs == NULL)
+			s_blobs = blobs_;
+		else
+		{
+			delete s_blobs;
+			s_blobs = blobs_;
+		}
+
 	}
 
 	inline op_name _TYPE() {
 		return _OP_TYPE;
+	}
+
+
+	/*
+	 * if using dynamic graph computing, this function is used to alloc the operator.
+	 */
+	void alloc_create_op(){
+
+#if __OPERATOR__TYPE__ == __DYNAMIC_GRAPH__
+		check();
+		initial();
+		if(_weights->size() == 0)
+			init_weights();
+#endif
+	}
+
+	/*
+	 * if the input s_blobs is not assigned when it's decleared.
+	 * init_sblob used to register s_blob data.
+	 */
+	inline void init_sblob(){
+		if(s_blobs == NULL)
+			LOG_FATAL("Operator input data is NULL!");
+		_phase = s_blobs->at(0)->phase();
 	}
 
 	//inline void __NEED_BACK_PROPAGATE__(bool need_back_propagate_){
@@ -238,10 +261,6 @@ public:
 protected:
 
 	blobs *s_blobs;
-
-	blob_base *s_blob;
-
-	blob_base *o_blob;
 
 	blobs *o_blobs;
 
@@ -275,7 +294,6 @@ protected:
 
 	inline blob_base * create_oblob(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height, phase_type phase_) {
-		_IS_ALLOC_OUTPUT = true;
 		return new blob(num, channel, width, height, 0, phase_);
 	}
 
@@ -349,13 +367,20 @@ protected:
 		return new blobs();
 	}
 
-	virtual void init_weights() = 0;
-
-	virtual void op() = 0;
-
-	virtual void initial() = 0;
-
 	bool _NEED_BACK_PROPAGATE_FEATURE = true;
+
+	/*
+	 * load just for one time in constructed function.
+	 */
+	void _INIT_OP(){
+#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
+		//initialize the op phase
+		_phase = s_blobs->at(0)->phase();
+		check();
+		initial();
+		init_weights();
+#endif
+	}
 
 
 private:

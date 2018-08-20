@@ -34,14 +34,9 @@ class split_op: public operator_base {
 
 public:
 
-	split_op(blob_base *&data, op_args *&args_) :
+	split_op(blobs *&data, op_args *&args_) :
 			operator_base(data, args_, CACU_SPLIT) {
-		_split_count = _o_args->at(0);
-		check();
-		initial();
-		init_weights();
-		//echo();
-
+		_INIT_OP();
 	}
 
 	~split_op() {
@@ -49,6 +44,7 @@ public:
 	}
 
 	void initial()  {
+		_split_count = _o_args->at(0);
 		if (o_blobs == NULL) {
 			o_blobs = create_oblobs();
 			for (int i = 0; i < _split_count; ++i) {
@@ -58,13 +54,14 @@ public:
 								s_blob->channel(), s_blob->width(),
 								s_blob->height(), 0, _phase));
 #else
-				o_blobs->push_back(cacu_allocator::create_blob(s_blob->num(),s_blob->channel(),s_blob->width(),s_blob->height(),0,_phase));
+				o_blobs->push_back(cacu_allocator::create_blob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(),
+						s_blobs->at(0)->width(),s_blobs->at(0)->height(),0,_phase));
 #endif
 			}
 		} else {
 			for (int i = 0; i < _split_count; ++i) {
-				o_blobs->at(i)->resize(s_blob->num(), s_blob->channel(),
-						s_blob->width(), s_blob->height());
+				o_blobs->at(i)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+						s_blobs->at(0)->width(), s_blobs->at(0)->height());
 			}
 		}
 	}
@@ -74,15 +71,18 @@ public:
 	}
 
 	void check()  {
+		if(_o_args == NULL)
+			LOG_FATAL("split op args cannot equal to NULL!");
+		int split_count = _o_args->at(0);
 		//split count > 0
-		CHECK_GT_OP(_split_count, 0, "output_channel must > 0 vs %d",
-				_split_count);
+		CHECK_GT_OP(split_count, 0, "output_channel must > 0 vs %d",
+				split_count);
 	}
 
 	void op()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		for (int j = 0; j < (o_blobs)->size(); ++j) {
 			em_blob *o_blob_ = (em_blob *) o_blobs->at(j);
@@ -90,7 +90,7 @@ public:
 					o_blob_->s_data());
 		}
 #else
-		blob *s_blob_ = (blob*)s_blob;
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		for (unsigned int j = 0; j < (o_blobs)->size(); ++j) {
 			blob *o_blob_ = (blob *)o_blobs->at(j);
@@ -102,7 +102,7 @@ public:
 	void grad()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			for (int j = 0; j < (o_blobs)->size(); ++j) {
@@ -113,7 +113,7 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *s_blob_ = (blob*)s_blob;
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		for (unsigned int j = 0; j < (o_blobs)->size(); ++j) {
 			blob *o_blob_ = (blob *)o_blobs->at(j);
@@ -134,7 +134,7 @@ public:
 		LOG_INFO("create split op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), split_num: %d",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(),
 				o_blobs->at(0)->height(), _split_count);
 	}
@@ -150,7 +150,7 @@ public:
 
 private:
 
-	int _split_count;
+	int _split_count = 0;
 
 };
 }

@@ -34,12 +34,9 @@ class leaky_relu_op: public operator_base {
 
 public:
 
-	leaky_relu_op(blob_base *&data) :
-			operator_base(data, CACU_LEAKY_RELU) {
-		check();
-		initial();
-		init_weights();
-		//echo();
+	leaky_relu_op(blobs *&data, op_args *&args_) :
+			operator_base(data, args_, CACU_LEAKY_RELU) {
+		_INIT_OP();
 	}
 
 	~leaky_relu_op() {
@@ -47,10 +44,11 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL)
-			o_blob = s_blob;
+		_negative_slope = _o_args->at(0);
+		if (o_blobs == NULL)
+			o_blobs = s_blobs;
 		else
-			o_blob->_NEED_MOTIFY();
+			o_blobs->_NEED_MOTIFY();
 	}
 
 	void init_weights()  {
@@ -58,18 +56,22 @@ public:
 	}
 
 	void check()  {
-		return;
+		if(_o_args == NULL)
+			LOG_FATAL("leaky relu op args cannot equal to NULL!");
+		//negative_slope > 0
+		CHECK_GT_OP(_o_args->at(0), 0, "negative slope must > 0 vs %d",
+				_o_args->at(0));
 	}
 
 	void op()  {
 
-		blob *s_blob_ = (blob*) s_blob;
+		blob *s_blob_ = (blob*) s_blobs->at(0);
 		cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
 	}
 
 	void grad()  {
-		blob *o_blob_ = (blob*) o_blob;
-		blob *s_blob_ = (blob*) s_blob;
+		blob *o_blob_ = (blob*) o_blobs->at(0);
+		blob *s_blob_ = (blob*) s_blobs->at(0);
 		cacu_leaky_relu_grad(s_blob_->s_data(), o_blob_->s_diff(),
 				_negative_slope, s_blob_->count());
 	}
@@ -86,8 +88,8 @@ public:
 		LOG_INFO("create leaky_relu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_()  {
@@ -98,7 +100,7 @@ public:
 		_phase = phase_;
 	}
 
-	float_t _negative_slope = 0.01f;
+	float_t _negative_slope = 0.01;
 
 private:
 

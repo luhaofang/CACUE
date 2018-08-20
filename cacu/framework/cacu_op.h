@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LAYER_H_
-#define LAYER_H_
+#ifndef CACU_OP_H_
+#define CACU_OP_H_
 
 #include "../ops/ops_definition.h"
 
@@ -34,64 +34,92 @@
 
 namespace cacu {
 
-class layer: public layer_base {
+class cacu_op {
 
 public:
 
-	layer(data_args *args);
+	cacu_op(op_name op_type_);
 
-	layer();
+	cacu_op(op_name op_type_, op_args *args_);
 
-	~layer(){}
+	cacu_op(op_name op_type_, blob_base *s_data_, op_args *args_);
+
+	cacu_op(op_name op_type_, blob_base *s_data_, data_args *args_);
+
+	~cacu_op();
 
 	int caculate_data_space() {
 		return 0;
 	}
 
-	layer* op(op_name op_);
-
-	layer* op(op_name op_, blob_base * blob_);
-
-	layer* op(op_name op_, blob_base * blob_, data_args *& args_);
-
-	layer* op(op_name op_, blobs * blobs_);
-
-	layer* op(op_name op_, blobs * blobs_, data_args *& args_);
-
-	layer* op(op_name op_, blob_base * blob_, op_args * args_);
-
-	layer* op(op_name op_, op_args * args_);
-
-	layer* op(op_name op_, blobs * blobs_, op_args * o_args_);
-
-
 	template<typename OPTYPE>
-	inline OPTYPE *get_op(int i, op_name optype_) const {
-		if(optype_ == _ops->at(i)->_TYPE())
-			return (OPTYPE*)_ops->at(i);
+	inline OPTYPE *&get_op() const {
+		if(_op_type == _op->_TYPE())
+			return (OPTYPE*&)_op;
 		else{
 			LOG_FATAL("Shot! You are using a wrong type operator casting!");
 		}
 	}
 
-	inline operator_base *&get_head_op() const{
-		return _ops->at(0);
+	cacu_op* operator <<(cacu_op *&op_);
+
+	cacu_op* operator >>(cacu_op *&op_);
+
+	cacu_op* operator <<(blob_base *&data_);
+
+	template<typename BTYPE>
+	inline BTYPE *&get_sblob() {
+		return _op->in_data<BTYPE>();
 	}
 
-	inline operator_base *&get_out_op() const{
-		return _ops->at(_ops->size() - 1);
+	template<typename BTYPE>
+	inline BTYPE *&get_oblob() {
+		return _op->out_data<BTYPE>();
 	}
 
-	inline blob_base *&get_oblob() {
-		return out_blob;
+	inline blobs *&get_sblobs() {
+		return _op->in_datas();
 	}
 
-	inline blobs *&get_oblobs() const {
-		return _ops->back()->out_datas();
+	inline blobs *&get_oblobs() {
+		return _op->out_datas();
+	}
+
+	inline weight *get_param(int i)
+	{
+		CHECK_LT_OP(i,_op->weights_size(),"parameter index is out of range %d vs %d!", i, _op->weights_size());
+		return _op->get_weight(i);
+	}
+
+	inline void run()
+	{
+		_op->infer();
+	}
+
+	/**
+	 * assign operator
+	 * this function is called after the calculation steps are assigned.
+	 * every input of the
+	 * WARNING: focus on the multi output operator such as split_op.
+	 */
+	void _CREATE_OP(){
+		for(int i = 0 ; i < _INs->size(); ++i) {
+			_op->in_datas()->push_back(_INs->at(i)->get_oblob<blob_base>());
+			_INs->at(i)->get_oblob<blob_base>()->_REC();
+		}
+		//initial phase
+		_op->init_sblob();
+		//initial operator
+		_op->alloc_create_op();
 	}
 
 private:
 
+	op_name _op_type;
+
+	vector<cacu_op*> *_INs = NULL;
+
+	operator_base *_op;
 
 };
 

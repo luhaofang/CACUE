@@ -164,7 +164,7 @@ public:
 
 	void load(std::ifstream& is);
 
-	inline void resize(dsize_t num, dsize_t channel, dsize_t width,
+	void resize(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height) {
 		_width = width;
 		_height = height;
@@ -185,25 +185,6 @@ public:
 		}
 	}
 
-	inline void resize(dsize_t num, dsize_t channel, dsize_t width,
-				dsize_t height, int value) {
-		_width = width;
-		_height = height;
-		_channel = channel;
-		_num = num;
-		_channel_length = width * height;
-		_cube_length = channel * width * height;
-		_length = _num * _cube_length;
-
-		if(_IS_MOTIFIED())
-			return;
-		_tdata->resize(_length, value);
-		_s_data = _tdata->pdata();
-		if(_tdiff != NULL){
-			_tdiff->resize(_length, 0);
-			_s_diff = _tdiff->pdata();
-		}
-	}
 
 private:
 

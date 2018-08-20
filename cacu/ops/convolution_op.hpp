@@ -35,13 +35,9 @@ class convolution_op: public operator_base {
 public:
 
 	//output_channel, kernel_size, stride, pad, input_dim, channel
-	convolution_op(blob_base *&data, data_args *&args_) :
+	convolution_op(blobs *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_CONVOLUTION) {
-
-		check();
-		initial();
-		init_weights();
-		//echo();
+		_INIT_OP();
 	}
 
 	~convolution_op() {
@@ -50,41 +46,44 @@ public:
 
 	void initial() {
 
-		int output_w = (s_blob->width() + 2 * _args->pad()
+		int output_w = (s_blobs->at(0)->width() + 2 * _args->pad()
 				- _args->kernel_size()) / _args->stride() + 1;
 		if (_args->kernel_size() == 1)
-			output_w = (s_blob->width() + 2 * _args->pad()) / _args->stride();
+			output_w = (s_blobs->at(0)->width() + 2 * _args->pad()) / _args->stride();
 
-		int output_h = (s_blob->height() + 2 * _args->pad()
+		int output_h = (s_blobs->at(0)->height() + 2 * _args->pad()
 				- _args->kernel_size()) / _args->stride() + 1;
 		if (_args->kernel_size() == 1)
-			output_h = (s_blob->height() + 2 * _args->pad()) / _args->stride();
-		if (o_blob == NULL) {
+			output_h = (s_blobs->at(0)->height() + 2 * _args->pad()) / _args->stride();
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
+			o_blobs = create_em_oblobs();
 			o_blob = create_em_oblob(s_blob->num(), _args->output_channel(),
 					output_w, output_h, _phase);
 
 #else
-			o_blob = create_oblob(s_blob->num(), _args->output_channel(), output_w, output_h, _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), _args->output_channel(), output_w, output_h, _phase));
 #endif
-			_col_data = create_opblob(1, s_blob->channel(),
+			_col_data = create_opblob(1, s_blobs->at(0)->channel(),
 					output_w * _args->kernel_size(),
 					output_h * _args->kernel_size(), _phase);
 			_bias_multiplier = create_opblob(1, 1, output_w, output_h,
 					(float_t) (1), _phase);
 		} else {
 
-			o_blob->resize(s_blob->num(), _args->output_channel(), output_w,
-					output_h);
-			_col_data->resize(1, s_blob->channel(),
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), _args->output_channel(), output_w,
+				output_h);
+			_col_data->resize(1, s_blobs->at(0)->channel(),
 					output_w * _args->kernel_size(),
 					output_h * _args->kernel_size());
-			_bias_multiplier->resize(1, 1, output_w, output_h, (float_t) (1));
+			_bias_multiplier->resize(1, 1, output_w, output_h);
+			_bias_multiplier->set_data(1.0);
 		}
 	}
 
 	void init_weights() {
-		_w = create_param("w", _args->output_channel(), s_blob->channel(),
+		_w = create_param("w", _args->output_channel(), s_blobs->at(0)->channel(),
 				_args->kernel_size(), _args->kernel_size(), _phase);
 
 		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
@@ -92,6 +91,8 @@ public:
 	}
 
 	void check() {
+		if(_args == NULL)
+			LOG_FATAL("convolution data args cannot equal to NULL!");
 		//output_channel > 0
 		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
 				_args->output_channel());
@@ -106,9 +107,9 @@ public:
 
 	void op()  {
 
-		col_offset = s_blob->channel() / _group * _col_data->channel_length();
+		col_offset = s_blobs->at(0)->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * o_blob->channel_length();
+		out_offset = _w->num() / _group * o_blobs->at(0)->channel_length();
 
 		blob *col_data_ = (blob*) _col_data;
 		blob *bias_multiplier = (blob*) _bias_multiplier;
@@ -141,8 +142,8 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		time_utils *t = new time_utils();
 		long ts = 0;
 		for (int i = 0; i < s_blob_->num(); ++i) {
@@ -168,10 +169,10 @@ public:
 
 	void grad()  {
 
-		col_offset = s_blob->channel() / _group * _col_data->width()
+		col_offset = s_blobs->at(0)->channel() / _group * _col_data->width()
 				* _col_data->height();
 		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * o_blob->width() * o_blob->height();
+		out_offset = _w->num() / _group * o_blobs->at(0)->channel_length();
 
 		blob *col_data_ = (blob*) _col_data;
 		blob *bias_multiplier = (blob*) _bias_multiplier;
@@ -216,8 +217,8 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//if(_NEED_BACK_PROPAGATE_FEATURE)
@@ -228,10 +229,10 @@ public:
 					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
 				//col2img
 				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
+				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blobs->at(0)->width(),s_blobs->at(0)->height(),s_blobs->at(0)->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
 			}
 			//weights gradient
-			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blob->width(),s_blob->height(),s_blob->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
+			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blobs->at(0)->width(),s_blobs->at(0)->height(),s_blobs->at(0)->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
 			for (int g = 0; g < _group; ++g)
 			cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g, _w->length() / _group, o_blob_->channel_length(), o_blob_->p_diff(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
 			//bias gradient
@@ -265,14 +266,14 @@ public:
 		LOG_INFO("create convolution op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), kenrel_size: %d, stride: %d, pad: %d",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height(),
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height(),
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 		_w->_RESET_DIFF();
 		if (_is_use_bias)
 			_bias->_RESET_DIFF();
@@ -294,9 +295,9 @@ public:
 
 	inline void set_group(int group) {
 		CHECK_GT_OP(group, 0, "group must > 0 vs %d", group);
-		CHECK_LE_OP(group, s_blob->channel(), "group must <= %d vs %d",
+		CHECK_LE_OP(group, s_blobs->at(0)->channel(), "group must <= %d vs %d",
 				_args->channel(), group);
-		CHECK_EQ_OP(s_blob->channel() % group, 0,
+		CHECK_EQ_OP(s_blobs->at(0)->channel() % group, 0,
 				"channel mod group must == 0 vs %d", _args->channel() % group);
 		LOG_INFO("group set: %d", group);
 		this->_group = group;
@@ -311,9 +312,9 @@ protected:
 
 	bool _is_use_bias = true;
 
-	weight *_w;
+	weight *_w = NULL;
 
-	weight *_bias;
+	weight *_bias = NULL;
 
 	blob *_col_data = NULL;
 
@@ -323,11 +324,11 @@ protected:
 
 private:
 
-	int col_offset;
+	int col_offset = 0;
 
-	int w_offset;
+	int w_offset = 0;
 
-	int out_offset;
+	int out_offset = 0;
 
 };
 }

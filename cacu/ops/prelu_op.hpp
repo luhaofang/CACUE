@@ -34,12 +34,9 @@ class prelu_op: public operator_base {
 
 public:
 
-	prelu_op(blob_base *&data) :
+	prelu_op(blobs *&data) :
 			operator_base(data, CACU_PRELU) {
-		check();
-		initial();
-		init_weights();
-		//echo();
+		_INIT_OP();
 	}
 
 	~prelu_op() {
@@ -47,15 +44,15 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
-			o_blob = s_blob;
+		if (o_blobs == NULL) {
+			o_blobs = s_blobs;
 		} else {
-			o_blob->_NEED_MOTIFY();
+			o_blobs->_NEED_MOTIFY();
 		}
 	}
 
 	void init_weights()  {
-		_p_slopes = create_param("pslopes", 1, s_blob->channel(), 1, 1, _phase);
+		_p_slopes = create_param("pslopes", 1, s_blobs->at(0)->channel(), 1, 1, _phase);
 		set_param_init_type(constant, _p_slopes, 0.25);
 	}
 
@@ -66,19 +63,19 @@ public:
 	void op()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		cacu_prelu_cpu(o_blob_->s_data(), _p_slopes->s_data(), o_blob_->num(),
 				o_blob_->channel(), o_blob_->channel_length());
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		//LOG_DEBUG("input");
 		//cacu_print(o_blob_->s_data(), 100);
-		cacu_prelu(o_blob_->s_data(), _p_slopes->s_data(), o_blob_->num(),
-				o_blob_->channel(), o_blob_->channel_length());
+		cacu_prelu(o_blob_->s_data(), _p_slopes->s_data(), s_blob_->num(),
+				s_blob_->channel(), s_blob_->channel_length());
 		//LOG_DEBUG("output");
 		//cacu_print(o_blob_->s_data(), 100);
 #endif
@@ -87,16 +84,16 @@ public:
 	void grad()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 		cacu_prelu_grad_cpu(s_blob_->s_data(), o_blob_->s_diff(),
 				_p_slopes->s_data(), _p_slopes->s_diff(), o_blob_->num(),
 				o_blob_->channel(), o_blob_->channel_length());
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		cacu_prelu_grad(s_blob_->s_data(), o_blob_->s_diff(), _p_slopes->s_data(), _p_slopes->s_diff(), o_blob_->num(),
 				o_blob_->channel(), o_blob_->channel_length());
@@ -116,8 +113,8 @@ public:
 		LOG_INFO("create relu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_() 

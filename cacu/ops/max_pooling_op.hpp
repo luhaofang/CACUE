@@ -34,14 +34,9 @@ class max_pooling_op: public operator_base {
 
 public:
 
-	max_pooling_op(blob_base *&data, data_args *&args_) :
+	max_pooling_op(blobs *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_MAX_POOLING) {
-
-		check();
-		initial();
-		init_weights();
-		//echo();
-
+		_INIT_OP();
 	}
 
 	~max_pooling_op() {
@@ -49,34 +44,36 @@ public:
 	}
 
 	void initial()  {
-		int output_w = (s_blob->width() - _args->kernel_size())
+		int output_w = (s_blobs->at(0)->width() - _args->kernel_size())
 				/ _args->stride() + 1;
-		int output_h = (s_blob->height() - _args->kernel_size())
+		int output_h = (s_blobs->at(0)->height() - _args->kernel_size())
 				/ _args->stride() + 1;
 		int pad = abs(
-				s_blob->width() - (output_w - 1) * _args->stride()
+				s_blobs->at(0)->width() - (output_w - 1) * _args->stride()
 						- _args->kernel_size());
 		if (pad != 0)
 			output_w += 1;
 		pad = abs(
-				s_blob->height() - (output_h - 1) * _args->stride()
+				s_blobs->at(0)->height() - (output_h - 1) * _args->stride()
 						- _args->kernel_size());
 		if (pad != 0)
 			output_h += 1;
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(), output_w,
-					output_h, _phase);
-			_index = cacu_allocator::create_em_bin_blob(s_blob->num(),
-					s_blob->channel(), output_w, output_h, test);
+			o_blobs = create_em_oblobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), output_w,
+					output_h, _phase));
+			_index = cacu_allocator::create_em_bin_blob(s_blobs->at(0)->num(),
+					s_blobs->at(0)->channel(), output_w, output_h, test);
 #else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), output_w, output_h, _phase);
-			_index = create_bin_opblob(s_blob->num(), s_blob->channel(), output_w, output_h, test);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), output_w, output_h, _phase));
+			_index = create_bin_opblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), output_w, output_h, test);
 #endif
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), output_w,
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), output_w,
 					output_h);
-			_index->resize(s_blob->num(), s_blob->channel(), output_w,
+			_index->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), output_w,
 					output_h);
 		}
 	}
@@ -86,6 +83,8 @@ public:
 	}
 
 	void check()  {
+		if(_args == NULL)
+			LOG_FATAL("pooling data args cannot equal to NULL!");
 		//kernel_size > 0
 		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
 				_args->kernel_size());
@@ -106,8 +105,8 @@ public:
 			index_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *index_ = (bin_blob*)_index;
 		for(int i = 0; i < s_blob_->num(); ++i)
 		cacu_max_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), o_blob_->p_data(i), index_->p_data(i));
@@ -128,8 +127,8 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *index_ = (bin_blob*)_index;
 
 		for(int i = 0; i < s_blob_->num(); ++i)
@@ -149,14 +148,14 @@ public:
 		LOG_INFO("create max_pooling op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), kenrel_size: %d, stride: %d, pad: %d",
-				s_blob->channel(), s_blob->width(), s_blob->height(),
-				o_blob->channel(), o_blob->width(), o_blob->height(),
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height(),
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 		_index->_RESET_DATA();
 	}
 

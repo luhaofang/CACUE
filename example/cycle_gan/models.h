@@ -39,27 +39,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace cacu;
 
-layer_block* conv_block(blob_base* data,int output_channel, int kernel_size, int stride,int pad,int group = 1, op_name activation_op = CACU_LEAKY_RELU, bool usebias = false)
+layer_block* conv_block_cycleGAN_l(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
 	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
-	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.02);
+	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(CACU_LEAKY_RELU, new op_args(0.2));
+	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.01);
 	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
-	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(group);
 	clock_t end = clock();
 	*lb << l;
 	return lb;
 }
 
-layer_block* deconv_block(blob_base* data,int output_channel, int kernel_size, int stride,int pad,int group = 1, op_name activation_op = CACU_RELU, bool usebias = false)
+layer_block* conv_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = false)
+{
+	layer_block *lb = new layer_block();
+	clock_t start = clock();
+	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
+	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(CACU_RELU);
+	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.01);
+	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
+	clock_t end = clock();
+	*lb << l;
+	return lb;
+}
+
+layer_block* deconv_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad,int group = 1, op_name activation_op = CACU_RELU, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
 	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
 	l->op(CACU_DECONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	l->get_op<convolution_op>(0, CACU_DECONVOLUTION)->set_weight_init_type(gaussian,0.02);
+	l->get_op<convolution_op>(0, CACU_DECONVOLUTION)->set_weight_init_type(gaussian,0.01);
 	l->get_op<convolution_op>(0, CACU_DECONVOLUTION)->set_is_use_bias(usebias);
 	l->get_op<convolution_op>(0, CACU_DECONVOLUTION)->set_group(group);
 	clock_t end = clock();
@@ -67,7 +79,7 @@ layer_block* deconv_block(blob_base* data,int output_channel, int kernel_size, i
 	return lb;
 }
 
-layer_block* residual_block(blob_base* data,int output_channel, int kernel_size, int stride,int pad,int group = 1, op_name activation_op = CACU_RELU, bool usebias = false)
+layer_block* residual_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad,int group = 1, op_name activation_op = CACU_RELU, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
 
@@ -77,13 +89,13 @@ layer_block* residual_block(blob_base* data,int output_channel, int kernel_size,
 	clock_t start = clock();
 	layer *l1 = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
 	l1->op(CACU_CONVOLUTION, split->get_oblobs()->at(0))->op(CACU_BATCH_NORMALIZE)->op(activation_op);
-	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.02);
+	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.01);
 	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
 	l1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(group);
 
 	layer *l2 = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
 	l2->op(CACU_CONVOLUTION, l1->get_oblob())->op(CACU_BATCH_NORMALIZE);
-	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.02);
+	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.01);
 	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
 	l2->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_group(group);
 
@@ -99,7 +111,7 @@ layer_block* residual_block(blob_base* data,int output_channel, int kernel_size,
 	return lb;
 }
 
-layer_block* abse_loss(blob_base* data1, blob_base *data2)
+layer_block* abse_loss_cycleGAN(blob_base* data1, blob_base *data2)
 {
 
 	blobs *datas = new blobs();
@@ -114,7 +126,7 @@ layer_block* abse_loss(blob_base* data1, blob_base *data2)
 	return lb;
 }
 
-layer_block* mse_loss(blob_base* data1, blob_base *data2)
+layer_block* mse_loss_cycleGAN(blob_base* data1, blob_base *data2)
 {
 
 	blobs *datas = new blobs();
@@ -129,7 +141,7 @@ layer_block* mse_loss(blob_base* data1, blob_base *data2)
 	return lb;
 }
 
-layer_block* sigmoid_loss(blob_base* data, blob_base *label)
+layer_block* sigmoid_loss_cycleGAN(blob_base* data, blob_base *label)
 {
 
 	layer_block *lb = new layer_block();
@@ -146,15 +158,15 @@ layer_block* create_generator_cycleGan(int batch_size, int dim, phase_type phase
 	blob *blob_= new blob(batch_size,3,256,256,0,phase_);
 	layer_block *generator = new layer_block();
 
-	layer_block *block1 = conv_block(blob_, dim, 7, 1, 2, CACU_RELU);
-	layer_block *block2 = conv_block(block1->get_oblob(), dim*2, 3, 2, 1, CACU_RELU);
-	layer_block *block3 = conv_block(block2->get_oblob(), dim*4, 3, 2, 1, CACU_RELU);
+	layer_block *block1 = conv_block_cycleGAN(blob_, dim, 7, 1, 3);
+	layer_block *block2 = conv_block_cycleGAN(block1->get_oblob(), dim*2, 3, 2, 1);
+	layer_block *block3 = conv_block_cycleGAN(block2->get_oblob(), dim*4, 3, 2, 1);
 
 	*generator << block1 << block2 << block3;
 
 	for(int i = 0 ; i < 9 ;++i)
 	{
-		layer_block *resblock = residual_block(generator->get_oblob(), dim * 4, 3, 1, 1, CACU_RELU);
+		layer_block *resblock = residual_block_cycleGAN(generator->get_oblob(), dim * 4, 3, 1, 1);
 		*generator << resblock;
 	}
 	/*
@@ -171,12 +183,12 @@ layer_block* create_generator_cycleGan(int batch_size, int dim, phase_type phase
 	*generator << resblock4 << resblock5 << resblock6;
 	*generator << resblock7 << resblock8 << resblock9;
 	*/
-	layer_block *deconvblock1 = deconv_block(generator->get_oblob(), dim * 2, 3, 2, 1, CACU_RELU);
-	layer_block *deconvblock2 = deconv_block(generator->get_oblob(), dim, 3, 2, 1, CACU_RELU);
+	layer_block *deconvblock1 = deconv_block_cycleGAN(generator->get_oblob(), dim * 2, 4, 2, 1);
+	*generator << deconvblock1;
+	layer_block *deconvblock2 = deconv_block_cycleGAN(generator->get_oblob(), dim, 4, 2, 1);
+	*generator << deconvblock2;
 
-	*generator << deconvblock1 << deconvblock2;
-
-	layer *conv = new layer(new data_args(3, 7 ,1, 1, dim));
+	layer *conv = new layer(new data_args(3, 7 ,1, 3, dim));
 	conv->op(CACU_CONVOLUTION,blob_)->op(CACU_TANH);
 	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian, 0.02);
 	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
@@ -191,24 +203,28 @@ layer_block* create_discriminator_cycleGan(int batch_size, int dim, phase_type p
 {
 
 	blob *blob_= new blob(batch_size,3,256,256,0,phase_);
+	bin_blob *label_ = new bin_blob(batch_size,1,1,1,0,phase_);
 	layer_block *discriminator = new layer_block();
 
-	layer *conv1 = new layer(new data_args(dim, 4, 2, 1, blob_->channel()));
-	conv1->op(CACU_CONVOLUTION,blob_)->op(CACU_LEAKY_RELU);
+	layer *conv1 = new layer(new data_args(dim, 3, 2, 1, blob_->channel()));
+	conv1->op(CACU_CONVOLUTION,blob_)->op(CACU_LEAKY_RELU, new op_args(0.2));
 	conv1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian, 0.02);
 	conv1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
-	layer_block *block1 = conv_block(conv1->get_oblob(), dim*2, 4, 2, 1, CACU_LEAKY_RELU);
-	layer_block *block2 = conv_block(block1->get_oblob(), dim*4, 4, 2, 1, CACU_LEAKY_RELU);
-	layer_block *block3 = conv_block(block2->get_oblob(), dim*8, 4, 1, 1, CACU_LEAKY_RELU);
+	layer_block *block1 = conv_block_cycleGAN_l(conv1->get_oblob(), dim*2, 3, 2, 1);
+	layer_block *block2 = conv_block_cycleGAN_l(block1->get_oblob(), dim*4, 3, 2, 1);
+	layer_block *block3 = conv_block_cycleGAN_l(block2->get_oblob(), dim*8, 3, 1, 1);
 
 	*discriminator << conv1 << block1 << block2 << block3;
 
-	layer *sigmoid = new layer(new data_args(1,0,0,0,0));
-	sigmoid->op(CACU_INNERPRODUCT, block3->get_oblob())->op(CACU_SIGMOID);
-	sigmoid->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_weight_init_type(gaussian,0.01);
-	sigmoid->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_bias_init_type(constant);
-	sigmoid->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->get_weight(1)->set_decay(0);
+//	layer *sigmoid = new layer(new data_args(1,0,0,0,0));
+//	sigmoid->op(CACU_INNERPRODUCT, block3->get_oblob())->op(CACU_SIGMOID);
+//	sigmoid->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_weight_init_type(gaussian,0.01);
+//	sigmoid->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_bias_init_type(constant);
+//	sigmoid->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->get_weight(1)->set_decay(0);
+
+	layer_block *sigmoid_ce_loss = sigmoid_loss_cycleGAN(block3->get_oblob(), label_);
+	*discriminator << sigmoid_ce_loss;
 
 	return discriminator;
 }

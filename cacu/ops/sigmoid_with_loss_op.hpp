@@ -34,16 +34,9 @@ class sigmoid_with_loss_op: public operator_base {
 
 public:
 
-	sigmoid_with_loss_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_SIGMOID_LOSS) {
-		check();
-
-		initial();
-		init_weights();
-
-		_loss = 0.0;
-
-		//echo();
+	sigmoid_with_loss_op(blobs *&data) :
+			operator_base(data, CACU_SIGMOID_LOSS) {
+		_INIT_OP();
 	}
 
 	~sigmoid_with_loss_op() {
@@ -51,17 +44,21 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		_loss = 0.0;
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blobs->at(0)->num(),
+			o_blobs = create_em_blobs();
+			o_blobs = create_em_oblob(s_blobs->at(0)->num(),
 					s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
 					s_blobs->at(0)->height(), train);
 #else
-			o_blob = create_oblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),train);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(),train));
 
 #endif
 		} else {
-			o_blob->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
 					s_blobs->at(0)->width(), s_blobs->at(0)->height());
 		}
 	}
@@ -97,14 +94,14 @@ public:
 				o_blob_->length(), labels_->s_data(), o_blob_->s_diff());
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
 		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
 		cacu_sigmoid(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 
-		vec_t _temp(o_blob->count());
-		vec_i _target(o_blob->count());
+		vec_t _temp(o_blobs->at(0)->count());
+		vec_i _target(o_blobs->at(0)->count());
 
 #if __USE_DEVICE__ == ON
 		cuda_copy2host(&_temp[0], s_blob_->s_data(), s_blob_->count());
@@ -139,11 +136,11 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
 		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
 
-		vec_i _target(o_blob->count());
+		vec_i _target(o_blobs->at(0)->count());
 #if __USE_DEVICE__ == ON
 		cuda_copy2host(&_target[0], labels_->s_data(), s_blob_->count());
 #else
@@ -179,7 +176,7 @@ public:
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {

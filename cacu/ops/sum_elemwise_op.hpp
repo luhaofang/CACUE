@@ -34,12 +34,9 @@ class sum_elemwise_op: public operator_base {
 
 public:
 
-	sum_elemwise_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_SUM_ELEMWISE) {
-		check();
-		initial();
-		init_weights();
-		//echo();
+	sum_elemwise_op(blobs *&data) :
+			operator_base(data, CACU_SUM_ELEMWISE) {
+		_INIT_OP();
 	}
 
 	~sum_elemwise_op() {
@@ -48,16 +45,19 @@ public:
 
 	void initial()  {
 
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blobs->at(0)->num(),
+			o_blobs = create_em_oblobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(),
 					s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
-					s_blobs->at(0)->height(), _phase);
+					s_blobs->at(0)->height(), _phase));
 #else
-			o_blob = create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 #endif
 		} else {
-			o_blob->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
 					s_blobs->at(0)->width(), s_blobs->at(0)->height());
 		}
 	}
@@ -81,7 +81,7 @@ public:
 	void op()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
 
 		for (int i = 0; i < o_blob_->num(); ++i) {
 			for (unsigned int j = 0; j < (s_blobs)->size(); ++j) {
@@ -92,7 +92,7 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
 		for (unsigned int j = 0; j < s_blobs->size(); ++j) {
 			blob *s_blob_ = (blob *)s_blobs->at(j);
 			cacu_saxpy(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), s_blob_->count());
@@ -103,7 +103,7 @@ public:
 	void grad()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
 
 		for (unsigned int j = 0; j < (s_blobs)->size(); ++j) {
 			em_blob *s_blob_ = (em_blob *) s_blobs->at(j);
@@ -111,7 +111,7 @@ public:
 					s_blob_->s_diff());
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
 
 		for (unsigned int j = 0; j < (s_blobs)->size(); ++j) {
 			blob *s_blob_ = (blob *)s_blobs->at(j);
@@ -133,13 +133,13 @@ public:
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
-				s_blobs->at(0)->height(), o_blob->channel(), o_blob->width(),
-				o_blob->height());
+				s_blobs->at(0)->height(), o_blobs->at(0)->channel(), o_blobs->at(0)->width(),
+				o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {

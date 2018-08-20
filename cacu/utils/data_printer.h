@@ -60,6 +60,18 @@ inline void cacu_print(DTYPE *data, size_t length)
 #endif
 }
 
+inline void cacu_print(blob *data_blob)
+{
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	device_print(data_blob->s_data(), data_blob->count());
+#endif
+#else
+	cacu_print_cpu(data_blob->s_data(), data_blob->count());
+#endif
+}
+
+
 
 inline void cacu_bprint(blob *data_, phase_type phase_)
 {

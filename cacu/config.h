@@ -30,29 +30,38 @@
 
 namespace cacu {
 
+/*
+ * Blas definiation & parallal dnn defination
+ *
+ * This is used for global configuration for CACUE use different calculation.
+ * __OPENBLAS__ : for using openblas for blas computation, and basic math calculation.
+ *  __MKL__ 	: link with Intel MKL for math calculation.
+ * 	__CUDNN__ 	: create the basic dnn operator calculation by Nvidia CuDNN library.
+ *	__CUDA__	: blas creator with introduce the cublas math methods to accelerate computing.
+ * 	__OPENCL__  : using opencl for outer device computation.
+ *
+ */
 //openblas
-#ifndef __OPENBLAS__
-#define __OPENBLAS__  0XA0
-#endif
-
+#define __OPENBLAS__  0XA1
 //mkl
-#ifndef __MKL__
-#define __MKL__ 0XB0
-#endif
-
+#define __MKL__ 0XA2
 //cudnn
-#ifndef __CUDNN__
-#define __CUDNN__ 0XC0
-#endif
-
+#define __CUDNN__ 0XA3
 //cuda & cublas
-#ifndef __CUDA__
-#define __CUDA__ 0XD0
-#endif
-
+#define __CUDA__ 0XA4
 //opencl
-#ifndef __OPENCL__
-#define __OPENCL__ 0XE0
+#define __OPENCL__ 0XA5
+
+
+/***********************************/
+/*       calculation method	       */
+/***********************************/
+
+#define __DYNAMIC_GRAPH__  0XB1
+#define __STATIC_GRAPH__  0XB2
+
+#ifndef __OPERATOR__TYPE__
+#define __OPERATOR__TYPE__ __STATIC_GRAPH__
 #endif
 
 
@@ -69,7 +78,11 @@ namespace cacu {
 #endif
 
 #ifndef __CBLASTYPE__
-#define __CBLASTYPE__   __OPENBLAS__
+#if(__PARALLELTYPE__ == __CUDA__ || __PARALLELTYPE__ == __CUDNN__ || __PARALLELTYPE__ == __OPENCL__)
+#define __CBLASTYPE__ __OPENBLAS__
+#else
+#define __CBLASTYPE__ __PARALLELTYPE__
+#endif
 #endif
 
 #ifndef __USEMBEDDING__

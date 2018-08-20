@@ -35,14 +35,9 @@ class normalization_op: public operator_base {
 
 public:
 
-	normalization_op(blob_base *&data, data_args *&args_) :
+	normalization_op(blobs *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_NORM) {
-
-		check();
-		initial();
-		init_weights();
-		//echo();
-
+		_INIT_OP();
 	}
 
 	~normalization_op() {
@@ -50,21 +45,25 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num(), s_blob->channel(),
-					s_blob->height(), s_blob->width(), _phase);
-			_temp = create_em_opblob(1, s_blob->channel(), s_blob->height(),
-					s_blob->width(), 1.0, _phase);
+			o_blobs = create_em_blobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->height(), s_blobs->at(0)->width(), _phase));
+			_temp = create_em_opblob(1, s_blobs->at(0)->channel(), s_blobs->at(0)->height(),
+					s_blobs->at(0)->width(), 1.0, _phase);
 #else
-			o_blob = create_oblob(s_blob->num(), s_blob->channel(), s_blob->height(), s_blob->width(), _phase);
-			_temp = create_opblob(1, s_blob->channel(), s_blob->height(),s_blob->width(), 1.0, _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->height(), s_blobs->at(0)->width(), _phase));
+			_temp = create_opblob(1, s_blobs->at(0)->channel(), s_blobs->at(0)->height(),s_blobs->at(0)->width(), 1.0, _phase);
 #endif
 		} else {
-			o_blob->resize(s_blob->num(), s_blob->channel(), s_blob->height(),
-					s_blob->width());
-			_temp->resize(1, s_blob->channel(), s_blob->height(),
-					s_blob->width(), 1.0);
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->height(),
+					s_blobs->at(0)->width());
+			_temp->resize(1, s_blobs->at(0)->channel(), s_blobs->at(0)->height(),
+					s_blobs->at(0)->width());
+			_temp->set_data(1.0);
 		}
 	}
 
@@ -78,8 +77,8 @@ public:
 
 	void op()  {
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		em_blob *temp_ = (em_blob*) _temp;
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
@@ -88,8 +87,8 @@ public:
 			temp_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		blob *temp_ = (blob*)_temp;
 
 		switch(_NORMALIZER)
@@ -115,8 +114,8 @@ public:
 	void grad()  {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 		em_bin_blob *temp_ = (em_bin_blob*) _temp;
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			cacu_max_pooling_grad(o_blob_->p_diff_d(i), _args->kernel_size(),
@@ -126,8 +125,8 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 		bin_blob *temp_ = (bin_blob*)_temp;
 
 		//for(int i = 0 ; i < s_blob_->num(); ++i)
@@ -148,14 +147,14 @@ public:
 		LOG_INFO("create max_pooling op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height(), _args->kernel_size(), _args->stride(),
+				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
+				o_blobs->at(0)->height(), _args->kernel_size(), _args->stride(),
 				_args->pad());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {

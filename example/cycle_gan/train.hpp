@@ -42,15 +42,15 @@
 using namespace cacu;
 
 void train_net() {
-	int batch_size = 100;
+	int batch_size = 2;
 
 	int max_iter = 1000000;
 
 	int test_iter = 100;
 	int train_test_iter = 100;
-	int img_size = 64;
+	int img_size = 256;
 
-	string root_path = "/home/haofang/experiment/imagenet/";
+	string root_path = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/";
 
 	//set gpu device if training by gpu
 #if __USE_DEVICE__ == ON
@@ -89,14 +89,14 @@ void train_net() {
 	blob *y2xblob_ = cacu_allocator::create_blob(batch_size, 3, img_size, img_size, train);
 	blob *y2x2yblob_ = cacu_allocator::create_blob(batch_size, 3, img_size, img_size, train);
 
-	network *xgnet = new network(NULL);
-	network *xdnet = new network(NULL);
+	network *xgnet = new network();
+	network *xdnet = new network();
 
-	network *ygnet = new network(NULL);
-	network *ydnet = new network(NULL);
+	network *ygnet = new network();
+	network *ydnet = new network();
 
-	layer_block *xgenerator = create_generator_cycleGan(batch_size, 64, train);
-	layer_block *ygenerator = create_generator_cycleGan(batch_size, 64, train);
+	layer_block *xgenerator = create_generator_cycleGan(batch_size, 32, train);
+	layer_block *ygenerator = create_generator_cycleGan(batch_size, 32, train);
 
 	/*
 	 * output of the generator
@@ -118,14 +118,16 @@ void train_net() {
 	*xdnet << xdiscriminator;
 	*ydnet << ydiscriminator;
 
-	/*
-	 * create mse_op
-	 */
-	blobs *mse_blobs = new blobs();
-	mse_blobs->push_back(xlogit->copy_create(train,0));
-	mse_blobs->push_back(xlogit->copy_create(train,0));
+	LOG_DEBUG("Finish creating models!");
 
-	mse_loss_op *mse_op = new mse_loss_op(mse_blobs);
+//	/*
+//	 * create mse_op
+//	 */
+//	blobs *mse_blobs = new blobs();
+//	mse_blobs->push_back(xlogit->copy_create(train,0));
+//	mse_blobs->push_back(xlogit->copy_create(train,0));
+//
+//	mse_loss_op *mse_op = new mse_loss_op(mse_blobs);
 
 	/*
 	 * create abse_op
@@ -139,21 +141,28 @@ void train_net() {
 
 
 	adam_solver *xgsgd = new adam_solver(xgnet);
+	xgsgd->set_lr(0.0002);
+	xgsgd->set_alpha(0.5);
 	adam_solver *ygsgd = new adam_solver(ygnet);
-
+	ygsgd->set_lr(0.0002);
+	ygsgd->set_alpha(0.5);
 	//gsgd->load_param("/home/haofang/experiment/generative/g_solver.txt");
 
 	adam_solver *xdsgd = new adam_solver(xdnet);
+	xdsgd->set_lr(0.0002);
+	xdsgd->set_alpha(0.5);
 	adam_solver *ydsgd = new adam_solver(ydnet);
+	ydsgd->set_lr(0.0002);
+	ydsgd->set_alpha(0.5);
 
 	//dsgd->load_param("/home/haofang/experiment/generative/d_solver.txt");
 
 	//string datapath = "/home/haofang/experiment/imagenet/../../data/pascalvoc/VOCdevkit/VOC2012/objects/";
 	//string trainlist = "/home/haofang/experiment/imagenet/../../data/pascalvoc/VOCdevkit/VOC2012/object_list.txt";
-	string xdatapath = "";
-	string ydatapath = "";
-	string xtrainlist = "/home/haofang/experiment/generative/datalistx.txt";
-	string ytrainlist = "/home/haofang/experiment/generative/datalisty.txt";
+	string xdatapath = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainA/";
+	string ydatapath = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainB/";
+	string xtrainlist = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainA.txt";
+	string ytrainlist = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainB.txt";
 
 	vector<string> xfull_data;
 	vector<string> yfull_data;
@@ -247,31 +256,23 @@ void train_net() {
 		 * xdloss_t
 		 */
 		xdiscriminator->layers(0)->get_head_op()->in_data<blob>()->copy_blob(xblob_);
-		mse_op->in_datas()->astype<blob>(0)->copy_blob((blob*)xdiscriminator->get_oblob());
-		mse_op->in_datas()->astype<blob>(1)->set_data(1);
+		xdiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
 		xdnet->forward_propagate();
-		mse_op->infer();
-		mse_op->grad();
-		cacu_copy(mse_op->in_datas()->astype<blob>(0)->s_diff(), mse_op->in_datas()->astype<blob>(0)->count(), xdnet->output_blob()->s_diff());
 		xdnet->back_propagate();
 		xdsgd->updates(i);
-		xdlosst = mse_op->loss();
+		xdlosst = xdiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 
 		/*
 		 * xdloss_f
 		 */
 		xdiscriminator->layers(0)->get_head_op()->in_data<blob>()->copy_blob(y2xblob_);
-		mse_op->in_datas()->astype<blob>(0)->copy_blob((blob*)xdiscriminator->get_oblob());
-		mse_op->in_datas()->astype<blob>(1)->set_data(0);
+		xdiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
 		xdnet->forward_propagate();
-		mse_op->infer();
-		mse_op->grad();
-		cacu_copy(mse_op->in_datas()->astype<blob>(0)->s_diff(), mse_op->in_datas()->astype<blob>(0)->count(), xdnet->output_blob()->s_diff());
 		xdnet->back_propagate();
 		xdsgd->updates(i);
-		xdlossf = mse_op->loss();
+		xdlossf = xdiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 
-		xgloss = mse_op->loss();
+		xgloss = xdlossf;
 		/*
 		 * xgloss
 		 */
@@ -289,31 +290,23 @@ void train_net() {
 		 * ydloss_t
 		 */
 		ydiscriminator->layers(0)->get_head_op()->in_data<blob>()->copy_blob(yblob_);
-		mse_op->in_datas()->astype<blob>(0)->copy_blob((blob*)ydiscriminator->get_oblob());
-		mse_op->in_datas()->astype<blob>(1)->set_data(1);
+		ydiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
 		ydnet->forward_propagate();
-		mse_op->infer();
-		mse_op->grad();
-		cacu_copy(mse_op->in_datas()->astype<blob>(0)->s_diff(), mse_op->in_datas()->astype<blob>(0)->count(), ydnet->output_blob()->s_diff());
 		ydnet->back_propagate();
 		ydsgd->updates(i);
-		ydlosst = mse_op->loss();
+		ydlosst = ydiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 
 		/*
 		 * ydloss_f
 		 */
 		ydiscriminator->layers(0)->get_head_op()->in_data<blob>()->copy_blob(x2yblob_);
-		mse_op->in_datas()->astype<blob>(0)->copy_blob((blob*)ydiscriminator->get_oblob());
-		mse_op->in_datas()->astype<blob>(1)->set_data(0);
+		ydiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
 		ydnet->forward_propagate();
-		mse_op->infer();
-		mse_op->grad();
-		cacu_copy(mse_op->in_datas()->astype<blob>(0)->s_diff(), mse_op->in_datas()->astype<blob>(0)->count(), ydnet->output_blob()->s_diff());
 		ydnet->back_propagate();
 		ydsgd->updates(i);
-		ydlossf = mse_op->loss();
+		ydlossf = ydiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 
-		ygloss = mse_op->loss();
+		ygloss = ydlossf;
 		/*
 		 * ygloss
 		 */
@@ -408,10 +401,10 @@ void train_net() {
 		if (i % 1000 == 0) {
 			ostringstream oss;
 
-			oss << root_path << "../generative/" << "x_" << i << "_" << img_size << ".jpg";
+			oss << root_path << "generative/" << "x_" << i << "_" << img_size << ".jpg";
 			imageio_utils::imwrite(((blob*)xgenerator->get_oblob()),oss.str().c_str());
 
-			oss << root_path << "../generative/" << "y_" << i << "_" << img_size << ".jpg";
+			oss << root_path << "generative/" << "y_" << i << "_" << img_size << ".jpg";
 			imageio_utils::imwrite(((blob*)ygenerator->get_oblob()),oss.str().c_str());
 		}
 		if (i % 10000 == 0) {
@@ -449,8 +442,8 @@ void train_net() {
 	delete xgsgd, ygsgd;
 	delete xdnet, ydnet;
 	delete xdsgd, ydsgd;
-	delete mse_op, abse_op;
-	delete mse_blobs,abse_blobs;
+	delete abse_op;
+	delete abse_blobs;
 	delete xblob_,x2yblob_,x2y2xblob_;
 	delete yblob_,y2xblob_,y2x2yblob_;
 	delete timer;

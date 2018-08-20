@@ -31,7 +31,10 @@ TEST_CASE("deconv") {
 	data_args *args = new data_args(3,3,1,1,16);
 	//cacu_bprint(((blob*)b));
 
-	deconvolution_op *op_ = new deconvolution_op(b,args);
+	blobs *bs = new blobs();
+	bs->push_back(b);
+
+	deconvolution_op *op_ = new deconvolution_op(bs,args);
 	op_->set_weight_init_type(constant,1);
 	cacu_print(op_->get_weight(0)->s_data(),op_->get_weight(0)->count());
 	op_->infer();

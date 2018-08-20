@@ -34,12 +34,9 @@ class inner_product_op: public operator_base {
 
 public:
 
-	inner_product_op(blob_base *&data, data_args *&args_) :
+	inner_product_op(blobs *&data, data_args *&args_) :
 			operator_base(data, args_, CACU_INNERPRODUCT) {
-		check();
-		initial();
-		init_weights();
-		//echo();
+		_INIT_OP();
 	}
 
 	~inner_product_op() {
@@ -47,31 +44,36 @@ public:
 	}
 
 	void initial()  {
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(s_blob->num(), _args->output_channel(), 1,
+			o_blobs = create_em_oblobs();
+			o_blobs = create_em_oblob(s_blobs->at(0)->num(), _args->output_channel(), 1,
 					1, _phase);
 #else
-			o_blob = create_oblob(s_blob->num(), _args->output_channel(), 1, 1, _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), _args->output_channel(), 1, 1, _phase));
 #endif
-			_bias_multiplier = create_opblob(1, s_blob->num(), 1, 1,
+			_bias_multiplier = create_opblob(1, s_blobs->at(0)->num(), 1, 1,
 					(float_t) (1), _phase);
 		} else {
-			o_blob->resize(s_blob->num(), _args->output_channel(), 1, 1);
-			_bias_multiplier->resize(1, s_blob->num(), 1, 1, (float_t) (1));
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), _args->output_channel(), 1, 1);
+			_bias_multiplier->resize(1, s_blobs->at(0)->num(), 1, 1);
+			_bias_multiplier->set_data(1.0);
 		}
 	}
 
 	void init_weights()  {
 
-		_w = create_param("w", _args->output_channel(), s_blob->channel(),
-				s_blob->width(), s_blob->height(), _phase);
+		_w = create_param("w", _args->output_channel(), s_blobs->at(0)->channel(),
+				s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase);
 
 		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
 		_bias->set_lr(2);
 	}
 
 	void check()  {
+		if(_args == NULL)
+			LOG_FATAL("innerproduct data args cannot equal to NULL!");
 		//output_channel > 0
 		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
 				_args->output_channel());
@@ -96,8 +98,8 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		cacu_sgemm(TRANS, NOTRANS, _w->s_data(),_w->num(), _w->length(),s_blob_->s_data(),s_blob_->num(), 1 ,o_blob_->s_data(),0);
 		//bias added
@@ -134,8 +136,8 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 		//gradient propagation
 		cacu_sgemm(NOTRANS,NOTRANS,_w->s_data(),_w->length(),_w->num(), o_blob_->s_diff(), o_blob_->num(), 1 ,s_blob_->s_diff(), 0);
@@ -166,13 +168,13 @@ public:
 		LOG_INFO("create inner_product op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: %d",
-				s_blob->channel(), s_blob->width(), s_blob->height(), o_blob->channel(),
-				o_blob->height());
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
+				o_blobs->at(0)->height());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 
 		_w->_RESET_DIFF();
 		if (_is_use_bias)
@@ -202,9 +204,9 @@ private:
 	//inner_product_op use bias switcher
 	bool _is_use_bias = true;
 
-	weight *_w;
+	weight *_w = NULL;
 
-	weight *_bias;
+	weight *_bias = NULL;
 
 	blob *_bias_multiplier = NULL;
 

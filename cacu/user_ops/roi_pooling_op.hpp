@@ -34,13 +34,9 @@ class roi_pooling_op: public operator_base {
 
 public:
 
-	roi_pooling_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_ROI_POOLING) {
-		check();
-		initial();
-		init_weights();
-		//echo();
-
+	roi_pooling_op(blobs *&data, op_args *&o_args_) :
+			operator_base(data, o_args_, CACU_ROI_POOLING) {
+		_INIT_OP();
 	}
 
 	~roi_pooling_op() {
@@ -59,15 +55,17 @@ public:
 						- _args->kernel_size());
 		if (pad != 0)
 			output_dim += 1;
-		if (o_blob == NULL) {
+		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o_blob = create_em_oblob(num, channel, output_dim, output_dim,
-					_phase);
+			o+blobs = create_em_blobs();
+			o_blobs->push_back(create_em_oblob(num, channel, output_dim, output_dim,
+					_phase));
 #else
-			o_blob = create_oblob(num, channel, output_dim, output_dim, _phase);
+			o_blobs = create_oblobs();
+			o_blobs->push_back(create_oblob(num, channel, output_dim, output_dim, _phase));
 #endif
 		} else {
-			o_blob->resize(num, channel, output_dim, output_dim);
+			o_blobs->at(0)->resize(num, channel, output_dim, output_dim);
 		}
 	}
 
@@ -76,19 +74,28 @@ public:
 	}
 
 	void check()  {
+		if(_o_args == NULL)
+			LOG_FATAL("roipooling op args cannot equal to NULL!");
+		int ph = _o_args->at(0);
+		int pw = _o_args->at(1);
+		int spatial_scale = _o_args->at(2);
 		//kernel_size > 0
-		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
-				_args->kernel_size());
+		CHECK_GT_OP(ph, 0, "pool_h must > 0 vs %d",
+				ph);
+		CHECK_GT_OP(pw, 0, "pool_w must > 0 vs %d",
+				pw);
+		CHECK_GT_OP(spatial_scale, 0, "spatial_scale must > 0 vs %d",
+				spatial_scale);
 	}
 
 	void op()  {
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 #endif
 
@@ -101,8 +108,8 @@ public:
 		em_blob *s_blob_ = (em_blob*) s_blob;
 
 #else
-		blob *o_blob_ = (blob*)o_blob;
-		blob *s_blob_ = (blob*)s_blob;
+		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *s_blob_ = (blob*)s_blobs->at(0);
 
 #endif
 	}
@@ -119,14 +126,14 @@ public:
 		LOG_INFO("create max_pooling op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",
-				s_blob->channel(), s_blob->height(), o_blob->channel(),
-				o_blob->height(), _args->kernel_size(), _args->stride(),
+				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
+				o_blobs->at(0)->height(), _args->kernel_size(), _args->stride(),
 				_args->pad());
 	}
 
 	inline void LOOP_INIT_DATA_() 
 	{
-		o_blob->_RESET_DATA();
+		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {
@@ -134,6 +141,9 @@ public:
 	}
 
 private:
+
+
+
 
 };
 }

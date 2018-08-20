@@ -25,79 +25,84 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LAYER_BLOCK_H_
-#define LAYER_BLOCK_H_
+#ifndef MODEL_H_
+#define MODEL_H_
 
-#include <vector>
-
-//#include "layer_base.h"
-#include "layer.h"
-
-using namespace std;
+#include "cacu_op.h"
 
 namespace cacu {
 
-class layer_block {
+class model {
 
 public:
 
-	layer_block();
+	model();
 
-	~layer_block();
+	~model();
 
-	inline blob_base * get_oblob() {
-		if (_layers->size() != 0)
-			return layers(length() - 1)->get_oblob();
-		return NULL;
+	int caculate_data_space() {
+		return 0;
 	}
 
-	template<class OPTYPE>
-	inline OPTYPE* top_op(){
-		if (_layers->size() != 0)
+	cacu_op* operator <<(cacu_op *&op_);
+
+	cacu_op* operator >>(cacu_op *&op_);
+
+	cacu_op* operator <<(blob_base *&data_);
+
+	template<typename BTYPE>
+	inline BTYPE *&get_sblob() {
+		return _op->in_data<BTYPE>();
+	}
+
+	template<typename BTYPE>
+	inline BTYPE *&get_oblob() {
+		return _op->out_data<BTYPE>();
+	}
+
+	inline blobs *&get_sblobs() {
+		return _op->in_datas();
+	}
+
+	inline blobs *&get_oblobs() {
+		return _op->out_datas();
+	}
+
+	inline weight *get_param(int i)
+	{
+		CHECK_LT_OP(i,_op->weights_size(),"parameter index is out of range %d vs %d!", i, _op->weights_size());
+		return _op->get_weight(i);
+	}
+
+	inline void run()
+	{
+		_op->infer();
+	}
+
+	/**
+	 * assign operator
+	 * this function is called after the calculation steps are assigned.
+	 * WARNING: focus on the multi output operator such as split_op.
+	 */
+	void _CREATE_OP(){
+		_op->alloc_create_op();
+		for(int i = 0 ; i < _INs->size(); ++i)
 		{
-			layer *top_layer_=layers(length() - 1);
-			return top_layer_->get_op<OPTYPE>(top_layer_->op_count()-1,
-					top_layer_->get_out_op()->_TYPE());
+			_op->in_datas()->push_back(_INs->at(i)->get_oblob<blob_base>());
 		}
-		return NULL;
 	}
-
-	inline layer* layers(int i) const {
-		return (layer*) _layers->at(i);
-	}
-
-	inline layer_base*& pop_layer() const {
-		return _layers->at(length() - 1);
-	}
-
-	inline layer_base*& layer_bases(int i) const {
-		return _layers->at(i);
-	}
-
-	inline int length() const {
-		return _layers->size();
-	}
-
-	layer_block& operator <<(layer_block* const &layer_block_);
-
-	layer_block& operator <<(layer_block &layer_block_);
-
-	layer_block& operator <<(layer_base* const &layer_);
-
-	layer_block& operator <<(layer_base &layer_);
-
-	void load_weights(chars_t modelpath);
-
-	void save_weights(chars_t modelpath);
-
-	void set_update_weight(bool isupdate_);
-
 
 private:
 
-	vector<layer_base*> *_layers;
+	op_name _op_type;
+
+	vector<cacu_op*> *_INs = NULL;
+
+	operator_base *_op;
+
 };
 
 }
+
 
 #endif

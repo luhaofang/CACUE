@@ -128,6 +128,11 @@ public:
 			at(i)->_MOTIFY();
 	}
 
+	inline void _NEED_MOTIFY() {
+		for (size_t i = 0; i < this->size(); ++i)
+			at(i)->_NEED_MOTIFY();
+	}
+
 	template<typename BTYPE>
 	inline BTYPE*& astype(int i) const {
 		return (BTYPE *&)at(i);

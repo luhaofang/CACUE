@@ -37,6 +37,8 @@ namespace cacu {
 class network {
 
 public:
+	network();
+
 	network(blobs *&datas_);
 
 	~network();
@@ -107,6 +109,16 @@ public:
 
 	inline phase_type phase() {
 		return _input_blobs->at(0)->phase();
+	}
+
+	void _INIT_NETWORK()
+	{
+		for(int i = 0; i < _ops->size(); ++i)
+		{
+			_ops->at(i)->check();
+			_ops->at(i)->initial();
+			_ops->at(i)->init_weights();
+		}
 	}
 
 	void load_weights(chars_t modelpath);
