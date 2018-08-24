@@ -52,6 +52,7 @@ void serializer::blob_serialize(blob *data, chars_t output, phase_type phase_) {
 			os << data->s_diff()[i] << endl;
 #endif
 	os.close();
+	LOG_INFO("data write to :%s", output.c_str());
 }
 
 }

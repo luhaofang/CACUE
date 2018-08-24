@@ -25,21 +25,21 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BATCH_NORMALIZE_OP_HPP_
-#define BATCH_NORMALIZE_OP_HPP_
+#ifndef INSTANCE_NORMALIZE_OP_HPP_
+#define INSTANCE_NORMALIZE_OP_HPP_
 
 namespace cacu {
 
-class batch_normalize_op: public operator_base {
+class instance_normalize_op: public operator_base {
 
 public:
 
-	batch_normalize_op(blobs *&data) :
-			operator_base(data, CACU_BATCH_NORMALIZE) {
+	instance_normalize_op(blobs *&data) :
+			operator_base(data, CACU_INSTANCE_NORMALIZE) {
 		_INIT_OP();
 	}
 
-	~batch_normalize_op() {
+	~instance_normalize_op() {
 
 	}
 
@@ -63,17 +63,17 @@ public:
 			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 			//save for train
 			if(train == _phase)
-			_x = create_opblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), test);
+			_x = create_opblob(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), test);
 			else
 			_x = NULL;
-			_dim_sum = create_opblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), 1, 1, test);
+			_dim_sum = create_opblob(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), 1, 1, test);
 #endif
 			_moving_scalar = create_opblob(1, 1, 1, 1, test);
 			_one = create_opblob(1, 1, 1, 1, 1, test);
 			_mutipler = create_opblob(1, s_blobs->at(0)->channel_length(), 1, 1, 1.0,
 					test);
 			_mutipler->set_variable(false);
-			_num_mutipler = create_opblob(1, s_blobs->at(0)->num(), 1, 1, 1.0, test);
+			_num_mutipler = create_opblob(1, s_blobs->at(0)->channel(), 1, 1, 1.0, test);
 			_num_mutipler->set_variable(false);
 		} else {
 
@@ -81,31 +81,31 @@ public:
 				s_blobs->at(0)->height());
 			//save for train
 			if (_x != NULL)
-				_x->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+				_x->resize(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), s_blobs->at(0)->width(),
 						s_blobs->at(0)->height());
 
-			_dim_sum->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), 1, 1);
+			_dim_sum->resize(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), 1, 1);
 
 			_mutipler->resize(1, s_blobs->at(0)->channel_length(), 1, 1);
 			_mutipler->set_data(1.0);
-			_num_mutipler->resize(1, s_blobs->at(0)->num(), 1, 1);
+			_num_mutipler->resize(1, s_blobs->at(0)->channel(), 1, 1);
 			_num_mutipler->set_data(1.0);
 		}
 	}
 
 	void init_weights()  {
-		_scale = create_param("scale", s_blobs->at(0)->channel(), 1, 1, 1, _phase);
+		_scale = create_param("scale", s_blobs->at(0)->num(), 1, 1, 1, _phase);
 		_scale->set_init_type(constant, 1);
-		_shift = create_param("shift", s_blobs->at(0)->channel(), 1, 1, 1, _phase);
+		_shift = create_param("shift", s_blobs->at(0)->num(), 1, 1, 1, _phase);
 		_shift->set_lr(2);
 
-		_mean = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
-		_var = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
+		_mean = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
+		_var = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
 
-		_history_mean = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, test);
-		_history_var = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, test);
+		_history_mean = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, test);
+		_history_var = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, test);
 
-		_std = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
+		_std = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
 	}
 
 	void check()  {
@@ -216,6 +216,8 @@ public:
 		blob *dim_sum_ = (blob*)_dim_sum;
 		blob *x_ = (blob*)_x;
 
+		s_blob_->switch_channel();
+		o_blob_->switch_channel();
 		//cacu_print(s_blob_->s_data(), 10);
 		float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
 		if (_phase == train)
@@ -301,6 +303,7 @@ public:
 				cacu_ssxpy(_shift->s_data(), (float_t)(1), _shift->count(), o_blob_->p_data(i), (float_t)(1), s_blob_->length(), o_blob_->p_data(i));
 			}
 		}
+		o_blob_->switch_channel();
 		//cacu_print(o_blob_->s_data(), 10);
 #endif
 	}
@@ -363,6 +366,7 @@ public:
 
 		float_t *mean_data_,*mean_diff_;
 
+		o_blob_->switch_channel();
 		for(int i = 0; i < s_blob_->num(); ++i) {
 			//calculate dl/x_
 			cacu_cxsize(o_blob_->p_diff(i), s_blob_->length(), _scale->s_data(), _scale->count(), s_blob_->p_diff(i));
@@ -382,6 +386,10 @@ public:
 		//cacu_sumbysize(BYHEIGHT, dim_sum_->s_data(), s_blob_->channel() * s_blob_->num(), 1, _shift->s_diff(), 0, s_blob_->channel());
 		cacu_sgemv(TRANS, o_blob_->s_diff(), _mutipler->count(), _mutipler->s_data(), dim_sum_->count(), (float_t)(1), dim_sum_->s_data(),0);
 		cacu_sgemv(NOTRANS, dim_sum_->s_data(), _shift->count(), _num_mutipler->s_data(), _num_mutipler->count(), (float_t)(1), _shift->s_diff(), 0);
+
+		o_blob_->switch_channel();
+		s_blob_->switch_channel();
+
 #endif
 	}
 
@@ -408,9 +416,9 @@ public:
 		_shift->serializa(os);
 	}
 
-	void echo() 
+	void echo()
 	{
-		LOG_INFO("create batch_normalize op:");
+		LOG_INFO("create instance_normalize op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
@@ -487,7 +495,7 @@ private:
 	blob *_mutipler = NULL;
 	blob *_num_mutipler = NULL;
 
-	bool use_global_stats = false;
+	bool use_global_stats = true;
 
 
 };

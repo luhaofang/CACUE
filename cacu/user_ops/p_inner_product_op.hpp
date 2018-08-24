@@ -169,15 +169,6 @@ public:
 				o_blobs->at(0)->height());
 	}
 
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
-
-		_w->_RESET_DIFF();
-		if (_is_use_bias)
-			_bias->_RESET_DIFF();
-	}
-
 	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}

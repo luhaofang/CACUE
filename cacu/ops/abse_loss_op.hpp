@@ -56,14 +56,10 @@ public:
 			o_blobs = create_oblobs();
 			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(),
 					s_blobs->at(0)->width(), s_blobs->at(0)->height(),train));
-			_direction = create_opblob(s_blobs->at(0)->num(),s_blobs->at(0)->channel(),
-					s_blobs->at(0)->width(), s_blobs->at(0)->height(),test);
 #endif
 		} else {
 
 			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
-				s_blobs->at(0)->width(), s_blobs->at(0)->height());
-			_direction->resize(s_blobs->at(0)->num(),s_blobs->at(0)->channel(),
 				s_blobs->at(0)->width(), s_blobs->at(0)->height());
 		}
 	}
@@ -108,7 +104,6 @@ public:
 		blob *s_blob1_ = (blob*)s_blobs->at(0);
 		blob *s_blob2_ = (blob*)s_blobs->at(1);
 
-		//cacu_print(s_blob_->s_data(), 100);
 		cacu_copy(s_blob2_->s_data(), s_blob2_->count(), o_blob_->s_data());
 #if __USE_DEVICE__ == ON
 		float_t *pdata_cpu = o_blob_->s_data_cpu();
@@ -117,10 +112,10 @@ public:
 #endif
 		for(int i = 0; i < s_blob1_->num(); ++i) {
 			if(pdata_cpu[i * o_blob_->length()] != -1.0)
-			cacu_saxpby(s_blob1_->p_data(i), 1, o_blob_->p_data(i), -1,
+				cacu_saxpby(s_blob1_->p_data(i), 1, o_blob_->p_data(i), -1,
 					s_blob1_->length());
 			else
-			cacu_saxpby(s_blob1_->p_data(i), 0, o_blob_->p_data(i), 0,
+				cacu_saxpby(s_blob1_->p_data(i), 0, o_blob_->p_data(i), 0,
 					s_blob1_->length());
 		}
 		cacu_abs(o_blob_->s_data(), o_blob_->count(), o_blob_->s_diff());
@@ -133,7 +128,7 @@ public:
 #else
 		cacu_copy(o_blob_->s_diff(), 1 ,&_loss);
 #endif
-
+		_loss /= o_blob_->length();
 	}
 
 	void grad()  {
@@ -150,13 +145,13 @@ public:
 		blob *s_blob1_ = (blob*)s_blobs->at(0);
 		blob *s_blob2_ = (blob*)s_blobs->at(1);
 
-		_direction->set_data(1);
-		cacu_abs_grad(o_blob_->s_data(), s_blob1_->s_diff(), s_blob1_->count(),_direction->s_data());
-		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer() * _loss_weight);
-		_direction->set_data(-1);
-		cacu_abs_grad(o_blob_->s_data(), s_blob2_->s_diff(), s_blob2_->count(),_direction->s_data());
-		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), normalizer() * _loss_weight);
-		//cacu_print(s_blob_->s_diff(),s_blob_->count());
+
+		cacu_abs_grad(o_blob_->s_data(), s_blob1_->s_diff(), s_blob1_->count());
+		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer() * _loss_weight / o_blob_->channel_length());
+
+		cacu_abs_grad(o_blob_->s_data(), s_blob2_->s_diff(), s_blob2_->count());
+		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), -normalizer() * _loss_weight / o_blob_->channel_length());
+
 #endif
 	}
 
@@ -173,11 +168,6 @@ public:
 		LOG_INFO("abse loss : %f", _loss);
 		if (_loss_weight != 1.0)
 			LOG_INFO("weighted abse loss : %f", _loss * _loss_weight);
-	}
-
-	inline void LOOP_INIT_DATA_()
-	{
-		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {
@@ -200,8 +190,6 @@ public:
 private:
 
 	float_t _loss = 0.0;
-
-	blob* _direction = NULL;
 
 	float_t _loss_weight = 1.0;
 };

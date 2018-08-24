@@ -57,6 +57,7 @@ public:
 			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
 					s_blobs->at(0)->height(), s_blobs->at(0)->width(), _phase));
 			_temp = create_opblob(1, s_blobs->at(0)->channel(), s_blobs->at(0)->height(),s_blobs->at(0)->width(), 1.0, _phase);
+			_temp->set_variable(false);
 #endif
 		} else {
 			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->height(),
@@ -150,11 +151,6 @@ public:
 				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
 				o_blobs->at(0)->height(), _args->kernel_size(), _args->stride(),
 				_args->pad());
-	}
-
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {

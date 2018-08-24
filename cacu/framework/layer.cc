@@ -84,7 +84,15 @@ layer* layer::op(op_name op_, blobs *blobs_) {
 	if (blobs_ == NULL)
 		LOG_FATAL("input data is NULL!");
 	if (out_blob != NULL)
+	{
+		vector<blob_base*> blob_data;
+		for(int i = 0 ; i < blobs_->size(); ++i)
+			blob_data.push_back(blobs_->at(i));
+		blobs_->clear();
 		blobs_->push_back(out_blob);
+		for(int i = 0 ; i < blob_data.size(); ++i)
+			blobs_->push_back(blob_data[i]);
+	}
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
 	_ops->back()->echo();
@@ -98,7 +106,15 @@ layer* layer::op(op_name op_, blobs *blobs_, data_args *&args_) {
 		LOG_FATAL("input data is NULL!");
 	_args = args_;
 	if (out_blob != NULL)
+	{
+		vector<blob_base*> blob_data;
+		for(int i = 0 ; i < blobs_->size(); ++i)
+			blob_data.push_back(blobs_->at(i));
+		blobs_->clear();
 		blobs_->push_back(out_blob);
+		for(int i = 0 ; i < blob_data.size(); ++i)
+			blobs_->push_back(blob_data[i]);
+	}
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
 	out_blob = _ops->back()->out_data<blob_base>();
 	_ops->back()->echo();
@@ -135,7 +151,15 @@ layer* layer::op(op_name op_, blobs *blobs_, op_args *args_) {
 		LOG_FATAL("input data is NULL!");
 	_args = NULL;
 	if (out_blob != NULL)
+	{
+		vector<blob_base*> blob_data;
+		for(int i = 0 ; i < blobs_->size(); ++i)
+			blob_data.push_back(blobs_->at(i));
+		blobs_->clear();
 		blobs_->push_back(out_blob);
+		for(int i = 0 ; i < blob_data.size(); ++i)
+			blobs_->push_back(blob_data[i]);
+	}
 	add_op(operator_factory::create_op(op_, blobs_, _args, args_));
 	out_blob = _ops->back()->out_data<blob_base>();
 	_ops->back()->echo();

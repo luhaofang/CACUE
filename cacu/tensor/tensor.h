@@ -193,8 +193,8 @@ inline void tensor<DTYPE>::set_value(dsize_t sp, dsize_t length, DTYPE value) {
 #if __USE_DEVICE__ == ON
 	device_setvalue<DTYPE>(_pdata + sp, value, length);
 #else
-	for(dsize_t i = sp; i < length; ++i)
-	_pdata[i] = value;
+	for(dsize_t i = 0; i < length; ++i)
+		*(_pdata + sp + i) = value;
 #endif
 }
 

@@ -66,9 +66,9 @@ public:
 
 
 	template<typename OPTYPE>
-	inline OPTYPE *get_op(int i, op_name optype_) const {
+	inline OPTYPE *&get_op(int i, op_name optype_) const {
 		if(optype_ == _ops->at(i)->_TYPE())
-			return (OPTYPE*)_ops->at(i);
+			return (OPTYPE*&)_ops->at(i);
 		else{
 			LOG_FATAL("Shot! You are using a wrong type operator casting!");
 		}

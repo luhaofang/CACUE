@@ -181,11 +181,6 @@ public:
 			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
 	}
 
-	inline void LOOP_INIT_DATA_() 
-	{
-
-	}
-
 	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}

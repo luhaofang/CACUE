@@ -76,7 +76,6 @@ public:
 				s_blobs->at(0)->channel());
 		CHECK_EQ_OP(s_blobs->at(0)->count(), s_blobs->at(1)->count(), "source data must equal %d vs %d !",
 					s_blobs->at(0)->count(),s_blobs->at(1)->count());
-
 	}
 
 	void op()  {
@@ -115,9 +114,9 @@ public:
 		{
 			_loss -= _temp[i] * (_target[i] - (_temp[i] >= 0.0)) - log(1.0 + exp(_temp[i] - 2 * _temp[i] * (_temp[i] >= 0.0)));
  		}
-
+		_loss = max(_loss, float_t(_MIN_FLT_));
 		_loss *= normalizer();
-		//_loss[0] /= o_blob_->channel_length();
+		_loss /= o_blob_->channel_length();
 #endif
 	}
 
@@ -129,7 +128,7 @@ public:
 		em_bin_blob *labels_ = (em_bin_blob*) s_blobs->at(1);
 
 		//CE LOSS BACK PROPGATION
-		for (int i = 0; i < s_blob_->num(); ++i) {
+		for (int i = 0; i < s_blob_->count(); ++i) {
 			cacu_isaxb(o_blob_->p_data_d(i), s_blob_->length(), (float_t) 1,
 					labels_->p_data_d(i), (float_t) -1, s_blob_->p_diff_d(i));
 			cacu_scalex(s_blob_->p_diff_d(i), s_blob_->length(), normalizer());
@@ -146,15 +145,14 @@ public:
 #else
 		cacu_sdxsize(labels_->s_data(), s_blob_->count(), 0, 1, &_target[0]);
 #endif
-
 		//CE LOSS BACK PROPGATION
 		cacu_copy(o_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
-		for(int i = 0; i < s_blob_->num(); ++i)
+		for(int i = 0; i < s_blob_->count(); ++i)
 		{
 			if(_target[i] == 1)
-				cacu_sdxsize(s_blob_->p_diff(i), 1, (float_t)-1.0, (float_t)1.0, s_blob_->p_diff(i));
+				cacu_sdxsize(s_blob_->s_diff()+i, 1, (float_t)-1.0, (float_t)1.0, s_blob_->s_diff()+i);
 		}
-		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight );
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight / o_blob_->channel_length());
 
 #endif
 	}
@@ -172,11 +170,6 @@ public:
 		LOG_INFO("loss : %f", _loss);
 		if(_loss_weight != 1.0)
 			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
-	}
-
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {

@@ -131,11 +131,6 @@ public:
 				_args->pad());
 	}
 
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
-	}
-
 	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}

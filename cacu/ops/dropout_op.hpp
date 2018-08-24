@@ -162,10 +162,6 @@ public:
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
-	inline void LOOP_INIT_DATA_() 
-	{
-		_rand_vect->_RESET_DATA();
-	}
 
 	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;

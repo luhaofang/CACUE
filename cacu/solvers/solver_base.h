@@ -120,17 +120,17 @@ protected:
 	 * add regular to gradient
 	 * where i is the index of _w
 	 */
-	void __REGULARIZE__(weight *w_, int weight_index_);
+	void __REGULARIZE__(weight *&w_, int weight_index_);
 	/**
 	 * normalize gradient
 	 * where i is the index of _w
 	 */
-	void __NORMALIZE__(weight *w_);
+	void __NORMALIZE__(weight *&w_);
 
 	/*
 	 * where weight_index denote the weight's id in sovler's vector
 	 */
-	virtual void update_weight(weight* w_, int weight_index_, int step_) = 0;
+	virtual void update_weight(weight *&w_, int weight_index_, int step_) = 0;
 
 private:
 

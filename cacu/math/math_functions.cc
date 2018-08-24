@@ -351,32 +351,35 @@ unsigned int argmax(float *data, const int length) {
 #endif
 }
 
-void cacu_transpose(float *mtx, const int m, const int n) {
+void cacu_transpose(float *mtx, const int m, const int n, const int clength) {
 
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_transpose_cuda(mtx, m, n);
-#endif
-#else
+//#if __USE_DEVICE__ == ON
+//#if __PARALLELTYPE__ == __CUDA__
+//	cacu_transpose_cuda(mtx, m, n, clength);
+//#endif
+//#else
 	int next, cur, pre;
-	float temp;
+	vec_t temp(clength);
 	for (int i = 0; i < m * n; ++i) {
 		next = (i % n) * m + i / n;
 		while (next > i)
 		next = (next % n) * m + next / n;
 		if (next == i) {
-			temp = mtx[i];
+			for(int n = 0 ; n < clength ; ++n)
+				temp[n] = mtx[i*clength + n];
 			cur = i;
 			pre = (cur % m) * n + cur / m;
 			while (pre != i) {
-				mtx[cur] = mtx[pre];
+				for(int n = 0 ; n < clength ; ++n)
+					mtx[cur*clength + n] = mtx[pre*clength + n];
 				cur = pre;
 				pre = (cur % m) * n + cur / m;
 			}
-			mtx[cur] = temp;
+			for(int n = 0 ; n < clength ; ++n)
+				mtx[cur*clength +n] = temp[n];
 		}
 	}
-#endif
+//#endif
 }
 
 /**
@@ -418,14 +421,14 @@ void cacu_abs(float *x, const int length, float *y) {
 #endif
 }
 
-void cacu_abs_grad(float *x, float *diff, const int length, float *grad) {
+void cacu_abs_grad(float *x, float *diff, const int length) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cacu_abs_grad_cuda(x, diff, length , grad);
+	cacu_abs_grad_cuda(x, diff, length);
 #endif
 #else
 	for (int i = 0; i < length; ++i)
-		diff[i] = (x[i] > 0) ? grad[i] : -grad[i];
+		diff[i] = (x[i] > 0) ? 1 : -1;
 #endif
 }
 

@@ -59,8 +59,10 @@ inline void cacu_memset(DTYPE *x, DTYPE value,const dsize_t length) {
 
 template<typename DTYPE>
 inline void cacu_print_cpu(DTYPE *data,const dsize_t length) {
+	cout << "(";
 	for (int i = 0; i < length; ++i)
 		cout << data[i] << ",";
+	cout << ")";
 	cout << endl;
 }
 

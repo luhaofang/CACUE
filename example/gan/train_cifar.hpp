@@ -49,7 +49,7 @@ void train_net() {
 	int test_iter = 100;
 	int train_test_iter = 100;
 
-	string root_path = "/home/haofang/data/cifar10/";
+	string root_path = "/Users/seallhf/Documents/datasets/cifar10/";
 
 	//set gpu device if training by gpu
 #if __USE_DEVICE__ == ON
@@ -115,8 +115,8 @@ void train_net() {
 	dsgd->set_lr(0.0001);
 	dsgd->set_weight_decay(0.01);
 
-	string datapath = "/home/haofang/data/cifar10/";
-	string meanfile = "/home/haofang/data/cifar10/mean.binproto";
+	string datapath = "/Users/seallhf/Documents/datasets/cifar10/";
+	string meanfile = "/Users/seallhf/Documents/datasets/cifar10/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -232,7 +232,7 @@ void train_net() {
 		if (i % 1000 == 0) {
 			ostringstream oss;
 
-			oss << root_path << "../generative/" << "test_" << i << ".jpg";
+			oss << root_path << "generative/" << "test_" << i << ".jpg";
 			imageio_utils::imwrite(((blob*)generator->get_oblob()),oss.str().c_str());
 		}
 		if (i % 10000 == 0) {

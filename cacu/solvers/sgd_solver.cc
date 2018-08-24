@@ -55,7 +55,7 @@ sgd_solver::~sgd_solver() {
  * update weight value
  * where weight_index_ is the weight index in _history_v
  */
-void sgd_solver::update_weight(weight* w_, int weight_index_, int step_) {
+void sgd_solver::update_weight(weight *&w_, int weight_index_, int step_) {
 
 	if (w_->update()) {
 		blob* history_ = (blob*)_history_v->at(weight_index_);

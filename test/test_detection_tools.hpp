@@ -35,4 +35,3 @@ TEST_CASE("detection_tools") {
 }
 
 }
-

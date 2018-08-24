@@ -56,7 +56,10 @@ rmsprop_solver::~rmsprop_solver() {
  * update weight value
  * where weight_index_ is the weight index in _history_v
  */
-void rmsprop_solver::update_weight(weight* w_, int weight_index_, int step_) {
+void rmsprop_solver::update_weight(weight *&w_, int weight_index_, int step_) {
+
+	if(step_ == 0)
+			LOG_FATAL("rmsprop optimizer must start from iteration 1 vs %d!", step_);
 
 	if (w_->update()) {
 

@@ -56,6 +56,8 @@ public:
 			return new relu_op(blob_);
 		case CACU_BATCH_NORMALIZE:
 			return new batch_normalize_op(blob_);
+		case CACU_INSTANCE_NORMALIZE:
+			return new instance_normalize_op(blob_);
 		case CACU_MAX_POOLING:
 			return new max_pooling_op(blob_, d_args_);
 		case CACU_AVERAGE_POOLING:
@@ -135,6 +137,11 @@ public:
 							blob_->size())
 					;
 					return new batch_normalize_op(blob_);
+				case CACU_INSTANCE_NORMALIZE:
+					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
+							blob_->size())
+					;
+					return new instance_normalize_op(blob_);
 				case CACU_MAX_POOLING:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 							blob_->size())

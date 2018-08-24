@@ -110,7 +110,6 @@ public:
 		//clear s_blobs, but don't need to release the blob memory
 		if( s_blobs != NULL){
 			s_blobs->clear();
-			delete s_blobs;
 			s_blobs = NULL;
 		}
 
@@ -141,7 +140,13 @@ public:
 
 	virtual void echo() = 0;
 
-	virtual void LOOP_INIT_DATA_() = 0;
+	inline void LOOP_INIT_DATA_(){
+		if(_IS_ALLOC_OUTPUT)
+			o_blobs->_RESET_DATA();
+		_storage_blobs->_RESET_DATA();
+		for(int i = 0; i < _weights->size(); ++i)
+			_weights->at(i)->_RESET_DIFF();
+	}
 
 	virtual void set_phase(phase_type phase_) = 0;
 
@@ -167,7 +172,7 @@ public:
 		return _weights->size();
 	}
 
-	inline weight* get_weight(int i) const {
+	inline weight *& get_weight(int i) const {
 		return _weights->at(i);
 	}
 
@@ -279,17 +284,13 @@ protected:
 	//create weight push_back to weights container
 	inline weight* const create_param(chars_t name, dsize_t num,
 			dsize_t channel, dsize_t width, dsize_t height, phase_type phase) {
-		_add2op_weights(new weight(name, num, channel, width, height, phase));
+		_weights->push_back(new weight(name, num, channel, width, height, phase));
 		return _weights->back();
 	}
 
-	inline void set_param_init_type(param_init_type type, weight *w_,
+	inline void set_param_init_type(param_init_type type, weight *&w_,
 			float_t value) {
 		w_->set_init_type(type, value);
-	}
-
-	inline void _add2op_weights(weight *w) {
-		_weights->push_back(w);
 	}
 
 	inline blob_base * create_oblob(dsize_t num, dsize_t channel, dsize_t width,

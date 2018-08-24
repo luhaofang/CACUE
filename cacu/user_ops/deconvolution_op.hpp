@@ -28,6 +28,10 @@
 #ifndef DECONVOLUTION_OP_HPP_
 #define DECONVOLUTION_OP_HPP_
 
+#include "../../tools/serializer_utils.h"
+
+using namespace cacu_tools;
+
 namespace cacu {
 
 class deconvolution_op: public operator_base {
@@ -71,8 +75,8 @@ public:
 			_col_data = create_opblob(1, _args->output_channel(),
 					input_w * _args->kernel_size(),
 					input_h * _args->kernel_size(), _phase);
-			_bias_multiplier = create_opblob(1, 1, output_w, output_h, _phase);
-			_bias_multiplier->set_data(1.0);
+			_bias_multiplier = create_opblob(1, 1, output_w, output_h, 1.0, _phase);
+			_bias_multiplier->set_variable(false);
 		} else {
 			o_blobs->at(0)->resize(num, _args->output_channel(), output_w,
 					output_h);
@@ -108,10 +112,6 @@ public:
 
 	void op()  {
 
-		col_offset = o_blobs->at(0)->channel() / _group * _col_data->channel_length();
-		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * s_blobs->at(0)->channel_length();
-
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
@@ -140,29 +140,21 @@ public:
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//col_data_->blob_size();
 			//gradient propagation
-			for (int g = 0; g < _group; ++g)
-			//cacu_sgemm(NOTRANS,TRANS, _w->s_data() + w_offset * g, _w->length() / _group, _w->num() / _group, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), 1, col_data_->s_diff() + col_offset * g, 0);
-				cacu_sgemm(NOTRANS,TRANS, s_blob_->p_data(i) + out_offset * g, s_blob_->width() * s_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_data() + col_offset * g, 0);
+
+			cacu_sgemm(NOTRANS,TRANS, s_blob_->p_data(i), s_blob_->width() * s_blob_->height(), _w->num(), _w->s_data(), _w->length(), 1, col_data_->s_data(), 0);
 			//col2img
 			//unpadded
 			cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->width(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),s_blob_->height(),_args->pad(),_args->pad(), o_blob_->p_data(i));
 
 			if(_is_use_bias)
-			//cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 				cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_data(), _bias->count(),(float_t)(1),o_blob_->p_data(i),(float_t)(1));
 
 		}
-		//cacu_print(o_blob_->s_data(),o_blob->count());
-		//cacu_print(_w->s_data(),100);
 #endif
 
 	}
 
 	void grad()  {
-
-		col_offset = o_blobs->at(0)->channel() / _group * _col_data->channel_length();
-		w_offset = _w->count() / _group / _group;
-		out_offset = _w->num() / _group * s_blobs->at(0)->channel_length();
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -201,27 +193,21 @@ public:
 		blob *col_data_ = (blob*)_col_data;
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
-		//cacu_bprint(o_blob_,train);
-
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//padded data if needed & img2col change
 			cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->height(), o_blob_->channel(), s_blob_->width(), s_blob_->height(),_args->pad(), _args->pad(), col_data_->s_diff());
-
+			//serializer::blob_serialize(col_data_,"/Users/seallhf/Desktop/col_data.txt",test);
 			//forward convolution data
-			for (int g = 0; g < _group; ++g){
-				cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_diff() + col_offset * g, s_blob_->channel_length(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, s_blob_->p_diff(i) + out_offset * g,(float_t)0);
-				//weights gradient
-				//cacu_img2col_pad(s_blob_->p_diff(i), _args->kernel_size(), _args->stride(),o_blob->width(),o_blob->height(),o_blob->channel(),s_blob_->width(),s_blob_->height(),_args->pad(),_args->pad(), col_data_->s_diff());
-				cacu_sgemm(TRANS, NOTRANS, col_data_->s_diff() + col_offset * g, _w->length() / _group, s_blob_->channel_length(), s_blob_->p_data(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
-				//cacu_bprint(_w,train);
-			}
+			cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_diff(), s_blob_->channel_length(),_w->length(), _w->s_data(), _w->num(), (float_t)1, s_blob_->p_diff(i), (float_t)0);
+			//serializer::blob_serialize(s_blob_,"/Users/seallhf/Desktop/s_blob.txt",test);
+			//weights gradient
+			cacu_sgemm(TRANS, NOTRANS, col_data_->s_diff(), _w->length(), s_blob_->channel_length(), s_blob_->p_data(i), _w->num(), 1, _w->s_diff(), 1);
+			//serializer::blob_serialize(_w,"/Users/seallhf/Desktop/w.txt",test);
+
 			//add bias
 			if(_is_use_bias)
 				cacu_sgemv(TRANS,o_blob_->p_diff(i),bias_multiplier->count(),bias_multiplier->s_data(),o_blob_->channel(),(float_t)(1),_bias->s_diff(),(float_t)(1));
-			//cacu_ssxpy(_bias->s_data(), (float_t)(1), _bias->count(), o_blob_->p_data(i), (float_t)(1), o_blob_->length(), o_blob_->p_data(i));
 		}
-
-		//cacu_print(_w->s_diff(),100);
 #endif
 	}
 
@@ -245,15 +231,6 @@ public:
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height(),
 				_args->kernel_size(), _args->stride(), _args->pad());
-	}
-
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
-		_w->_RESET_DIFF();
-		if (_is_use_bias)
-			_bias->_RESET_DIFF();
-		_col_data->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {
@@ -286,15 +263,9 @@ protected:
 
 	blob *_bias_multiplier = NULL;
 
-	int _group = 1;
 
 private:
 
-	int col_offset = 0;
-
-	int w_offset = 0;
-
-	int out_offset = 0;
 
 };
 }

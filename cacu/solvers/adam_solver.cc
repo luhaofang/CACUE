@@ -60,8 +60,10 @@ adam_solver::~adam_solver() {
  * update weight value
  * where weight_index_ is the weight index in _history_v
  */
-void adam_solver::update_weight(weight* w_, int weight_index_, int step_) {
+void adam_solver::update_weight(weight *&w_, int weight_index_, int step_) {
 
+	if(step_ == 0)
+		LOG_FATAL("adam optimizer must start from iteration 1 vs %d!", step_);
 	if (w_->update()) {
 		blob* history_s = (blob*)_history_s->at(weight_index_);
 		blob* history_r = (blob*)_history_r->at(weight_index_);
@@ -88,6 +90,7 @@ void adam_solver::update_weight(weight* w_, int weight_index_, int step_) {
 
 		//update to weight
 		cacu_saxpy(w_->s_diff(), (float_t)(1.0), w_->s_data(), w_->count());
+
 	}
 }
 

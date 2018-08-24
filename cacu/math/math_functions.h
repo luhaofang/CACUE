@@ -129,7 +129,7 @@ void cacu_copy(float *x, const int length, float *y);
 
 void cacu_abs(float *x, const int length, float *y);
 
-void cacu_abs_grad(float *x, float *diff, const int length, float *grad);
+void cacu_abs_grad(float *x, float *diff, const int length);
 
 /**
  * @cacu_isaxdb
@@ -140,7 +140,7 @@ void cacu_isaxb(float *x, const int channel, const int width, const int height, 
 
 unsigned int argmax(float *data, const int length);
 
-void cacu_transpose(float *mtx, const int m, const int n);
+void cacu_transpose(float *mtx, const int m, const int n, const int clength);
 
 void cacu_clip_vec(float *data, const float threshold, const int length);
 

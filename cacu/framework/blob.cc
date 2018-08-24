@@ -64,7 +64,8 @@ void blob::copy_blob(blob* blob_) {
 	CHECK_EQ_OP(blob_->phase(), _phase, "blob phase must be the same! %d vs %d",
 			blob_->phase(), _phase);
 	if (train == _phase && train == blob_->phase()) {
-		_tdiff->copy2data(blob_->s_diff());
+		//_tdiff->copy2data(blob_->s_diff());
+		_tdiff->set_value(0);
 	}
 }
 
@@ -231,5 +232,30 @@ void blob::set_init_type(param_init_type type, float_t value) {
 	vec_t().swap(w);
 }
 
+void blob::switch_channel()
+{
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	vec_t temp(_length);
+	cuda_copy2host(&temp[0],s_data(),_length);
+	cacu_transpose(&temp[0], _num, _channel, _channel_length);
+	cuda_copy2dev(s_data(),&temp[0],_length);
+	if(_phase == train){
+		cuda_copy2host(&temp[0],s_diff(),_length);
+		cacu_transpose(&temp[0], _num, _channel, _channel_length);
+		cuda_copy2dev(s_diff(),&temp[0],_length);
+	}
+#endif
+#else
+	cacu_transpose(s_data(), _num, _channel, _channel_length);
+	if(_phase == train)
+		cacu_transpose(s_diff(), _num, _channel, _channel_length);
+#endif
+
+	int temp_ = _num;
+	_num = _channel;
+	_channel = temp_;
+	_cube_length = _channel * _channel_length;
+}
 
 }

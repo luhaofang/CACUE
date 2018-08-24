@@ -45,25 +45,19 @@ public:
 
 	~layer_block();
 
-	inline blob_base * get_oblob() {
-		if (_layers->size() != 0)
-			return layers(length() - 1)->get_oblob();
-		return NULL;
+	inline blob_base *& get_oblob() {
+		return layers(length() - 1)->get_oblob();
 	}
 
 	template<class OPTYPE>
-	inline OPTYPE* top_op(){
-		if (_layers->size() != 0)
-		{
-			layer *top_layer_=layers(length() - 1);
-			return top_layer_->get_op<OPTYPE>(top_layer_->op_count()-1,
-					top_layer_->get_out_op()->_TYPE());
-		}
-		return NULL;
+	inline OPTYPE *&top_op(){
+		layer *top_layer_=layers(length() - 1);
+		return top_layer_->get_op<OPTYPE>(top_layer_->op_count()-1,
+				top_layer_->get_out_op()->_TYPE());
 	}
 
-	inline layer* layers(int i) const {
-		return (layer*) _layers->at(i);
+	inline layer *&layers(int i) const {
+		return (layer*&) _layers->at(i);
 	}
 
 	inline layer_base*& pop_layer() const {

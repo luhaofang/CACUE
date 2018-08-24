@@ -283,16 +283,6 @@ public:
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
-		_w->_RESET_DIFF();
-		_temp->_RESET_DIFF();
-		if (_is_use_bias)
-			_bias->_RESET_DIFF();
-		_col_data->_RESET_DATA();
-	}
-
 	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}

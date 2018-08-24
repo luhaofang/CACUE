@@ -83,11 +83,14 @@ void solver_base::train_iter(int step_) {
  * add regular to gradient
  * where i is the index of _w
  */
-void solver_base::__REGULARIZE__(weight *w_, int weight_index_) {
+void solver_base::__REGULARIZE__(weight *&w_, int weight_index_) {
 	float_t weight_decay_ = w_->decay() * _global_weight_decay;
+	blob *temp_w = (blob*)_temp->at(weight_index_);
 	switch (_regularize) {
 	case L1:
 		//temp->set_value(1);
+		cacu_abs_grad(w_->s_data(),temp_w->s_data(),w_->count());
+		cacu_ssx(temp_w->s_data(),w_->count(),w_->s_diff());
 		cacu_sdxsize<float_t>(w_->s_diff(), w_->count(), weight_decay_, 1.0, w_->s_diff());
 		//cacu_saxpy(temp->s_data(), weight_decay_, w_->s_diff(), w_->count());
 		break;
@@ -103,7 +106,7 @@ void solver_base::__REGULARIZE__(weight *w_, int weight_index_) {
  * normalize gradient
  * where i is the index of _w
  */
-void solver_base::__NORMALIZE__(weight *w_) {
+void solver_base::__NORMALIZE__(weight *&w_) {
 	float_t normalizer_ = (float_t) (1);
 	cacu_scalex(w_->s_diff(), w_->count(), normalizer_);
 }

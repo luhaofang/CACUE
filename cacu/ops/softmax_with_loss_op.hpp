@@ -97,6 +97,7 @@ public:
 		//LOG_DEBUG("%d,%d,%d",o_blob_->width(), o_blob_->height(),labels_->count());
 		//CHECK_EQ_OP(o_blob_->channel_length(),labels_->count(), "%d,%d", o_blob_->count(),labels_->count());
 		cacu_cross_entropy_multi(o_blob_->s_data(),o_blob_->num(),o_blob_->channel(), o_blob_->width(), o_blob_->height(),labels_->s_data(),o_blob_->s_diff());
+
 #endif
 
 #if __USEMBEDDING__ == ON
@@ -135,9 +136,9 @@ public:
 		for (int i = 0; i < s_blob_->num(); ++i)
 		{
 			cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
-			cacu_scalex(s_blob_->p_diff(i), s_blob_->length(), normalizer() * _loss_weight / o_blob_->channel_length());
 		}
-		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight);
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight / o_blob_->channel_length());
+
 #endif
 	}
 
@@ -154,11 +155,6 @@ public:
 		LOG_INFO("loss : %f", _loss);
 		if(_loss_weight != 1.0)
 			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
-	}
-
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
 	}
 
 	inline void set_phase(phase_type phase_)  {

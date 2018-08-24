@@ -141,7 +141,8 @@ namespace cacu {
 			case DIV:
 				break;
 			case ABS:
-				cacu_abs_grad(s_blob_->s_data(), s_blob_->s_diff(), s_blob_->count(), o_blob_->s_diff());
+				cacu_abs_grad(s_blob_->s_data(), s_blob_->s_diff(), s_blob_->count());
+				cacu_ssx(o_blob_->s_diff(), o_blob_->count(), s_blob_->s_diff());
 				break;
 			case MASK_LT:
 				mask_vector_lt(s_blob_->s_data(), s_blob_->count(), s_blob_->s_diff());
@@ -185,10 +186,6 @@ namespace cacu {
 					s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 					o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 			}
-		}
-
-		inline void LOOP_INIT_DATA_()  {
-			return;
 		}
 
 		inline void set_phase(phase_type phase_)  {

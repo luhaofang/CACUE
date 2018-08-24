@@ -122,11 +122,6 @@ public:
 				o_blobs->at(0)->height());
 	}
 
-	inline void LOOP_INIT_DATA_() 
-	{
-		return;
-	}
-
 	inline void set_phase(phase_type phase_)  {
 		_phase = phase_;
 	}

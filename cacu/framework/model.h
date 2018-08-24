@@ -96,9 +96,7 @@ private:
 
 	op_name _op_type;
 
-	vector<cacu_op*> *_INs = NULL;
-
-	operator_base *_op;
+	vector<cacu_op*> *_cacu_ops = NULL;
 
 };
 

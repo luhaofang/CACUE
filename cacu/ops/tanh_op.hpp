@@ -79,7 +79,7 @@ public:
 #else
 		blob *o_blob_ = (blob*)o_blobs->at(0);
 		blob *s_blob_ = (blob*)s_blobs->at(0);
-
+		//cacu_print(s_blob_->s_data(), 100);
 		cacu_tanh(s_blob_->s_data(), o_blob_->count(), o_blob_->s_data());
 #endif
 	}
@@ -97,8 +97,9 @@ public:
 		blob *o_blob_ = (blob*)o_blobs->at(0);
 		blob *s_blob_ = (blob*)s_blobs->at(0);
 
+		//cacu_print(o_blob_->s_diff(), 100);
 		cacu_tanh_grad(o_blob_->s_data(), o_blob_->s_diff(), s_blob_->count(), s_blob_->s_diff());
-
+		//cacu_print(s_blob_->s_diff(), 100);
 #endif
 	}
 
@@ -116,11 +117,6 @@ public:
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
 				o_blobs->at(0)->height());
-	}
-
-	inline void LOOP_INIT_DATA_() 
-	{
-		return;
 	}
 
 	inline void set_phase(phase_type phase_)  {

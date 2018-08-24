@@ -55,6 +55,7 @@ public:
 #endif
 			_bias_multiplier = create_opblob(1, s_blobs->at(0)->num(), 1, 1,
 					(float_t) (1), _phase);
+			_bias_multiplier->set_variable(false);
 		} else {
 			o_blobs->at(0)->resize(s_blobs->at(0)->num(), _args->output_channel(), 1, 1);
 			_bias_multiplier->resize(1, s_blobs->at(0)->num(), 1, 1);
@@ -168,15 +169,6 @@ public:
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
 				o_blobs->at(0)->height());
-	}
-
-	inline void LOOP_INIT_DATA_() 
-	{
-		o_blobs->_RESET_DATA();
-
-		_w->_RESET_DIFF();
-		if (_is_use_bias)
-			_bias->_RESET_DIFF();
 	}
 
 	inline void set_phase(phase_type phase_)  {

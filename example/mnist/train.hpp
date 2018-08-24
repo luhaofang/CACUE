@@ -50,7 +50,7 @@ void train_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 6000;
+	int max_iter = 5000;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -113,7 +113,7 @@ void train_net()
 			logger.flush();
 		}
 
-		if(i % 5000 == 0)
+		if(i % 4000 == 0)
 			sgd->set_lr_iter(0.1f);
 
 	}

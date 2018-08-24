@@ -29,6 +29,7 @@
 #include <limits>
 
 #include "blob_base.h"
+#include "../math/math_functions.h"
 
 //#include "../definition.h"
 
@@ -115,7 +116,7 @@ public:
 	 */
 	inline void set_pdata(float_t value_, int i)
 	{
-		_tdata->set_value(i, _cube_length, value_);
+		_tdata->set_value(i*_cube_length, _cube_length, value_);
 	}
 
 	/**
@@ -123,7 +124,7 @@ public:
 	 */
 	inline void set_pdiff(float_t value_, int i)
 	{
-		_tdiff->set_value(i, _cube_length, value_);
+		_tdiff->set_value(i*_cube_length, _cube_length, value_);
 	}
 
 	/**
@@ -173,14 +174,18 @@ public:
 	}
 
 	inline void _RESET_DATA() {
-		_tdata->refresh();
-		if (train == _phase)
-			_tdiff->refresh();
+		if(_variable){
+			_tdata->refresh();
+			if (train == _phase)
+				_tdiff->refresh();
+		}
 	}
 
 	inline void _RESET_DIFF() {
-		if (train == _phase)
-			_tdiff->refresh();
+		if(_variable){
+			if (train == _phase)
+				_tdiff->refresh();
+		}
 	}
 
 	void serializa(std::ostream& os);
@@ -208,6 +213,8 @@ public:
 	}
 
 	void set_init_type(param_init_type type, float_t value);
+
+	void switch_channel();
 
 protected:
 

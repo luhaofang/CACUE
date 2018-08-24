@@ -76,6 +76,7 @@ network* create_lenet(int batch_size, phase_type phase_)
 		loss_->op(CACU_INNERPRODUCT, fc1->get_oblob())->op(CACU_SOFTMAX_LOSS, label_);
 		loss_->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_weight_init_type(xavier);
 		loss_->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_bias_init_type(constant);
+		loss_->get_op<softmax_with_loss_op>(1, CACU_SOFTMAX_LOSS)->set_loss_weight(0.01);
 		LOG_INFO("loss");
 		*net << loss_;
 	}
@@ -88,6 +89,8 @@ network* create_lenet(int batch_size, phase_type phase_)
 		LOG_INFO("predict");
 		*net << predict;
 	}
+
+	//net->_INIT_NETWORK();
 	
 	return net;
 }

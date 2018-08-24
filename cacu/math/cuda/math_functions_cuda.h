@@ -46,13 +46,13 @@ extern "C" void cacu_isaxb_cuda(float *x, const int channel, const int width, co
 
 extern "C" void cacu_argmax_cuda(float *x, const int length, unsigned int *index_);
 
-extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n);
+extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n, const int length);
 
 extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int length);
 
 extern "C" void cacu_abs_cuda(float *x, const int length, float *y);
 
-extern "C" void cacu_abs_grad_cuda(float *x, float *diff, const int length, float *grad);
+extern "C" void cacu_abs_grad_cuda(float *x, float *diff, const int length);
 
 }
 

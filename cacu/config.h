@@ -74,7 +74,11 @@ namespace cacu {
 #endif
 
 #ifndef __PARALLELTYPE__
+#if(__USE_DEVICE__ == ON)
+#define __PARALLELTYPE__  __CUDA__
+#elif(__USE_DEVICE__ == OFF)
 #define __PARALLELTYPE__  __OPENBLAS__
+#endif
 #endif
 
 #ifndef __CBLASTYPE__

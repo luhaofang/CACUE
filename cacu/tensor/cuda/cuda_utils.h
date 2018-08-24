@@ -91,8 +91,10 @@ template<typename DTYPE>
 void cuda_print(DTYPE* data_, dsize_t length) {
 	vector<DTYPE> v(length);
 	cuda_copy2host(&v[0], data_, length);
+	cout << "(";
 	for (dsize_t i = 0; i < length; ++i)
 		cout << v[i] << ",";
+	cout << ")";
 	cout << endl;
 	vector<DTYPE>().swap(v);
 }

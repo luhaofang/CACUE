@@ -114,6 +114,11 @@ public:
 		return _REC_ == 0;
 	}
 
+	inline void set_variable(bool type_)
+	{
+		_variable = type_;
+	}
+
 	void _REC();
 
 	/*
@@ -158,6 +163,9 @@ protected:
 
 	dsize_t _data_num;
 	phase_type _phase;
+
+	bool _variable = true;
+
 
 	void *_s_data;
 

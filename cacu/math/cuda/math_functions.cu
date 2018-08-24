@@ -149,7 +149,14 @@ extern "C" void cacu_argmax_cuda(float *x, const int length,
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n) {
+__global__ void _k_CACU_TRANSPOSE_CUDA(float *mtx, const int m, const int n,
+		const int length) {
+
+
+}
+
+
+extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n, const int length) {
 
 }
 
@@ -194,7 +201,7 @@ extern "C" void cacu_abs_cuda(float *x, const int length, float *y)
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_ABS_GRAD_CUDA(float *x, float *diff, const int length, float *grad) {
+__global__ void _k_CACU_ABS_GRAD_CUDA(float *x, float *diff, const int length) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -203,13 +210,13 @@ __global__ void _k_CACU_ABS_GRAD_CUDA(float *x, float *diff, const int length, f
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		diff[i] = (x[i] > 0) ? grad[i] : -grad[i];
+		diff[i] = (x[i] > 0) ? 1 : -1;
 	}
 }
 
-extern "C" void cacu_abs_grad_cuda(float *x, float *diff, const int length, float *grad)
+extern "C" void cacu_abs_grad_cuda(float *x, float *diff, const int length)
 {
-	_k_CACU_ABS_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, diff, length, grad);
+	_k_CACU_ABS_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, diff, length);
 
 	CUDA_CHECK(cudaThreadSynchronize());
 }

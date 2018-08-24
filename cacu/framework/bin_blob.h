@@ -151,13 +151,18 @@ public:
 	}
 
 	inline void _RESET_DATA() {
-		_tdata->refresh();
-		if (train == _phase)
-			_tdiff->refresh();
+		if(_variable){
+			_tdata->refresh();
+			if (train == _phase)
+				_tdiff->refresh();
+		}
 	}
 
 	inline void _RESET_DIFF() {
-		_tdiff->refresh();
+		if(_variable){
+			if (train == _phase)
+				_tdiff->refresh();
+		}
 	}
 
 	void serializa(std::ostream& os);

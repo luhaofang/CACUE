@@ -60,14 +60,14 @@ inline void cacu_print(DTYPE *data, size_t length)
 #endif
 }
 
-inline void cacu_print(blob *data_blob)
+inline void cacu_print_blob(blob *data_blob, size_t length)
 {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	device_print(data_blob->s_data(), data_blob->count());
+	device_print(data_blob->s_data(), length);
 #endif
 #else
-	cacu_print_cpu(data_blob->s_data(), data_blob->count());
+	cacu_print_cpu(data_blob->s_data(), length);
 #endif
 }
 

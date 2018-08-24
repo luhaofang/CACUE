@@ -66,6 +66,7 @@ public:
 	void op()  {
 
 		blob *s_blob_ = (blob*) s_blobs->at(0);
+
 		cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
 	}
 
@@ -90,10 +91,6 @@ public:
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
-	}
-
-	inline void LOOP_INIT_DATA_()  {
-		return;
 	}
 
 	inline void set_phase(phase_type phase_)  {

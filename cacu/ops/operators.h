@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../tensor/utils/device_data_utils.h"
 #include "../tensor/utils/cpu_data_utils.h"
-
 #include "../utils/data_printer.h"
 
 #include "operator_base.h"
@@ -80,9 +79,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*        custorm operators	       */
 /***********************************/
 
+
 #include "../user_ops/p_inner_product_op.hpp"
 #include "../user_ops/deconvolution_op.hpp"
-//#include "../user_ops/local_conv_op.hpp"
 #include "../user_ops/normalization_op.hpp"
 #include "../user_ops/dilated_convolution_op.hpp"
 #include "../user_ops/combination_op.hpp"
@@ -91,6 +90,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../user_ops/roi_pooling_op.hpp"
 #include "../user_ops/injector_op.hpp"
+#include "../user_ops/instance_normalize_op.hpp"
 #include "../user_ops/primary_vector_op.hpp"
 
 
