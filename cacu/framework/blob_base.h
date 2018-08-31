@@ -34,6 +34,7 @@
 #include "../utils/check_utils.h"
 
 #include "blob_definition.h"
+#include "blob_body.h"
 
 using namespace std;
 
@@ -49,31 +50,31 @@ public:
 	virtual ~blob_base();
 
 	inline dsize_t num() const {
-		return _num;
+		return _body->_num;
 	}
 
 	inline dsize_t channel() const {
-		return _channel;
+		return _body->_channel;
 	}
 
 	inline dsize_t width() const {
-		return _width;
+		return _body->_width;
 	}
 
 	inline dsize_t height() const {
-		return _height;
+		return _body->_height;
 	}
 
 	inline dsize_t channel_length() const {
-		return _channel_length;
+		return _body->_channel_length;
 	}
 
 	inline dsize_t length() const {
-		return _cube_length;
+		return _body->_cube_length;
 	}
 
 	inline dsize_t count() const {
-		return _length;
+		return _body->_length;
 	}
 
 	inline dsize_t data_num() const {
@@ -101,7 +102,7 @@ public:
 	virtual void load(std::ifstream& is) = 0;
 
 	inline dsize_t index(dsize_t c, dsize_t x, dsize_t y) const {
-		return c * _cube_length + x * _width + y;
+		return c * _body->_cube_length + x * _body->_width + y;
 	}
 
 	void _CHECK_SIZE_EQ(blob_base* blob_);
@@ -125,15 +126,15 @@ public:
 	* compare the current data size with previous data size
 	*/
 	inline bool _IS_MOTIFIED() {
-		return _p_length == _length;
+		return _body->check_body(_p_body);
 	}
 
 	inline void _MOTIFY() {
-		_p_length = _length;
+		_p_body->copy_from(_body);
 	}
 
 	inline void _NEED_MOTIFY() {
-		_p_length = 0;
+		_p_body->set_body(0,0,0,0);
 	}
 
 	void blob_size()
@@ -141,10 +142,10 @@ public:
 		switch(_blob_type){
 
 		case __blob__:
-			LOG_INFO("blob size: (%d, %d, %d, %d)", _num, _channel, _width, _height);
+			LOG_INFO("blob size: (%d, %d, %d, %d)", _body->_num, _body->_channel, _body->_width, _body->_height);
 			break;
 		case __bin_blob__:
-			LOG_INFO("bin blob size: (%d, %d, %d, %d)", _num, _channel, _width, _height);
+			LOG_INFO("bin blob size: (%d, %d, %d, %d)", _body->_num, _body->_channel, _body->_width, _body->_height);
 			break;
 		default:
 			break;
@@ -153,13 +154,7 @@ public:
 
 protected:
 
-	dsize_t _width;
-	dsize_t _height;
-	dsize_t _channel;
-	dsize_t _num;
-	dsize_t _cube_length;
-	dsize_t _length;
-	dsize_t _channel_length;
+	blob_body *_body;
 
 	dsize_t _data_num;
 	phase_type _phase;
@@ -177,7 +172,7 @@ private:
 
 	unsigned _REC_;
 
-	dsize_t _p_length;
+	blob_body *_p_body;
 
 };
 }

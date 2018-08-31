@@ -34,6 +34,11 @@ namespace cacu {
 network::network() {
 	_ops = new vector<operator_base*>();
 	_layers = new vector<layer_base*>();
+#if __OPERATOR__TYPE__ == __DYNAMIC_GRAPH__
+	LOG_INFO("Create model from dynamic operators!");
+#elif __OPERATOR__TYPE__ == __STATIC_GRAPH__
+	LOG_INFO("Create model from static operators!");
+#endif
 }
 
 
@@ -42,6 +47,11 @@ network::network(blobs *&datas_) {
 
 	_ops = new vector<operator_base*>();
 	_layers = new vector<layer_base*>();
+#if __OPERATOR__TYPE__ == __DYNAMIC_GRAPH__
+	LOG_INFO("Create model from dynamic operators!");
+#elif __OPERATOR__TYPE__ == __STATIC_GRAPH__
+	LOG_INFO("Create model from static operators!");
+#endif
 }
 
 network::~network() {

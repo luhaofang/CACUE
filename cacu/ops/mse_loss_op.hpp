@@ -73,7 +73,7 @@ public:
 		s_blobs->at(0)->_CHECK_SIZE_EQ(s_blobs->at(1));
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		_loss = 0.0;
 
@@ -97,9 +97,9 @@ public:
 		cacu_sumbysize_cpu(BYWIDTH, o_blob_->s_diff(), o_blob_->count(), 1,
 				_loss, 0, o_blob_->count());
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob1_ = (blob*)s_blobs->at(0);
-		blob *s_blob2_ = (blob*)s_blobs->at(1);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob1_ = (blob*)s_blobs_->at(0);
+		blob *s_blob2_ = (blob*)s_blobs_->at(1);
 
 		//cacu_print(s_blob_->s_data(), 100);
 		cacu_copy(s_blob2_->s_data(), s_blob2_->count(), o_blob_->s_data());
@@ -130,7 +130,7 @@ public:
 		_loss /= o_blob_->length();
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -140,14 +140,14 @@ public:
 		cacu_scalex_cpu(s_blob_->s_diff(), s_blob_->count(), normalizer());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob1_ = (blob*)s_blobs->at(0);
-		blob *s_blob2_ = (blob*)s_blobs->at(1);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob1_ = (blob*)s_blobs_->at(0);
+		blob *s_blob2_ = (blob*)s_blobs_->at(1);
 
 		cacu_copy(o_blob_->s_data(), o_blob_->count(), s_blob1_->s_diff());
-		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer() * _loss_weight / o_blob_->channel_length());
+		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer() * _loss_weight);
 		cacu_copy(o_blob_->s_data(), o_blob_->count(), s_blob2_->s_diff());
-		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), -normalizer() * _loss_weight / o_blob_->channel_length());
+		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), -normalizer() * _loss_weight);
 		//cacu_print(s_blob_->s_diff(),s_blob_->count());
 #endif
 	}

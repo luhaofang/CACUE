@@ -61,63 +61,41 @@ public:
 		}
 	}
 
-	cacu_op* operator <<(cacu_op *&op_);
-
-	cacu_op* operator >>(cacu_op *&op_);
-
-	cacu_op* operator <<(blob_base *&data_);
-
-	template<typename BTYPE>
-	inline BTYPE *&get_sblob() {
-		return _op->in_data<BTYPE>();
-	}
-
-	template<typename BTYPE>
-	inline BTYPE *&get_oblob() {
-		return _op->out_data<BTYPE>();
-	}
-
-	inline blobs *&get_sblobs() {
-		return _op->in_datas();
-	}
-
-	inline blobs *&get_oblobs() {
-		return _op->out_datas();
-	}
-
 	inline weight *get_param(int i)
 	{
 		CHECK_LT_OP(i,_op->weights_size(),"parameter index is out of range %d vs %d!", i, _op->weights_size());
 		return _op->get_weight(i);
 	}
 
-	inline void run()
+	inline void forward(blobs *datas_)
 	{
-		_op->infer();
+
 	}
 
-	/**
-	 * assign operator
-	 * this function is called after the calculation steps are assigned.
-	 * every input of the
-	 * WARNING: focus on the multi output operator such as split_op.
-	 */
-	void _CREATE_OP(){
-		for(int i = 0 ; i < _INs->size(); ++i) {
-			_op->in_datas()->push_back(_INs->at(i)->get_oblob<blob_base>());
-			_INs->at(i)->get_oblob<blob_base>()->_REC();
-		}
-		//initial phase
-		_op->init_sblob();
-		//initial operator
-		_op->alloc_create_op();
+	inline void backward()
+	{
+		_op->derivative();
+	}
+
+	inline void push2ins(cacu_op *op_)
+	{
+		_in_ops->push_back(op_);
+	}
+
+	inline void push2outs(cacu_op *op_)
+	{
+		_out_ops->push_back(op_);
 	}
 
 private:
 
 	op_name _op_type;
 
-	vector<cacu_op*> *_INs = NULL;
+	vector<cacu_op*> *_in_ops = NULL;
+
+	blobs *_out_datas = NULL;
+
+	vector<cacu_op*> *_out_ops = NULL;
 
 	operator_base *_op;
 

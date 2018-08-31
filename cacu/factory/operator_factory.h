@@ -122,145 +122,120 @@ public:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 							blob_->size());
 					return new convolution_op(blob_, d_args_);
+				case CACU_CONV_TRANS:
+					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
+							blob_->size());
+					return new conv_transpose_op(blob_, d_args_);
 				case CACU_SUM_ELEMWISE:
 					CHECK_GE_OP(blob_->size(), 2, "blobs size must >= 2 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new sum_elemwise_op(blob_);
 				case CACU_RELU:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new relu_op(blob_);
 				case CACU_BATCH_NORMALIZE:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new batch_normalize_op(blob_);
 				case CACU_INSTANCE_NORMALIZE:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new instance_normalize_op(blob_);
 				case CACU_MAX_POOLING:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new max_pooling_op(blob_, d_args_);
 				case CACU_AVERAGE_POOLING:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new average_pooling_op(blob_, d_args_);
 				case CACU_DROPOUT:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new dropout_op(blob_, o_args_);
 				case CACU_LEAKY_RELU:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new leaky_relu_op(blob_, o_args_);
 				case CACU_SOFTMAX:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new softmax_op(blob_);
 				case CACU_SOFTMAX_LOSS:
 					CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new softmax_with_loss_op(blob_);
-
 				case CACU_SIGMOID_LOSS:
 					CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new sigmoid_with_loss_op(blob_);
 				case CACU_MSE_LOSS:
 					CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new mse_loss_op(blob_);
 				case CACU_FEATURE_COMBINE:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new feature_combine_op(blob_, o_args_);
 				case CACU_SPLIT:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new split_op(blob_, o_args_);
 				case CACU_PRELU:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new prelu_op(blob_);
 				case CACU_ROI_POOLING:
 					CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new roi_pooling_op(blob_, o_args_);
 				case CACU_P_INNERPRODUCT:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new p_inner_product_op(blob_, d_args_);
 				case CACU_DECONVOLUTION:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new deconvolution_op(blob_, d_args_);
 				case CACU_INJECTOR:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new injector_op(blob_);
 				case CACU_TANH:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new tanh_op(blob_);
 				case CACU_SELU:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new selu_op(blob_);
 				case CACU_HTANH:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-						blob_->size())
-						;
+						blob_->size());
 					return new half_tanh_op(blob_);
 				case CACU_SIGMOID:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new sigmoid_op(blob_);
 				case CACU_PRIMARY_VECTOR:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new primary_vector_op(blob_, d_args_);
 				case CACU_MATH:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-						blob_->size())
-						;
+						blob_->size());
 					return new math_op(blob_);
 				case CACU_DILATED_CONVOLUTION:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new dilated_convolution_op(blob_, d_args_);
 				case CACU_COMBINATION:
 					CHECK_GE_OP(blob_->size(), 2, "blobs size must >= 2 vs %d",
-							blob_->size())
-					;
+							blob_->size());
 					return new combination_op(blob_);
 				default:
-					LOG_FATAL("No op is founded as: %d", op_name_)
-					;
+					LOG_FATAL("No op is founded as: %d", op_name_);
 					return NULL;
 				}
 				//*/

@@ -46,24 +46,24 @@ weight::~weight() {
 }
 
 void weight::set_init_type(param_init_type type, float_t value) {
-	vec_t w(_length);
+	vec_t w(count());
 	switch (type) {
 	case constant:
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = value;
 		break;
 	case xavier:
 		value = sqrt((float_t) 3.0 / (channel() * height() * width()));
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = urand(-value, value);
 		break;
 	case gaussian:
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = gaussrand(value);
 		break;
 	case msra:
 		value = sqrt((float_t) 2.0 / (channel() * height() * width()));
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = gaussrand(value);
 		break;
 	default:
@@ -79,11 +79,11 @@ void weight::set_init_type(param_init_type type, float_t value) {
  */
 void weight::serializa_group(std::ostream& os, int group) {
 	float_t* p_data_;
-	int length = _length / group;
+	int length = count() / group;
 #if __USE_DEVICE__ == ON
 	os.write((char*) (&length), sizeof(length));
-	vec_t _v(_channel_length * (_channel / group));
-	for (int n = 0; n < _num; ++n) {
+	vec_t _v(channel_length() * (channel() / group));
+	for (int n = 0; n < num(); ++n) {
 		p_data_ = s_data() + n * _v.size();
 		device_copy2host(&_v[0], p_data_, _v.size());
 		for (auto w : _v)
@@ -93,8 +93,8 @@ void weight::serializa_group(std::ostream& os, int group) {
 #else
 
 	os.write((char*)(&length), sizeof(length));
-	vec_t _v(_channel_length * (_channel / group));
-	for(int n = 0; n < _num; ++n) {
+	vec_t _v(channel_length() * (channel() / group));
+	for(int n = 0; n < num(); ++n) {
 		p_data_ = s_data() + n * _v.size();
 		cacu_copy_cpu(p_data_, _v.size(), &_v[0]);
 		for (auto w : _v) os.write((char*)(&w), sizeof(w));
@@ -109,13 +109,13 @@ void weight::serializa_group(std::ostream& os, int group) {
 void weight::load_group(std::ifstream& is, int group) {
 	float_t* p_data_ = (float_t*) _s_data;
 #if __USE_DEVICE__ == ON
-	vec_t _v(_channel_length * (_channel / group));
+	vec_t _v(channel_length() * (channel() / group));
 	int length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));
-	CHECK_EQ_OP(length_, _num * _v.size(),
+	CHECK_EQ_OP(length_, num() * _v.size(),
 			"parameter '%s' length is not equal to local weight: %d vs %d!",
-			_name.c_str(), length_, _num * _v.size());
-	for (int n = 0; n < _num; ++n) {
+			_name.c_str(), length_, num() * _v.size());
+	for (int n = 0; n < num(); ++n) {
 		for (int i = 0; i < _v.size(); ++i)
 			is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
 		p_data_ = s_data() + n * _v.size();
@@ -123,11 +123,11 @@ void weight::load_group(std::ifstream& is, int group) {
 	}
 	vec_t().swap(_v);
 #else
-	vec_t _v(_channel_length * (_channel / group));
+	vec_t _v(channel_length() * (channel() / group));
 	int length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));
-	CHECK_EQ_OP(length_,_num * _v.size(),"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, _num * _v.size());
-	for (int n = 0; n < _num; ++n) {
+	CHECK_EQ_OP(length_,num() * _v.size(),"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, num() * _v.size());
+	for (int n = 0; n < num(); ++n) {
 		for(int i = 0; i < _v.size(); ++i)
 		is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
 		p_data_ = s_data() + n * _v.size();
@@ -140,9 +140,9 @@ void weight::load_group(std::ifstream& is, int group) {
 void weight::load(std::ifstream& is) {
 	dsize_t length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(dsize_t));
-	CHECK_EQ_OP(length_, _length,
+	CHECK_EQ_OP(length_, count(),
 			"parameter [%s] length is not equal to local length: %d vs %d!",
-			_name.c_str(), length_, _length);
+			_name.c_str(), length_, count());
 	_tdata->load(is);
 }
 

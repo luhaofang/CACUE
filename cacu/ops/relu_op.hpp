@@ -58,7 +58,7 @@ public:
 		return;
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -67,13 +67,14 @@ public:
 		cacu_relu_cpu(o_blob_->s_data(), o_blob_->count());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
+		o_blobs_ = s_blobs_;
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
-		cacu_relu(o_blob_->s_data(), o_blob_->count());
+		cacu_relu(s_blob_->s_data(), s_blob_->count());
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -83,8 +84,9 @@ public:
 				s_blob_->count());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		o_blobs_ = s_blobs_;
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 		cacu_relu_grad(s_blob_->s_data(),o_blob_->s_diff(), s_blob_->count());
 

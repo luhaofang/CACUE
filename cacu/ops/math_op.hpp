@@ -62,9 +62,9 @@ namespace cacu {
 					_o_args->size());
 		}
 
-		void op()  {
-			blob *o_blob_ = (blob*)o_blobs->at(0);
-			blob *s_blob_ = (blob*)s_blobs->at(0);
+		void op(blobs *s_blobs_,blobs *o_blobs_)  {
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 			switch (_FUNC)
 			{
@@ -112,9 +112,9 @@ namespace cacu {
 
 		}
 
-		void grad()  {
-			blob *o_blob_ = (blob*)o_blobs->at(0);
-			blob *s_blob_ = (blob*)s_blobs->at(0);
+		void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 			switch (_FUNC)
 			{

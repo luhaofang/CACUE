@@ -63,16 +63,17 @@ public:
 				_o_args->at(0));
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
-		blob *s_blob_ = (blob*) s_blobs->at(0);
+		o_blobs_ = s_blobs_;
+		blob *s_blob_ = (blob*) s_blobs_->at(0);
 
 		cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
 	}
 
-	void grad()  {
-		blob *o_blob_ = (blob*) o_blobs->at(0);
-		blob *s_blob_ = (blob*) s_blobs->at(0);
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+		blob *o_blob_ = (blob*) o_blobs_->at(0);
+		blob *s_blob_ = (blob*) s_blobs_->at(0);
 		cacu_leaky_relu_grad(s_blob_->s_data(), o_blob_->s_diff(),
 				_negative_slope, s_blob_->count());
 	}

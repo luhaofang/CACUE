@@ -88,7 +88,7 @@ public:
 				_args->kernel_size());
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -100,14 +100,14 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		for(int i = 0; i < s_blob_->num(); ++i)
 		cacu_average_pooling(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), o_blob_->p_data(i));
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -119,8 +119,8 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 		for(int i = 0; i < s_blob_->num(); ++i)
 		cacu_average_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), s_blob_->p_diff(i));

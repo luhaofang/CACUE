@@ -81,7 +81,7 @@ public:
 
 	inline void grad() {
 		for (int i = (_ops->size()) - 1; i >= 0; --i) {
-			_ops->at(i)->grad();
+			_ops->at(i)->derivative();
 			//cacu_print(_ops->at(i)->in_data<blob>()->s_diff(),100);
 			//LOG_DEBUG("op: %d", i);
 		}

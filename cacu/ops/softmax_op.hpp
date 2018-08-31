@@ -68,7 +68,7 @@ public:
 		return;
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -78,16 +78,16 @@ public:
 				s_blob_->width(), s_blob_->height(), o_blob_->s_data());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		cacu_softmax(s_blob_->s_data(), s_blob_->num(),s_blob_->channel(), s_blob_->width(), s_blob_->height(), o_blob_->s_data());
 #endif
 		//echo();
 	}
 
-	void grad()  {
-		blob *o_blob_ = (blob*) o_blobs->at(0);
-		blob *s_blob_ = (blob*) s_blobs->at(0);
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+		blob *o_blob_ = (blob*) o_blobs_->at(0);
+		blob *s_blob_ = (blob*) s_blobs_->at(0);
 
 		//echo();
 

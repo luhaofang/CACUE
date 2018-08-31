@@ -112,7 +112,7 @@ public:
 		return;
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -211,8 +211,8 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		blob *dim_sum_ = (blob*)_dim_sum;
 		blob *x_ = (blob*)_x;
 
@@ -308,7 +308,7 @@ public:
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -359,8 +359,8 @@ public:
 		}
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		blob *dim_sum_ = (blob*)_dim_sum;
 		blob *x_ = (blob*)_x;
 

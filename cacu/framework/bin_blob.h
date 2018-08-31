@@ -56,7 +56,7 @@ public:
 	 */
 	inline int* p_data(dsize_t n) const {
 		//CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
-		return (int*) _s_data + n * _cube_length;
+		return (int*) _s_data + n * length();
 	}
 
 	/**
@@ -64,7 +64,7 @@ public:
 	 */
 	inline float_t* p_diff(dsize_t n) const {
 		//CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
-		return (float_t*) _s_diff + n * _cube_length;
+		return (float_t*) _s_diff + n * length();
 	}
 
 #if __USE_DEVICE__ == ON
@@ -146,8 +146,8 @@ public:
 
 	inline dsize_t calculate_size() {
 		return test == _phase ?
-				_length * sizeof(int) :
-				_length * sizeof(int) + _length * sizeof(float_t);
+				count() * sizeof(int) :
+				count() * sizeof(int) + count() * sizeof(float_t);
 	}
 
 	inline void _RESET_DATA() {
@@ -171,25 +171,19 @@ public:
 
 	void resize(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height) {
-		_width = width;
-		_height = height;
-		_channel = channel;
-		_num = num;
-		_channel_length = width * height;
-		_cube_length = channel * width * height;
-		_length = _num * _cube_length;
+		_body->set_body(num,channel,width,height);
 
 		if(_IS_MOTIFIED())
 			return;
-
-		_tdata->resize(_length, 0);
-		_s_data = _tdata->pdata();
+		if (_tdata != NULL) {
+			_tdata->resize(count(), 0);
+			_s_data = _tdata->pdata();
+		}
 		if(_tdiff != NULL){
-			_tdiff->resize(_length, 0);
+			_tdiff->resize(count(), 0);
 			_s_diff = _tdiff->pdata();
 		}
 	}
-
 
 private:
 

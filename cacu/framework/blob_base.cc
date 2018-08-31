@@ -35,42 +35,38 @@ namespace cacu {
 blob_base::blob_base(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
 		phase_type phase, blob_type type) {
 
-	_width = width;
-	_height = height;
-	_channel = channel;
-	_num = num;
-	_channel_length = width * height;
-	_cube_length = channel * width * height;
-	_length = _num * _cube_length;
-	_p_length = _length;
+	_body = new blob_body(num, channel, width, height);
+	_p_body = new blob_body(num, channel, width, height);
 	_phase = phase;
 	_blob_type = type;
 	_s_data = NULL;
 	_s_diff = NULL;
-	_data_num = _num;
+	_data_num = _body->_num;
 	_REC_ = 0;
 	//check the data dim
-	CHECK_LT_OP(_length, _MAX_INT_,
-			"BLOB cell length is out of bounds: %ld vs d", _length,
+	CHECK_LT_OP(_body->_length, _MAX_INT_,
+			"BLOB cell length is out of bounds: %ld vs d", _body->_length,
 			_MAX_INT_);
 }
 
 blob_base::~blob_base() {
 	_s_data = NULL;
 	_s_diff = NULL;
+	delete _body;
+	delete _p_body;
 }
 
 void blob_base::_CHECK_SIZE_EQ(blob_base* blob_) {
-	CHECK_EQ_OP(_channel, blob_->_channel,
-			"_channel check does NOT match! ( %d vs %d )", _channel,
-			blob_->_channel);
-	CHECK_EQ_OP(_num, blob_->_num, "_num check does NOT match! ( %d vs %d )",
-			_num, blob_->_num);
-	CHECK_EQ_OP(_height, blob_->_height,
-			"_height check does NOT match! ( %d vs %d )", _height,
-			blob_->_height);
-	CHECK_EQ_OP(_width, blob_->_width,
-			"_width check does NOT match! ( %d vs %d )", _width, blob_->_width);
+	CHECK_EQ_OP(channel(), blob_->channel(),
+			"_channel check does NOT match! ( %d vs %d )", channel(),
+			blob_->channel());
+	CHECK_EQ_OP(num(), blob_->num(), "_num check does NOT match! ( %d vs %d )",
+			num(), blob_->num());
+	CHECK_EQ_OP(height(), blob_->height(),
+			"_height check does NOT match! ( %d vs %d )", height(),
+			blob_->height());
+	CHECK_EQ_OP(width(), blob_->width(),
+			"_width check does NOT match! ( %d vs %d )", width(), blob_->width());
 }
 
 void blob_base::_REC() {

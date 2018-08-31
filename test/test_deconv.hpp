@@ -51,7 +51,7 @@ TEST_CASE("deconv") {
 	blob *bf = new blob(1,32,256,256,0,train);
 	bf->load_from("/Users/seallhf/Desktop/o_blob.txt");
 	cacu_copy(bf->s_data(),bf->count(),op_->out_data<blob>()->s_diff());
-	op_->grad();
+	op_->derivative();
 	op_->out_data<blob>()->blob_size();
 	LOG_DEBUG("diff");
 	//cacu_bprint(op_->in_data<blob>());
@@ -61,6 +61,36 @@ TEST_CASE("deconv") {
 	//blob *data_ = new blob(1,16,32,32,0,train);
 	//data_->set_init_type(gaussian,1);
 	//serializer::blob_serialize(op_->in_data<blob>(),"", train);
+}
+
+}
+
+TEST_CASE("conv_trans") {
+	SECTION("deconv functions test"){
+	//cuda_set_device(2);
+	set_rand_seed();
+	blob_base *b = new blob(1,3,5,5,1,train);
+	//((blob *)b)->load_from("/Users/seallhf/Desktop/s_blob.txt");
+	//LOG_DEBUG("fuck");
+	data_args *args = new data_args(9,4,1,0,3);
+	//cacu_bprint(((blob*)b));
+
+	blobs *bs = new blobs();
+	bs->push_back(b);
+
+	conv_transpose_op *op_ = new conv_transpose_op(bs,args);
+	op_->get_weight(0)->set_init_type(constant, 1);
+
+	//op_->set_weight_init_type(constant,1);
+	//cacu_print(op_->get_weight(0)->s_data(),op_->get_weight(0)->count());
+	//for(int i = 0 ; i < 10; ++i)
+	op_->infer();
+	//op_->out_data<blob>()->set_diff(1);
+	blob *outdata = op_->out_data<blob>();
+	outdata->blob_size();
+
+	cacu_print(outdata->s_data(),outdata->count());
+
 }
 
 }

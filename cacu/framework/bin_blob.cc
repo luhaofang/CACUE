@@ -32,11 +32,11 @@ namespace cacu {
 bin_blob::bin_blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height, int _value,
 		phase_type phase) :
 blob_base(num, channel, width, height, phase, __bin_blob__) {
-	_tdata = new tensor<int>(_length);
+	_tdata = new tensor<int>(count());
 	_s_data = _tdata->pdata();
 	_tdata->set_value(_value);
 	if (train == phase) {
-		_tdiff = new tensor<float_t>(_length);
+		_tdiff = new tensor<float_t>(count());
 		_s_diff = _tdiff->pdata();
 	}
 }
@@ -49,31 +49,32 @@ bin_blob::~bin_blob(){
 }
 
 void bin_blob::copy2data(vec_i &data_, dsize_t i) {
-	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
-				data_.size(), _cube_length);
-	_tdata->copy2data(i*_cube_length, _cube_length, &data_[0]);
+	CHECK_EQ_OP(data_.size(), length(), "blob size must be equal! %d vs %d",
+				data_.size(), length());
+	_tdata->copy2data(i*length(), length(), &data_[0]);
 }
 
 void bin_blob::copy2data(vec_i &data_) {
-	CHECK_EQ_OP(data_.size(), _length, "blob size must be equal! %d vs %d",
-				data_.size(), _length);
+	CHECK_EQ_OP(data_.size(), count(), "blob size must be equal! %d vs %d",
+				data_.size(), count());
 	_tdata->copy2data(&data_[0]);
 }
 
 void bin_blob::copy2diff(vec_t &data_, dsize_t i) {
-	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
-				data_.size(), _cube_length);
-	_tdiff->copy2data(i*_cube_length, _cube_length, &data_[0]);
+	CHECK_EQ_OP(data_.size(), length(), "blob size must be equal! %d vs %d",
+				data_.size(), length());
+	_tdiff->copy2data(i*length(), length(), &data_[0]);
 }
 
 /*
  * copy data into blob's diff, if blob is established in gpu, io op is needed
  */
 void bin_blob::copy2diff(vec_t &data_) {
-	CHECK_EQ_OP(data_.size(), _length, "blob size must be equal! %d vs %d",
-				data_.size(), _length);
+	CHECK_EQ_OP(data_.size(), count(), "blob size must be equal! %d vs %d",
+				data_.size(), count());
 	_tdiff->copy2data(&data_[0]);
 }
+
 
 /*
  * serializa blob_bit data, output data to model file

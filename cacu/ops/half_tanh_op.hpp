@@ -69,7 +69,7 @@ namespace cacu {
 			return;
 		}
 
-		void op()  {
+		void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
@@ -78,14 +78,14 @@ namespace cacu {
 			cacu_tanh_cpu(s_blob_->s_data(), o_blob_->count(), o_blob_->s_data());
 
 #else
-			blob *o_blob_ = (blob*)o_blobs->at(0);
-			blob *s_blob_ = (blob*)s_blobs->at(0);
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 			cacu_htanh(s_blob_->s_data(), o_blob_->count(), o_blob_->s_data());
 #endif
 		}
 
-		void grad()  {
+		void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
@@ -95,8 +95,8 @@ namespace cacu {
 				s_blob_->count(), s_blob_->s_diff());
 
 #else
-			blob *o_blob_ = (blob*)o_blobs->at(0);
-			blob *s_blob_ = (blob*)s_blobs->at(0);
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 			cacu_htanh_grad(o_blob_->s_data(), o_blob_->s_diff(), s_blob_->count(), s_blob_->s_diff());
 

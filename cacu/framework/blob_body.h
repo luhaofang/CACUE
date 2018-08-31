@@ -25,62 +25,73 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cacu_op.h"
+#ifndef BLOB_BODY_H_
+#define BLOB_BODY_H_
 
-namespace cacu {
+namespace cacu{
 
-cacu_op::cacu_op(op_name op_type_)
+class blob_body
 {
-	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_op = operator_factory::create_op(op_type_, _s_datas, NULL, NULL);
-	_in_ops = new vector<cacu_op*>();
-	_out_ops = new vector<cacu_op*>();
+	public:
+
+	blob_body(dsize_t num, dsize_t channel, dsize_t width, dsize_t height){
+		_num = num;
+		_channel = channel;
+		_width = width;
+		_height = height;
+		_channel_length = width * height;
+		_cube_length = channel * width * height;
+		_length = _num * _cube_length;
+	}
+
+	~blob_body(){}
+
+	dsize_t _width;
+	dsize_t _height;
+	dsize_t _channel;
+	dsize_t _num;
+	dsize_t _cube_length;
+	dsize_t _length;
+	dsize_t _channel_length;
+
+	inline bool check_body(blob_body *body_)
+	{
+		if(body_->_num != _num)
+			return false;
+		if(body_->_channel != _channel)
+			return false;
+		if(body_->_width != _width)
+			return false;
+		if(body_->_height != _height)
+			return false;
+		return true;
+	}
+
+	inline void copy_from(blob_body *body_)
+	{
+		_num = body_->_num;
+		_channel = body_->_channel;
+		_width = body_->_width;
+		_height = body_->_height;
+		_channel_length = _width * _height;
+		_cube_length = _channel * _width * _height;
+		_length = _num * _cube_length;
+	}
+
+	inline void set_body(dsize_t num_, dsize_t channel_, dsize_t width_, dsize_t height_)
+	{
+		_num = num_;
+		_channel = channel_;
+		_width = width_;
+		_height = height_;
+		_channel_length = _width * _height;
+		_cube_length = _channel * _width * _height;
+		_length = _num * _cube_length;
+	}
+
+};
+
 }
 
-cacu_op::cacu_op(op_name op_type_, op_args *args_)
-{
-	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_op = operator_factory::create_op(op_type_, _s_datas, NULL, args_);
-	_in_ops = new vector<cacu_op*>();
-	_out_ops = new vector<cacu_op*>();
-}
 
-cacu_op::cacu_op(op_name op_type_, blob_base *s_data_, op_args *args_)
-{
-	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_s_datas->push_back(s_data_);
-	_op = operator_factory::create_op(op_type_, _s_datas, NULL, args_);
-	_in_ops = new vector<cacu_op*>();
-	_out_ops = new vector<cacu_op*>();
-}
-
-cacu_op::cacu_op(op_name op_type_, blob_base *s_data_, data_args *args_)
-{
-	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_s_datas->push_back(s_data_);
-	_op = operator_factory::create_op(op_type_, _s_datas, args_, NULL);
-	_in_ops = new vector<cacu_op*>();
-	_out_ops = new vector<cacu_op*>();
-}
-
-/*
- * cacu_op don't maintain the input operator list.
- * don't need to release input cacu_op memory
- */
-cacu_op::~cacu_op()
-{
-	delete _in_ops;
-	_in_ops = NULL;
-	delete _out_ops;
-	_out_ops = NULL;
-	delete _op;
-	_op = NULL;
-}
-
-
-
-}
+#endif /* CACU_FRAMEWORK_BLOB_BODY_H_ */

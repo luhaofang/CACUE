@@ -74,7 +74,7 @@ public:
 				s_blobs->at(0)->channel());
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		_loss = 0.0;
 #if __USEMBEDDING__ == ON
@@ -88,9 +88,9 @@ public:
 				o_blob_->length(), labels_->s_data(), o_blob_->s_diff());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
-		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
+		bin_blob *labels_ = (bin_blob*)s_blobs_->at(1);
 
 		cacu_softmax(s_blob_->s_data(), s_blob_->num(), s_blob_->channel(), s_blob_->width(), s_blob_->height(), o_blob_->s_data());
 		//cacu_cross_entropy(o_blob_->s_data(),o_blob_->num(),o_blob_->length(),labels_->s_data(),o_blob_->s_diff());
@@ -113,7 +113,7 @@ public:
 		_loss /= o_blob_->channel_length();
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -128,16 +128,16 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
-		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
+		bin_blob *labels_ = (bin_blob*)s_blobs_->at(1);
 
 		//CE LOSS BACK PROPGATION
 		for (int i = 0; i < s_blob_->num(); ++i)
 		{
 			cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
 		}
-		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight / o_blob_->channel_length());
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight);
 
 #endif
 	}

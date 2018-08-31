@@ -44,16 +44,34 @@ class blob: public blob_base {
 public:
 
 	blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
-			float_t _value, phase_type phase);
+			float_t _value, phase_type phase, bool _malloc_when_init = true);
 
 	~blob();
+
+
+	/*
+	 * initial the data memory.
+	 * if using dynamic operator, the function will be call after computing graphic setup.
+	 */
+	void _MALLOC()
+	{
+		_tdata = new tensor<float_t>(count());
+		_s_data = _tdata->pdata();
+		_tdata->set_value(_init_value);
+		if (train == _phase) {
+			_tdiff = new tensor<float_t>(count());
+			_s_diff = _tdiff->pdata();
+			//_tdiff->set_value(_value);
+		}
+	}
+
 
 	/**
 	 * return the piece probe in blob data
 	 */
 	inline float_t* p_data(dsize_t n) const {
 		//CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
-		return (float_t*) _s_data + n * _cube_length;
+		return (float_t*) _s_data + n * length();
 	}
 
 #if __USE_DEVICE__ == ON
@@ -78,7 +96,7 @@ public:
 	 */
 	inline float_t* p_diff(dsize_t n) const {
 		//CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
-		return (float_t*) _s_diff + n * _cube_length;
+		return (float_t*) _s_diff + n * length();
 	}
 
 	/**
@@ -116,7 +134,7 @@ public:
 	 */
 	inline void set_pdata(float_t value_, int i)
 	{
-		_tdata->set_value(i*_cube_length, _cube_length, value_);
+		_tdata->set_value(i*length(), length(), value_);
 	}
 
 	/**
@@ -124,7 +142,7 @@ public:
 	 */
 	inline void set_pdiff(float_t value_, int i)
 	{
-		_tdiff->set_value(i*_cube_length, _cube_length, value_);
+		_tdiff->set_value(i*length(), length(), value_);
 	}
 
 	/**
@@ -170,7 +188,7 @@ public:
 
 	inline dsize_t calculate_size() {
 		return test == _phase ?
-				_length * sizeof(float_t) : 2 * _length * sizeof(float_t);
+				count() * sizeof(float_t) : 2 * count() * sizeof(float_t);
 	}
 
 	inline void _RESET_DATA() {
@@ -194,20 +212,15 @@ public:
 
     void resize(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height) {
-		_width = width;
-		_height = height;
-		_channel = channel;
-		_num = num;
-		_channel_length = width * height;
-		_cube_length = channel * width * height;
-		_length = _num * _cube_length;
-
+		_body->set_body(num,channel,width,height);
 		if (_IS_MOTIFIED())
 			return;
-		_tdata->resize(_length, 0);
-		_s_data = _tdata->pdata();
+		if (_tdata != NULL) {
+			_tdata->resize(count(), 0);
+			_s_data = _tdata->pdata();
+		}
 		if (_tdiff != NULL) {
-			_tdiff->resize(_length, 0);
+			_tdiff->resize(count(), 0);
 			_s_diff = _tdiff->pdata();
 		}
 	}
@@ -222,6 +235,7 @@ protected:
 
 	tensor<float_t>* _tdiff = NULL;
 
+	float_t _init_value;
 };
 }
 

@@ -112,7 +112,7 @@ public:
 
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		col_offset = s_blobs->at(0)->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
@@ -149,8 +149,8 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 		if(_phase == test)
 			_ratio = 0.0;
@@ -178,7 +178,7 @@ public:
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		col_offset = s_blobs->at(0)->channel() / _group * _col_data->width()
 				* _col_data->height();
@@ -228,8 +228,8 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//gradient propagation

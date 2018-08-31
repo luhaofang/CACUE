@@ -128,11 +128,11 @@ public:
 
 	virtual void init_weights() = 0;
 
-	virtual void op() = 0;
+	virtual void op(blobs *s_blobs_, blobs *o_blobs_) = 0;
 
 	virtual void initial() = 0;
 
-	virtual void grad() = 0;
+	virtual void grad(blobs *s_blobs_, blobs *o_blobs_) = 0;
 
 	virtual void load(std::ifstream &is) = 0;
 
@@ -185,6 +185,8 @@ public:
 
 	inline void infer() {
 		time_utils *t = new time_utils();
+		//forward propagation
+#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		blob_base *blob_ = s_blobs->at(0);
 		if (!blob_->_IS_MOTIFIED()) {
 			s_blobs->_MOTIFY();
@@ -193,11 +195,18 @@ public:
 		t->start();
 		//reset the data's values
 		LOOP_INIT_DATA_();
-		//forward propagation
-		op();
+		op(s_blobs, o_blobs);
+#endif
 		t->end();
 		//LOG_DEBUG("%d operator infer time cost: %d ms", _OP_TYPE, t->get_time_span() / 1000);
 		delete t;
+	}
+
+	inline void derivative()
+	{
+#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
+		grad(s_blobs, o_blobs);
+#endif
 	}
 
 	inline void set_blob(blob_base *&blob_) {
@@ -295,7 +304,11 @@ protected:
 
 	inline blob_base * create_oblob(dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height, phase_type phase_) {
+#if __OPERATOR__TYPE__ == __DYNAMIC_GRAPH__
+		return new blob(num, channel, width, height, 0, phase_, false);
+#elif __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		return new blob(num, channel, width, height, 0, phase_);
+#endif
 	}
 
 	inline blob *create_opblob(dsize_t num, dsize_t channel, dsize_t width,

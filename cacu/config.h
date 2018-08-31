@@ -39,6 +39,7 @@ namespace cacu {
  * 	__CUDNN__ 	: create the basic dnn operator calculation by Nvidia CuDNN library.
  *	__CUDA__	: blas creator with introduce the cublas math methods to accelerate computing.
  * 	__OPENCL__  : using opencl for outer device computation.
+ * 	__OPENMP__  : using openmp for multi-core optimization.
  *
  */
 //openblas
@@ -51,18 +52,8 @@ namespace cacu {
 #define __CUDA__ 0XA4
 //opencl
 #define __OPENCL__ 0XA5
-
-
-/***********************************/
-/*       calculation method	       */
-/***********************************/
-
-#define __DYNAMIC_GRAPH__  0XB1
-#define __STATIC_GRAPH__  0XB2
-
-#ifndef __OPERATOR__TYPE__
-#define __OPERATOR__TYPE__ __STATIC_GRAPH__
-#endif
+//openmp
+#define __OPENMP__ 0XA6
 
 
 /***********************************/
@@ -73,6 +64,12 @@ namespace cacu {
 #define __USE_DEVICE__  OFF
 #endif
 
+
+/*
+ * parallel type default set to cuda or openblas
+ * this could be set all depends on the platform and environment
+ *
+ */
 #ifndef __PARALLELTYPE__
 #if(__USE_DEVICE__ == ON)
 #define __PARALLELTYPE__  __CUDA__
@@ -97,6 +94,19 @@ namespace cacu {
 #ifndef __EMBEDSIZE__
 #define __EMBEDSIZE__ 1
 #endif
+
+/***********************************/
+/*       calculation method	       */
+/***********************************/
+
+#define __DYNAMIC_GRAPH__  0XB1
+#define __STATIC_GRAPH__  0XB2
+
+#ifndef __OPERATOR__TYPE__
+#define __OPERATOR__TYPE__ __STATIC_GRAPH__
+#endif
+
+
 
 }
 

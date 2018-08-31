@@ -60,7 +60,7 @@ public:
 		return;
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -70,8 +70,9 @@ public:
 				o_blob_->channel(), o_blob_->channel_length());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		o_blobs_ = s_blobs_;
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		//LOG_DEBUG("input");
 		//cacu_print(o_blob_->s_data(), 100);
 		cacu_prelu(o_blob_->s_data(), _p_slopes->s_data(), s_blob_->num(),
@@ -81,7 +82,7 @@ public:
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -92,8 +93,9 @@ public:
 				o_blob_->channel(), o_blob_->channel_length());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		o_blobs_ = s_blobs_;
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
 		cacu_prelu_grad(s_blob_->s_data(), o_blob_->s_diff(), _p_slopes->s_data(), _p_slopes->s_diff(), o_blob_->num(),
 				o_blob_->channel(), o_blob_->channel_length());

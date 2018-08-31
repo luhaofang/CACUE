@@ -78,7 +78,7 @@ public:
 			_o_args->at(0));
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 
@@ -99,21 +99,22 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
+		o_blobs_ = s_blobs_;
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		blob *rand_vect_ = (blob*)_rand_vect;
 
 		if(train == _phase)
 		{
 			rand_vector(rand_vect_->s_data(),rand_vect_->count(), _ratio);
 			//cacu_output(o_blob_->s_data(),o_blob_->count(),"/home/seal/1.txt");
-			cacu_ssx(rand_vect_->s_data(), o_blob_->count(), o_blob_->s_data());
+			cacu_ssx(rand_vect_->s_data(), s_blob_->count(), s_blob_->s_data());
 			//cacu_output(o_blob_->s_data(),o_blob_->count(),"/home/seal/2.txt");
-			cacu_scalex(o_blob_->s_data(), o_blob_->count(), scale_);
+			cacu_scalex(s_blob_->s_data(), s_blob_->count(), scale_);
 		}
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 
@@ -132,8 +133,9 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		o_blobs_ = s_blobs_;
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		blob *rand_vect_ = (blob*)_rand_vect;
 
 		if(train == _phase)

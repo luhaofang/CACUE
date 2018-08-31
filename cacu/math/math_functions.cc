@@ -359,7 +359,7 @@ void cacu_transpose(float *mtx, const int m, const int n, const int clength) {
 //#endif
 //#else
 	int next, cur, pre;
-	vec_t temp(clength);
+	vector<float> temp(clength);
 	for (int i = 0; i < m * n; ++i) {
 		next = (i % n) * m + i / n;
 		while (next > i)
@@ -381,6 +381,7 @@ void cacu_transpose(float *mtx, const int m, const int n, const int clength) {
 	}
 //#endif
 }
+
 
 /**
  * @cacu_copy

@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DECONVOLUTION_OP_HPP_
-#define DECONVOLUTION_OP_HPP_
+#ifndef CONV_TRANSPOSE_OP_HPP_
+#define CONV_TRANSPOSE_OP_HPP_
 
 #include "../../tools/serializer_utils.h"
 
@@ -34,17 +34,17 @@ using namespace cacu_tools;
 
 namespace cacu {
 
-class deconvolution_op: public operator_base {
+class conv_transpose_op: public operator_base {
 
 public:
 
 	//output_channel, kernel_size, stride, pad, input_dim, channel
-	deconvolution_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_DECONVOLUTION) {
+	conv_transpose_op(blobs *&data, data_args *&args_) :
+			operator_base(data, args_, CACU_CONV_TRANS) {
 		_INIT_OP();
 	}
 
-	~deconvolution_op() {
+	~conv_transpose_op() {
 
 	}
 
@@ -53,15 +53,21 @@ public:
 		int input_h= s_blobs->at(0)->height();
 		int num = s_blobs->at(0)->num();
 
-		int output_w = (input_w - 1) * _args->stride()
-				+ _args->kernel_size() - _args->pad() * 2;
-		int output_h = (input_h - 1) * _args->stride()
-				+ _args->kernel_size() - _args->pad() * 2;
+		int output_w = input_w * _args->stride();
+		int output_h = input_h * _args->stride();
 
-		if (_args->kernel_size() == 1)
-			output_w = input_w * _args->stride() - 2 * _args->pad();
-		if (_args->kernel_size() == 1)
-			output_h = input_h * _args->stride() - 2 * _args->pad();
+		_pad_w = ((input_w - 1) * _args->stride() + _args->kernel_size() - output_w);
+		_pad_h = ((input_h - 1) * _args->stride() + _args->kernel_size() - output_h);
+
+		if(_pad_w % 2 != 0)
+			_pad_w = _pad_w / 2 + 1;
+		else
+			_pad_w = _pad_w / 2;
+		if(_pad_h % 2 != 0)
+			_pad_h = _pad_h / 2 + 1;
+		else
+			_pad_h = _pad_h / 2;
+
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blobs = create_em_oblobs();
@@ -144,7 +150,7 @@ public:
 			cacu_sgemm(NOTRANS,TRANS, s_blob_->p_data(i), s_blob_->width() * s_blob_->height(), _w->num(), _w->s_data(), _w->length(), 1, col_data_->s_data(), 0);
 			//col2img
 			//unpadded
-			cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->width(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),s_blob_->height(),_args->pad(),_args->pad(), o_blob_->p_data(i));
+			cacu_col2img_pad(col_data_->s_data(),_args->kernel_size(),_args->stride(),o_blob_->width(),o_blob_->height(),o_blob_->channel(),s_blob_->width(),s_blob_->height(),_pad_w,_pad_h, o_blob_->p_data(i));
 
 			if(_is_use_bias)
 				cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_data(), _bias->count(),(float_t)(1),o_blob_->p_data(i),(float_t)(1));
@@ -195,7 +201,7 @@ public:
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//padded data if needed & img2col change
-			cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->height(), o_blob_->channel(), s_blob_->width(), s_blob_->height(),_args->pad(), _args->pad(), col_data_->s_diff());
+			cacu_img2col_pad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), o_blob_->width(), o_blob_->height(), o_blob_->channel(), s_blob_->width(), s_blob_->height(),_pad_w, _pad_h, col_data_->s_diff());
 			//serializer::blob_serialize(col_data_,"/Users/seallhf/Desktop/col_data.txt",test);
 			//forward convolution data
 			cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_diff(), s_blob_->channel_length(),_w->length(), _w->s_data(), _w->num(), (float_t)1, s_blob_->p_diff(i), (float_t)0);
@@ -223,9 +229,9 @@ public:
 			_bias->serializa(os);
 	}
 
-	void echo() 
+	void echo()
 	{
-		LOG_INFO("create deconvolution op:");
+		LOG_INFO("create convolution transpose op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), kenrel_size: %d, stride: %d, pad: %d",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
@@ -267,6 +273,8 @@ protected:
 private:
 
 
+	int _pad_w = 0;
+	int _pad_h = 0;
 };
 }
 

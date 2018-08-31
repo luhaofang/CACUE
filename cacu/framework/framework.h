@@ -29,9 +29,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FRAMEWORK_H_
 
 
-//#include "blob_definition.h"
-//#include "blob_base.h"
-//#include "blob.h"
+#include "blob_definition.h"
+
+#include "blob_body.h"
+#include "blob_base.h"
+#include "blob.h"
+#include "bin_blob.h"
+#include "weight.h"
+
+#include "layer_base.h"
+#include "layer.h"
+#include "layer_block.h"
+#include "network.h"
+
+#include "args_base.h"
+
+#include "data_args.h"
+#include "op_args.h"
+
+#include "cacu_op.h"
+#include "model.h"
 
 
 #endif

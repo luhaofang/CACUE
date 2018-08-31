@@ -50,47 +50,6 @@ public:
 
 	cacu_op* operator <<(blob_base *&data_);
 
-	template<typename BTYPE>
-	inline BTYPE *&get_sblob() {
-		return _op->in_data<BTYPE>();
-	}
-
-	template<typename BTYPE>
-	inline BTYPE *&get_oblob() {
-		return _op->out_data<BTYPE>();
-	}
-
-	inline blobs *&get_sblobs() {
-		return _op->in_datas();
-	}
-
-	inline blobs *&get_oblobs() {
-		return _op->out_datas();
-	}
-
-	inline weight *get_param(int i)
-	{
-		CHECK_LT_OP(i,_op->weights_size(),"parameter index is out of range %d vs %d!", i, _op->weights_size());
-		return _op->get_weight(i);
-	}
-
-	inline void run()
-	{
-		_op->infer();
-	}
-
-	/**
-	 * assign operator
-	 * this function is called after the calculation steps are assigned.
-	 * WARNING: focus on the multi output operator such as split_op.
-	 */
-	void _CREATE_OP(){
-		_op->alloc_create_op();
-		for(int i = 0 ; i < _INs->size(); ++i)
-		{
-			_op->in_datas()->push_back(_INs->at(i)->get_oblob<blob_base>());
-		}
-	}
 
 private:
 

@@ -78,7 +78,7 @@ public:
 
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -92,15 +92,15 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		for (unsigned int j = 0; j < s_blobs->size(); ++j) {
-			blob *s_blob_ = (blob *)s_blobs->at(j);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		for (unsigned int j = 0; j < s_blobs_->size(); ++j) {
+			blob *s_blob_ = (blob *)s_blobs_->at(j);
 			cacu_saxpy(s_blob_->s_data(), (float_t)1, o_blob_->s_data(), s_blob_->count());
 		}
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -111,10 +111,10 @@ public:
 					s_blob_->s_diff());
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
 
-		for (unsigned int j = 0; j < (s_blobs)->size(); ++j) {
-			blob *s_blob_ = (blob *)s_blobs->at(j);
+		for (unsigned int j = 0; j < (s_blobs_)->size(); ++j) {
+			blob *s_blob_ = (blob *)s_blobs_->at(j);
 			cacu_copy(o_blob_->s_diff(),s_blob_->count(),s_blob_->s_diff());
 		}
 #endif

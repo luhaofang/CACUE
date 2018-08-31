@@ -70,7 +70,7 @@ public:
 		return;
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 
@@ -91,8 +91,8 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		blob *rand_vect_ = (blob*)_rand_vect;
 
 		if(train == _phase)
@@ -106,7 +106,7 @@ public:
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 #if __USEMBEDDING__ == ON
@@ -124,8 +124,8 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		blob *rand_vect_ = (blob*)_rand_vect;
 
 		if(train == _phase)

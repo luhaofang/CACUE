@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MATH_FUNCTION_CUBLAS_H_
 #define MATH_FUNCTION_CUBLAS_H_
 
-#include "cublas_utils.h"
+//#include "cublas_utils.h"
 
 #if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
 #if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__

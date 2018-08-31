@@ -78,7 +78,7 @@ public:
 					s_blobs->at(0)->count(),s_blobs->at(1)->count());
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 
 		_loss = 0.0;
 
@@ -93,14 +93,14 @@ public:
 				o_blob_->length(), labels_->s_data(), o_blob_->s_diff());
 
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
-		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
+		bin_blob *labels_ = (bin_blob*)s_blobs_->at(1);
 
 		cacu_sigmoid(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
 
-		vec_t _temp(o_blobs->at(0)->count());
-		vec_i _target(o_blobs->at(0)->count());
+		vec_t _temp(o_blobs_->at(0)->count());
+		vec_i _target(o_blobs_->at(0)->count());
 
 #if __USE_DEVICE__ == ON
 		cuda_copy2host(&_temp[0], s_blob_->s_data(), s_blob_->count());
@@ -120,7 +120,7 @@ public:
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -135,11 +135,11 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
-		bin_blob *labels_ = (bin_blob*)s_blobs->at(1);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
+		bin_blob *labels_ = (bin_blob*)s_blobs_->at(1);
 
-		vec_i _target(o_blobs->at(0)->count());
+		vec_i _target(o_blobs_->at(0)->count());
 #if __USE_DEVICE__ == ON
 		cuda_copy2host(&_target[0], labels_->s_data(), s_blob_->count());
 #else
@@ -152,7 +152,7 @@ public:
 			if(_target[i] == 1)
 				cacu_sdxsize(s_blob_->s_diff()+i, 1, (float_t)-1.0, (float_t)1.0, s_blob_->s_diff()+i);
 		}
-		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight / o_blob_->channel_length());
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight);
 
 #endif
 	}

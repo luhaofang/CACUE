@@ -41,7 +41,9 @@
 
 #include "math.h"
 #include "framework/framework.h"
-
+#include "math/math.h"
+#include "ops/operators.h"
+#include "solvers/solvers.h"
 //*/
 
 

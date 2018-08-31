@@ -36,16 +36,11 @@ using namespace std;
 namespace cacu {
 
 blob::blob(dsize_t num, dsize_t channel, dsize_t width, dsize_t height,
-		float_t _value, phase_type phase) :
+		float_t _value, phase_type phase, bool _malloc_when_init) :
 		blob_base(num, channel, width, height, phase, __blob__) {
-	_tdata = new tensor<float_t>(_length);
-	_s_data = _tdata->pdata();
-	_tdata->set_value(_value);
-	if (train == phase) {
-		_tdiff = new tensor<float_t>(_length);
-		_s_diff = _tdiff->pdata();
-		//_tdiff->set_value(_value);
-	}
+	_init_value = _value;
+	if(_malloc_when_init)
+		_MALLOC();
 }
 
 blob::~blob() {
@@ -70,7 +65,7 @@ void blob::copy_blob(blob* blob_) {
 }
 
 blob* blob::copy_create(phase_type phase_, float_t value_) const {
-	return new blob(_num, _channel, _width, _height, value_, phase_);
+	return new blob(num(), channel(), width(), height(), value_, phase_);
 }
 
 /*
@@ -78,21 +73,21 @@ blob* blob::copy_create(phase_type phase_, float_t value_) const {
  * where i is the start index in blob
  */
 void blob::copy2data(vec_t &data_, dsize_t i) {
-	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
-			data_.size(), _cube_length);
-	_tdata->copy2data(i*_cube_length, _cube_length, &data_[0]);
+	CHECK_EQ_OP(data_.size(), length(), "blob size must be equal! %d vs %d",
+			data_.size(), length());
+	_tdata->copy2data(i*length(), length(), &data_[0]);
 }
 
 void blob::copy2data(float_t *data_, dsize_t i) {
-	_tdata->copy2data(i*_cube_length, _cube_length, data_);
+	_tdata->copy2data(i*length(), length(), data_);
 }
 
 /*
  * copy data dsize_to blob, if blob is established in gpu, io op is needed
  */
 void blob::copy2data(vec_t &data_) {
-	CHECK_EQ_OP(data_.size(), _length, "blob size must be equal! %d vs %d",
-			data_.size(), _length);
+	CHECK_EQ_OP(data_.size(), count(), "blob size must be equal! %d vs %d",
+			data_.size(), count());
 	_tdata->copy2data(&data_[0]);
 }
 
@@ -101,17 +96,17 @@ void blob::copy2data(vec_t &data_) {
  * where i is the start index in blob
  */
 void blob::copy2diff(vec_t &data_, dsize_t i) {
-	CHECK_EQ_OP(data_.size(), _cube_length, "blob size must be equal! %d vs %d",
-			data_.size(), _cube_length);
-	_tdiff->copy2data(i*_cube_length, _cube_length, &data_[0]);
+	CHECK_EQ_OP(data_.size(), length(), "blob size must be equal! %d vs %d",
+			data_.size(), length());
+	_tdiff->copy2data(i*length(), length(), &data_[0]);
 }
 
 /*
  * copy data dsize_to blob's diff, if blob is established in gpu, io op is needed
  */
 void blob::copy2diff(vec_t &data_) {
-	CHECK_EQ_OP(data_.size(), _length, "blob size must be equal! %d vs %d",
-			data_.size(), _length);
+	CHECK_EQ_OP(data_.size(), count(), "blob size must be equal! %d vs %d",
+			data_.size(), count());
 	_tdiff->copy2data(&data_[0]);
 }
 
@@ -128,7 +123,7 @@ void blob::output_bin(chars_t path_)
 			os.write((char*) (&_v[i]), sizeof(cacu::float_t));
 		}
 #else
-	for (int i = 0; i < _length; ++i) {
+	for (int i = 0; i < count(); ++i) {
 		os.write((char*) (s_data() + i), sizeof(cacu::float_t));
 	}
 #endif
@@ -148,7 +143,7 @@ void blob::input_bin(chars_t path_, int n)
 	}
 	device_copy2dev(p_data(n), &_v[0], _cube_length);
 #else
-	for (int i = 0; i < _cube_length; i++) {
+	for (int i = 0; i < length(); i++) {
 		is.read(reinterpret_cast<char*>(p_data(n) + i), sizeof(float_t));
 	}
 #endif
@@ -196,33 +191,33 @@ void blob::serializa(std::ostream& os) {
 void blob::load(std::ifstream& is) {
 	dsize_t length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(dsize_t));
-	CHECK_EQ_OP(length_,_length,"parameter length is not equal to local length: %d vs %d!",length_,_length);
+	CHECK_EQ_OP(length_,count(),"parameter length is not equal to local length: %d vs %d!",length_,count());
 	_tdata->load(is);
 }
 
 void blob::set_init_type(param_init_type type, float_t value) {
-	vec_t w(_length);
+	vec_t w(count());
 	switch (type) {
 	case constant:
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = value;
 		break;
 	case xavier:
 		value = sqrt((float_t) 3.0 / (channel() * height() * width()));
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = urand(-value, value);
 		break;
 	case gaussian:
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = gaussrand(value);
 		break;
 	case msra:
 		value = sqrt((float_t) 2.0 / (channel() * height() * width()));
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = gaussrand(value);
 		break;
 	case evenly:
-		for (int i = 0; i < _length; ++i)
+		for (int i = 0; i < count(); ++i)
 			w[i] = urand(-value, value);
 		break;
 	default:
@@ -247,15 +242,15 @@ void blob::switch_channel()
 	}
 #endif
 #else
-	cacu_transpose(s_data(), _num, _channel, _channel_length);
+	cacu_transpose(s_data(), num(), channel(), channel_length());
 	if(_phase == train)
-		cacu_transpose(s_diff(), _num, _channel, _channel_length);
+		cacu_transpose(s_diff(), num(), channel(), channel_length());
 #endif
 
-	int temp_ = _num;
-	_num = _channel;
-	_channel = temp_;
-	_cube_length = _channel * _channel_length;
+	int temp_ = num();
+	_body->_num = channel();
+	_body->_channel = temp_;
+	_body->_cube_length = _body->_channel * _body->_channel_length;
 }
 
 }

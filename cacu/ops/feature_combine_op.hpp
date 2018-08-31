@@ -77,7 +77,7 @@ public:
 		o_blobs->at(0)->_CHECK_SIZE_EQ(s_blobs->at(0));
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -91,10 +91,10 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
-		int output_num = s_blobs->at(0)->num() / _units_count;
+		int output_num = s_blobs_->at(0)->num() / _units_count;
 		for(int i = 0; i < output_num;++i)
 		{
 			for(int j = 0; j < _units_count; ++j)
@@ -105,7 +105,7 @@ public:
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -121,10 +121,10 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs->at(0);
-		blob *s_blob_ = (blob*)s_blobs->at(0);
+		blob *o_blob_ = (blob*)o_blobs_->at(0);
+		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
-		int output_num = s_blobs->at(0)->num() / _units_count;
+		int output_num = s_blobs_->at(0)->num() / _units_count;
 		for(int i = 0; i < output_num;++i)
 		{
 			for(int j = 0; j < _units_count; ++j)

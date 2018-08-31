@@ -75,7 +75,7 @@ public:
 		CHECK_EQ_OP(s_blobs->at(1)->count(), s_blobs->at(2)->count(), "input blob size must equal to %d vs %d", s_blobs->at(1)->count(), s_blobs->at(2)->count());
 	}
 
-	void op()  {
+	void op(blobs *s_blobs_,blobs *o_blobs_)  {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -100,9 +100,9 @@ public:
 			}
 #else
 
-		blob *a_blob_ = (blob*)s_blobs->at(0);
-		blob *p_blob_ = (blob*)s_blobs->at(1);
-		blob *n_blob_ = (blob*)s_blobs->at(2);
+		blob *a_blob_ = (blob*)s_blobs_->at(0);
+		blob *p_blob_ = (blob*)s_blobs_->at(1);
+		blob *n_blob_ = (blob*)s_blobs_->at(2);
 
 		float_t a_p_dist_ = 0;
 		float_t a_n_dist_ = 0;
@@ -129,7 +129,7 @@ public:
 #endif
 	}
 
-	void grad()  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -141,9 +141,9 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *a_blob_ = (blob*)s_blobs->at(0);
-		blob *p_blob_ = (blob*)s_blobs->at(1);
-		blob *n_blob_ = (blob*)s_blobs->at(2);
+		blob *a_blob_ = (blob*)s_blobs_->at(0);
+		blob *p_blob_ = (blob*)s_blobs_->at(1);
+		blob *n_blob_ = (blob*)s_blobs_->at(2);
 
 		cacu_copy(n_blob_->s_data(), a_blob_->count(), a_blob_->s_diff());
 		cacu_saxpby(p_blob_->s_data(),(float_t)(-1.0), a_blob_->s_diff(), (float_t)(1.0), a_blob_->count());
