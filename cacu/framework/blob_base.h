@@ -89,6 +89,16 @@ public:
 		_data_num = num;
 	}
 
+	inline blob_body *body()
+	{
+		return _body;
+	}
+
+	inline void copy_body(blob_body *body_)
+	{
+		_body->copy_from(body_);
+	}
+
 	virtual void resize(dsize_t num, dsize_t channel, dsize_t width, dsize_t height) = 0;
 
 	virtual dsize_t calculate_size() = 0;

@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 
 		_ratio = _o_args->at(0);
 		if (o_blobs == NULL) {
@@ -63,11 +63,11 @@ public:
 
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		return;
 	}
 
-	void check()  {
+	void check() override {
 		if(_o_args == NULL)
 			LOG_FATAL("dropout op args cannot equal to NULL!");
 		CHECK_GE_OP(_o_args->at(0), 0.0,
@@ -78,7 +78,7 @@ public:
 			_o_args->at(0));
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 
@@ -114,7 +114,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 
@@ -147,26 +147,21 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		return;
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		return;
 	}
 
-	void echo() 
+	void echo() override
 	{
 		LOG_INFO("create dropout op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
-	}
-
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
 	}
 
 private:

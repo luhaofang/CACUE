@@ -44,7 +44,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blobs = create_em_blobs();
@@ -68,15 +68,15 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		return;
 	}
 
-	void check()  {
+	void check() override {
 
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
@@ -112,7 +112,7 @@ public:
 
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -136,15 +136,15 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		return;
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		return;
 	}
 
-	void echo()  {
+	void echo() override {
 		LOG_INFO("create max_pooling op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",
@@ -153,9 +153,6 @@ public:
 				_args->pad());
 	}
 
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
 
 private:
 

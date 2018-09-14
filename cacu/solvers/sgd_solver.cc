@@ -57,20 +57,19 @@ sgd_solver::~sgd_solver() {
  */
 void sgd_solver::update_weight(weight *&w_, int weight_index_, int step_) {
 
-	if (w_->update()) {
-		blob* history_ = (blob*)_history_v->at(weight_index_);
-		float_t learn_rate_ = w_->lr() * _global_lr;
-		//cacu_scalex(w_->s_diff(),w_->count(),_direction);
-		//normalization
-		__NORMALIZE__(w_);
-		//add regular
-		__REGULARIZE__(w_, weight_index_);
-		//history_v update
-		cacu_saxpby(w_->s_diff(), (float_t)(-1.0) * learn_rate_, history_->s_data(),
-			_momentum, w_->count());
-		//update to weight
-		cacu_saxpy(history_->s_data(), (float_t)(1.0), w_->s_data(), w_->count());
-	}
+	blob* history_ = (blob*)_history_v->at(weight_index_);
+	float_t learn_rate_ = w_->lr() * _global_lr;
+	//cacu_scalex(w_->s_diff(),w_->count(),_direction);
+	//normalization
+	__NORMALIZE__(w_);
+	//add regular
+	__REGULARIZE__(w_, weight_index_);
+	//history_v update
+	cacu_saxpby(w_->s_diff(), (float_t)(-1.0) * learn_rate_, history_->s_data(),
+		_momentum, w_->count());
+	//update to weight
+	cacu_saxpy(history_->s_data(), (float_t)(1.0), w_->s_data(), w_->count());
+
 }
 
 void sgd_solver::load_param(chars_t config_)

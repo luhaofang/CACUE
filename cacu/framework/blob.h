@@ -80,7 +80,7 @@ public:
 	 */
 	inline float_t* p_data_cpu(dsize_t n) const {
 		//CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
-		return _tdata->pdata_cpu() + n * _cube_length;
+		return _tdata->pdata_cpu() + n * length();
 	}
 
 	/**
@@ -193,15 +193,16 @@ public:
 
 	inline void _RESET_DATA() {
 		if(_variable){
-			_tdata->refresh();
-			if (train == _phase)
+			if(_tdata != NULL)
+				_tdata->refresh();
+			if (_tdata != NULL && train == _phase)
 				_tdiff->refresh();
 		}
 	}
 
 	inline void _RESET_DIFF() {
 		if(_variable){
-			if (train == _phase)
+			if (_tdata != NULL && train == _phase)
 				_tdiff->refresh();
 		}
 	}

@@ -40,13 +40,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../utils/data_printer.h"
 
 #include "operator_base.h"
-
-/***********************************/
-/*        typical operators	       */
-/***********************************/
+#include "loss_base_op.h"
+#include "activate_base_op.h"
+#include "conv_base_op.h"
+#include "math_op.h"
 
 #include "inner_product_op.hpp"
 #include "convolution_op.hpp"
+
 #include "batch_normalize_op.hpp"
 #include "dropout_op.hpp"
 
@@ -64,20 +65,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tanh_op.hpp"
 #include "half_tanh_op.hpp"
 #include "sigmoid_op.hpp"
+#include "elu_op.hpp"
 #include "selu_op.hpp"
 
 #include "softmax_with_loss_op.hpp"
 #include "mse_loss_op.hpp"
 #include "abse_loss_op.hpp"
 #include "sigmoid_with_loss_op.hpp"
-#include "math_op.hpp"
+
+#include "add_op.hpp"
+#include "axpby_op.hpp"
+#include "sub_op.hpp"
+#include "scalex_op.hpp"
 
 //#include "hinge_loss_op.h"
 
 /***********************************/
-/*        custorm operators	       */
+/*        custom operators	       */
 /***********************************/
 
+
+#include "../user_ops/lstm_base_op.h"
 
 #include "../user_ops/p_inner_product_op.hpp"
 #include "../user_ops/deconvolution_op.hpp"

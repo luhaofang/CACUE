@@ -61,29 +61,27 @@ void rmsprop_solver::update_weight(weight *&w_, int weight_index_, int step_) {
 	if(step_ == 0)
 			LOG_FATAL("rmsprop optimizer must start from iteration 1 vs %d!", step_);
 
-	if (w_->update()) {
+	blob* history_r = (blob*)_history_r->at(weight_index_);
+	float_t learn_rate_ = w_->lr() * _global_lr;
+	//cacu_scalex(w_->s_diff(),w_->count(),_direction);
+	//normalization
+	__NORMALIZE__(w_);
+	//add regular
+	__REGULARIZE__(w_, weight_index_);
+	//history_v update
+	cacu_sqr(w_->s_diff(),w_->count(),w_->s_diff());
+	cacu_saxpby(w_->s_diff(), (float_t)(1 - _beta), history_r->s_data(),
+					_beta, w_->count());
+	cacu_copy(history_r->s_data(),history_r->count(), history_r->s_diff());
+	cacu_scalex(history_r->s_diff(), history_r->count(), 1.0 / (1.0 - std::pow(_beta, step_)));
+	cacu_root(history_r->s_diff(),history_r->count(),history_r->s_diff());
+	cacu_sdxsize<float_t>(history_r->s_diff(),history_r->count(), _epsilon, 1.0, history_r->s_diff());
+	w_->set_diff(learn_rate_*(float_t)(-1.0));
+	cacu_cdxsize(w_->s_diff(), w_->count(), history_r->s_diff(), history_r->count(), w_->s_diff());
 
-		blob* history_r = (blob*)_history_r->at(weight_index_);
-		float_t learn_rate_ = w_->lr() * _global_lr;
-		//cacu_scalex(w_->s_diff(),w_->count(),_direction);
-		//normalization
-		__NORMALIZE__(w_);
-		//add regular
-		__REGULARIZE__(w_, weight_index_);
-		//history_v update
-		cacu_sqr(w_->s_diff(),w_->count(),w_->s_diff());
-		cacu_saxpby(w_->s_diff(), (float_t)(1 - _beta), history_r->s_data(),
-						_beta, w_->count());
-		cacu_copy(history_r->s_data(),history_r->count(), history_r->s_diff());
-		cacu_scalex(history_r->s_diff(), history_r->count(), 1.0 / (1.0 - std::pow(_beta, step_)));
-		cacu_root(history_r->s_diff(),history_r->count(),history_r->s_diff());
-		cacu_sdxsize<float_t>(history_r->s_diff(),history_r->count(), _epsilon, 1.0, history_r->s_diff());
-		w_->set_diff(learn_rate_*(float_t)(-1.0));
-		cacu_cdxsize(w_->s_diff(), w_->count(), history_r->s_diff(), history_r->count(), w_->s_diff());
+	//update to weight
+	cacu_saxpy(w_->s_diff(), (float_t)(1.0), w_->s_data(), w_->count());
 
-		//update to weight
-		cacu_saxpy(w_->s_diff(), (float_t)(1.0), w_->s_data(), w_->count());
-	}
 }
 
 void rmsprop_solver::load_param(chars_t config_)

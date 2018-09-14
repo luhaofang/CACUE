@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class leaky_relu_op: public operator_base {
+class leaky_relu_op: public activate_base_op {
 
 public:
 
 	leaky_relu_op(blobs *&data, op_args *&args_) :
-			operator_base(data, args_, CACU_LEAKY_RELU) {
+			activate_base_op(data, args_, CACU_LEAKY_RELU) {
 		_INIT_OP();
 	}
 
@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		_negative_slope = _o_args->at(0);
 		if (o_blobs == NULL)
 			o_blobs = s_blobs;
@@ -51,11 +51,7 @@ public:
 			o_blobs->_NEED_MOTIFY();
 	}
 
-	void init_weights()  {
-		return;
-	}
-
-	void check()  {
+	void check() override {
 		if(_o_args == NULL)
 			LOG_FATAL("leaky relu op args cannot equal to NULL!");
 		//negative_slope > 0
@@ -63,7 +59,7 @@ public:
 				_o_args->at(0));
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		o_blobs_ = s_blobs_;
 		blob *s_blob_ = (blob*) s_blobs_->at(0);
@@ -71,31 +67,19 @@ public:
 		cacu_leaky_relu(s_blob_->s_data(), _negative_slope, s_blob_->count());
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 		blob *o_blob_ = (blob*) o_blobs_->at(0);
 		blob *s_blob_ = (blob*) s_blobs_->at(0);
 		cacu_leaky_relu_grad(s_blob_->s_data(), o_blob_->s_diff(),
 				_negative_slope, s_blob_->count());
 	}
 
-	void load(std::ifstream& is)  {
-		return;
-	}
-
-	void save(std::ostream& os)  {
-		return;
-	}
-
-	void echo()  {
+	void echo() override {
 		LOG_INFO("create leaky_relu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
 	}
 
 	float_t _negative_slope = 0.01;

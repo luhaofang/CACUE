@@ -75,7 +75,7 @@ void cacu_average_pooling_grad_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int output_w, const int output_h, const int channel, float_t *y);
 
-void cacu_img2col_pad_cpu(const float_t *x, const int kernel_size,
+void cacu_img2col_pad_cpu(const float_t *x, const int kernel_w, const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);
@@ -92,7 +92,7 @@ void cacu_img2col_pad_dilated_cpu(const float_t *x, const int kernel_size,
  *input_dim: width of input data
  *output_dim: width of output data
  */
-void cacu_col2img_pad_cpu(const float_t *x, const int kernel_size,
+void cacu_col2img_pad_cpu(const float_t *x, const int kernel_w,const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);

@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class triplet_loss_op: public operator_base {
+class triplet_loss_op: public loss_base_op {
 
 public:
 
 	triplet_loss_op(blobs *&data, op_args *&args_) :
-			operator_base(data, args_, CACU_TRIPLET_LOSS) {
+			loss_base_op(data, args_, CACU_TRIPLET_LOSS) {
 		_INIT_OP();
 	}
 
@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 
 		_loss = 0.0;
 		_margin = _o_args->at(0);
@@ -62,11 +62,7 @@ public:
 
 	}
 
-	void init_weights()  {
-		return;
-	}
-
-	void check()  {
+	void check() override {
 		if(_o_args == NULL)
 			LOG_FATAL("tripletloss op args cannot equal to NULL!");
 		CHECK_GT_OP(_o_args->at(0), 0, "margin must > 0 vs %d", _o_args->at(0));
@@ -75,7 +71,7 @@ public:
 		CHECK_EQ_OP(s_blobs->at(1)->count(), s_blobs->at(2)->count(), "input blob size must equal to %d vs %d", s_blobs->at(1)->count(), s_blobs->at(2)->count());
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -129,7 +125,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -167,47 +163,11 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
-		return;
-	}
-
-	void save(std::ostream& os)  {
-		return;
-	}
-
-	void echo()  {
-		LOG_INFO("loss : %f", _loss);
-		if(_loss_weight != 1.0)
-			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
-
-	float_t normalizer() {
-		blob_base* blob_ = s_blobs->at(0);
-		return ((float_t) (1) / blob_->num());
-	}
-
-	inline float_t loss() {
-			return _loss;
-	}
-
-	inline void set_loss_weight(float_t weight_)
-	{
-		_loss_weight = weight_;
-	}
-
 private:
 
 	blob* _sets = NULL;
 
 	float_t _margin = 0.0;
-
-	float_t _loss = 0;
-
-	float_t _loss_weight = 1.0;
 
 };
 }

@@ -87,7 +87,7 @@ extern "C" void cacu_average_pooling_grad_cuda(const float_t *x,
 		const int input_h, const int output_w, const int output_h,
 		const int channel, float_t *y);
 
-extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_size,
+extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_w, const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);
@@ -97,7 +97,7 @@ extern "C" void cacu_img2col_pad_dilated_cuda(const float_t *x, const int kernel
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, const int d_size, float_t *y);
 
-extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_size,
+extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_w,const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);

@@ -30,13 +30,13 @@
 
 namespace cacu {
 
-class convolution_op: public operator_base {
+class convolution_op: public conv_base_op {
 
 public:
 
 	//output_channel, kernel_size, stride, pad, input_dim, channel
 	convolution_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_CONVOLUTION) {
+			conv_base_op(data, args_, CACU_CONVOLUTION) {
 		_INIT_OP();
 	}
 
@@ -44,7 +44,7 @@ public:
 
 	}
 
-	void initial() {
+	void initial() override {
 
 		int output_w = (s_blobs->at(0)->width() + 2 * _args->pad()
 				- _args->kernel_size()) / _args->stride() + 1;
@@ -83,30 +83,7 @@ public:
 		}
 	}
 
-	void init_weights() {
-		_w = create_param("w", _args->output_channel(), s_blobs->at(0)->channel(),
-				_args->kernel_size(), _args->kernel_size(), _phase);
-
-		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
-		_bias->set_lr(2);
-	}
-
-	void check() {
-		if(_args == NULL)
-			LOG_FATAL("convolution data args cannot equal to NULL!");
-		//output_channel > 0
-		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
-				_args->output_channel());
-		//kernel_size > 0
-		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
-				_args->kernel_size());
-		//stride > 0
-		CHECK_GT_OP(_args->stride(), 0, "stride must > 0 vs %d",
-				_args->stride());
-
-	}
-
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		col_offset = s_blobs->at(0)->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
@@ -148,7 +125,9 @@ public:
 
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//padded data if needed & img2col change
-			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(), o_blob_->width(), o_blob_->height(),_args->pad(), _args->pad(), col_data_->s_data());
+			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->kernel_size(),
+					_args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(),
+					o_blob_->width(), o_blob_->height(),_args->pad(), _args->pad(), col_data_->s_data());
 			//forward convolution data
 			for (int g = 0; g < _group; ++g)
 				cacu_sgemm(NOTRANS, NOTRANS, col_data_->s_data() + col_offset * g, o_blob_->channel_length(),_w->length() / _group, _w->s_data() + w_offset * g, _w->num() / _group, (float_t)1, o_blob_->p_data(i) + out_offset * g,(float_t)0);
@@ -161,7 +140,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		col_offset = s_blobs->at(0)->channel() / _group * _col_data->width()
 				* _col_data->height();
@@ -222,10 +201,12 @@ public:
 					cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _w->num() / _group, _w->s_data() + w_offset * g, _w->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
 				//col2img
 				//unpadded
-				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
+				cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->kernel_size(),
+						_args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),
+						o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
 			}
 			//weights gradient
-			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
+			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(),_args->kernel_size(), _args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
 			for (int g = 0; g < _group; ++g)
 				cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g, _w->length() / _group, o_blob_->channel_length(), o_blob_->p_diff(i) + out_offset * g, _w->num() / _group, 1, _w->s_diff() + w_offset * g, 1);
 			//bias gradient
@@ -235,25 +216,7 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
-		if (_group != 1) {
-			_w->load_group(is, _group);
-		} else
-			_w->load(is);
-		if (_is_use_bias)
-			_bias->load(is);
-	}
-
-	void save(std::ostream& os)  {
-		if (_group != 1) {
-			_w->serializa_group(os, _group);
-		} else
-			_w->serializa(os);
-		if (_is_use_bias)
-			_bias->serializa(os);
-	}
-
-	void echo() 
+	void echo() override
 	{
 		LOG_INFO("create convolution op:");
 		LOG_INFO(
@@ -262,55 +225,6 @@ public:
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height(),
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
-
-	inline void set_weight_init_type(param_init_type _type,
-			float_t value = 0.0) {
-		set_param_init_type(_type, _w, value);
-	}
-
-	inline void set_bias_init_type(param_init_type _type, float_t value = 0.0) {
-		set_param_init_type(_type, _bias, value);
-	}
-
-	inline void set_group(int group) {
-		CHECK_GT_OP(group, 0, "group must > 0 vs %d", group);
-		CHECK_LE_OP(group, s_blobs->at(0)->channel(), "group must <= %d vs %d",
-				_args->channel(), group);
-		CHECK_EQ_OP(s_blobs->at(0)->channel() % group, 0,
-				"channel mod group must == 0 vs %d", _args->channel() % group);
-		LOG_INFO("group set: %d", group);
-		this->_group = group;
-	}
-
-	void set_is_use_bias(bool switcher_) {
-		_is_use_bias = switcher_;
-	}
-
-protected:
-
-	bool _is_use_bias = true;
-
-	weight *_w = NULL;
-
-	weight *_bias = NULL;
-
-	blob *_col_data = NULL;
-
-	blob *_bias_multiplier = NULL;
-
-	int _group = 1;
-
-private:
-
-	int col_offset = 0;
-
-	int w_offset = 0;
-
-	int out_offset = 0;
 
 };
 }

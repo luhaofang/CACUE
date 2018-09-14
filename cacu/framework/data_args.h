@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DATA_BASE_H_
-#define DATA_BASE_H_
+#ifndef DATA_ARGS_H_
+#define DATA_ARGS_H_
 
 #include "args_base.h"
 

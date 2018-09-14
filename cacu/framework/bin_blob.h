@@ -73,7 +73,7 @@ public:
 	 */
 	inline int* p_data_cpu(dsize_t n) const {
 		//CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
-		return _tdata->pdata_cpu() + n * _cube_length;
+		return _tdata->pdata_cpu() + n * length();
 	}
 
 	/**

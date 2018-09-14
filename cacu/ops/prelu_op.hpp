@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class prelu_op: public operator_base {
+class prelu_op: public activate_base_op {
 
 public:
 
 	prelu_op(blobs *&data) :
-			operator_base(data, CACU_PRELU) {
+			activate_base_op(data, CACU_PRELU) {
 		_INIT_OP();
 	}
 
@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 			o_blobs = s_blobs;
 		} else {
@@ -51,16 +51,12 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		_p_slopes = create_param("pslopes", 1, s_blobs->at(0)->channel(), 1, 1, _phase);
 		set_param_init_type(constant, _p_slopes, 0.25);
 	}
 
-	void check()  {
-		return;
-	}
-
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -82,7 +78,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -103,24 +99,20 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		_p_slopes->load(is);
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		_p_slopes->serializa(os);
 	}
 
-	void echo()  {
+	void echo() override {
 		LOG_INFO("create relu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
 	}
 
 private:

@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 			o_blobs = s_blobs;
 			_mean->resize(1, o_blobs->at(0)->channel(), 1, 1);
@@ -52,15 +52,15 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		return;
 	}
 
-	void check()  {
+	void check() override {
 		return;
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -101,19 +101,19 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 		return;
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		return;
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		return;
 	}
 
-	void echo() 
+	void echo() override
 	{
 		LOG_INFO("create injector op:");
 		LOG_INFO(
@@ -122,9 +122,6 @@ public:
 				o_blobs->at(0)->height());
 	}
 
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
 
 private:
 

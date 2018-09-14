@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class tanh_op: public operator_base {
+class tanh_op: public activate_base_op {
 
 public:
 
 	tanh_op(blobs *&data) :
-			operator_base(data, CACU_TANH) {
+			activate_base_op(data, CACU_TANH) {
 		_INIT_OP();
 	}
 
@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blobs = create_em_oblobs();
@@ -60,15 +60,7 @@ public:
 		}
 	}
 
-	void init_weights()  {
-		return;
-	}
-
-	void check()  {
-		return;
-	}
-
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -84,7 +76,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -103,15 +95,7 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
-		return;
-	}
-
-	void save(std::ostream& os)  {
-		return;
-	}
-
-	void echo()  {
+	void echo() override {
 		LOG_INFO("create tanh op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
@@ -119,9 +103,6 @@ public:
 				o_blobs->at(0)->height());
 	}
 
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
 
 private:
 

@@ -35,7 +35,7 @@ namespace cacu {
 
 weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
 		dsize_t height, phase_type phase) :
-		blob(num, channel, width, height, 0, phase) {
+		blob(num, channel, width, height, 0, phase, true) {
 	_name = name;
 	_update_lr = 1.0;
 	_decay_mult = 1.0;

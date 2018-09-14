@@ -25,28 +25,87 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CACU_H_
-#define CACU_H_
+#ifndef LOSS_BASE_OP_H_
+#define LOSS_BASE_OP_H_
 
+namespace cacu {
 
-#include "definition.h"
+class loss_base_op: public operator_base {
 
-#include "config.h"
+public:
 
-#include "utils/log.h"
-#include "utils/check_utils.h"
+	loss_base_op(blobs *&data, op_name type_) :
+		operator_base(data, type_) {
+	}
 
-#include "tensor/cuda/cuda_log.h"
-#include "tensor/cuda/cuda_utils.h"
+	loss_base_op(blobs *&data, op_args *&args_, op_name type_) :
+		operator_base(data, args_, type_) {
+	}
 
-//*/
-#include "math/math.h"
-#include "framework/framework.h"
-#include "math/math.h"
-#include "ops/operators.h"
-#include "solvers/solvers.h"
-//*/
+	~loss_base_op() {
 
+	}
+
+	void init_weights() final override {
+		return;
+	}
+
+	void load(std::ifstream& is) final override {
+		return;
+	}
+
+	void save(std::ostream& os) final override {
+		return;
+	}
+
+	void echo() final override
+	{
+		LOG_INFO("loss : %f", _loss / _loss_weight);
+		if (_loss_weight != 1.0)
+			LOG_INFO("weighted loss : %f", _loss);
+	}
+
+	float_t normalizer() {
+		blob_base* blob_ = s_blobs->at(0);
+		return ((float_t) (1) / blob_->num() * _loss_weight);
+	}
+
+	inline float_t loss() {
+		return _loss;
+	}
+
+	inline void set_loss_weight(float_t weight_) {
+		CHECK_GT_OP(weight_, 0, "loss weight must > 0 vs %f", weight_);
+		_loss_weight = weight_;
+	}
+
+	inline void set_direction(grad_direction_type direction_){
+		_direction = direction_;
+		switch(_direction)
+		{
+			case minimize:
+				_loss_direction = 1.0;
+				break;
+			case maximize:
+				_loss_direction = -1.0;
+				break;
+			default:
+				_loss_direction = 1.0;
+				break;
+		}
+	}
+
+protected:
+
+	float_t _loss = 0.0;
+
+	float_t _loss_weight = 1.0;
+
+	float_t _loss_direction = 1.0;
+
+	grad_direction_type _direction = minimize;
+};
+}
 
 
 #endif

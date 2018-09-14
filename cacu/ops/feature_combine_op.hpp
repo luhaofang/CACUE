@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		_units_count = _o_args->at(0);
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
@@ -62,11 +62,11 @@ public:
 
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		return;
 	}
 
-	void check()  {
+	void check() override {
 		if(_o_args == NULL)
 			LOG_FATAL("feature combine op args cannot equal to NULL!");
 		int mod = _o_args->at(0);
@@ -77,7 +77,7 @@ public:
 		o_blobs->at(0)->_CHECK_SIZE_EQ(s_blobs->at(0));
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
 		em_blob *s_blob_ = (em_blob*) s_blob;
@@ -105,7 +105,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -135,25 +135,21 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		return;
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		return;
 	}
 
-	void echo() 
+	void echo() override
 	{
 		LOG_INFO("create feature combine op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
 	}
 
 private:

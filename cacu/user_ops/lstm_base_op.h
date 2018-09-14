@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONV_TRANSPOSE_OP_HPP_
-#define CONV_TRANSPOSE_OP_HPP_
+#ifndef LSTM_BASE_OP_H_
+#define LSTM_BASE_OP_H_
 
 #include "../../tools/serializer_utils.h"
 
@@ -34,17 +34,17 @@ using namespace cacu_tools;
 
 namespace cacu {
 
-class conv_transpose_op: public conv_base_op {
+class lstm_base_op: public operator_base {
 
 public:
 
 	//output_channel, kernel_size, stride, pad, input_dim, channel
-	conv_transpose_op(blobs *&data, data_args *&args_) :
-			conv_base_op(data, args_, CACU_CONV_TRANS) {
+	lstm_base_op(blobs *&data, data_args *&args_) :
+			operator_base(data, args_, CACU_CONV_TRANS) {
 		_INIT_OP();
 	}
 
-	~conv_transpose_op() {
+	~lstm_base_op() {
 
 	}
 
@@ -109,6 +109,27 @@ public:
 			_bias_multiplier->resize(1, 1, output_w, output_h);
 			_bias_multiplier->set_data(1.0);
 		}
+	}
+
+	void init_weights() override {
+		_w = create_param("w", s_blobs->at(0)->channel(), _args->output_channel(),
+				_args->kernel_size(), _args->kernel_size(), _phase);
+
+		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
+	}
+
+	void check() override {
+		if(_args == NULL)
+			LOG_FATAL("deconvolution data args cannot equal to NULL!");
+		//output_channel > 0
+		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
+				_args->output_channel());
+		//kernel_size > 0
+		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
+				_args->kernel_size());
+		//stride > 0
+		CHECK_GT_OP(_args->stride(), 0, "stride must > 0 vs %d",
+				_args->stride());
 	}
 
 	void op(blobs *s_blobs_,blobs *o_blobs_) override {
@@ -224,6 +245,18 @@ public:
 #endif
 	}
 
+	void load(std::ifstream& is) override {
+		_w->load(is);
+		if (_is_use_bias)
+			_bias->load(is);
+	}
+
+	void save(std::ostream& os) override {
+		_w->serializa(os);
+		if (_is_use_bias)
+			_bias->serializa(os);
+	}
+
 	void echo() override
 	{
 		LOG_INFO("create convolution transpose op:");
@@ -234,11 +267,55 @@ public:
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
 
+	inline void set_weight_init_type(param_init_type _type,
+			float_t value = 0.0) {
+		set_param_init_type(_type, _w, value);
+	}
+
+	inline void set_bias_init_type(param_init_type _type, float_t value = 0.0) {
+		set_param_init_type(_type, _bias, value);
+	}
+
+	void set_is_use_bias(bool switcher_) {
+		_is_use_bias = switcher_;
+	}
+
+	inline void set_group(int group) {
+		CHECK_GT_OP(group, 0, "group must > 0 vs %d", group);
+		CHECK_LE_OP(group, s_blobs->at(0)->channel(), "group must <= %d vs %d",
+				_args->channel(), group);
+		CHECK_EQ_OP(s_blobs->at(0)->channel() % group, 0,
+				"channel mod group must == 0 vs %d", _args->channel() % group);
+		LOG_INFO("group set: %d", group);
+		this->_group = group;
+	}
+
+protected:
+
+	bool _is_use_bias = true;
+
+	weight *_w = NULL;
+
+	weight *_bias = NULL;
+
+	blob_base *_col_data = NULL;
+
+	blob *_bias_multiplier = NULL;
+
+	int _group = 1;
+
 
 private:
 
+
 	int _pad_w = 0;
 	int _pad_h = 0;
+
+	int col_offset = 0;
+
+	int w_offset = 0;
+
+	int out_offset = 0;
 
 };
 }

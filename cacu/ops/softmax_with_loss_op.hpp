@@ -30,19 +30,19 @@
 
 namespace cacu {
 
-class softmax_with_loss_op: public operator_base {
+class softmax_with_loss_op: public loss_base_op {
 
 public:
 
 	softmax_with_loss_op(blobs *&data) :
-			operator_base(data, CACU_SOFTMAX_LOSS) {
+			loss_base_op(data, CACU_SOFTMAX_LOSS) {
 		_INIT_OP();
 	}
 
 	~softmax_with_loss_op() {
 	}
 
-	void initial()  {
+	void initial() override {
 		_loss = 0.0;
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
@@ -61,11 +61,7 @@ public:
 		}
 	}
 
-	void init_weights()  {
-		return;
-	}
-
-	void check()  {
+	void check() override {
 		//check blob size
 		CHECK_GT_OP(s_blobs->size(), 1, "source blob size > 1 vs %d !",
 				s_blobs->size());
@@ -74,7 +70,7 @@ public:
 				s_blobs->at(0)->channel());
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		_loss = 0.0;
 #if __USEMBEDDING__ == ON
@@ -113,7 +109,7 @@ public:
 		_loss /= o_blob_->channel_length();
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -137,49 +133,10 @@ public:
 		{
 			cacu_isaxb(o_blob_->p_data(i),s_blob_->channel(),s_blob_->width(),s_blob_->height(),(float_t)1,labels_->p_data(i),(float_t)-1, s_blob_->p_diff(i));
 		}
-		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() * _loss_weight);
+		cacu_scalex(s_blob_->s_diff(), s_blob_->count(), normalizer() / o_blob_->channel_length() * _loss_direction);
 
 #endif
 	}
-
-	void load(std::ifstream& is)  {
-		return;
-	}
-
-	void save(std::ostream& os)  {
-		return;
-	}
-
-	void echo() 
-	{
-		LOG_INFO("loss : %f", _loss);
-		if(_loss_weight != 1.0)
-			LOG_INFO("weighted loss : %f", _loss * _loss_weight);
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
-
-	float_t normalizer() {
-		blob_base* blob_ = s_blobs->at(0);
-		return ((float_t) (1) / blob_->num());
-	}
-
-	inline float_t loss() {
-		return _loss;
-	}
-
-	inline void set_loss_weight(float_t weight_)
-	{
-		_loss_weight = weight_;
-	}
-
-private:
-
-	float_t _loss = 0.0;
-
-	float_t _loss_weight = 1.0;
 };
 }
 

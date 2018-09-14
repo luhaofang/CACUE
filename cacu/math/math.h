@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MATH_H_
 #define MATH_H_
 
-
 #include "math_definition.h"
 
 #include "math_functions.h"

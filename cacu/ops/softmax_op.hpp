@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class softmax_op: public operator_base {
+class softmax_op: public activate_base_op {
 
 public:
 
 	softmax_op(blobs *&data) :
-			operator_base(data, CACU_SOFTMAX) {
+			activate_base_op(data, CACU_SOFTMAX) {
 		_INIT_OP();
 	}
 
@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blobs = create_em_blobs();
@@ -60,15 +60,7 @@ public:
 		}
 	}
 
-	void init_weights()  {
-		return;
-	}
-
-	void check()  {
-		return;
-	}
-
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -85,23 +77,15 @@ public:
 		//echo();
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
-		blob *o_blob_ = (blob*) o_blobs_->at(0);
-		blob *s_blob_ = (blob*) s_blobs_->at(0);
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
+		//blob *o_blob_ = (blob*) o_blobs_->at(0);
+		//blob *s_blob_ = (blob*) s_blobs_->at(0);
 
 		//echo();
 
 	}
 
-	void load(std::ifstream& is)  {
-		return;
-	}
-
-	void save(std::ostream& os)  {
-		return;
-	}
-
-	void echo()  {
+	void echo() override {
 		LOG_INFO("create softmax op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
@@ -109,9 +93,6 @@ public:
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
 
 private:
 

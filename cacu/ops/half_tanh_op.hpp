@@ -30,12 +30,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cacu {
 
-	class half_tanh_op : public operator_base {
+	class half_tanh_op : public activate_base_op {
 
 	public:
 
 		half_tanh_op(blobs *&data) :
-			operator_base(data, CACU_TANH) {
+			activate_base_op(data, CACU_HTANH) {
 			_INIT_OP();
 		}
 
@@ -43,7 +43,7 @@ namespace cacu {
 
 		}
 
-		void initial()  {
+		void initial() override {
 			if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 				o_blobs = create_em_oblobs();
@@ -61,15 +61,7 @@ namespace cacu {
 			}
 		}
 
-		void init_weights()  {
-			return;
-		}
-
-		void check()  {
-			return;
-		}
-
-		void op(blobs *s_blobs_,blobs *o_blobs_)  {
+		void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
@@ -85,7 +77,7 @@ namespace cacu {
 #endif
 		}
 
-		void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+		void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 			em_blob *o_blob_ = (em_blob*)o_blob;
@@ -103,15 +95,7 @@ namespace cacu {
 #endif
 		}
 
-		void load(std::ifstream& is)  {
-			return;
-		}
-
-		void save(std::ostream& os)  {
-			return;
-		}
-
-		void echo()  {
+		void echo() override {
 			LOG_INFO("create half tanh op:");
 			LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
@@ -119,9 +103,6 @@ namespace cacu {
 				o_blobs->at(0)->height());
 		}
 
-		inline void set_phase(phase_type phase_)  {
-			_phase = phase_;
-		}
 
 	private:
 

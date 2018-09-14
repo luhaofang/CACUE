@@ -25,53 +25,57 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BLOB_DEFINITION_H_
-#define BLOB_DEFINITION_H_
+#ifndef AXPBY_OP_HPP_
+#define AXPBY_OP_HPP_
 
-namespace cacu{
+namespace cacu {
 
-#ifndef __BLOBMAXREC__
-#define __BLOBMAXREC__ 0XFFFFFFFF
-#endif
+	class axpby_op : public math_op {
 
-/**
- * blob type definition, every blob_base maintains a blob type in order to turn back
- * original data maintaining type.
- */
-enum blob_type{
-	__blob__,
-	__bin_blob__,
-	__em_blob__,
-	__em_bin_blob__
-};
+	public:
 
+		axpby_op(blobs *&data, op_args *&args_) :
+			math_op(data, args_, CACU_MATH_AXPBY) {
+		}
 
-/**
- * definition of weights parameter initialization type.
- */
-enum param_init_type {
-	constant = 10,
-	xavier = 11,
-	gaussian = 12,
-	msra = 13,
-	uniform = 14
-};
+		~axpby_op() {
+		}
 
-/**
- * blob/network running mode.
- */
-enum phase_type {
-	test = 20,
-	train = 21
-};
+		void check() override {
+			if(_o_args == NULL)
+				LOG_FATAL("axpby op args cannot equal to NULL!");
+			//parameter a, b
+			CHECK_EQ_OP(_o_args->size(), 2, "axpby parameter must == 2 vs %d",
+					_o_args->size());
+			CHECK_EQ_OP(s_blobs->size(), 2, "sblobs size must == 2 vs %d",
+					s_blobs->size());
+		}
 
-typedef struct{
-		int x;
-		int y;
-		int z;
-}spatial3D;
+		void op(blobs *s_blobs_,blobs *o_blobs_) override {
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
+			blob *_data = (blob*)s_blobs_->at(1);
 
+			s_blob_->_CHECK_SIZE_EQ(_data);
+			cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+			cacu_saxpby(_data->s_data(), _o_args->at(0), o_blob_->s_data(), _o_args->at(1), _data->count());
+		}
+
+		void grad(blobs *s_blobs_,blobs *o_blobs_) override {
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
+			blob *_data = (blob*)s_blobs_->at(1);
+
+			s_blob_->_CHECK_SIZE_EQ(_data);
+			cacu_copy(o_blob_->s_diff(), o_blob_->count(), s_blob_->s_diff());
+			cacu_scalex(s_blob_->s_diff(), o_blob_->count(), _o_args->at(0));
+			cacu_copy(o_blob_->s_diff(), o_blob_->count(), _data->s_diff());
+			cacu_scalex(_data->s_diff(), o_blob_->count(), _o_args->at(1));
+		}
+
+	};
 
 }
+
 
 #endif

@@ -60,6 +60,19 @@ inline void cacu_print(DTYPE *data, size_t length)
 #endif
 }
 
+template<typename DTYPE>
+inline void cacu_print(chars_t prefix_ ,DTYPE *data, size_t length)
+{
+	cout << prefix_ << ": ";
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	device_print(data,length);
+#endif
+#else
+	cacu_print_cpu(data, length);
+#endif
+}
+
 inline void cacu_print_blob(blob *data_blob, size_t length)
 {
 #if __USE_DEVICE__ == ON

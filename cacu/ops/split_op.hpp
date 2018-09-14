@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		_split_count = _o_args->at(0);
 		if (o_blobs == NULL) {
 			o_blobs = create_oblobs();
@@ -66,11 +66,11 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		return;
 	}
 
-	void check()  {
+	void check() override {
 		if(_o_args == NULL)
 			LOG_FATAL("split op args cannot equal to NULL!");
 		int split_count = _o_args->at(0);
@@ -79,7 +79,7 @@ public:
 				split_count);
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
@@ -99,7 +99,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
@@ -122,15 +122,15 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		return;
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		return;
 	}
 
-	void echo()  {
+	void echo() override {
 		LOG_INFO("create split op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d), split_num: %d",
@@ -139,9 +139,6 @@ public:
 				o_blobs->at(0)->height(), _split_count);
 	}
 
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
 
 private:
 

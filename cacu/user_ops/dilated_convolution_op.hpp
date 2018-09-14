@@ -44,7 +44,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 
 		int output_w = (s_blobs->at(0)->width() + 2 * _args->pad()
 				- _args->kernel_size()) / _args->stride() + 1;
@@ -91,7 +91,7 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		_w = create_param("w", _args->output_channel(), s_blobs->at(0)->channel(),
 				_args->kernel_size(), _args->kernel_size(), _phase);
 
@@ -99,7 +99,7 @@ public:
 		_bias->set_lr(2);
 	}
 
-	void check()  {
+	void check() override {
 		//output_channel > 0
 		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
 				_args->output_channel());
@@ -112,7 +112,7 @@ public:
 
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		col_offset = s_blobs->at(0)->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
@@ -164,7 +164,7 @@ public:
 		//cacu_print(_w->s_data(), 100);
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//padded data if needed & img2col change
-			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(), o_blob_->width(), o_blob_->height(),_args->pad(), _args->pad(), col_data_->s_data());
+			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(),_args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), s_blob_->channel(), o_blob_->width(), o_blob_->height(),_args->pad(), _args->pad(), col_data_->s_data());
 			//mycnn_tools::cacu_output(col_data_->s_data(),col_data_->count(),"/home/seal/1.txt");
 			//forward convolution data
 			for (int g = 0; g < _group; ++g)
@@ -178,7 +178,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		col_offset = s_blobs->at(0)->channel() / _group * _col_data->width()
 				* _col_data->height();
@@ -238,9 +238,9 @@ public:
 			cacu_sgemm(NOTRANS,TRANS, o_blob_->p_diff(i) + out_offset * g, o_blob_->width() * o_blob_->height(), _temp->num() / _group, _temp->s_data() + w_offset * g, _temp->length() / _group, 1, col_data_->s_diff() + col_offset * g, 0);
 			//col2img
 			//unpadded
-			cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
+			cacu_col2img_pad(col_data_->s_diff(),_args->kernel_size(),_args->kernel_size(), _args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), s_blob_->p_diff(i));
 			//weights gradient
-			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(), _args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
+			cacu_img2col_pad(s_blob_->p_data(i), _args->kernel_size(),_args->kernel_size(), _args->stride(),s_blob_->width(),s_blob_->height(),s_blob_->channel(),o_blob_->width(),o_blob_->height(),_args->pad(),_args->pad(), col_data_->s_data());
 			for (int g = 0; g < _group; ++g)
 			cacu_sgemm(TRANS,NOTRANS,col_data_->s_data() + col_offset * g, _temp->length() / _group, o_blob_->channel_length(), o_blob_->p_diff(i) + out_offset * g, _temp->num() / _group, 1, _temp->s_diff() + w_offset * g, 1);
 			//bias gradient
@@ -255,7 +255,7 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		if (_group != 1) {
 			_w->load_group(is, _group);
 		} else
@@ -264,7 +264,7 @@ public:
 			_bias->load(is);
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		if (_group != 1) {
 			_w->serializa_group(os, _group);
 		} else
@@ -273,7 +273,7 @@ public:
 			_bias->serializa(os);
 	}
 
-	void echo() 
+	void echo() override
 	{
 		LOG_INFO("create convolution op:");
 		LOG_INFO(
@@ -281,10 +281,6 @@ public:
 				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height(),
 				_args->kernel_size(), _args->stride(), _args->pad());
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
 	}
 
 	inline void set_weight_init_type(param_init_type _type,

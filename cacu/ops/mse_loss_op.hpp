@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class mse_loss_op: public operator_base {
+class mse_loss_op: public loss_base_op {
 
 public:
 
 	mse_loss_op(blobs *&data) :
-			operator_base(data, CACU_MSE_LOSS) {
+			loss_base_op(data, CACU_MSE_LOSS) {
 		_INIT_OP();
 	}
 
@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		_loss = 0.0;
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
@@ -61,11 +61,8 @@ public:
 		}
 	}
 
-	void init_weights()  {
-		return;
-	}
 
-	void check()  {
+	void check() override {
 		//check blob size
 		CHECK_EQ_OP(s_blobs->at(0)->count(), s_blobs->at(1)->count(),
 						"source data must equal %d vs %d !", s_blobs->at(0)->count(),
@@ -73,7 +70,7 @@ public:
 		s_blobs->at(0)->_CHECK_SIZE_EQ(s_blobs->at(1));
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		_loss = 0.0;
 
@@ -130,7 +127,7 @@ public:
 		_loss /= o_blob_->length();
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -145,50 +142,13 @@ public:
 		blob *s_blob2_ = (blob*)s_blobs_->at(1);
 
 		cacu_copy(o_blob_->s_data(), o_blob_->count(), s_blob1_->s_diff());
-		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer() * _loss_weight);
+		cacu_scalex(s_blob1_->s_diff(), s_blob1_->count(), normalizer() / o_blob_->length() * _loss_direction);
 		cacu_copy(o_blob_->s_data(), o_blob_->count(), s_blob2_->s_diff());
-		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), -normalizer() * _loss_weight);
+		cacu_scalex(s_blob2_->s_diff(), s_blob2_->count(), -normalizer() / o_blob_->length() * _loss_direction);
 		//cacu_print(s_blob_->s_diff(),s_blob_->count());
 #endif
 	}
 
-	void load(std::ifstream& is)  {
-		return;
-	}
-
-	void save(std::ostream& os)  {
-		return;
-	}
-
-	void echo() 
-	{
-		LOG_INFO("mse loss : %f", _loss);
-		if (_loss_weight != 1.0)
-			LOG_INFO("weighted mse loss : %f", _loss * _loss_weight);
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
-
-	float_t normalizer() {
-		blob_base* blob_ = s_blobs->at(0);
-		return ((float_t) (1) / blob_->num());
-	}
-
-	inline float_t loss() {
-		return _loss;
-	}
-
-	inline void set_loss_weight(float_t weight_) {
-		_loss_weight = weight_;
-	}
-
-private:
-
-	float_t _loss = 0.0;
-
-	float_t _loss_weight = 1.0;
 };
 }
 

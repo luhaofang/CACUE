@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blobs = create_em_blobs();
@@ -58,7 +58,7 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		_w = create_param("w", s_blobs->at(0)->channel(), _args->output_channel() / s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
 				s_blobs->at(0)->height(), _phase);
 
@@ -66,11 +66,11 @@ public:
 		_bias->set_lr(2);
 	}
 
-	void check()  {
+	void check() override {
 		CHECK_EQ_OP(_args->output_channel() % s_blobs->at(0)->channel(), 0, "Output data channel must integer times of input data channel: (%d)", _args->output_channel() % s_blobs->at(0)->channel());
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -107,7 +107,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -148,29 +148,25 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		_w->load(is);
 		if (_is_use_bias)
 			_bias->load(is);
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		_w->serializa(os);
 		if (_is_use_bias)
 			_bias->serializa(os);
 	}
 
-	void echo() 
+	void echo() override
 	{
 		LOG_INFO("create p_inner_product op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
 				o_blobs->at(0)->height());
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
 	}
 
 	inline void set_weight_init_type(param_init_type _type,

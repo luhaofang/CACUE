@@ -57,9 +57,7 @@ public:
 		_o_args = NULL;
 		_phase = test;
 		_OP_TYPE = type_;
-#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		data->_REC();
-#endif
 		_weights = new vector<weight*>();
 		_storage_blobs = new blobs();
 
@@ -73,9 +71,7 @@ public:
 		_o_args = o_args_;
 		_phase = test;
 		_OP_TYPE = type_;
-#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		data->_REC();
-#endif
 		_weights = new vector<weight*>();
 		_storage_blobs = new blobs();
 
@@ -89,9 +85,7 @@ public:
 		_o_args = NULL;
 		_phase = test;
 		_OP_TYPE = type_;
-#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		data->_REC();
-#endif
 		_weights = new vector<weight*>();
 		_storage_blobs = new blobs();
 
@@ -144,11 +138,12 @@ public:
 		if(_IS_ALLOC_OUTPUT)
 			o_blobs->_RESET_DATA();
 		_storage_blobs->_RESET_DATA();
-		for(int i = 0; i < _weights->size(); ++i)
-			_weights->at(i)->_RESET_DIFF();
 	}
 
-	virtual void set_phase(phase_type phase_) = 0;
+	inline void set_phase(phase_type phase_)
+	{
+		_phase = phase_;
+	}
 
 	inline blobs *&out_datas() const{
 		return (blobs *&)o_blobs;
@@ -244,33 +239,10 @@ public:
 		return _OP_TYPE;
 	}
 
-
-	/*
-	 * if using dynamic graph computing, this function is used to alloc the operator.
-	 */
-	void alloc_create_op(){
-
-#if __OPERATOR__TYPE__ == __DYNAMIC_GRAPH__
-		check();
-		initial();
-		if(_weights->size() == 0)
-			init_weights();
-#endif
+	inline bool is_alloc_output()
+	{
+		return _IS_ALLOC_OUTPUT;
 	}
-
-	/*
-	 * if the input s_blobs is not assigned when it's decleared.
-	 * init_sblob used to register s_blob data.
-	 */
-	inline void init_sblob(){
-		if(s_blobs == NULL)
-			LOG_FATAL("Operator input data is NULL!");
-		_phase = s_blobs->at(0)->phase();
-	}
-
-	//inline void __NEED_BACK_PROPAGATE__(bool need_back_propagate_){
-	//	_NEED_BACK_PROPAGATE_FEATURE = need_back_propagate_;
-	//}
 
 protected:
 
@@ -387,13 +359,12 @@ protected:
 	 * load just for one time in constructed function.
 	 */
 	void _INIT_OP(){
-#if __OPERATOR__TYPE__ == __STATIC_GRAPH__
 		//initialize the op phase
 		_phase = s_blobs->at(0)->phase();
 		check();
 		initial();
 		init_weights();
-#endif
+
 	}
 
 

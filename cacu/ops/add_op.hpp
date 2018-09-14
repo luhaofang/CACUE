@@ -25,53 +25,51 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BLOB_DEFINITION_H_
-#define BLOB_DEFINITION_H_
+#ifndef ADD_OP_HPP_
+#define ADD_OP_HPP_
 
-namespace cacu{
+namespace cacu {
 
-#ifndef __BLOBMAXREC__
-#define __BLOBMAXREC__ 0XFFFFFFFF
-#endif
+	class add_op : public math_op {
 
-/**
- * blob type definition, every blob_base maintains a blob type in order to turn back
- * original data maintaining type.
- */
-enum blob_type{
-	__blob__,
-	__bin_blob__,
-	__em_blob__,
-	__em_bin_blob__
-};
+	public:
 
+		add_op(blobs *&data) :
+			math_op(data, CACU_MATH_ADD) {
+		}
 
-/**
- * definition of weights parameter initialization type.
- */
-enum param_init_type {
-	constant = 10,
-	xavier = 11,
-	gaussian = 12,
-	msra = 13,
-	uniform = 14
-};
+		~add_op() {
 
-/**
- * blob/network running mode.
- */
-enum phase_type {
-	test = 20,
-	train = 21
-};
+		}
 
-typedef struct{
-		int x;
-		int y;
-		int z;
-}spatial3D;
+		void check() override {
+			CHECK_EQ_OP(s_blobs->size(), 2, "sblobs size must == 2 vs %d",
+					s_blobs->size());
+		}
 
+		void op(blobs *s_blobs_,blobs *o_blobs_) override {
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
+			blob *_data = (blob*)s_blobs_->at(1);
+
+			s_blob_->_CHECK_SIZE_EQ(_data);
+			cacu_copy(s_blob_->s_data(), s_blob_->count(), o_blob_->s_data());
+			cacu_saxpy(_data->s_data(), (float_t)1, o_blob_->s_data(), _data->count());
+		}
+
+		void grad(blobs *s_blobs_,blobs *o_blobs_) override {
+			blob *o_blob_ = (blob*)o_blobs_->at(0);
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
+			blob *_data = (blob*)s_blobs_->at(1);
+
+			s_blob_->_CHECK_SIZE_EQ(_data);
+			cacu_saxpy(o_blob_->s_diff(), (float_t)1, s_blob_->s_diff(), o_blob_->count());
+			cacu_saxpy(o_blob_->s_diff(), (float_t)1, _data->s_diff(), o_blob_->count());
+		}
+
+	};
 
 }
+
 
 #endif

@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blobs = create_em_oblobs();
@@ -63,7 +63,7 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 
 		_w = create_param("w", _args->output_channel(), s_blobs->at(0)->channel(),
 				s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase);
@@ -72,13 +72,13 @@ public:
 		_bias->set_lr(2);
 	}
 
-	void check()  {
+	void check() override {
 		//output_channel > 0
 		CHECK_GT_OP(_args->output_channel(), 0, "output_channel must > 0 vs %d",
 				_args->output_channel());
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
@@ -111,7 +111,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 		blob *bias_multiplier = (blob*) _bias_multiplier;
 
@@ -150,29 +150,25 @@ public:
 
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 		_w->load(is);
 		if (_is_use_bias)
 			_bias->load(is);
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 		_w->serializa(os);
 		if (_is_use_bias)
 			_bias->serializa(os);
 	}
 
-	void echo() 
+	void echo() override
 	{
 		LOG_INFO("create inner_product op:");
 		LOG_INFO(
 				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d",
 				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
 				o_blobs->at(0)->height());
-	}
-
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
 	}
 
 	inline void set_weight_init_type(param_init_type _type,
@@ -187,7 +183,6 @@ public:
 	void is_use_bias(bool switcher_) {
 		_is_use_bias = switcher_;
 	}
-	;
 
 private:
 

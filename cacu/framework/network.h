@@ -135,6 +135,17 @@ public:
 
 	void set_update_weight(bool isupdate_);
 
+	inline void _RESET_WEIGHT_DIFF()
+	{
+		for (int i = op_count() - 1; i >= 0; --i) {
+			for (int j = 0; j < get_op(i)->weights_size(); ++j) {
+				get_op(i)->get_weight(j)->_RESET_DIFF();
+			}
+		}
+	}
+
+
+
 private:
 
 	vector<layer_base*> *_layers;

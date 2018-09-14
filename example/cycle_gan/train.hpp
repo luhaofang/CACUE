@@ -44,7 +44,7 @@ using namespace cacu;
 void train_net() {
 	int batch_size = 1;
 
-	int max_iter = 10000;
+	int max_iter = 100000;
 
 	int test_iter = 100;
 	int train_test_iter = 100;
@@ -69,13 +69,10 @@ void train_net() {
 	std::ofstream ydlog(root_path + "ydiscriminator.log",
 			ios::binary);
 	ydlog.precision(std::numeric_limits<cacu::float_t>::digits10);
-
 	//log output
 	std::ofstream glog(root_path + "generator.log",
 			ios::binary);
 	glog.precision(std::numeric_limits<cacu::float_t>::digits10);
-
-
 
 
 	/*
@@ -128,10 +125,13 @@ void train_net() {
 	abse_blobsy->push_back(ysuspicious);
 	abse_blobsy->push_back(yblob_);
 
+	float_t lamda_ = 10;
+	float_t idt_lamda_ = 0.5;
+
 	abse_loss_op *abse_opx = new abse_loss_op(abse_blobsx);
-	abse_opx->set_loss_weight(10);
+
 	abse_loss_op *abse_opy = new abse_loss_op(abse_blobsy);
-	abse_opy->set_loss_weight(10);
+	abse_opy->set_loss_weight(lamda_);
 
 
 	adam_solver *xgsgd = new adam_solver(xgnet);
@@ -142,7 +142,6 @@ void train_net() {
 	ygsgd->set_lr(0.0002);
 	ygsgd->set_alpha(0.5);
 	ygsgd->set_weight_decay(0.01);
-	//gsgd->load_param("/home/haofang/experiment/generative/g_solver.txt");
 
 	adam_solver *xdsgd = new adam_solver(xdnet);
 	xdsgd->set_lr(0.0002);
@@ -153,14 +152,11 @@ void train_net() {
 	ydsgd->set_alpha(0.5);
 	ydsgd->set_weight_decay(0.01);
 
-	//dsgd->load_param("/home/haofang/experiment/generative/d_solver.txt");
 
-	//string datapath = "/home/haofang/experiment/imagenet/../../data/pascalvoc/VOCdevkit/VOC2012/objects/";
-	//string trainlist = "/home/haofang/experiment/imagenet/../../data/pascalvoc/VOCdevkit/VOC2012/object_list.txt";
-	string xdatapath = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainA/";
-	string ydatapath = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainB/";
-	string xtrainlist = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainA.txt";
-	string ytrainlist = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/trainB.txt";
+	string xdatapath = root_path + "trainA/";
+	string ydatapath = root_path + "trainB/";
+	string xtrainlist = root_path + "trainA.txt";
+	string ytrainlist = root_path + "trainB.txt";
 
 	vector<string> xfull_data;
 	vector<string> yfull_data;
@@ -242,76 +238,56 @@ void train_net() {
 			step_index_x += 1;
 			step_index_y += 1;
 		}
-		//cacu_print(yblob_->s_data(), 100);
 
-		/*
-		 * xdloss_t
-		 */
-		xdhead->copy_blob(xblob_);
-		xdiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
-		xdnet->forward_propagate();
-		xdnet->back_propagate();
-		xdsgd->updates(i);
-		xdlosst = xdiscriminator->top_op<sigmoid_with_loss_op>()->loss();
-		//LOG_DEBUG("true x image trainning!");
 		/*
 		 * adversrial training process
 		 */
+		//GAN x
+		//xdloss_t
+		xdhead->copy_blob(xblob_);
+		xdiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
+		xdsgd->train_iter(i);
+		xdlosst = xdiscriminator->top_op<mse_loss_op>()->loss();
+
+		//xdloss_f
 		xghead->copy_blob(yblob_);
 		xgnet->forward_propagate();
-//		cacu_print(xsuspicious->s_data(),100);
-//		LOG_DEBUG("generate fake x image!");
-		/*
-		 * xdloss_f
-		 */
+
 		xdhead->copy_blob(xsuspicious);
-		xdiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
+		xdiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
 		xdnet->forward_propagate();
 		xdnet->back_propagate();
 		xdsgd->updates(i);
-		xdlossf = xdiscriminator->top_op<sigmoid_with_loss_op>()->loss();
-//		cacu_print(xdhead->s_diff(),100);
-//		LOG_DEBUG("fake x image discriminator trainning!");
+		xdlossf = xdiscriminator->top_op<mse_loss_op>()->loss();
 		xgloss = xdlossf;
-		/*
-		 * xgloss
-		 */
-		//copy gradient
+
+		//xgloss
 		cacu_copy(xdhead->s_diff(), xsuspicious->count(), xsuspicious->s_diff());
 		xgnet->back_propagate();
 		xgsgd->update_direction(maximize);
 		xgsgd->updates(i);
-		//LOG_DEBUG("fake x image generator trainning!");
 
-		/*
-		 * ydloss_t
-		 */
+		//GAN y
+		//ydloss_t
 		ydhead->copy_blob(yblob_);
-		ydiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
-		ydnet->forward_propagate();
-		ydnet->back_propagate();
-		ydsgd->updates(i);
-		ydlosst = ydiscriminator->top_op<sigmoid_with_loss_op>()->loss();
+		ydiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
+		ydsgd->train_iter(i);
+		ydlosst = ydiscriminator->top_op<mse_loss_op>()->loss();
 
+		//ydloss_f
 		yghead->copy_blob(xblob_);
 		ygnet->forward_propagate();
-//		cacu_print(xsuspicious->s_data(),100);
-		/*
-		 * ydloss_f
-		 */
+
 		ydhead->copy_blob(ysuspicious);
-		ydiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
+		ydiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
 		ydnet->forward_propagate();
 		ydnet->back_propagate();
 		ydsgd->updates(i);
-		ydlossf = ydiscriminator->top_op<sigmoid_with_loss_op>()->loss();
-//		cacu_print(xdhead->s_diff(),100);
+		ydlossf = ydiscriminator->top_op<mse_loss_op>()->loss();
 		ygloss = ydlossf;
-		/*
-		 * ygloss
-		 */
-		//copy gradient
-		cacu_copy(ydiscriminator->layers(0)->get_head_op()->in_data<blob>()->s_diff(), ygnet->output_blob()->count(), ygnet->output_blob()->s_diff());
+
+		//ygloss
+		cacu_copy(ydhead->s_diff(), ysuspicious->count(), ysuspicious->s_diff());
 		ygnet->back_propagate();
 		ygsgd->update_direction(maximize);
 		ygsgd->updates(i);
@@ -323,51 +299,38 @@ void train_net() {
 		xgsgd->update_direction(minimize);
 		ygsgd->update_direction(minimize);
 
-		/*
-		 * F(G(y)) -> y
-		 */
+		//F(G(y)) -> y
+		abse_opy->set_loss_weight(lamda_);
 		xghead->copy_blob(yblob_);
 		xgnet->forward_propagate();
-
-		cout << "xs :" << endl;
-		cacu_print_blob(xsuspicious,10);
 
 		yghead->copy_blob(xsuspicious);
 		ygnet->forward_propagate();
 
-		cout << "ys :" << endl;
-		cacu_print_blob(ysuspicious,10);
-
 		abse_opy->infer();
 		ccloss = abse_opy->loss();
-		abse_opy->grad();
-		//cacu_print(ysuspicious->s_diff(),100);
+		abse_opy->derivative();
+
 		ygnet->back_propagate();
 		cacu_copy(yghead->s_diff(),xsuspicious->count(),xsuspicious->s_diff());
-		//cacu_print(xsuspicious->s_diff(),100);
 		xgnet->back_propagate();
 
 		ygsgd->updates(i);
 		xgsgd->updates(i);
 
-		/*
-		 * G(F(x)) -> x
-		 */
+
+		//G(F(x)) -> x
+		abse_opx->set_loss_weight(lamda_);
 		yghead->copy_blob(xblob_);
 		ygnet->forward_propagate();
-
-		cout << "ys :" << endl;
-		cacu_print_blob(ysuspicious,10);
 
 		xghead->copy_blob(ysuspicious);
 		xgnet->forward_propagate();
 
-		cout << "xs :" << endl;
-		cacu_print_blob(xsuspicious,10);
-
 		abse_opx->infer();
 		ccloss += abse_opx->loss();
-		abse_opx->grad();
+		abse_opx->derivative();
+
 		xgnet->back_propagate();
 		cacu_copy(xghead->s_diff(),ysuspicious->count(),ysuspicious->s_diff());
 		ygnet->back_propagate();
@@ -376,13 +339,37 @@ void train_net() {
 		ygsgd->updates(i);
 
 
+		//indentfy constant
+		//y generator
+		abse_opy->set_loss_weight(lamda_ * idt_lamda_);
+		yghead->copy_blob(yblob_);
+		ygnet->forward_propagate();
+
+		abse_opy->infer();
+		ccloss += abse_opy->loss();
+		abse_opy->derivative();
+		ygnet->back_propagate();
+		ygsgd->updates(i);
+
+		//x generator
+		abse_opx->set_loss_weight(lamda_ * idt_lamda_);
+		xghead->copy_blob(xblob_);
+		xgnet->forward_propagate();
+
+		abse_opx->infer();
+		ccloss += abse_opx->loss();
+		abse_opx->derivative();
+		xgnet->back_propagate();
+		xgsgd->updates(i);
+
+
 		xdlog << xdlosst + xdlossf << endl;
 		xdlog.flush();
 
 		ydlog << ydlosst + ydlossf << endl;
 		ydlog.flush();
 
-		glog << xgloss + ygloss + ccloss << endl;
+		glog << xgloss + ygloss + ccloss<< endl;
 
 		timer->end();
 
@@ -394,18 +381,19 @@ void train_net() {
 			LOG_INFO("generator loss : (x: %f, y: %f, cc: %f)", xgloss, ygloss, ccloss);
 		}
 
-		if (i % 500000 == 0){
+		if (i % 40000 == 0){
 			xdsgd->set_lr_iter(0.1);
 			xgsgd->set_lr_iter(0.1);
 			ydsgd->set_lr_iter(0.1);
 			ygsgd->set_lr_iter(0.1);
 		}
 
-		if (i % 1000 == 0) {
+		if (i % 1 == 0) {
 			ostringstream oss;
 
 			oss << root_path << "generative/" << "x_" << i << "_" << img_size << ".jpg";
 			imageio_utils::imwrite(((blob*)xgenerator->get_oblob()),oss.str().c_str());
+			oss.str("");
 
 			oss << root_path << "generative/" << "y_" << i << "_" << img_size << ".jpg";
 			imageio_utils::imwrite(((blob*)ygenerator->get_oblob()),oss.str().c_str());

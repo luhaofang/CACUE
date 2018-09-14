@@ -62,8 +62,14 @@ void solver_base::updates(int step_){
 	for (int i = 0; i < _net->op_count(); ++i) {
 		operator_base* op_ = _net->get_op(i);
 		for (int j = 0; j < op_->weights_size(); ++j) {
-			cacu_scalex(op_->get_weight(j)->s_diff(),op_->get_weight(j)->count(),_direction);
-			update_weight(op_->get_weight(j), weight_index_, step_);
+			//whether need to update
+			if(op_->get_weight(j)->update()){
+				if(_direction != 1.0)
+					cacu_scalex(op_->get_weight(j)->s_diff(),op_->get_weight(j)->count(),_direction);
+				update_weight(op_->get_weight(j), weight_index_, step_);
+			}
+			//reset weight's gradient
+			op_->get_weight(j)->_RESET_DIFF();
 			weight_index_++;
 		}
 	}

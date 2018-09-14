@@ -90,6 +90,8 @@ public:
 			return new injector_op(blob_);
 		case CACU_TANH:
 			return new tanh_op(blob_);
+		case CACU_ELU:
+			return new elu_op(blob_, o_args_);
 		case CACU_SELU:
 			return new selu_op(blob_);
 		case CACU_HTANH:
@@ -98,8 +100,14 @@ public:
 			return new sigmoid_op(blob_);
 		case CACU_PRIMARY_VECTOR:
 			return new primary_vector_op(blob_, d_args_);
-		case CACU_MATH:
-			return new math_op(blob_);
+		case CACU_MATH_ADD:
+			return new add_op(blob_);
+		case CACU_MATH_SUB:
+			return new sub_op(blob_);
+		case CACU_MATH_AXPBY:
+			return new axpby_op(blob_, o_args_);
+		case CACU_MATH_SCALEX:
+			return new scalex_op(blob_, o_args_);
 		case CACU_DILATED_CONVOLUTION:
 			return new dilated_convolution_op(blob_, d_args_);
 		case CACU_COMBINATION:
@@ -206,6 +214,10 @@ public:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 							blob_->size());
 					return new tanh_op(blob_);
+				case CACU_ELU:
+					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
+							blob_->size());
+					return new elu_op(blob_, o_args_);
 				case CACU_SELU:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 							blob_->size());
@@ -222,10 +234,22 @@ public:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 							blob_->size());
 					return new primary_vector_op(blob_, d_args_);
-				case CACU_MATH:
-					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
+				case CACU_MATH_ADD:
+					CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
 						blob_->size());
-					return new math_op(blob_);
+					return new add_op(blob_);
+				case CACU_MATH_SUB:
+					CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
+						blob_->size());
+					return new sub_op(blob_);
+				case CACU_MATH_AXPBY:
+					CHECK_EQ_OP(blob_->size(), 2, "blobs size must == 2 vs %d",
+						blob_->size());
+					return new axpby_op(blob_, o_args_);
+				case CACU_MATH_SCALEX:
+					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 2 vs %d",
+						blob_->size());
+					return new scalex_op(blob_, o_args_);
 				case CACU_DILATED_CONVOLUTION:
 					CHECK_EQ_OP(blob_->size(), 1, "blobs size must == 1 vs %d",
 							blob_->size());

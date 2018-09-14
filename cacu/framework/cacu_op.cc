@@ -29,42 +29,40 @@
 
 namespace cacu {
 
-cacu_op::cacu_op(op_name op_type_)
+cacu_op::cacu_op(op_name op_type_, phase_type phase_)
 {
 	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_op = operator_factory::create_op(op_type_, _s_datas, NULL, NULL);
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1,1,1,1,0,phase_,false));
+	_op = operator_factory::create_op(op_type_, s_datas_, NULL, NULL);
 	_in_ops = new vector<cacu_op*>();
 	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
 }
 
-cacu_op::cacu_op(op_name op_type_, op_args *args_)
+cacu_op::cacu_op(op_name op_type_, op_args *args_, phase_type phase_)
 {
 	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_op = operator_factory::create_op(op_type_, _s_datas, NULL, args_);
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1,1,1,1,0,phase_,false));
+	_op = operator_factory::create_op(op_type_, s_datas_, NULL, args_);
 	_in_ops = new vector<cacu_op*>();
 	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
 }
 
-cacu_op::cacu_op(op_name op_type_, blob_base *s_data_, op_args *args_)
+cacu_op::cacu_op(op_name op_type_, data_args *args_, phase_type phase_)
 {
 	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_s_datas->push_back(s_data_);
-	_op = operator_factory::create_op(op_type_, _s_datas, NULL, args_);
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1,1,1,1,0,phase_,false));
+	_op = operator_factory::create_op(op_type_, s_datas_, args_, NULL);
 	_in_ops = new vector<cacu_op*>();
 	_out_ops = new vector<cacu_op*>();
-}
-
-cacu_op::cacu_op(op_name op_type_, blob_base *s_data_, data_args *args_)
-{
-	_op_type = op_type_;
-	blobs *_s_datas = new blobs();
-	_s_datas->push_back(s_data_);
-	_op = operator_factory::create_op(op_type_, _s_datas, args_, NULL);
-	_in_ops = new vector<cacu_op*>();
-	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
 }
 
 /*
@@ -79,8 +77,47 @@ cacu_op::~cacu_op()
 	_out_ops = NULL;
 	delete _op;
 	_op = NULL;
+	delete _out_datas;
+	_out_datas = NULL;
 }
 
+
+/**
+ * default data blob is [0]
+ */
+blobs *cacu_op::forward(blobs *&datas_)
+{
+	/*
+	 * fix op output blob body
+	 */
+	blob_base *sblob_op = _op->in_datas()->at(0);
+	blob_base *sblob_ = datas_->at(0);
+	if (!sblob_->body()->check_body(sblob_op->body())) {
+		sblob_op->body()->copy_from(sblob_->body());
+		_op->initial();
+	}
+	//reset the data's values
+	_op->LOOP_INIT_DATA_();
+	//if op alloc the output space, resize out data
+	if(_op->is_alloc_output()){
+		_out_datas->resize(_op->out_data<blob>()->body());
+		_out_datas->_RESET_DATA();
+	}
+	//if op don't need to alloc output space, just confirm the output size;
+	else{
+		_out_datas = datas_;
+	}
+	//need reverse propagate, here to storage the input data
+	_op->op(datas_, _out_datas);
+	_in_datas = datas_;
+	return _out_datas;
+}
+
+void cacu_op::backward()
+{
+	if(_phase == train)
+		_op->grad(_in_datas, _out_datas);
+}
 
 
 }

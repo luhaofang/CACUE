@@ -25,53 +25,59 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BLOB_DEFINITION_H_
-#define BLOB_DEFINITION_H_
+#ifndef SCALEX_OP_HPP_
+#define SCALEX_OP_HPP_
 
-namespace cacu{
+namespace cacu {
 
-#ifndef __BLOBMAXREC__
-#define __BLOBMAXREC__ 0XFFFFFFFF
-#endif
+	class scalex_op : public math_op {
 
-/**
- * blob type definition, every blob_base maintains a blob type in order to turn back
- * original data maintaining type.
- */
-enum blob_type{
-	__blob__,
-	__bin_blob__,
-	__em_blob__,
-	__em_bin_blob__
-};
+	public:
 
+		scalex_op(blobs *&data, op_args *&args_) :
+			math_op(data, args_, CACU_MATH_SCALEX) {
+		}
 
-/**
- * definition of weights parameter initialization type.
- */
-enum param_init_type {
-	constant = 10,
-	xavier = 11,
-	gaussian = 12,
-	msra = 13,
-	uniform = 14
-};
+		~scalex_op() {
+		}
 
-/**
- * blob/network running mode.
- */
-enum phase_type {
-	test = 20,
-	train = 21
-};
+		void initial() override {
+			if (o_blobs == NULL){
+				o_blobs = s_blobs;
+			}
+			else
+				o_blobs->_NEED_MOTIFY();
+		}
 
-typedef struct{
-		int x;
-		int y;
-		int z;
-}spatial3D;
+		void check() override {
+			if(_o_args == NULL)
+				LOG_FATAL("scalex op args cannot equal to NULL!");
+			//parameter a, b
+			CHECK_EQ_OP(_o_args->size(), 1, "scalex parameter must == 1 vs %d",
+					_o_args->size());
+			CHECK_EQ_OP(s_blobs->size(), 1, "sblobs size must == 1 vs %d",
+					s_blobs->size());
+		}
 
+		void op(blobs *s_blobs_,blobs *o_blobs_) override {
+
+			o_blobs_ = s_blobs_;
+
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
+			cacu_scalex(s_blob_->s_data(), _o_args->at(0), s_blob_->count());
+		}
+
+		void grad(blobs *s_blobs_,blobs *o_blobs_) override {
+
+			o_blobs_ = s_blobs_;
+
+			blob *s_blob_ = (blob*)s_blobs_->at(0);
+			cacu_scalex(s_blob_->s_diff(), _o_args->at(0), s_blob_->count());
+		}
+
+	};
 
 }
+
 
 #endif

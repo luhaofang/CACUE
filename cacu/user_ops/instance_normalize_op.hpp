@@ -43,7 +43,7 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
 			o_blobs = create_oblobs();
@@ -62,10 +62,8 @@ public:
 			o_blobs = create_oblobs();
 			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 			//save for train
-			if(train == _phase)
 			_x = create_opblob(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), s_blobs->at(0)->width(), s_blobs->at(0)->height(), test);
-			else
-			_x = NULL;
+
 			_dim_sum = create_opblob(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), 1, 1, test);
 #endif
 			_moving_scalar = create_opblob(1, 1, 1, 1, test);
@@ -80,8 +78,8 @@ public:
 			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
 				s_blobs->at(0)->height());
 			//save for train
-			if (_x != NULL)
-				_x->resize(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), s_blobs->at(0)->width(),
+
+			_x->resize(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), s_blobs->at(0)->width(),
 						s_blobs->at(0)->height());
 
 			_dim_sum->resize(s_blobs->at(0)->channel(), s_blobs->at(0)->num(), 1, 1);
@@ -93,11 +91,10 @@ public:
 		}
 	}
 
-	void init_weights()  {
+	void init_weights() override {
 		_scale = create_param("scale", s_blobs->at(0)->num(), 1, 1, 1, _phase);
 		_scale->set_init_type(constant, 1);
 		_shift = create_param("shift", s_blobs->at(0)->num(), 1, 1, 1, _phase);
-		_shift->set_lr(2);
 
 		_mean = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
 		_var = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
@@ -108,11 +105,13 @@ public:
 		_std = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
 	}
 
-	void check()  {
-		return;
+	void check() override {
+		//if phase is test, use global stat!
+		if(_phase == test && use_global_stats == false)
+			LOG_WARNING("IN use_global_stats set to \'false\' at test phase!");
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -308,7 +307,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blob;
@@ -393,7 +392,7 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
+	void load(std::ifstream& is) override {
 
 		_history_mean->load(is);
 		//_history_mean->set_data(0);
@@ -407,7 +406,7 @@ public:
 		_shift->load(is);
 	}
 
-	void save(std::ostream& os)  {
+	void save(std::ostream& os) override {
 
 		_history_mean->serializa(os);
 		_history_var->serializa(os);
@@ -416,7 +415,7 @@ public:
 		_shift->serializa(os);
 	}
 
-	void echo()
+	void echo() override
 	{
 		LOG_INFO("create instance_normalize op:");
 		LOG_INFO(
@@ -453,7 +452,7 @@ public:
 
 	float_t epsilon = 0.00001;
 
-	inline void set_phase(phase_type phase_)  {
+	inline void set_phase(phase_type phase_) {
 		_phase = phase_;
 		if(_scale->update()){
 			if (train == _phase)

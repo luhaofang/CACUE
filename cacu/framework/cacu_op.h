@@ -38,13 +38,14 @@ class cacu_op {
 
 public:
 
-	cacu_op(op_name op_type_);
+	/*
+	 * cacu_op every operator contains the output space, including relu, dropout etc.
+	 */
+	cacu_op(op_name op_type_, phase_type phase);
 
-	cacu_op(op_name op_type_, op_args *args_);
+	cacu_op(op_name op_type_, op_args *args_, phase_type phase);
 
-	cacu_op(op_name op_type_, blob_base *s_data_, op_args *args_);
-
-	cacu_op(op_name op_type_, blob_base *s_data_, data_args *args_);
+	cacu_op(op_name op_type_, data_args *args_, phase_type phase);
 
 	~cacu_op();
 
@@ -61,21 +62,17 @@ public:
 		}
 	}
 
-	inline weight *get_param(int i)
-	{
+	inline weight *&get_param(int i) const {
 		CHECK_LT_OP(i,_op->weights_size(),"parameter index is out of range %d vs %d!", i, _op->weights_size());
 		return _op->get_weight(i);
 	}
 
-	inline void forward(blobs *datas_)
-	{
+	/**
+	 * default data blob is [0]
+	 */
+	blobs *forward(blobs *&datas_);
 
-	}
-
-	inline void backward()
-	{
-		_op->derivative();
-	}
+	void backward();
 
 	inline void push2ins(cacu_op *op_)
 	{
@@ -87,17 +84,36 @@ public:
 		_out_ops->push_back(op_);
 	}
 
+	inline blobs *&out_datas() {
+		return _out_datas;
+	}
+
+	inline blobs *&in_datas() {
+		return _in_datas;
+	}
+
+	//serialize calculation graphic node
+	void serialize_node();
+
 private:
 
 	op_name _op_type;
 
 	vector<cacu_op*> *_in_ops = NULL;
 
+	//data maintained here
 	blobs *_out_datas = NULL;
+
+	//temp in_data blobs
+	blobs *_in_datas = NULL;
 
 	vector<cacu_op*> *_out_ops = NULL;
 
 	operator_base *_op;
+
+	phase_type _phase;
+
+	void init_outdatas();
 
 };
 

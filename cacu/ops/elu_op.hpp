@@ -25,117 +25,89 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ROI_POOLING_OP_HPP_
-#define ROI_POOLING_OP_HPP_
+#ifndef ELU_OP_HPP_
+#define ELU_OP_HPP_
 
 namespace cacu {
 
-class roi_pooling_op: public operator_base {
+class elu_op: public activate_base_op {
 
 public:
 
-	roi_pooling_op(blobs *&data, op_args *&o_args_) :
-			operator_base(data, o_args_, CACU_ROI_POOLING) {
+	elu_op(blobs *&data, op_args *&args_) :
+		activate_base_op(data, args_, CACU_ELU) {
 		_INIT_OP();
 	}
 
-	~roi_pooling_op() {
+	~elu_op() {
 
 	}
 
 	void initial() override {
-
-		int input_dim = s_blobs->at(0)->width();
-		int channel = s_blobs->at(0)->channel();
-		int num = s_blobs->at(0)->num();
-		int output_dim = (input_dim - _args->kernel_size()) / _args->stride()
-				+ 1;
-		int pad = abs(
-				input_dim - (output_dim - 1) * _args->stride()
-						- _args->kernel_size());
-		if (pad != 0)
-			output_dim += 1;
 		if (o_blobs == NULL) {
 #if __USEMBEDDING__ == ON
-			o+blobs = create_em_blobs();
-			o_blobs->push_back(create_em_oblob(num, channel, output_dim, output_dim,
-					_phase));
+			o_blobs = create_em_oblobs();
+			o_blobs->push_back(create_em_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 #else
 			o_blobs = create_oblobs();
-			o_blobs->push_back(create_oblob(num, channel, output_dim, output_dim, _phase));
+			o_blobs->push_back(create_oblob(s_blobs->at(0)->num(), s_blobs->at(0)->channel(),
+					s_blobs->at(0)->width(), s_blobs->at(0)->height(), _phase));
 #endif
 		} else {
-			o_blobs->at(0)->resize(num, channel, output_dim, output_dim);
+			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), s_blobs->at(0)->width(),
+								s_blobs->at(0)->height());
 		}
-	}
-
-	void init_weights() override {
-		return;
 	}
 
 	void check() override {
 		if(_o_args == NULL)
-			LOG_FATAL("roipooling op args cannot equal to NULL!");
-		int ph = _o_args->at(0);
-		int pw = _o_args->at(1);
-		int spatial_scale = _o_args->at(2);
-		//kernel_size > 0
-		CHECK_GT_OP(ph, 0, "pool_h must > 0 vs %d",
-				ph);
-		CHECK_GT_OP(pw, 0, "pool_w must > 0 vs %d",
-				pw);
-		CHECK_GT_OP(spatial_scale, 0, "spatial_scale must > 0 vs %d",
-				spatial_scale);
+			LOG_FATAL("elu op args cannot equal to NULL!");
+		//negative_slope > 0
+		CHECK_GT_OP(_o_args->at(0), 0, "alpha must > 0 vs %d",
+				_o_args->at(0));
 	}
 
 	void op(blobs *s_blobs_,blobs *o_blobs_) override {
+
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
 		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
 
+		cacu_elu_cpu(s_blob_->s_data(), o_blob_->count(), _o_args->at(0), o_blob_->s_data());
+		cacu_scalex_cpu(o_blob_->s_data(), o_blob_->count(), _lamda);
 #else
 		blob *o_blob_ = (blob*)o_blobs_->at(0);
 		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
-#endif
+		cacu_elu(s_blob_->s_data(), o_blob_->count(), _o_args->at(0), o_blob_->s_data());
 
+#endif
 	}
 
 	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
-		em_blob *o_blob_ = (em_blob*) o_blob;
-		em_blob *s_blob_ = (em_blob*) s_blob;
+		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
+		em_blob *s_blob_ = (em_blob*) s_blobs->at(0);
+
+		cacu_elu_grad_cpu(s_blob_->s_data(), s_blob_->s_diff(), o_blob_->count(), _o_args->at(0), o_blob_->s_data(), o_blob_->s_diff());
 
 #else
 		blob *o_blob_ = (blob*)o_blobs_->at(0);
 		blob *s_blob_ = (blob*)s_blobs_->at(0);
 
+		cacu_elu_grad(s_blob_->s_data(), s_blob_->s_diff(), o_blob_->count(), _o_args->at(0), o_blob_->s_data(), o_blob_->s_diff());
 #endif
 	}
 
-	void load(std::ifstream& is) override {
-		return;
-	}
-
-	void save(std::ostream& os) override {
-		return;
-	}
-
 	void echo() override {
-		LOG_INFO("create max_pooling op:");
+		LOG_INFO("create elu op:");
 		LOG_INFO(
-				"channel: %d, input_dim: %d, output_channel: %d, output_dim: %d, kenrel_size: %d, stride: %d, pad: %d",
-				s_blobs->at(0)->channel(), s_blobs->at(0)->height(), o_blobs->at(0)->channel(),
-				o_blobs->at(0)->height(), _args->kernel_size(), _args->stride(),
-				_args->pad());
+				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
-
-
-private:
-
-
-
 
 };
 }

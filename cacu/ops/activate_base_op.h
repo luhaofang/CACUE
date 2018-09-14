@@ -25,28 +25,47 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CACU_H_
-#define CACU_H_
+#ifndef ACTIVATE_BASE_OP_H_
+#define ACTIVATE_BASE_OP_H_
 
+namespace cacu {
 
-#include "definition.h"
+class activate_base_op: public operator_base {
 
-#include "config.h"
+public:
 
-#include "utils/log.h"
-#include "utils/check_utils.h"
+	activate_base_op(blobs *&data, op_name type_) :
+			operator_base(data, type_) {
+	}
 
-#include "tensor/cuda/cuda_log.h"
-#include "tensor/cuda/cuda_utils.h"
+	activate_base_op(blobs *&data, op_args *&_args, op_name type_) :
+			operator_base(data, _args, type_) {
+	}
 
-//*/
-#include "math/math.h"
-#include "framework/framework.h"
-#include "math/math.h"
-#include "ops/operators.h"
-#include "solvers/solvers.h"
-//*/
+	~activate_base_op() {
 
+	}
+
+	void check() override {
+		return;
+	}
+
+	void init_weights() override {
+		return;
+	}
+
+	void load(std::ifstream& is) override {
+		return;
+	}
+
+	void save(std::ostream& os) override {
+		return;
+	}
+
+protected:
+
+};
+}
 
 
 #endif

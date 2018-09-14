@@ -117,9 +117,9 @@ void blob::output_bin(chars_t path_)
 	if (!os)
 		LOG_FATAL("file %s cannot be opened!", path_.c_str());
 #if __USE_DEVICE__ == ON
-	vec_t _v(_length);
-	device_copy2host(&_v[0], (float_t*)_s_data, _length);
-	for (int i = 0; i < _length; ++i) {
+	vec_t _v(count());
+	device_copy2host(&_v[0], (float_t*)_s_data, count());
+	for (int i = 0; i < count(); ++i) {
 			os.write((char*) (&_v[i]), sizeof(cacu::float_t));
 		}
 #else
@@ -137,11 +137,11 @@ void blob::input_bin(chars_t path_, int n)
 	if (!is)
 		LOG_FATAL("file %s cannot be opened!", path_.c_str());
 #if __USE_DEVICE__ == ON
-	vec_t _v(_cube_length);
-	for (int i = 0; i < _cube_length; i++) {
+	vec_t _v(length());
+	for (int i = 0; i < length(); i++) {
 		is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
 	}
-	device_copy2dev(p_data(n), &_v[0], _cube_length);
+	device_copy2dev(p_data(n), &_v[0], length());
 #else
 	for (int i = 0; i < length(); i++) {
 		is.read(reinterpret_cast<char*>(p_data(n) + i), sizeof(float_t));
@@ -158,7 +158,7 @@ void blob::load_from(chars_t path_)
 		LOG_FATAL("file %s cannot be opened!", path_.c_str());
 	string line = "";
 #if __USE_DEVICE__ == ON
-	vec_t _v(_length);
+	vec_t _v(count());
 	
 	int i= 0;
 	while(getline(is, line))
@@ -166,7 +166,7 @@ void blob::load_from(chars_t path_)
 		_v[i] = strtof(line.c_str(), NULL);
 		i+=1;
 	}
-	device_copy2dev(s_data(), &_v[0], _length);
+	device_copy2dev(s_data(), &_v[0], count());
 #else
 	int i= 0;
 	while(getline(is, line))
@@ -216,7 +216,7 @@ void blob::set_init_type(param_init_type type, float_t value) {
 		for (int i = 0; i < count(); ++i)
 			w[i] = gaussrand(value);
 		break;
-	case evenly:
+	case uniform:
 		for (int i = 0; i < count(); ++i)
 			w[i] = urand(-value, value);
 		break;
@@ -231,14 +231,14 @@ void blob::switch_channel()
 {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	vec_t temp(_length);
-	cuda_copy2host(&temp[0],s_data(),_length);
-	cacu_transpose(&temp[0], _num, _channel, _channel_length);
-	cuda_copy2dev(s_data(),&temp[0],_length);
+	vec_t temp(count());
+	cuda_copy2host(&temp[0],s_data(),count());
+	cacu_transpose(&temp[0],num(), channel(), channel_length());
+	cuda_copy2dev(s_data(),&temp[0],count());
 	if(_phase == train){
-		cuda_copy2host(&temp[0],s_diff(),_length);
-		cacu_transpose(&temp[0], _num, _channel, _channel_length);
-		cuda_copy2dev(s_diff(),&temp[0],_length);
+		cuda_copy2host(&temp[0],s_diff(),count());
+		cacu_transpose(&temp[0], num(), channel(), channel_length());
+		cuda_copy2dev(s_diff(),&temp[0],count());
 	}
 #endif
 #else

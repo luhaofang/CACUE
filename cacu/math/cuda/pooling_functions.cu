@@ -369,7 +369,7 @@ extern "C" void cacu_average_pooling_grad_cuda(const float_t *x,
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_size,
+__global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_w, const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y) {
@@ -379,7 +379,7 @@ __global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_size
 	int k_row, k_col, c;
 
 	int cin_length = input_w * input_h;
-	int kernel_length = kernel_size * kernel_size;
+	int kernel_length = kernel_w * kernel_h;
 	int block_size = channel * kernel_length;
 	int output_size = output_w * output_h;
 	int in_w, in_h, out_w, out_h;
@@ -392,8 +392,8 @@ __global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_size
 		for (int i = tid; i < block_size; i += THREADNUM)
 		{
 			if (kernel_size != 1) {
-				k_row = (i % kernel_length) / kernel_size;
-				k_col = (i % kernel_length) % kernel_size;
+				k_row = (i % kernel_length) / kernel_w;
+				k_col = (i % kernel_length) % kernel_w;
 			} else {
 				k_row = 0;
 				k_col = 0;
@@ -411,11 +411,11 @@ __global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_size
 	}
 }
 
-extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_size,
+extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_w, const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y) {
-	_k_CACU_IMG2COL_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
+	_k_CACU_IMG2COL_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_w, kernel_h, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
@@ -476,10 +476,11 @@ extern "C" void cacu_img2col_pad_dilated_cuda(const float_t *x, const int kernel
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 
-__global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_size,
+__global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_w, const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y) {
+		
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
 
@@ -535,12 +536,12 @@ __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_size
 			count_j = 0;
 
 			while (outset_si - (count_i + 1) >= 0
-					&& ((outset_si - (count_i + 1)) * stride) + kernel_size - 1
+					&& ((outset_si - (count_i + 1)) * stride) + kernel_h - 1
 							>= startset_i) {
 				count_i++;
 			}
 			while (outset_sj - (count_j + 1) >= 0
-					&& ((outset_sj - (count_j + 1)) * stride) + kernel_size - 1
+					&& ((outset_sj - (count_j + 1)) * stride) + kernel_w - 1
 							>= startset_j) {
 				count_j++;
 			}
@@ -551,9 +552,9 @@ __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_size
 					outset_i = outset_si - mi;
 					outset_j = outset_sj - mj;
 
-					k_index = ((startset_i - outset_i * stride) * kernel_size
+					k_index = ((startset_i - outset_i * stride) * kernel_w
 							+ (startset_j - outset_j * stride))
-							+ c * kernel_size * kernel_size;
+							+ c * kernel_w * kernel_h;
 					outset_index = (outset_i * output_w + outset_j);
 
 					y[inset_index] += x[outset_index + k_index * output_size];
@@ -562,11 +563,11 @@ __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_size
 	}
 }
 
-extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_size,
+extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_w, const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y) {
-	_k_CACU_COL2IMG_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
+	_k_CACU_COL2IMG_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_w, kernel_h, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
 	CUDA_CHECK(cudaThreadSynchronize());
 }

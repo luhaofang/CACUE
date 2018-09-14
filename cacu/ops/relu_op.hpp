@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class relu_op: public operator_base {
+class relu_op: public activate_base_op {
 
 public:
 
 	relu_op(blobs *&data) :
-			operator_base(data, CACU_RELU) {
+			activate_base_op(data, CACU_RELU) {
 		_INIT_OP();
 	}
 
@@ -43,22 +43,14 @@ public:
 
 	}
 
-	void initial()  {
+	void initial() override {
 		if (o_blobs == NULL)
 			o_blobs = s_blobs;
 		else
 			o_blobs->_NEED_MOTIFY();
 	}
 
-	void init_weights()  {
-		return;
-	}
-
-	void check()  {
-		return;
-	}
-
-	void op(blobs *s_blobs_,blobs *o_blobs_)  {
+	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -74,7 +66,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_)  {
+	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -93,15 +85,7 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is)  {
-		return;
-	}
-
-	void save(std::ostream& os)  {
-		return;
-	}
-
-	void echo()  {
+	void echo() override {
 		LOG_INFO("create relu op:");
 		LOG_INFO(
 				"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
@@ -109,9 +93,6 @@ public:
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 	}
 
-	inline void set_phase(phase_type phase_)  {
-		_phase = phase_;
-	}
 
 private:
 

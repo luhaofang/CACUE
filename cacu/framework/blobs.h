@@ -46,28 +46,35 @@ public:
 
 	}
 
+	blobs(blob_base *&blob_a, blob_base *&blob_b) {
+		this->push_back(blob_a);
+		this->push_back(blob_b);
+	}
+
 	~blobs() {
 		for (unsigned i = 0; i < size(); ++i) {
-			switch (at(i)->_TYPE()) {
-			case __blob__:
-				delete (blob*) at(i);
-				at(i) = NULL;
-				break;
-			case __bin_blob__:
-				delete (bin_blob*) at(i);
-				at(i) = NULL;
-				break;
-				/*
-				 case __em_blob__:
-				 delete (em_blob*) at(i);
-				 break;
-				 case __em_bin_blob__:
-				 delete (em_bin_blob*) at(i);
-				 break;
-				 */
-			default:
-				LOG_FATAL("can't identify the type!");
-				break;
+			if(at(i) != NULL){
+				switch (at(i)->_TYPE()) {
+				case __blob__:
+					delete (blob*) at(i);
+					at(i) = NULL;
+					break;
+				case __bin_blob__:
+					delete (bin_blob*) at(i);
+					at(i) = NULL;
+					break;
+					/*
+					 case __em_blob__:
+					 delete (em_blob*) at(i);
+					 break;
+					 case __em_bin_blob__:
+					 delete (em_bin_blob*) at(i);
+					 break;
+					 */
+				default:
+					LOG_FATAL("can't identify the type!");
+					break;
+				}
 			}
 		}
 	}
@@ -136,6 +143,41 @@ public:
 	template<typename BTYPE>
 	inline BTYPE*& astype(int i) const {
 		return (BTYPE *&)at(i);
+	}
+
+	inline void resize(blob_body * body_)
+	{
+		for(int i = 0 ; i< this->size(); ++i)
+			at(i)->resize(body_->_num, body_->_channel, body_->_width, body_->_height);
+	}
+
+	blobs* copy_create()
+	{
+		blobs* datas = new blobs();
+		for(int i = 0 ; i< this->size(); ++i)
+		{
+			switch (at(i)->_TYPE()) {
+			case __blob__:
+				datas->push_back(new blob(at(i)->num(),at(i)->channel(),at(i)->width(),at(i)->height(),0,at(i)->phase()));
+				break;
+			case __bin_blob__:
+				datas->push_back(new bin_blob(at(i)->num(),at(i)->channel(),at(i)->width(),at(i)->height(),0,at(i)->phase()));
+				break;
+				/*
+				 case __em_blob__:
+				 delete (em_blob*) at(i);
+				 break;
+				 case __em_bin_blob__:
+				 delete (em_bin_blob*) at(i);
+				 break;
+				 */
+			default:
+				LOG_FATAL("can't identify the type!");
+				break;
+			}
+
+		}
+		return datas;
 	}
 
 };
