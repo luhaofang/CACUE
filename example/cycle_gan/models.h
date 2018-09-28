@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace cacu;
 
-layer_block* conv_block_cycleGAN_l(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = true)
+layer_block* conv_block_cycleGAN_l(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
@@ -54,7 +54,7 @@ layer_block* conv_block_cycleGAN_l(blob_base* data,int output_channel, int kerne
 	return lb;
 }
 
-layer_block* conv_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = true)
+layer_block* conv_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
@@ -69,7 +69,7 @@ layer_block* conv_block_cycleGAN(blob_base* data,int output_channel, int kernel_
 	return lb;
 }
 
-layer_block* deconv_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = true)
+layer_block* deconv_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
 	clock_t start = clock();
@@ -84,7 +84,7 @@ layer_block* deconv_block_cycleGAN(blob_base* data,int output_channel, int kerne
 	return lb;
 }
 
-layer_block* residual_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = true)
+layer_block* residual_block_cycleGAN(blob_base* data,int output_channel, int kernel_size, int stride,int pad, bool usebias = false)
 {
 	layer_block *lb = new layer_block();
 
@@ -181,6 +181,7 @@ layer_block* create_generator_cycleGan(int batch_size, int dim, phase_type phase
 	layer *conv = new layer(new data_args(3, 7, 1, 3, dim));
 	conv->op(CACU_CONVOLUTION, generator->get_oblob())->op(CACU_TANH);
 	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian, 0.02);
+	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	*generator << conv;
 
@@ -192,12 +193,13 @@ layer_block* create_discriminator_cycleGan(int batch_size, int dim, phase_type p
 {
 
 	blob *blob_= new blob(batch_size,3,256,256,0,phase_);
-	bin_blob *label_ = new bin_blob(batch_size,1,32,32,0,phase_);
+	bin_blob *label_ = new bin_blob(batch_size,1,30,30,0,phase_);
 	layer_block *discriminator = new layer_block();
 
 	layer *conv1 = new layer(new data_args(dim, 4, 2, 1, blob_->channel()));
 	conv1->op(CACU_CONVOLUTION,blob_)->op(CACU_LEAKY_RELU, new op_args(0.2));
 	conv1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian, 0.02);
+	conv1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	*discriminator << conv1;
 
@@ -205,15 +207,16 @@ layer_block* create_discriminator_cycleGan(int batch_size, int dim, phase_type p
 
 	*discriminator << conv_block_cycleGAN_l(discriminator->get_oblob(), dim*4, 4, 2, 1);
 
-	*discriminator << conv_block_cycleGAN_l(discriminator->get_oblob(), dim*8, 3, 1, 1);
+	*discriminator << conv_block_cycleGAN_l(discriminator->get_oblob(), dim*8, 4, 1, 1);
 
-	layer *conv = new layer(new data_args(1, 3, 1, 1, discriminator->get_oblob()->channel()));
+	layer *conv = new layer(new data_args(1, 4, 1, 1, discriminator->get_oblob()->channel()));
 	conv->op(CACU_CONVOLUTION,discriminator->get_oblob());//->op(CACU_SIGMOID);
 	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian, 0.02);
+	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
 
 	*discriminator << conv;
 
-	*discriminator << mse_loss_cycleGAN(conv->get_oblob(), label_);
+	*discriminator << sigmoid_loss_cycleGAN(conv->get_oblob(), label_);
 
 	return discriminator;
 }

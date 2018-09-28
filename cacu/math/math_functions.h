@@ -31,6 +31,7 @@
 #include <string>
 #include "math_definition.h"
 
+//#include "../config.h"
 
 #include "cuda/math_functions_cuda.h"
 #include "blas/math_function_oblas.h"

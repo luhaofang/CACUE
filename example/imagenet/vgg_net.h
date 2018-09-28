@@ -69,7 +69,7 @@ layer_block* vgg_fc(blob_base* data, int output_channel, int kernel_size = 0, in
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
 		layer *l = new layer(new data_args(output_channel,0,0,0,0));
-		l->op(CACU_INNERPRODUCT, data)->op(activation_op)->op(CACU_DROPOUT);
+		l->op(CACU_INNERPRODUCT, data)->op(activation_op)->op(CACU_DROPOUT, new op_args(0.5));
 		clock_t end = clock();
 		*lb << l;
 		return lb;

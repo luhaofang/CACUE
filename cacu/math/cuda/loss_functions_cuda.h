@@ -28,19 +28,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LOSS_FUNCTIONS_CUDA_H_
 #define LOSS_FUNCTIONS_CUDA_H_
 
-#include "../../config.h"
+//#include "../../config.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"
 
 namespace cacu{
 
-/**
- * for cross entropy use loss functions in cuda
- */
-extern "C" void cacu_cross_entropy_cuda(float_t *x, int num, int length,const int *label_, float_t *loss_);
 
 extern "C" void cacu_cross_entropy_multi_cuda(float_t *x, const int num, const int channel, const int width, const int height,
 		const int *label_, float_t *loss_);

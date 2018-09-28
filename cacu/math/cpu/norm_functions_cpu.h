@@ -32,34 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace mycnn{
 
-	/**
-	 * @cacu_cross_entropy
-	 * loss += -log(p(x)):
-	 * for loss use cross entropy functions.
-	 */
-	inline void cacu_norm_l1_cpu(cacu::float_t *x, int channel_length, int length, cacu::float_t *y)
-	{
-
-#if __OPENMP__ == ON
-		#pragma omp parallel for default(shared) private(n,xp)
-#endif
-
-	}
-
-	/**
-	 * @cacu_cross_entropy
-	 * loss += -log(p(x)):
-	 * for loss use cross entropy functions.
-	 */
-	inline void cacu_norm_l2_cpu(cacu::float_t *x, int channel_length, int length, cacu::float_t *y)
-	{
-
-#if __OPENMP__ == ON
-		#pragma omp parallel for default(shared) private(n,xp)
-#endif
-
-	}
-
 
 };
 

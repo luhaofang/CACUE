@@ -25,61 +25,17 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../../config.h"
 
-#ifdef __PARALLELTYPE__
-#if __PARALLELTYPE__ == __CUDA__
-
-#include "../../definition.h"
-#include "../../tensor/cuda/cuda_log.h"
-
-namespace cacu{
-
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *input_dim: width of input data
- *output_dim: width of output data
- */
-__global__ void _k_CACU_NORM_L1_CUDA(float_t *x, int num, int length, unsigned int *label_, float_t *loss_) {
-
-	int tid = threadIdx.x;
-
-	extern __shared__ float_t shared_data[];
-
-	float_t *xp;
-
-	shared_data[tid] = 0;
-
-	for (int i = tid; i < num; i+=THREADNUM)
-	{
-		xp = x + i * length;
-		shared_data[tid] -= log(xp[label_[i]]);
-	}
-
-	__syncthreads();
-
-	int acc_length = THREADNUM / 2;
-	while(acc_length > 0){
-		if(tid < acc_length)
-			shared_data[tid] += shared_data[tid + acc_length];
-		acc_length /= 2;
-		__syncthreads();
-	}
-
-	if(tid == 0)
-		loss_[0] += shared_data[0];
-}
+#ifndef TOOLS_IOUTILS_H_
+#define TOOLS_IOUTILS_H_
 
 
-extern "C" void cacu_norm_l1_cuda(float_t *x, int num, int length, unsigned int *label_, float_t *loss_){
 
-	_k_CACU_NORM_L1_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, num, length, label_,loss_);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
+namespace cacu_tools{
 
 }
 
-#endif
-#endif
 
+
+
+#endif /* TOOLS_IOUTILS_H_ */

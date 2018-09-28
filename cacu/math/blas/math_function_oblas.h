@@ -28,7 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MATH_FUNCTION_OBLAS_H_
 #define MATH_FUNCTION_OBLAS_H_
 
-#ifdef __CBLASTYPE__
+#include "../../config.h"
+
 #if __CBLASTYPE__ == __OPENBLAS__
 
 #include <cblas.h>
@@ -74,4 +75,3 @@ inline void cacu_copy_oblas(float *x, const int x_length,float *y)
 #endif
 #endif
 
-#endif

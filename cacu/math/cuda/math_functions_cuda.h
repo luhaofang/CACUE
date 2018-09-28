@@ -28,10 +28,9 @@
 #ifndef MATH_FUNCTIONS_CUDA_H_
 #define MATH_FUNCTIONS_CUDA_H_
 
-
 #include "../../config.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 namespace cacu{

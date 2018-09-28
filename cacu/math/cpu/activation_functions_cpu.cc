@@ -27,6 +27,8 @@
 
 #include "activation_functions_cpu.h"
 
+#include "../../config.h"
+
 namespace cacu {
 
 /**

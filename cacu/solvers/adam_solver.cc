@@ -95,7 +95,8 @@ void adam_solver::update_weight(weight *&w_, int weight_index_, int step_) {
 void adam_solver::load_param(chars_t config_)
 {
 
-	ifstream is = ifstream(config_);
+	ifstream is;
+	is.open(config_, ios::in);
 	is.precision(numeric_limits<float>::digits10);
 	if (!is)
 		LOG_FATAL("file %s cannot be opened!", config_.c_str());

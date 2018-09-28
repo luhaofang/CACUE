@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "loss_base_op.h"
 #include "activate_base_op.h"
 #include "conv_base_op.h"
+#include "pooling_base_op.h"
 #include "math_op.h"
 
 #include "inner_product_op.hpp"

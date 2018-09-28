@@ -29,29 +29,13 @@
 #define LOSS_FUNCTIONS_H_
 
 #include "math_definition.h"
-#include "../config.h"
+//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/loss_functions_cuda.h"
 #include "cpu/loss_functions_cpu.h"
 
 namespace cacu {
-
-/**
- * @cacu_cross_entropy
- * math x[i] = max(0,x[i]) :
- * for loss use cross entropy functions.
- */
-inline void cacu_cross_entropy(float_t *x, int num, int length,
-		const int *label_, float_t *loss_) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_cross_entropy_cuda(x, num, length, label_, loss_);
-#endif
-#else
-	cacu_cross_entropy_cpu(x, num, length, label_,loss_);
-#endif
-}
 
 /**
  * @cacu_cross_entropy

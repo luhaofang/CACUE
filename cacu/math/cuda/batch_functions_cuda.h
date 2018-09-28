@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../config.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"
@@ -161,8 +161,6 @@ extern "C" void cacu_ssx_cuda(const float_t *x, int length, float_t *y);
  * alloc data by group
  */
 extern "C" void cacu_group_alloc_cuda(int num, int channel, int channel_length, int group, float_t *y);
-
-
 
 /**
  * @cacu_group_combine

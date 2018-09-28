@@ -29,7 +29,7 @@
 #define NORM_FUNCTIONS_H_
 
 #include "math_definition.h"
-#include "../config.h"
+//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/norm_functions_cuda.h"

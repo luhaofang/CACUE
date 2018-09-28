@@ -28,12 +28,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MATH_FUNCTION_CUBLAS_H_
 #define MATH_FUNCTION_CUBLAS_H_
 
+#include "../../config.h"
 #include "cublas_utils.h"
 
-#if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
-#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+
+#include "cublas_v2.h"
 
 namespace cacu{
+
+//extern cublasHandle_t handle;
 
 inline void cacu_saxpy_cublas(float *x, const float a, float *y, const int length) {
 	CUBLAS_CHECK(cublasSaxpy_v2(handle, length, &a, x, 1, y, 1));

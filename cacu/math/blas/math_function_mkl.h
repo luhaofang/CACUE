@@ -27,7 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MATH_FUNCTION_MKL_H_
 #define MATH_FUNCTION_MKL_H_
 
-#ifdef __CBLASTYPE__
+#include "../../config.h"
+
 #if __CBLASTYPE__ == __MKL__
 
 #include <mkl.h>
@@ -71,6 +72,4 @@ inline void cacu_copy_mkl(float *x, const int x_length,float *y)
 }
 
 #endif
-#endif
-
 #endif

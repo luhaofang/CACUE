@@ -29,7 +29,7 @@
 #define ACTIVATION_FUNCTIONS_H_
 
 #include "math_definition.h"
-#include "../config.h"
+//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/activation_functions_cuda.h"

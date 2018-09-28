@@ -99,9 +99,11 @@ public:
 		_mean = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
 		_var = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
 
+		//DO NOT reset in loops
 		_history_mean = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, test);
+		_history_mean->set_variable(false);
 		_history_var = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, test);
-
+		_history_var->set_variable(false);
 		_std = create_opblob(s_blobs->at(0)->channel(), 1, 1, 1, _phase);
 	}
 
@@ -214,7 +216,7 @@ public:
 		blob *s_blob_ = (blob*)s_blobs_->at(0);
 		blob *dim_sum_ = (blob*)_dim_sum;
 		blob *x_ = (blob*)_x;
-
+		//cout << "bn:" << use_global_stats << endl;
 		//cacu_print(s_blob_->s_data(), 10);
 		float_t m = (float_t)s_blob_->num()*s_blob_->width()*s_blob_->height();
 		if(!use_global_stats){

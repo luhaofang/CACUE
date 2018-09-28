@@ -30,7 +30,7 @@
 
 #include "../../config.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"
@@ -70,7 +70,6 @@ extern "C" void cacu_prelu_grad_cuda(float_t *x, float_t *g,
  */
 extern "C" void cacu_softmax_cuda(float_t *x, const int num, const int channel,
 		const int width, const int height, float_t *y);
-
 
 /**
  * for activation use tanh functions in cuda
@@ -126,5 +125,5 @@ extern "C" void cacu_sigmoid_grad_cuda(float_t *x, float_t *g, int length,
 #endif
 #endif
 
-
 #endif
+

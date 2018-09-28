@@ -30,7 +30,7 @@
 
 #include "../../config.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"
@@ -112,14 +112,6 @@ extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y);
 
-extern "C" void cacu_row_max_pooling_cuda(float_t *x, int input_length,
-		int output_length, float_t *y);
-
-extern "C" void cacu_row_max_pooling_index_cuda(float_t *x, int input_length,
-		int output_length, float_t *y, int* index);
-
-extern "C" void cacu_row_max_pooling_grad_cuda(const float_t *x,
-		int output_length, float_t *y, const int* index);
 
 }
 

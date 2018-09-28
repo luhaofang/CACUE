@@ -30,17 +30,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../config.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"
 
 namespace cacu{
 
-/**
- * for cross entropy use loss functions in cuda
- */
-extern "C" void cacu_norm_l1_cuda(float_t *x, int num, int length,const unsigned int *label_, float_t *loss_);
 
 
 

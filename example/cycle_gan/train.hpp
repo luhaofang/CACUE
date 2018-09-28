@@ -1,3 +1,4 @@
+
 /*
  Copyright (c) 2016, David lu
  All rights reserved.
@@ -50,12 +51,12 @@ void train_net() {
 	int train_test_iter = 100;
 	int img_size = 256;
 
-	string root_path = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/";
-
+	//string root_path = "/Users/seallhf/Documents/datasets/cyclegan/datasets/horse2zebra/";
+	string root_path = "/data1/luhaofang/datasets/datasets/horse2zebra/";
 	//set gpu device if training by gpu
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(0);
+	cuda_set_device(5);
 #endif
 #endif
 	//set random seed
@@ -87,8 +88,8 @@ void train_net() {
 	network *ygnet = new network();
 	network *ydnet = new network();
 
-	layer_block *xgenerator = create_generator_cycleGan(batch_size, 32, train);
-	layer_block *ygenerator = create_generator_cycleGan(batch_size, 32, train);
+	layer_block *xgenerator = create_generator_cycleGan(batch_size, 64, train);
+	layer_block *ygenerator = create_generator_cycleGan(batch_size, 64, train);
 
 	/*
 	 * output of the generator
@@ -127,6 +128,7 @@ void train_net() {
 
 	float_t lamda_ = 10;
 	float_t idt_lamda_ = 0.5;
+	float_t lr = 0.0002;
 
 	abse_loss_op *abse_opx = new abse_loss_op(abse_blobsx);
 
@@ -135,20 +137,20 @@ void train_net() {
 
 
 	adam_solver *xgsgd = new adam_solver(xgnet);
-	xgsgd->set_lr(0.0002);
+	xgsgd->set_lr(lr);
 	xgsgd->set_alpha(0.5);
 	xgsgd->set_weight_decay(0.01);
 	adam_solver *ygsgd = new adam_solver(ygnet);
-	ygsgd->set_lr(0.0002);
+	ygsgd->set_lr(lr);
 	ygsgd->set_alpha(0.5);
 	ygsgd->set_weight_decay(0.01);
 
 	adam_solver *xdsgd = new adam_solver(xdnet);
-	xdsgd->set_lr(0.0002);
+	xdsgd->set_lr(lr);
 	xdsgd->set_alpha(0.5);
 	xdsgd->set_weight_decay(0.01);
 	adam_solver *ydsgd = new adam_solver(ydnet);
-	ydsgd->set_lr(0.0002);
+	ydsgd->set_lr(lr);
 	ydsgd->set_alpha(0.5);
 	ydsgd->set_weight_decay(0.01);
 
@@ -167,7 +169,8 @@ void train_net() {
 	/**
 	 * read train list data into local memory
 	 */
-	ifstream is = ifstream(xtrainlist);
+	ifstream is;
+	is.open(xtrainlist, ios::in);
 	is.precision(numeric_limits<float>::digits10);
 	if (!is)
 		LOG_FATAL("file %s cannot be opened!", xtrainlist.c_str());
@@ -182,7 +185,7 @@ void train_net() {
 	/**
 	 * read train list data into local memory
 	 */
-	is = ifstream(ytrainlist);
+	is.open(ytrainlist, ios::in);
 	is.precision(numeric_limits<float>::digits10);
 	if (!is)
 		LOG_FATAL("file %s cannot be opened!", ytrainlist.c_str());
@@ -198,8 +201,10 @@ void train_net() {
 
 	int step_index_x = 0;
 	int step_index_y = 0;
-	int step_index_test = 0;
-	int step_index_train = 0;
+	int step_index_ccx = 0;//X_ALL_DATA_SIZE / 2;
+	int step_index_ccy = 0;//Y_ALL_DATA_SIZE / 2;
+	int step_index_idtx = 0;//X_ALL_DATA_SIZE / 3;
+	int step_index_idty = 0;//Y_ALL_DATA_SIZE / 3;
 	time_utils *timer = new time_utils();
 
 	unsigned int max_index;
@@ -218,78 +223,89 @@ void train_net() {
 		/*
 		 * read original img data
 		 */
-		for (int j = 0; j < batch_size; ++j) {
-			if (step_index_x == X_ALL_DATA_SIZE) {
-				step_index_x = 0;
-				random_shuffle(xfull_data.begin(), xfull_data.end());
-			}
-			if (step_index_y == Y_ALL_DATA_SIZE) {
-				step_index_y = 0;
-				random_shuffle(xfull_data.begin(), xfull_data.end());
-			}
-			file_ = xfull_data[step_index_x];
-			//load ximage data
-			readimg(xblob_->p_data(j),(xdatapath + file_).c_str());
 
-			file_ = yfull_data[step_index_y];
-			//load yimage data
-			readimg(yblob_->p_data(j),(ydatapath + file_).c_str());
-
-			step_index_x += 1;
-			step_index_y += 1;
+		if (step_index_x == X_ALL_DATA_SIZE) {
+			step_index_x = 0;
+			random_shuffle(xfull_data.begin(), xfull_data.end());
 		}
+		if (step_index_y == Y_ALL_DATA_SIZE) {
+			step_index_y = 0;
+			random_shuffle(xfull_data.begin(), xfull_data.end());
+		}
+		if (step_index_ccx == X_ALL_DATA_SIZE)
+			step_index_ccx = 0;
+		if (step_index_ccy == Y_ALL_DATA_SIZE)
+			step_index_ccy = 0;
+		if (step_index_idtx == X_ALL_DATA_SIZE)
+			step_index_idtx = 0;
+		if (step_index_idty == Y_ALL_DATA_SIZE)
+			step_index_idty = 0;
+
+		//readimg(xblob_->s_data(),(xdatapath + xfull_data[step_index_x]).c_str());
+		//readimg(yblob_->s_data(),(ydatapath + yfull_data[step_index_y]).c_str());
 
 		/*
 		 * adversrial training process
 		 */
 		//GAN x
 		//xdloss_t
-		xdhead->copy_blob(xblob_);
-		xdiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
-		xdsgd->train_iter(i);
-		xdlosst = xdiscriminator->top_op<mse_loss_op>()->loss();
+		readimg(xdhead->s_data(),(xdatapath + xfull_data[step_index_x]).c_str());
+		xdiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
+		//xdiscriminator->top_op<sigmoid_with_loss_op>()->set_loss_weight(0.5);
+		xdnet->forward_propagate();
+		xdnet->back_propagate();
+		//xdsgd->train_iter(i);
+		xdlosst = xdiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 
 		//xdloss_f
-		xghead->copy_blob(yblob_);
+		readimg(xghead->s_data(),(ydatapath + yfull_data[step_index_y]).c_str());
 		xgnet->forward_propagate();
 
 		xdhead->copy_blob(xsuspicious);
-		xdiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
+		xdiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
 		xdnet->forward_propagate();
 		xdnet->back_propagate();
-		xdsgd->updates(i);
-		xdlossf = xdiscriminator->top_op<mse_loss_op>()->loss();
-		xgloss = xdlossf;
+		xdlossf = xdiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 
-		//xgloss
+		xdsgd->updates(i);
+
+		xgloss = xdiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 		cacu_copy(xdhead->s_diff(), xsuspicious->count(), xsuspicious->s_diff());
 		xgnet->back_propagate();
+		//xdnet->_RESET_WEIGHT_DIFF();
 		xgsgd->update_direction(maximize);
+
 		xgsgd->updates(i);
 
 		//GAN y
 		//ydloss_t
-		ydhead->copy_blob(yblob_);
-		ydiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
-		ydsgd->train_iter(i);
-		ydlosst = ydiscriminator->top_op<mse_loss_op>()->loss();
+		readimg(ydhead->s_data(),(ydatapath + yfull_data[step_index_y]).c_str());
+		ydiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(1);
+		//ydiscriminator->top_op<sigmoid_with_loss_op>()->set_loss_weight(0.5);
+		ydnet->forward_propagate();
+		ydnet->back_propagate();
+		//ydsgd->train_iter(i);
+		ydlosst = ydiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 
 		//ydloss_f
-		yghead->copy_blob(xblob_);
+		readimg(yghead->s_data(),(xdatapath + xfull_data[step_index_x]).c_str());
 		ygnet->forward_propagate();
 
 		ydhead->copy_blob(ysuspicious);
-		ydiscriminator->top_op<mse_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
+		ydiscriminator->top_op<sigmoid_with_loss_op>()->in_datas()->astype<bin_blob>(1)->set_data(0);
 		ydnet->forward_propagate();
 		ydnet->back_propagate();
+
+		ydlossf = ydiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 		ydsgd->updates(i);
-		ydlossf = ydiscriminator->top_op<mse_loss_op>()->loss();
-		ygloss = ydlossf;
 
 		//ygloss
+		ygloss = ydiscriminator->top_op<sigmoid_with_loss_op>()->loss();
 		cacu_copy(ydhead->s_diff(), ysuspicious->count(), ysuspicious->s_diff());
 		ygnet->back_propagate();
 		ygsgd->update_direction(maximize);
+
+		//ydnet->_RESET_WEIGHT_DIFF();
 		ygsgd->updates(i);
 
 
@@ -301,7 +317,8 @@ void train_net() {
 
 		//F(G(y)) -> y
 		abse_opy->set_loss_weight(lamda_);
-		xghead->copy_blob(yblob_);
+		readimg(xghead->s_data(),(ydatapath + yfull_data[step_index_ccy]).c_str());
+		readimg(yblob_->s_data(),(ydatapath + yfull_data[step_index_ccy]).c_str());
 		xgnet->forward_propagate();
 
 		yghead->copy_blob(xsuspicious);
@@ -315,13 +332,14 @@ void train_net() {
 		cacu_copy(yghead->s_diff(),xsuspicious->count(),xsuspicious->s_diff());
 		xgnet->back_propagate();
 
-		ygsgd->updates(i);
-		xgsgd->updates(i);
+//		ygsgd->updates(i);
+//		xgsgd->updates(i);
 
 
 		//G(F(x)) -> x
 		abse_opx->set_loss_weight(lamda_);
-		yghead->copy_blob(xblob_);
+		readimg(yghead->s_data(),(xdatapath + xfull_data[step_index_ccx]).c_str());
+		readimg(xblob_->s_data(),(xdatapath + xfull_data[step_index_ccx]).c_str());
 		ygnet->forward_propagate();
 
 		xghead->copy_blob(ysuspicious);
@@ -335,41 +353,49 @@ void train_net() {
 		cacu_copy(xghead->s_diff(),ysuspicious->count(),ysuspicious->s_diff());
 		ygnet->back_propagate();
 
-		xgsgd->updates(i);
-		ygsgd->updates(i);
+//		xgsgd->updates(i);
+//		ygsgd->updates(i);
 
 
 		//indentfy constant
 		//y generator
+		//xgsgd->update_direction(maximize);
+		//ygsgd->update_direction(maximize);
 		abse_opy->set_loss_weight(lamda_ * idt_lamda_);
-		yghead->copy_blob(yblob_);
+		readimg(yghead->s_data(),(ydatapath + yfull_data[step_index_idty]).c_str());
+		readimg(yblob_->s_data(),(ydatapath + yfull_data[step_index_idty]).c_str());
 		ygnet->forward_propagate();
 
 		abse_opy->infer();
 		ccloss += abse_opy->loss();
 		abse_opy->derivative();
 		ygnet->back_propagate();
-		ygsgd->updates(i);
+//		ygsgd->updates(i);
 
 		//x generator
 		abse_opx->set_loss_weight(lamda_ * idt_lamda_);
-		xghead->copy_blob(xblob_);
+		readimg(xghead->s_data(),(xdatapath + xfull_data[step_index_idtx]).c_str());
+		readimg(xblob_->s_data(),(xdatapath + xfull_data[step_index_idtx]).c_str());
 		xgnet->forward_propagate();
 
 		abse_opx->infer();
 		ccloss += abse_opx->loss();
 		abse_opx->derivative();
 		xgnet->back_propagate();
+
+
+		//finally update the weight
 		xgsgd->updates(i);
+		ygsgd->updates(i);
 
 
-		xdlog << xdlosst + xdlossf << endl;
+		xdlog << xdlosst << "," << xdlossf << endl;
 		xdlog.flush();
 
-		ydlog << ydlosst + ydlossf << endl;
+		ydlog << ydlosst << "," << ydlossf << endl;
 		ydlog.flush();
 
-		glog << xgloss + ygloss + ccloss<< endl;
+		glog << xgloss << "," << ygloss << "," << ccloss<< endl;
 
 		timer->end();
 
@@ -381,21 +407,35 @@ void train_net() {
 			LOG_INFO("generator loss : (x: %f, y: %f, cc: %f)", xgloss, ygloss, ccloss);
 		}
 
-		if (i % 40000 == 0){
+		if (i % 80000 == 0){
 			xdsgd->set_lr_iter(0.1);
 			xgsgd->set_lr_iter(0.1);
 			ydsgd->set_lr_iter(0.1);
 			ygsgd->set_lr_iter(0.1);
 		}
 
-		if (i % 1 == 0) {
+		if (i % 100 == 0) {
 			ostringstream oss;
 
+			yghead->copy_blob(xblob_);
+			ygnet->forward_propagate();
+
+			xghead->copy_blob(yblob_);
+			xgnet->forward_propagate();
+
 			oss << root_path << "generative/" << "x_" << i << "_" << img_size << ".jpg";
+			imageio_utils::imwrite(yblob_,oss.str().c_str());
+			oss.str("");
+
+			oss << root_path << "generative/" << "x_" << i << "_g" << img_size << ".jpg";
 			imageio_utils::imwrite(((blob*)xgenerator->get_oblob()),oss.str().c_str());
 			oss.str("");
 
 			oss << root_path << "generative/" << "y_" << i << "_" << img_size << ".jpg";
+			imageio_utils::imwrite(xblob_,oss.str().c_str());
+			oss.str("");
+
+			oss << root_path << "generative/" << "y_" << i << "_g" << img_size << ".jpg";
 			imageio_utils::imwrite(((blob*)ygenerator->get_oblob()),oss.str().c_str());
 		}
 		if (i % 10000 == 0) {
@@ -417,6 +457,13 @@ void train_net() {
 			ydiscriminator->save_weights(oss.str());
 
 		}
+
+		step_index_x += 1;
+		step_index_y += 1;
+		step_index_ccx += 1;
+		step_index_ccy += 1;
+		step_index_idtx += 1;
+		step_index_idty += 1;
 	}
 
 	xdlog.close();
@@ -448,3 +495,4 @@ void train_net() {
 
 
 #endif
+

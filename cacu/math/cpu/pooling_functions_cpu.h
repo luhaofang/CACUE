@@ -29,6 +29,7 @@
 #define POOLING_FUNCTIONS_CPU_H_
 
 #include <algorithm>
+//#include "../../config.h"
 #include "../../definition.h"
 
 namespace cacu {
@@ -101,15 +102,6 @@ void cacu_col2img_pad_dilated_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, const int d_size, float_t *y);
-
-void cacu_row_max_pooling_cpu(float_t *x, const int input_length,
-		const int output_length, float_t *y);
-
-void cacu_row_max_pooling_index_cpu(float_t *x, const int input_length,
-		const int output_length, float_t *y, int* index);
-
-void cacu_row_max_pooling_grad_cpu(const float_t *x, const int output_length,
-		float_t *y, const int* index);
 
 }
 

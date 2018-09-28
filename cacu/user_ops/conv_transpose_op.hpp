@@ -111,6 +111,14 @@ public:
 		}
 	}
 
+	void init_weights()  {
+		_w = create_param("w", s_blobs->at(0)->channel(), _args->output_channel(),
+				_args->kernel_size(), _args->kernel_size(), _phase);
+
+		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
+	}
+
+
 	void op(blobs *s_blobs_,blobs *o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
@@ -142,6 +150,8 @@ public:
 		w_offset = _w->count() / _group / _group;
 		out_offset = _w->num() / _group * s_blob_->channel_length();
 
+		//LOG_DEBUG("fuck");
+		//cacu_print(s_blob_->s_data(), 10);
 		for (int i = 0; i < s_blob_->num(); ++i) {
 			//col_data_->blob_size();
 			//gradient propagation
@@ -156,6 +166,7 @@ public:
 			//cacu_sumbysize(BYWIDTH,o_blob_->p_diff(i),o_blob_->length(),1,_bias->s_diff(),1,o_blob_->width()*o_blob_->height());
 				cacu_sgemm(NOTRANS, NOTRANS, bias_multiplier->s_data(), bias_multiplier->count(), 1, _bias->s_data(), _bias->count(),(float_t)(1),o_blob_->p_data(i),(float_t)(1));
 		}
+		//cacu_print(o_blob_->s_data(), 10);
 #endif
 
 	}

@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class average_pooling_op: public operator_base {
+class average_pooling_op: public pooling_base_op {
 
 public:
 
 	average_pooling_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_AVERAGE_POOLING) {
+			pooling_base_op(data, args_, CACU_AVERAGE_POOLING) {
 		_INIT_OP();
 	}
 
@@ -74,18 +74,6 @@ public:
 			o_blobs->at(0)->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), output_w,
 				output_h);
 		}
-	}
-
-	void init_weights() override {
-		return;
-	}
-
-	void check() override {
-		if(_args == NULL)
-			LOG_FATAL("pooling data args cannot equal to NULL!");
-		//kernel_size > 0
-		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
-				_args->kernel_size());
 	}
 
 	void op(blobs *s_blobs_,blobs *o_blobs_) override {
@@ -127,14 +115,6 @@ public:
 #endif
 	}
 
-	void load(std::ifstream& is) override {
-		return;
-	}
-
-	void save(std::ostream& os) override {
-		return;
-	}
-
 	void echo() override {
 		LOG_INFO("create average pooling op:");
 		LOG_INFO(
@@ -143,8 +123,6 @@ public:
 				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height(),
 				_args->kernel_size(), _args->stride(), _args->pad());
 	}
-
-private:
 
 };
 }

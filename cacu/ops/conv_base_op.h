@@ -44,13 +44,6 @@ public:
 
 	}
 
-	void init_weights() override {
-		_w = create_param("w", _args->output_channel(), s_blobs->at(0)->channel(),
-				_args->kernel_size(), _args->kernel_size(), _phase);
-
-		_bias = create_param("bias", _args->output_channel(), 1, 1, 1, _phase);
-	}
-
 	void check() override {
 		if(_args == NULL)
 			LOG_FATAL("convolution data args cannot equal to NULL!");

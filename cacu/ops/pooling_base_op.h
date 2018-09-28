@@ -25,51 +25,47 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-#include "cuda_utils.h"
-
-#include "../../math/blas/cublas_utils.h"
-
-#if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
-#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
+#ifndef POOLING_BASE_OP_H_
+#define POOLING_BASE_OP_H_
 
 namespace cacu {
 
-void cuda_set_device(unsigned int device_id) {
-	struct cudaDeviceProp device_prop;
-	if (cudaGetDeviceProperties(&device_prop, device_id) == cudaSuccess) {
+class pooling_base_op: public operator_base {
+
+public:
+
+	pooling_base_op(blobs *&data, data_args *&args_, op_name type_) :
+			operator_base(data, args_, type_) {
+	}
+
+	~pooling_base_op() {
+
+	}
+
+	void init_weights() override {
+		return;
+	}
+
+	void check() override {
+		if(_args == NULL)
+			LOG_FATAL("pooling data args cannot equal to NULL!");
+		//kernel_size > 0
+		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
+				_args->kernel_size());
+		//CHECK_EQ_OP(_args->output_channel(),s_blob->channel(),"source data must equal to layer args output_channel!");
+	}
+
+	void load(std::ifstream& is) override {
+		return;
+	}
+
+	void save(std::ostream& os) override {
+		return;
+	}
 
 
-		cout << "======================================================="
-				<< endl;
-		cout << "device " << device_id << ": " << device_prop.name << endl;
-		cout << "-------------------------------------------------------"
-				<< endl;
-		cout << "totalGlobalMem      |	" << device_prop.totalGlobalMem << endl;
-		cout << "warpSize            |	" << device_prop.warpSize << endl;
-		cout << "maxThreadsPerBlock  |	" << device_prop.maxThreadsPerBlock
-				<< endl;
-		cout << "sharedMemPerBlock   |	" << device_prop.totalConstMem << endl;
-		cout << "totalConstMem       |	" << device_prop.totalConstMem << endl;
-		cout << "======================================================="
-				<< endl;
-	} else
-		cout << "device " << device_id
-				<< " not found, please check your device num or select an available device!" << endl;
-	CUDA_CHECK(cudaSetDevice(device_id));
-	create_cublas_handle();
+};
 }
 
-void cuda_release() {
-	release_cublas_handle();
-}
 
-void cuda_free(void* data_) {
-	cudaFree(data_);
-}
-
-
-}
-
-#endif
 #endif

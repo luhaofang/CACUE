@@ -26,59 +26,15 @@
  */
 
 #include "../../config.h"
+#include "loss_functions_cuda.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"
 #include "../../tensor/cuda/cuda_log.h"
 
 namespace cacu {
-
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *input_dim: width of input data
- *output_dim: width of output data
- */
-__global__ void _k_CACU_CROSS_ENTROPY_CUDA(float_t *x, int num, int length,
-		int *label_, float_t *loss_) {
-
-	int tid = threadIdx.x;
-
-	extern __shared__ float_t shared_data[];
-
-	float_t *xp;
-
-	shared_data[tid] = 0;
-
-	for (int i = tid; i < num; i += THREADNUM)
-	{
-		xp = x + i * length;
-		shared_data[tid] -= (label_[i] >=0) ? log(max(xp[label_[i]], float_t(_MIN_FLT_))) : 0.0;
-	}
-
-	__syncthreads();
-
-	int acc_length = THREADNUM / 2;
-	while (acc_length > 0) {
-		if (tid < acc_length)
-			shared_data[tid] += shared_data[tid + acc_length];
-		acc_length /= 2;
-		__syncthreads();
-	}
-
-	if (tid == 0)
-		loss_[0] += shared_data[0];
-}
-
-extern "C" void cacu_cross_entropy_cuda(float_t *x, int num, int length,
-		int *label_, float_t *loss_) {
-
-	_k_CACU_CROSS_ENTROPY_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x,
-			num, length, label_, loss_);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
 
 /*
  *channel: channel of input data

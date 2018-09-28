@@ -27,6 +27,8 @@
 
 #include "pooling_functions_cpu.h"
 
+#include "../../config.h"
+
 namespace cacu {
 
 /*
@@ -385,30 +387,5 @@ void cacu_col2img_pad_dilated_cpu(const float_t *x, const int kernel_size,
 	}
 }
 
-void cacu_row_max_pooling_cpu(float_t *x, const int input_length,
-		const int output_length, float_t *y) {
-	sort(x, x + input_length);
-	for (int i = 0; i < output_length; ++i) {
-		y[i] = x[i];
-	}
-}
-
-void cacu_row_max_pooling_index_cpu(float_t *x, const int input_length,
-		const int output_length, float_t *y, int* index) {
-	for (int i = 0; i < output_length; ++i) {
-		for (int j = 0; j < input_length; ++j)
-			if (x[j] == y[i]) {
-				index[i] = j;
-				break;
-			}
-	}
-}
-
-void cacu_row_max_pooling_grad_cpu(const float_t *x, const int output_length,
-		float_t *y, const int* index) {
-	for (int i = 0; i < output_length; ++i) {
-		y[index[i]] = x[i];
-	}
-}
 
 }

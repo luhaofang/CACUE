@@ -68,11 +68,12 @@ void train_net()
 	sgd->set_momentum(0.9f);
 	sgd->set_weight_decay(0.0005f);
 
-	std::ofstream logger("/Users/seallhf/Documents/mywork/data/mnist/loss.txt", ios::binary);
+	string datapath = "/home/luhaofang/git/caffe/data/mnist/";
+
+	std::ofstream logger(datapath + "loss.txt", ios::binary);
 	logger.precision(std::numeric_limits<cacu::float_t>::digits10);
 
-	string datapath = "/Users/seallhf/Documents/mywork/data/mnist/";
-	string meanfile = "/Users/seallhf/Documents/mywork/data/mnist/mean.binproto";
+	string meanfile = datapath + "mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -118,7 +119,7 @@ void train_net()
 
 	}
 	LOG_INFO("optimization is done!");
-	net->save_weights("/Users/seallhf/Documents/mywork/data/mnist/lenet.model");
+	net->save_weights(datapath + "lenet.model");
 
 	vector<vec_t>().swap(full_data);
 	vector<vec_i>().swap(full_label);

@@ -29,7 +29,7 @@
 #define POOLING_FUNCTIONS_H_
 
 #include "math_definition.h"
-#include "../config.h"
+//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/pooling_functions_cuda.h"
@@ -164,81 +164,38 @@ inline void cacu_col2img_pad(const float_t *x, const int kernel_w,const int kern
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	if (kernel_w != 1 && kernel_h != 1)
-	cacu_col2img_pad_cuda(x, kernel_size, stride, input_w, input_h, channel,
+	cacu_col2img_pad_cuda(x, kernel_w,kernel_h, stride, input_w, input_h, channel,
 			output_w, output_h, pad_w, pad_h, y);
 	else
 	cacu_col2img_pad_1x1_cuda(x, stride, input_w, input_h, channel,
 			output_w, output_h, pad_w, pad_h, y);
 #endif
 #else
+	//cout << kernel_w << "," << kernel_h << "," << stride << "," << input_w << "," << input_h << "," << output_w << "," << output_h << endl;
 	cacu_col2img_pad_cpu(x, kernel_w, kernel_h, stride, input_w, input_h, channel,
 			output_w, output_h, pad_w, pad_h, y);
 #endif
 }
 
-inline void cacu_col2img_pad_dilated(const float_t *x, const int kernel_size,
+inline void cacu_col2img_pad_dilated(const float_t *x, const int kernel_w,const int kernel_h,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, const int d_size, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	if (kernel_size != 1)
-	cacu_col2img_pad_cuda(x, kernel_size, stride, input_w, input_h, channel,
+	if (kernel_w != 1 && kernel_h != 1)
+	cacu_col2img_pad_cuda(x, kernel_w, kernel_h, stride, input_w, input_h, channel,
 			output_w, output_h, pad_w, pad_h, y);
 	else
 	cacu_col2img_pad_1x1_cuda(x, stride, input_w, input_h, channel,
 			output_w, output_h, pad_w, pad_h, y);
 #endif
 #else
-	cacu_col2img_pad_dilated_cpu(x, kernel_size, stride, input_w, input_h, channel,
+	cacu_col2img_pad_dilated_cpu(x, kernel_w, stride, input_w, input_h, channel,
 			output_w, output_h, pad_w, pad_h, d_size, y);
 #endif
 }
 
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *input_dim: width of input data
- *output_dim: width of output data
- */
-inline void cacu_row_max_pooling(float_t *x, int input_length,
-		int output_length, float_t *y) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_row_max_pooling_cuda(x, input_length, output_length, y);
-#endif
-#else
-	cacu_row_max_pooling_cpu(x, input_length, output_length, y);
-#endif
-}
-
-inline void cacu_row_max_pooling_index(float_t *x, int input_length,
-		int output_length, float_t *y, int* index) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_row_max_pooling_index_cuda(x, input_length, output_length, y, index);
-#endif
-#else
-	cacu_row_max_pooling_index_cpu(x, input_length, output_length, y, index);
-#endif
-}
-
-/*
- *channel: channel of input data
- *kernel_size: pooling window size
- *input_dim: width of input data
- *output_dim: width of output data
- */
-inline void cacu_row_max_pooling_grad(const float_t *x, int output_length,
-		float_t *y, const int* index) {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	cacu_row_max_pooling_grad_cuda(x, output_length, y, index);
-#endif
-#else
-	cacu_row_max_pooling_grad_cpu(x, output_length, y, index);
-#endif
-}
 }
 
 #endif

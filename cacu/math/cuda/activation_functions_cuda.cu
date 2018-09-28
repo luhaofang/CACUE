@@ -26,8 +26,9 @@
  */
 
 #include "../../config.h"
+#include "activation_functions_cuda.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"

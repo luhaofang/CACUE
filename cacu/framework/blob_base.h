@@ -111,8 +111,12 @@ public:
 
 	virtual void load(std::ifstream& is) = 0;
 
-	inline dsize_t index(dsize_t c, dsize_t x, dsize_t y) const {
-		return c * _body->_cube_length + x * _body->_width + y;
+	inline dsize_t index(dsize_t n, dsize_t c, dsize_t h, dsize_t w) const {
+		return n * _body->_cube_length + c * _body->_channel_length + h * _body->_width + w;
+	}
+
+	inline dsize_t index0(dsize_t h, dsize_t w) const {
+		return h * _body->_width + w;
 	}
 
 	void _CHECK_SIZE_EQ(blob_base* blob_);
@@ -125,6 +129,10 @@ public:
 		return _REC_ == 0;
 	}
 
+	/*
+	 *
+	 * whether does the blob can be RESET in _RESET_DATA && _RESET_DIFF
+	 */
 	inline void set_variable(bool type_)
 	{
 		_variable = type_;

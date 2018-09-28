@@ -25,24 +25,21 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cublas_utils.h"
+#include "../../config.h"
+#include "norm_functions_cuda.h"
 
-#if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
-#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+
+#include "../../definition.h"
+#include "../../tensor/cuda/cuda_log.h"
 
 namespace cacu{
 
-cublasHandle_t handle = NULL;
 
-void create_cublas_handle(){
-	CUBLAS_CHECK(cublasCreate_v2(&handle));
-}
-
-void release_cublas_handle() {
-	CUBLAS_CHECK(cublasDestroy_v2(handle));
-}
 
 }
 
 #endif
 #endif
+

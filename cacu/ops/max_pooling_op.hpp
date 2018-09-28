@@ -30,12 +30,12 @@
 
 namespace cacu {
 
-class max_pooling_op: public operator_base {
+class max_pooling_op: public pooling_base_op {
 
 public:
 
 	max_pooling_op(blobs *&data, data_args *&args_) :
-			operator_base(data, args_, CACU_MAX_POOLING) {
+			pooling_base_op(data, args_, CACU_MAX_POOLING) {
 		_INIT_OP();
 	}
 
@@ -76,19 +76,6 @@ public:
 			_index->resize(s_blobs->at(0)->num(), s_blobs->at(0)->channel(), output_w,
 					output_h);
 		}
-	}
-
-	void init_weights() override {
-		return;
-	}
-
-	void check() override {
-		if(_args == NULL)
-			LOG_FATAL("pooling data args cannot equal to NULL!");
-		//kernel_size > 0
-		CHECK_GT_OP(_args->kernel_size(), 0, "kernel_size must > 0 vs %d",
-				_args->kernel_size());
-		//CHECK_EQ_OP(_args->output_channel(),s_blob->channel(),"source data must equal to layer args output_channel!");
 	}
 
 	void op(blobs *s_blobs_,blobs *o_blobs_) override {
@@ -134,14 +121,6 @@ public:
 		for(int i = 0; i < s_blob_->num(); ++i)
 		cacu_max_pooling_grad(o_blob_->p_diff(i), _args->kernel_size(), _args->stride(), s_blob_->width(), s_blob_->height(), o_blob_->width(), o_blob_->height(), s_blob_->channel(), s_blob_->p_diff(i), index_->p_data(i));
 #endif
-	}
-
-	void load(std::ifstream& is) override {
-		return;
-	}
-
-	void save(std::ostream& os) override {
-		return;
 	}
 
 	void echo() override {

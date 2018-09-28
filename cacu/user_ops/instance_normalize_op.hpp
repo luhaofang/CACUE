@@ -100,7 +100,9 @@ public:
 		_var = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
 
 		_history_mean = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, test);
+		_history_mean->set_variable(false);
 		_history_var = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, test);
+		_history_var->set_variable(false);
 
 		_std = create_opblob(s_blobs->at(0)->num(), 1, 1, 1, _phase);
 	}

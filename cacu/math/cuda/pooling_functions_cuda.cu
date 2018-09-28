@@ -29,8 +29,9 @@
 #include <thrust/execution_policy.h>
 
 #include "../../config.h"
+#include "pooling_functions_cuda.h"
 
-#ifdef __PARALLELTYPE__
+#if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 #include "../../definition.h"
@@ -391,7 +392,7 @@ __global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_w, c
 
 		for (int i = tid; i < block_size; i += THREADNUM)
 		{
-			if (kernel_size != 1) {
+			if (kernel_w != 1 && kernel_h != 1) {
 				k_row = (i % kernel_length) / kernel_w;
 				k_col = (i % kernel_length) % kernel_w;
 			} else {
@@ -554,7 +555,7 @@ __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_w, c
 
 					k_index = ((startset_i - outset_i * stride) * kernel_w
 							+ (startset_j - outset_j * stride))
-							+ c * kernel_w * kernel_h;
+							+ c * kernel_h * kernel_w;
 					outset_index = (outset_i * output_w + outset_j);
 
 					y[inset_index] += x[outset_index + k_index * output_size];
@@ -567,6 +568,7 @@ extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_w, cons
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y) {
+	//cout << kernel_w << "," << kernel_h << "," << stride << "," << input_w << "," << input_h << "," << output_w << "," << output_h << endl;
 	_k_CACU_COL2IMG_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_w, kernel_h, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
 	CUDA_CHECK(cudaThreadSynchronize());
@@ -732,74 +734,6 @@ extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x,
 
 	_k_CACU_COL2IMG_PAD_1x1_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-__global__ void _K_CACU_ROW_MAX_POOLING_CUDA(float_t *x, int input_length,
-		int output_length, float_t *y) {
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int threadid = bid * THREADNUM + tid;
-
-	for (int i = threadid; i < output_length; i += BLOCKNUM * THREADNUM)
-	{
-		y[i] = x[i];
-	}
-}
-
-extern "C" void cacu_row_max_pooling_cuda(float_t *x, int input_length,
-		int output_length, float_t *y) {
-
-	thrust::stable_sort(thrust::device, x, x + input_length,
-			thrust::greater<float_t>());
-	_K_CACU_ROW_MAX_POOLING_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, input_length,
-			output_length, y);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-__global__ void _K_CACU_ROW_MAX_POOLING_INDEX_CUDA(const float_t *x,
-		int input_length, int output_length, float_t *y, int* index) {
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int threadid = bid * THREADNUM + tid;
-
-	for (int i = threadid; i < output_length; i += BLOCKNUM * THREADNUM)
-	{
-		for (int j = 0; j < input_length; ++j) {
-			if (x[j] == y[i]) {
-				index[i] = j;
-				break;
-			}
-		}
-	}
-}
-
-extern "C" void cacu_row_max_pooling_index_cuda(const float_t *x,
-		int input_length, int output_length, float_t *y, int* index) {
-	_K_CACU_ROW_MAX_POOLING_INDEX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x,
-			input_length, output_length, y, index);
-	CUDA_CHECK(cudaThreadSynchronize());
-}
-
-__global__ void _K_CACU_ROW_MAX_POOLING_GRAD_CUDA(const float_t *x,
-		int output_length, float_t *y, const int* index) {
-	int tid = threadIdx.x;
-	int bid = blockIdx.x;
-
-	int threadid = bid * THREADNUM + tid;
-
-	for (int i = threadid; i < output_length; i += BLOCKNUM * THREADNUM)
-	{
-		y[index[i]] = x[i];
-	}
-}
-
-extern "C" void cacu_row_max_pooling_grad_cuda(const float_t *x,
-		int output_length, float_t *y, const int* index) {
-	_K_CACU_ROW_MAX_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x,
-			output_length, y, index);
 	CUDA_CHECK(cudaThreadSynchronize());
 }
 

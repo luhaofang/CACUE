@@ -29,6 +29,7 @@
 #define BATCH_FUNCTIONS_CPU_H_
 
 #include <math.h>
+//#include "../../config.h"
 #include "../../definition.h"
 
 namespace cacu {

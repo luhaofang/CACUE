@@ -32,18 +32,12 @@
 
 #include "cuda_log.h"
 
-#if defined(__USE_DEVICE__) && defined(__PARALLELTYPE__)
-#if  __USE_DEVICE__ == ON && __PARALLELTYPE__ == __CUDA__
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
 
 using namespace std;
 
 namespace cacu {
-
-void cuda_set_device(unsigned int device_id);
-
-void cuda_release();
-
-void cuda_free(void* data_);
 
 template<typename DTYPE>
 inline DTYPE* cuda_malloc(dsize_t length) {
