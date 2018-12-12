@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include "blob.h"
 
+#include "../math/math_functions.h"
 #include "../math/utils/rand_t.h"
 #include "../utils/data_printer.h"
 
@@ -48,6 +49,9 @@ blob::~blob() {
 	if (_tdiff != NULL) {
 		delete _tdiff;
 	}
+#if __USE_CUDNN__ == ON
+	CUDNN_CHECK(cudnnDestroyTensorDescriptor(_data_desc));
+#endif
 }
 
 /**
@@ -203,7 +207,7 @@ void blob::set_init_type(param_init_type type, float_t value) {
 			w[i] = value;
 		break;
 	case xavier:
-		value = sqrt((float_t) 3.0 / (channel() * height() * width()));
+		value = sqrt((float_t) 6.0 / (count() / num() + count() / channel()));
 		for (int i = 0; i < count(); ++i)
 			w[i] = urand(-value, value);
 		break;
@@ -229,24 +233,9 @@ void blob::set_init_type(param_init_type type, float_t value) {
 
 void blob::switch_channel()
 {
-#if __USE_DEVICE__ == ON
-#if __PARALLELTYPE__ == __CUDA__
-	vec_t temp(count());
-	cuda_copy2host(&temp[0],s_data(),count());
-	cacu_transpose(&temp[0],num(), channel(), channel_length());
-	cuda_copy2dev(s_data(),&temp[0],count());
-	if(_phase == train){
-		cuda_copy2host(&temp[0],s_diff(),count());
-		cacu_transpose(&temp[0], num(), channel(), channel_length());
-		cuda_copy2dev(s_diff(),&temp[0],count());
-	}
-#endif
-#else
 	cacu_transpose(s_data(), num(), channel(), channel_length());
 	if(_phase == train)
 		cacu_transpose(s_diff(), num(), channel(), channel_length());
-#endif
-
 	int temp_ = num();
 	_body->_num = channel();
 	_body->_channel = temp_;

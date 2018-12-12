@@ -30,6 +30,8 @@
 #include "../utils/log.h"
 #include "../utils/check_utils.h"
 #include "../math/utils/rand_t.h"
+#include "../math/math.h"
+#include "../utils/data_printer.h"
 
 namespace cacu {
 
@@ -40,31 +42,46 @@ weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
 	_update_lr = 1.0;
 	_decay_mult = 1.0;
 	_update = true;
+#if __USE_CUDNN__ == ON
+	CUDNN_CHECK(cudnnCreateFilterDescriptor(&_filter_desc, num, channel, height, width));
+#endif
 }
 
 weight::~weight() {
+#if __USE_CUDNN__ == ON
+	CUDNN_CHECK(cudnnDestroyFilterDescriptor(_data_desc));
+#endif
 }
 
 void weight::set_init_type(param_init_type type, float_t value) {
 	vec_t w(count());
+	float_t d_value;
 	switch (type) {
 	case constant:
 		for (int i = 0; i < count(); ++i)
 			w[i] = value;
 		break;
 	case xavier:
-		value = sqrt((float_t) 3.0 / (channel() * height() * width()));
-		for (int i = 0; i < count(); ++i)
-			w[i] = urand(-value, value);
+		d_value = sqrt((float_t) 6.0 / (count() / num() + count() / channel()));
+		if(value == 0.0)
+			for (int i = 0; i < count(); ++i)
+				w[i] = urand(-d_value, d_value);
+		else
+			for (int i = 0; i < count(); ++i)
+				w[i] = urand(-d_value, d_value) * value;
 		break;
 	case gaussian:
 		for (int i = 0; i < count(); ++i)
 			w[i] = gaussrand(value);
 		break;
 	case msra:
-		value = sqrt((float_t) 2.0 / (channel() * height() * width()));
-		for (int i = 0; i < count(); ++i)
-			w[i] = gaussrand(value);
+		d_value = sqrt((float_t) 2.0 / (channel() * height() * width()));
+		if(value == 0.0)
+			for (int i = 0; i < count(); ++i)
+				w[i] = gaussrand(d_value);
+		else
+			for (int i = 0; i < count(); ++i)
+				w[i] = gaussrand(d_value) * value;
 		break;
 	default:
 		LOG_FATAL("unknown weight type for [%s]!", _name.c_str());
@@ -145,5 +162,6 @@ void weight::load(std::ifstream& is) {
 			_name.c_str(), length_, count());
 	_tdata->load(is);
 }
+
 
 }
