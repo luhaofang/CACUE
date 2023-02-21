@@ -52,8 +52,14 @@ namespace cacu {
 #define __CUDA__ 0XA4
 //opencl
 #define __OPENCL__ 0XA5
-//openmp
-#define __OPENMP__ 0XA6
+//naive
+#define __NAIVE__ 0XA6
+
+/*
+ * CUDNN DATATYPE
+ */
+#define __FLOAT__ 0xBA
+#define __DOUBLE__ 0xBB
 
 
 /***********************************/
@@ -61,7 +67,7 @@ namespace cacu {
 /***********************************/
 
 #ifndef __USE_DEVICE__
-#define __USE_DEVICE__  OFF
+#define __USE_DEVICE__  ON
 #endif
 
 
@@ -78,12 +84,46 @@ namespace cacu {
 #endif
 #endif
 
+/*
+ * if USE_CUDNN is open, CACUE must be running on cuda platform
+ * and CUDNN is the first option
+ */
+#ifndef __USE_CUDNN__
+#if __USE_DEVICE__ == ON || __PARALLELTYPE__ == __CUDA__
+#define __USE_CUDNN__  ON
+#else
+#define __USE_CUDNN__  OFF
+#endif
+#endif
+
 #ifndef __CBLASTYPE__
 #if(__PARALLELTYPE__ == __CUDA__ || __PARALLELTYPE__ == __CUDNN__ || __PARALLELTYPE__ == __OPENCL__)
 #define __CBLASTYPE__ __OPENBLAS__
 #else
 #define __CBLASTYPE__ __PARALLELTYPE__
 #endif
+#endif
+
+/*
+ * if use openmp
+ */
+#ifndef __OPENMP__
+#define __OPENMP__  OFF
+#endif
+
+
+
+#if __USE_CUDNN__ == ON
+
+#ifndef __CUDNN_DATA_TYPE__
+#define __CUDNN_DATA_TYPE__  __FLOAT__
+#endif
+
+#define __CUDNN_WORKSPACE_BALANCE__  ON
+
+//workspace limitation for convolution op
+#define WORKSPACE_LIMIT_BYTES  8 * 1024 * 1024
+
 #endif
 
 #ifndef __USEMBEDDING__

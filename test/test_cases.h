@@ -41,5 +41,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "test_deconv.hpp"
 #include "test_imageio.hpp"
 #include "test_cacu_op.hpp"
+#include "test_network.hpp"
+#include "test_pearson.hpp"
+#include "test_functions.hpp"
+#include "test_conv_op.hpp"
+#include "test_sigmoid_loss.hpp"
+
 
 #endif

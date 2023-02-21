@@ -113,11 +113,11 @@ extern "C" void cacu_sumbysize_cuda(SUM SUMTYPE, float_t *x, int length,
 	else if (BYHEIGHT == SUMTYPE)
 		_k_CACU_SUMBYSIZE_BYHEIGHT_CUDA<<<BLOCKNUM, THREADNUM,
 		THREADNUM * sizeof(float_t)>>>(x, height, width, alpha, y, beta);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
-__global__ void _k_CACU_CXSIZE_CUDA(float_t *x, int length,
-		float_t *a, int size, float_t *y) {
+__global__ void _k_CACU_CXSIZE_CUDA(float_t *x, int length, float_t *a,
+		int size, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -126,9 +126,24 @@ __global__ void _k_CACU_CXSIZE_CUDA(float_t *x, int length,
 
 	int block_size = length / size;
 
+	//bank conflict
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = x[i] * a[i / block_size];
+		y[i] = (x[i] * a[i / block_size]);
 	}
+
+	/*
+	 for(int bc = bid; bc < block_size; bc += BLOCKNUM)
+	 for(int tc = tid; tc < size; tc += THREADNUM){
+	 y[tc * block_size + bc] = (x[tc * block_size + bc] * a[tc])
+	 }
+	 */
+}
+
+__global__ void _k_CACU_CXSIZE1X1_CUDA(float_t *x, float_t *a, float_t *y) {
+	int tid = threadIdx.x;
+
+	if (tid == 0)
+		y[0] = x[0] * a[0];
 }
 
 /**
@@ -138,14 +153,17 @@ __global__ void _k_CACU_CXSIZE_CUDA(float_t *x, int length,
  * a: size dim array list
  * a[j] is the corresponding scalar, j = i / (length / size).
  */
-extern "C" void cacu_cxsize_cuda(float_t *x, int length, float_t *a,
-		int size, float_t *y) {
-	_k_CACU_CXSIZE_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+extern "C" void cacu_cxsize_cuda(float_t *x, int length, float_t *a, int size,
+		float_t *y) {
+	if (length == 1 && size == 1)
+		_k_CACU_CXSIZE1X1_CUDA<<<1, 1, 0>>>(x, a, y);
+	else
+		_k_CACU_CXSIZE_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
-__global__ void _k_CACU_CDXSIZE_CUDA(float_t *x, int length,
-		const float_t *a, int size, float_t *y) {
+__global__ void _k_CACU_CDXSIZE_CUDA(float_t *x, int length, const float_t *a,
+		int size, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -154,9 +172,24 @@ __global__ void _k_CACU_CDXSIZE_CUDA(float_t *x, int length,
 
 	int block_size = length / size;
 
+	// bank conflict
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = x[i] / a[i / block_size];
+		y[i] = (x[i] / a[i / block_size]);
 	}
+
+	/*
+	 for(int bc = bid; bc < block_size; bc += BLOCKNUM)
+	 for(int tc = tid; tc < size; tc += THREADNUM){
+	 y[tc * block_size + bc] = (x[tc * block_size + bc] / a[tc])
+	 }
+	 */
+}
+
+__global__ void _k_CACU_CDXSIZE1X1_CUDA(float_t *x, float_t *a, float_t *y) {
+	int tid = threadIdx.x;
+
+	if (tid == 0)
+		y[0] = (x[0] / a[0]);
 }
 
 /**
@@ -166,14 +199,17 @@ __global__ void _k_CACU_CDXSIZE_CUDA(float_t *x, int length,
  * a: size dim array list
  * a[j] is the corresponding denominator, j = i / (length / size).
  */
-extern "C" void cacu_cdxsize_cuda(float_t *x, int length,
-		float_t *a, int size, float_t *y) {
-	_k_CACU_CDXSIZE_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+extern "C" void cacu_cdxsize_cuda(float_t *x, int length, float_t *a, int size,
+		float_t *y) {
+	if (length == 1 && size == 1)
+		_k_CACU_CDXSIZE1X1_CUDA<<<1, 1, 0>>>(x, a, y);
+	else
+		_k_CACU_CDXSIZE_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, size, y);
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
-__global__ void _k_CACU_SDXSIZE_CUDA(float_t *x, int length,
-		const float_t a, const float_t b, float_t *y) {
+__global__ void _k_CACU_SDXSIZE_CUDA(float_t *x, int length, const float_t a,
+		const float_t b, float_t *y) {
 
 	int tid = threadIdx.x;
 	int bid = blockIdx.x;
@@ -190,10 +226,10 @@ __global__ void _k_CACU_SDXSIZE_CUDA(float_t *x, int length,
  * math y[i] = (x[i] + a) / b:
  * x is a length dim array list, a is the corresponding denominator.
  */
-extern "C" void cacu_sdxsize_cuda(float_t *x, const int length,
-		const float_t a, const float_t b, float_t *y) {
+extern "C" void cacu_sdxsize_cuda(float_t *x, const int length, const float_t a,
+		const float_t b, float_t *y) {
 	_k_CACU_SDXSIZE_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, a, b, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_SSXPY_CUDA(float_t *x, const float_t a, int size,
@@ -206,9 +242,26 @@ __global__ void _k_CACU_SSXPY_CUDA(float_t *x, const float_t a, int size,
 
 	int block_size = length / size;
 
+	// bank conflict
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		z[i] = b * y[i] + a * x[i / block_size];
+		z[i] = (b * y[i] + a * x[i / block_size]);
 	}
+
+	/*
+	 for(int bc = bid; bc < block_size; bc += BLOCKNUM)
+	 for(int tc = tid; tc < size; tc += THREADNUM){
+	 z[tc * block_size + bc] = (b * y[tc * block_size + bc] + a * x[tc]);
+	 }
+	 */
+}
+
+__global__ void _k_CACU_SSXPY1X1_CUDA(float_t *x, const float_t a, float_t *y,
+		const float_t b, float_t *z) {
+
+	int tid = threadIdx.x;
+
+	if (tid == 0)
+		z[0] = (b * y[0] + a * x[0]);
 }
 
 /**
@@ -221,8 +274,13 @@ __global__ void _k_CACU_SSXPY_CUDA(float_t *x, const float_t a, int size,
  */
 extern "C" void cacu_ssxpy_cuda(float_t *x, const float_t a, int size,
 		float_t *y, const float_t b, int length, float_t *z) {
-	_k_CACU_SSXPY_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a, size, y, b, length, z);
-	CUDA_CHECK(cudaThreadSynchronize());
+
+	if (length == 1 && size == 1)
+		_k_CACU_SSXPY1X1_CUDA<<<1, 1, 0>>>(x, a, y, b, z);
+	else
+		_k_CACU_SSXPY_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a, size, y, b, length,
+				z);
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_SQR_CUDA(float_t *x, int length, float_t *y) {
@@ -243,7 +301,7 @@ __global__ void _k_CACU_SQR_CUDA(float_t *x, int length, float_t *y) {
  */
 extern "C" void cacu_sqr_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_SQR_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_ROOT_CUDA(float_t *x, int length, float_t *y) {
@@ -254,7 +312,7 @@ __global__ void _k_CACU_ROOT_CUDA(float_t *x, int length, float_t *y) {
 	int threadid = bid * THREADNUM + tid;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		y[i] = sqrt(x[i]);
+		y[i] = sqrtf(x[i]);
 	}
 }
 
@@ -264,7 +322,7 @@ __global__ void _k_CACU_ROOT_CUDA(float_t *x, int length, float_t *y) {
  */
 extern "C" void cacu_root_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_ROOT_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_STDBYCHANNEL_CUDA(float_t *varience, int length,
@@ -276,7 +334,7 @@ __global__ void _k_CACU_STDBYCHANNEL_CUDA(float_t *varience, int length,
 	int threadid = bid * THREADNUM + tid;
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
-		std[i] = sqrt(varience[i] + epsilon);
+		std[i] = sqrtf(varience[i] + epsilon);
 	}
 }
 
@@ -288,7 +346,7 @@ extern "C" void cacu_stdbychannel_cuda(float_t *varience, int length,
 		float_t *std, const float_t epsilon) {
 	_k_CACU_STDBYCHANNEL_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(varience, length, std,
 			epsilon);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_BN_ROU_GRAD_CUDA(const float_t *x, const float_t *d_x,
@@ -350,7 +408,7 @@ extern "C" void cacu_bn_rou_grad_cuda(const float_t *x, const float_t *d_x,
 	_k_CACU_BN_ROU_GRAD_CUDA<<<BLOCKNUM, THREADNUM,
 	THREADNUM * sizeof(float_t)>>>(x, d_x, mean, std, num, length, channel,
 			d_rou);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_BN_MU_GRAD_CUDA(const float_t *x, const float_t *d_x,
@@ -414,7 +472,7 @@ extern "C" void cacu_bn_mu_grad_cuda(const float_t *x, const float_t *d_x,
 	_k_CACU_BN_MU_GRAD_CUDA<<<BLOCKNUM, THREADNUM,
 	THREADNUM * sizeof(float_t)>>>(x, d_x, mean, std, d_rou, num, length,
 			channel, d_mean);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_BN_DX_GRAD_CUDA(const float_t *x, const float_t *d_x,
@@ -458,7 +516,7 @@ extern "C" void cacu_bn_dx_grad_cuda(const float_t *x, const float_t *d_x,
 		const float_t *d_mean, int num, int length, int channel, float_t *dx) {
 	_k_CACU_BN_DX_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, d_x, mean, std,
 			d_rou, d_mean, num, length, channel, dx);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_BN_GAMMA_GRAD_CUDA(const float_t *_x,
@@ -515,7 +573,7 @@ extern "C" void cacu_bn_gamma_grad_cuda(const float_t *_x, const float_t *d_y,
 		int num, int length, int channel, float_t *d_gamma) {
 	_k_CACU_BN_GAMMA_GRAD_CUDA<<<BLOCKNUM, THREADNUM,
 	THREADNUM * sizeof(float_t)>>>(_x, d_y, num, length, channel, d_gamma);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_SSX_CUDA(const float_t *x, int length, float_t *y) {
@@ -537,8 +595,31 @@ __global__ void _k_CACU_SSX_CUDA(const float_t *x, int length, float_t *y) {
  */
 extern "C" void cacu_ssx_cuda(const float_t *x, int length, float_t *y) {
 	_k_CACU_SSX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
+
+__global__ void _k_CACU_INVX_CUDA(const float_t *x, int length, float_t *y) {
+
+	int tid = threadIdx.x;
+	int bid = blockIdx.x;
+
+	int threadid = bid * THREADNUM + tid;
+
+	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
+		y[i] = 1.0 / x[i];
+	}
+}
+
+/**
+ * @cacu_ssx_cuda
+ * math y[i] = 1.0 / x[i] :
+ * scale by element wise.
+ */
+extern "C" void cacu_invx_cuda(const float_t *x, int length, float_t *y) {
+	_k_CACU_INVX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
+	CUDA_CHECK(cuda_device_sync_status());
+}
+
 
 __global__ void _k_CACU_GROUP_ALLOC_CUDA(int num, int channel,
 		int channel_length, int group, float_t *y) {
@@ -574,7 +655,7 @@ extern "C" void cacu_group_alloc_cuda(int num, int channel, int channel_length,
 
 	_k_CACU_GROUP_ALLOC_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(num, channel,
 			channel_length, group, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -610,7 +691,7 @@ extern "C" void cacu_group_combine_cuda(int num, int channel,
 		int channel_length, int group, float_t *y) {
 	_k_CACU_GROUP_COMBINE_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(num, channel,
 			channel_length, group, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 

@@ -30,6 +30,8 @@
 
 namespace cacu{
 
+#define PI 3.1415926
+
 typedef enum {
 
 	TRANS, NOTRANS
@@ -48,14 +50,15 @@ typedef enum {
  */
 enum regularize_type {
 	L1,
-	L2
+	L2,
+	NO_REGULARIZATION
 };
 
 /*
  * regularization type for weights update in optimization methods.
  *
  */
-enum normalize_type {
+enum norm_type {
 	norm_l1,
 	norm_l2
 };
@@ -64,6 +67,22 @@ enum grad_direction_type {
 	minimize,
 	maximize
 };
+
+enum rotate_code {
+	rotate_top,
+	rotate_left,
+	rotate_bottom,
+	rotate_right
+};
+
+inline int Factorial(int m){
+	if(m == 0)
+		return 1;
+	int r = 1;
+	for(int i = 1; i <= m; ++i)
+		r *= i;
+	return r;
+}
 
 }
 

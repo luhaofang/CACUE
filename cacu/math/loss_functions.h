@@ -28,8 +28,6 @@
 #ifndef LOSS_FUNCTIONS_H_
 #define LOSS_FUNCTIONS_H_
 
-#include "math_definition.h"
-//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/loss_functions_cuda.h"
@@ -50,6 +48,22 @@ inline void cacu_cross_entropy_multi(float_t *x, const int num, const int channe
 #endif
 #else
 	cacu_cross_entropy_multi_cpu(x, num, channel, width, height, label_, loss_);
+#endif
+}
+
+/**
+ * @cacu_cross_entropy_grad
+ * math x[i] = max(0,x[i]) :
+ * for loss use cross entropy functions.
+ */
+inline void cacu_cross_entropy_multi_grad(float_t *x, const int num, const int channel, const int width, const int height,
+		const int *label_, float_t *xg) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_cross_entropy_multi_grad_cuda(x, num, channel, width, height, label_, xg);
+#endif
+#else
+	cacu_cross_entropy_multi_grad_cpu(x, num, channel, width, height, label_, xg);
 #endif
 }
 

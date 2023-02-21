@@ -28,6 +28,7 @@
 #include "sgd_solver.h"
 
 #include "../../tools/string_utils.h"
+#include "../../tools/vec_utils.h"
 
 namespace cacu {
 
@@ -39,8 +40,10 @@ sgd_solver::sgd_solver(network *&net_) :
 	for (int i = 0; i < _net->op_count(); ++i) {
 		operator_base* op_ = _net->get_op(i);
 		for (int j = 0; j < op_->weights_size(); ++j) {
-			blob *history_w = op_->get_weight(j)->copy_create(test, 0);
-			_history_v->push_back(history_w);
+			if (op_->get_weight(j)->variable()){
+				blob *history_w = op_->get_weight(j)->copy_create(test, 0);
+				_history_v->push_back(history_w);
+			}
 		}
 	}
 }
@@ -57,23 +60,30 @@ sgd_solver::~sgd_solver() {
  */
 void sgd_solver::update_weight(weight *&w_, int weight_index_, int step_) {
 
-	blob* history_ = (blob*)_history_v->at(weight_index_);
+	blob* history_ = _history_v->asblob(weight_index_);
 	float_t learn_rate_ = w_->lr() * _global_lr;
-	//cacu_scalex(w_->s_diff(),w_->count(),_direction);
-	//normalization
-	__NORMALIZE__(w_);
-	//add regular
-	__REGULARIZE__(w_, weight_index_);
+	float_t weight_decay_ = w_->decay() * _global_weight_decay;
 	//history_v update
-	cacu_saxpby(w_->s_diff(), (float_t)(-1.0) * learn_rate_, history_->s_data(),
+	cacu_saxpby(w_->s_diff(), (float_t)(1.0) * learn_rate_, history_->s_data(),
 		_momentum, w_->count());
 	//update to weight
-	cacu_saxpy(history_->s_data(), (float_t)(1.0), w_->s_data(), w_->count());
+	//fixed regularization and weight decay
+	cacu_saxpby(history_->s_data(), (float_t)(-1.0), w_->s_data(), (1.0 - learn_rate_ * weight_decay_), w_->count());
 
+//	for (int i = 0; i < w_->num(); ++i) {
+//		if (!FIND_FROM_VEC(*w_->update_index(), i)) {
+//			//history_v update
+//			cacu_saxpby(w_->p_diff(i), (float_t) (1.0) * learn_rate_,
+//					history_->p_data(i), _momentum, w_->length());
+//			//update to weight
+//			//fixed regularization and weight decay
+//			cacu_saxpby(history_->p_data(i), (float_t) (-1.0), w_->p_data(i),
+//					(1.0 - learn_rate_ * weight_decay_), w_->length());
+//		}
+//	}
 }
 
-void sgd_solver::load_param(chars_t config_)
-{
+void sgd_solver::load_param(const chars_t& config_) {
 	ifstream is;
 	is.open(config_, ios::in);
 	is.precision(numeric_limits<float>::digits10);
@@ -83,13 +93,14 @@ void sgd_solver::load_param(chars_t config_)
 	vector<string> vec;
 	while (getline(is, file_)) {
 		vec = split(file_, ":");
-		if(vec[0] == "learning_rate")
+		if (vec[0] == "learning_rate")
 			this->set_lr(strtof(vec[1].c_str(), NULL));
-		if(vec[0] == "weight_decay")
+		if (vec[0] == "weight_decay")
 			this->set_weight_decay(strtof(vec[1].c_str(), NULL));
-		if(vec[0] == "momentum")
+		if (vec[0] == "momentum")
 			this->set_momentum(strtof(vec[1].c_str(), NULL));
-
+		if (vec[0] == "gamma")
+			this->set_gamma(strtof(vec[1].c_str(), NULL));
 	}
 	is.close();
 }

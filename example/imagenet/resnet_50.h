@@ -163,6 +163,7 @@ network* create_res50net(int batch_size_,phase_type phase_)
 		layer_block *predict_ = predict_layer((blob*)ave_pool->get_oblob(), 1000);
 		predict_->layers(0)->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_weight_init_type(msra);
 		predict_->layers(0)->get_op<inner_product_op>(0,CACU_INNERPRODUCT)->set_bias_init_type(constant);
+
 		*net << predict_;
 	}
 	return net;

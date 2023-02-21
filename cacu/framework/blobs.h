@@ -30,6 +30,8 @@
 
 #include <vector>
 
+#include "blob_definition.h"
+
 #include "blob_base.h"
 #include "blob.h"
 #include "bin_blob.h"
@@ -52,46 +54,30 @@ public:
 	}
 
 	~blobs() {
-		for (unsigned i = 0; i < size(); ++i) {
-			if(at(i) != NULL){
-				switch (at(i)->_TYPE()) {
-				case __blob__:
-					delete (blob*) at(i);
-					at(i) = NULL;
-					break;
-				case __bin_blob__:
-					delete (bin_blob*) at(i);
-					at(i) = NULL;
-					break;
-					/*
-					 case __em_blob__:
-					 delete (em_blob*) at(i);
-					 break;
-					 case __em_bin_blob__:
-					 delete (em_bin_blob*) at(i);
-					 break;
-					 */
-				default:
-					LOG_FATAL("can't identify the type!");
-					break;
-				}
-			}
-		}
+		_DELETE_BLOBS();
 	}
 
-	inline blobs& operator <<(blob_base* blob_base_) {
+	inline blobs& operator <<(blob_base *&blob_base_) {
 		this->push_back(blob_base_);
 		return *this;
 	}
 
+//	inline blob_base *&at(int i) {
+//		CHECK_LT_OP(i, size(), "Index out of blobs' size %d vs %d!", i, size());
+//		return at(i);
+//	}
+
 	inline void _DELETE_BLOBS() {
-		for (unsigned i = 0; i < size(); ++i) {
+		for (unsigned int i = 0; i < size(); ++i) {
+
 			switch (at(i)->_TYPE()) {
 			case __blob__:
-				delete (blob*) at(i);
+				asblob(i)->_RELEASE_BLOB();
+				at(i) = NULL;
 				break;
 			case __bin_blob__:
-				delete (bin_blob*) at(i);
+				asbinblob(i)->_RELEASE_BIN_BLOB();
+				at(i) = NULL;
 				break;
 				/*
 				 case __em_blob__:
@@ -110,7 +96,7 @@ public:
 	}
 
 	inline void _REC() {
-		for (size_t i = 0; i < this->size(); ++i)
+		for (unsigned int i = 0; i < this->size(); ++i)
 			at(i)->_REC();
 	}
 
@@ -118,7 +104,7 @@ public:
 	 * reset all data (data & diff) in this blobs
 	 */
 	inline void _RESET_DATA() {
-		for (size_t i = 0; i < this->size(); ++i)
+		for (unsigned int i = 0; i < this->size(); ++i)
 			at(i)->_RESET_DATA();
 	}
 
@@ -126,35 +112,46 @@ public:
 	 * reset diff data (diff) in this blobs
 	 */
 	inline void _RESET_DIFF() {
-		for (size_t i = 0; i < this->size(); ++i)
+		for (unsigned int i = 0; i < this->size(); ++i)
 			at(i)->_RESET_DIFF();
 	}
 
 	inline void _MOTIFY() {
-		for (size_t i = 0; i < this->size(); ++i)
+		for (unsigned int i = 0; i < this->size(); ++i)
 			at(i)->_MOTIFY();
 	}
 
 	inline void _NEED_MOTIFY() {
-		for (size_t i = 0; i < this->size(); ++i)
+		for (unsigned int i = 0; i < this->size(); ++i)
 			at(i)->_NEED_MOTIFY();
 	}
 
-	template<typename BTYPE>
-	inline BTYPE*& astype(int i) const {
-		return (BTYPE *&)at(i);
+	inline blob* asblob(int i) const {
+		return dynamic_cast<blob*>(at(i));
+	}
+
+	inline bin_blob* asbinblob(int i) const {
+		return dynamic_cast<bin_blob*>(at(i));
 	}
 
 	inline void resize(blob_body * body_)
 	{
-		for(int i = 0 ; i< this->size(); ++i)
+		for(unsigned int i = 0 ; i< this->size(); ++i)
 			at(i)->resize(body_->_num, body_->_channel, body_->_width, body_->_height);
+	}
+
+	inline int is_contain(blob_base *blob_)
+	{
+		for (unsigned int i = 0; i < this->size(); ++i)
+			if(at(i) == blob_)
+				return i;
+		return -1;
 	}
 
 	blobs* copy_create()
 	{
 		blobs* datas = new blobs();
-		for(int i = 0 ; i< this->size(); ++i)
+		for(unsigned int i = 0 ; i< this->size(); ++i)
 		{
 			switch (at(i)->_TYPE()) {
 			case __blob__:
@@ -179,6 +176,7 @@ public:
 		}
 		return datas;
 	}
+
 
 };
 }

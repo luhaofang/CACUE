@@ -87,8 +87,7 @@ void face_detect(chars_t file_name) {
 	for (dsize_t i = 0; i < scales->size(); ++i) {
 		hs = dsize_t(height * scales->at(i));
 		ws = dsize_t(width * scales->at(i));
-		cv::resize(src, dst, cv::Size(ws, hs), (0, 0), (0, 0),
-				cv::INTER_LINEAR);
+		cv::resize(src, dst, cv::Size(ws, hs), cv::INTER_LINEAR);
 		Pnet->input_blobs()->at(0)->resize(1, 3, ws, hs);
 		temp_.resize(3 * ws * hs);
 		for (dsize_t y = 0; y < hs; y++)
@@ -112,7 +111,7 @@ void face_detect(chars_t file_name) {
 	}
 
 	NMS(proposals, 0.7, nms_iou);
-	LOG_DEBUG("proposal: %d", proposals->size());
+	LOG_DEBUG("proposal: %d", (int)proposals->size());
 
 	rect *rect_;
 	cv::Mat rectangle;
@@ -126,8 +125,7 @@ void face_detect(chars_t file_name) {
 			src(
 					cv::Rect(rect_->l, rect_->t, (rect_->r - rect_->l),
 							(rect_->b - rect_->t))).copyTo(rectangle);
-			cv::resize(rectangle, dst, cv::Size(24, 24), (0, 0), (0, 0),
-					cv::INTER_LINEAR);
+			cv::resize(rectangle, dst, cv::Size(24, 24), cv::INTER_LINEAR);
 			temp_.resize(3 * 24 * 24);
 			for (dsize_t y = 0; y < 24; y++)
 				for (dsize_t x = 0; x < 24; x++) {
@@ -149,7 +147,7 @@ void face_detect(chars_t file_name) {
 		filter_Rnet_face(cls_prob, roi, width, height, thresholds[1],
 				proposals);
 	}
-	LOG_DEBUG("proposal: %d", proposals->size());
+	LOG_DEBUG("proposal: %d", (int)proposals->size());
 	//Onet processing
 	if (proposals->size() != 0) {
 
@@ -159,8 +157,7 @@ void face_detect(chars_t file_name) {
 			src(
 					cv::Rect(rect_->l, rect_->t, (rect_->r - rect_->l),
 							(rect_->b - rect_->t))).copyTo(rectangle);
-			cv::resize(rectangle, dst, cv::Size(48, 48), (0, 0), (0, 0),
-					cv::INTER_LINEAR);
+			cv::resize(rectangle, dst, cv::Size(48, 48), cv::INTER_LINEAR);
 			temp_.resize(3 * 48 * 48);
 			for (dsize_t y = 0; y < 48; y++)
 				for (dsize_t x = 0; x < 48; x++) {
@@ -183,7 +180,7 @@ void face_detect(chars_t file_name) {
 		filter_Onet_face(cls_prob, roi, width, height, thresholds[2],
 				proposals);
 	}
-	LOG_DEBUG("proposal: %d", proposals->size());
+	LOG_DEBUG("proposal: %d", (int)proposals->size());
 
 	//LOG_INFO("time cost:%ld ms", diff / 1000);
 	for (dsize_t i = 0; i < proposals->size(); ++i) {

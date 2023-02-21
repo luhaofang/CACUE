@@ -45,7 +45,7 @@ inline void device_release() {
 template<typename DTYPE>
 inline DTYPE* device_malloc(const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
-	return cuda_malloc_v(length, 0);
+	return cuda_malloc_v(length, (DTYPE)0);
 #else
 	return NULL;
 #endif
@@ -85,6 +85,13 @@ template<typename DTYPE>
 inline void device_copy2host(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
 #if __PARALLELTYPE__ == __CUDA__
 	cuda_copy2host(d_data_, s_values, length);
+#endif
+}
+
+template<typename DTYPE>
+inline void device_copy(DTYPE *d_data_, DTYPE* s_values, const dsize_t length) {
+#if __PARALLELTYPE__ == __CUDA__
+	cuda_copy(d_data_, s_values, length);
 #endif
 }
 

@@ -68,8 +68,6 @@ vec_t compute_mean(chars_t &filepath, int filecount);
 
 void make_mean(chars_t filepath, chars_t meanfile);
 
-
-
-
+void output_224x224(chars_t filename, int file_id, chars_t outpath, int w, int h);
 
 #endif

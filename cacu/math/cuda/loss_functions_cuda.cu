@@ -60,7 +60,7 @@ __global__ void _k_CACU_CROSS_ENTROPY_MULTI_CUDA(float_t *x, const int num,
 		for (int j = tid; j < c_length ; j += THREADNUM)
 		{
 			xp = x + i * length + j;
-			shared_data[tid] -= (label_[j + i * c_length] >= 0) ? log(max(xp[label_[j + i * c_length] * c_length], float_t(_MIN_FLT_))) : 0.0;
+			shared_data[tid] -= (label_[j + i * c_length] >= 0) ? logf(max(xp[label_[j + i * c_length] * c_length], float_t(_MIN_FLT_))) : 0.0;
 		}
 		__syncthreads();
 
@@ -83,9 +83,51 @@ extern "C" void cacu_cross_entropy_multi_cuda(float_t *x, const int num,
 
 	_k_CACU_CROSS_ENTROPY_MULTI_CUDA<<<1, THREADNUM, THREADNUM * sizeof (float)>>>(x,
 				num, channel, width, height, label_, loss_);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
+
+
+/*
+ *channel: channel of input data
+ *kernel_size: pooling window size
+ *input_dim: width of input data
+ *output_dim: width of output data
+ */
+__global__ void _k_CACU_CROSS_ENTROPY_MULTI_GRAD_CUDA(float_t *x, const int num,
+		const int channel, const int width, const int height,
+		const int *label_, float_t *xg) {
+
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	float_t *xp;
+	int c_length = width * height;
+	int length = channel * c_length;
+
+	for (int i = 0; i < num; ++i)
+	{
+		shared_data[tid] = 0;
+		for (int j = tid; j < c_length ; j += THREADNUM)
+		{
+			xp = x + i * length + j;
+			xg[i * length + j + label_[j + i * c_length] * c_length] = 
+				float_t(-1.0) / max(xp[label_[j + i * c_length] * c_length], float_t(_MIN_FLT_));
+		}
+	}
+}
+
+extern "C" void cacu_cross_entropy_multi_grad_cuda(float_t *x, const int num,
+		const int channel, const int width, const int height,
+		const int *label_, float_t *xg) {
+
+	_k_CACU_CROSS_ENTROPY_MULTI_GRAD_CUDA<<<1, THREADNUM, THREADNUM * sizeof (float)>>>(x,
+				num, channel, width, height, label_, xg);
+	CUDA_CHECK(cuda_device_sync_status());
+
+}
+
 
 }
 

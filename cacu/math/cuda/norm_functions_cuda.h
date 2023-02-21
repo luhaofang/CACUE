@@ -28,8 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NORM_FUNCTIONS_CUDA_H_
 #define NORM_FUNCTIONS_CUDA_H_
 
-#include "../../config.h"
-
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
@@ -38,7 +36,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cacu{
 
 
+extern "C" void cacu_normalization_l1_cuda(float_t *x, const int length, const float_t epsilon);
 
+extern "C" void cacu_normalization_l1_grad_cuda(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg);
+
+extern "C" void cacu_normalization_l2_cuda(float_t *x, const int length, const float_t epsilon);
+
+extern "C" void cacu_normalization_l2_grad_cuda(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg);
+
+extern "C" void cacu_norm_l1_cuda(float_t *x, const int length, const float_t epsilon, float_t *norm);
+
+extern "C" void cacu_norm_l2_cuda(float_t *x, const int length, const float_t epsilon, float_t *norm);
 
 }
 

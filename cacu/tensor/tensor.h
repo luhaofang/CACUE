@@ -50,13 +50,13 @@ public:
 	/*
 	 * WARNING: frequently call for the function will extremely reduce the performance
 	 */
-	inline DTYPE* pdata_cpu() {
+	inline DTYPE* pdata_cpu(bool sycn = true) {
 #if __USE_DEVICE__ == ON
 		if (_pdata_cpu == NULL) {
 			_pdata_cpu = (DTYPE*) malloc(_length * sizeof(DTYPE));
-
 		}
-		device_copy2host(_pdata_cpu, _pdata, _length);
+		if (sycn)
+			device_copy2host(_pdata_cpu, _pdata, _length);
 		return _pdata_cpu;
 #else
 		return NULL;
@@ -76,6 +76,10 @@ public:
 	 * copy data from host RAM to tensor memory
 	 */
 	void copy2data(DTYPE* data_);
+	/*
+	 * copy data from uniform deive
+	 */
+	void copy(DTYPE* data_);
 	/*
 	 * copy data from host RAM to tensor memory
 	 */
@@ -120,7 +124,7 @@ tensor<DTYPE>::tensor(dsize_t length) {
 	_pdata = device_malloc_v<DTYPE>(length, 0);
 #else
 	_pdata = (DTYPE*)malloc(length * sizeof(DTYPE));
-	set_value(0);
+	set_value((DTYPE)0);
 #endif
 
 }
@@ -148,7 +152,7 @@ inline void tensor<DTYPE>::resize(dsize_t length, DTYPE value) {
 	_length = length;
 #if __USE_DEVICE__ == ON
 	device_free(_pdata);
-	_pdata = device_malloc_v<DTYPE>(length, value);
+	_pdata = device_malloc_v<DTYPE>(_length, value);
 	if (_pdata_cpu != NULL){
 		free(_pdata_cpu);
 		_pdata_cpu = NULL;
@@ -164,6 +168,15 @@ template<typename DTYPE>
 inline void tensor<DTYPE>::copy2data(DTYPE* data_) {
 #if __USE_DEVICE__ == ON
 	device_copy2dev(_pdata, data_, _length);
+#else
+	cacu_copy_cpu(data_,_length, _pdata);
+#endif
+}
+
+template<typename DTYPE>
+inline void tensor<DTYPE>::copy(DTYPE* data_) {
+#if __USE_DEVICE__ == ON
+	device_copy(_pdata, data_, _length);
 #else
 	cacu_copy_cpu(data_,_length, _pdata);
 #endif
@@ -203,7 +216,7 @@ inline void tensor<DTYPE>::refresh() {
 #if __USE_DEVICE__ == ON
 	device_refresh(_pdata, _length);
 #else
-	cacu_memset<DTYPE>(_pdata, 0 ,_length);
+	cacu_memset<DTYPE>(_pdata, (DTYPE)0 ,_length);
 #endif
 }
 

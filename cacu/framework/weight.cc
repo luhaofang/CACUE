@@ -35,61 +35,46 @@
 
 namespace cacu {
 
-weight::weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
+weight::weight(const chars_t& name, dsize_t num, dsize_t channel, dsize_t width,
 		dsize_t height, phase_type phase) :
 		blob(num, channel, width, height, 0, phase, true) {
 	_name = name;
 	_update_lr = 1.0;
 	_decay_mult = 1.0;
 	_update = true;
+	_variable = true;
+	_upgrade_index = new vec_i();
+	_update_index = new vec_i();
 #if __USE_CUDNN__ == ON
-	CUDNN_CHECK(cudnnCreateFilterDescriptor(&_filter_desc, num, channel, height, width));
+	create_filter_desc(_filter_desc);
+	set_filter_4d_desc(_filter_desc, _body->_num, _body->_channel, _body->_width, _body->_height);
+#endif
+}
+
+weight::weight(chars_t&& name, dsize_t num, dsize_t channel, dsize_t width,
+		dsize_t height, phase_type phase) :
+		blob(num, channel, width, height, 0, phase, true) {
+	_name = std::move(name);
+	_update_lr = 1.0;
+	_decay_mult = 1.0;
+	_update = true;
+	_variable = true;
+	_upgrade_index = new vec_i();
+	_update_index = new vec_i();
+#if __USE_CUDNN__ == ON
+	create_filter_desc(_filter_desc);
+	set_filter_4d_desc(_filter_desc, _body->_num, _body->_channel, _body->_width, _body->_height);
 #endif
 }
 
 weight::~weight() {
 #if __USE_CUDNN__ == ON
-	CUDNN_CHECK(cudnnDestroyFilterDescriptor(_data_desc));
+	destroy_filter_descriptor(_filter_desc);
 #endif
+	delete _upgrade_index;
+	delete _update_index;
 }
 
-void weight::set_init_type(param_init_type type, float_t value) {
-	vec_t w(count());
-	float_t d_value;
-	switch (type) {
-	case constant:
-		for (int i = 0; i < count(); ++i)
-			w[i] = value;
-		break;
-	case xavier:
-		d_value = sqrt((float_t) 6.0 / (count() / num() + count() / channel()));
-		if(value == 0.0)
-			for (int i = 0; i < count(); ++i)
-				w[i] = urand(-d_value, d_value);
-		else
-			for (int i = 0; i < count(); ++i)
-				w[i] = urand(-d_value, d_value) * value;
-		break;
-	case gaussian:
-		for (int i = 0; i < count(); ++i)
-			w[i] = gaussrand(value);
-		break;
-	case msra:
-		d_value = sqrt((float_t) 2.0 / (channel() * height() * width()));
-		if(value == 0.0)
-			for (int i = 0; i < count(); ++i)
-				w[i] = gaussrand(d_value);
-		else
-			for (int i = 0; i < count(); ++i)
-				w[i] = gaussrand(d_value) * value;
-		break;
-	default:
-		LOG_FATAL("unknown weight type for [%s]!", _name.c_str());
-		break;
-	}
-	_tdata->copy2data(&w[0]);
-	vec_t().swap(w);
-}
 
 /*
  * serializa blob data, output data to model file
@@ -131,7 +116,7 @@ void weight::load_group(std::ifstream& is, int group) {
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));
 	CHECK_EQ_OP(length_, num() * _v.size(),
 			"parameter '%s' length is not equal to local weight: %d vs %d!",
-			_name.c_str(), length_, num() * _v.size());
+			_name.c_str(), length_, num() * (int)_v.size());
 	for (int n = 0; n < num(); ++n) {
 		for (int i = 0; i < _v.size(); ++i)
 			is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));
@@ -143,7 +128,8 @@ void weight::load_group(std::ifstream& is, int group) {
 	vec_t _v(channel_length() * (channel() / group));
 	int length_;
 	is.read(reinterpret_cast<char*>(&length_), sizeof(int));
-	CHECK_EQ_OP(length_,num() * _v.size(),"parameter '%s' length is not equal to local weight: %d vs %d!", _name.c_str(), length_, num() * _v.size());
+	CHECK_EQ_OP(length_,num() * (int)_v.size(),"parameter '%s' length is not equal to local weight: %d vs %d!",
+			_name.c_str(), length_, num() * (int)_v.size());
 	for (int n = 0; n < num(); ++n) {
 		for(int i = 0; i < _v.size(); ++i)
 		is.read(reinterpret_cast<char*>(&_v[i]), sizeof(float_t));

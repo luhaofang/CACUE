@@ -28,8 +28,6 @@
 #ifndef BATCH_FUNCTIONS_H_
 #define BATCH_FUNCTIONS_H_
 
-#include "math_definition.h"
-//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/batch_functions_cuda.h"
@@ -44,15 +42,16 @@ namespace cacu {
  * sum by width y is (length/ width) height dim, sum by height y is width dim.
  * warning: take seriously this function may create accumulated error when width is large enough
  */
-template<typename DTYPE>
-inline void cacu_sumbysize(SUM SUMTYPE, DTYPE *x, int length,
-		const float_t alpha, DTYPE *y, const float_t beta, int width) {
+
+inline void cacu_sumbysize(SUM SUMTYPE, float_t *x, int length,
+		const float_t alpha, float_t *y, const float_t beta, int width) {
+	assert(length != 0 && width != 0);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sumbysize_cuda(SUMTYPE, x, length, alpha, y, beta, width);
 #endif
 #else
-	cacu_sumbysize_cpu(SUMTYPE,x,length,alpha,y,beta,width);
+	cacu_sumbysize_cpu(SUMTYPE, x, length, alpha, y, beta, width);
 #endif
 }
 
@@ -61,15 +60,17 @@ inline void cacu_sumbysize(SUM SUMTYPE, DTYPE *x, int length,
  * math y[i] = a[j]*x[i] :
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding scalar, j = i / (length / size).
  */
-template<typename DTYPE>
-inline void cacu_cxsize(DTYPE *x, int length, DTYPE *a, int size,
-		DTYPE *y) {
+
+inline void cacu_cxsize(float_t *x, int length, float_t *a, int size,
+		float_t *y) {
+	assert(length >= size && length % size == 0);
+	assert(length != 0 && size != 0);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_cxsize_cuda(x, length, a, size, y);
 #endif
 #else
-	cacu_cxsize_cpu(x, length, a, size,y);
+	cacu_cxsize_cpu(x, length, a, size, y);
 #endif
 }
 
@@ -78,10 +79,11 @@ inline void cacu_cxsize(DTYPE *x, int length, DTYPE *a, int size,
  * math y[i] = x[i] / a[j] :
  * x is a length dim array list, a is a size dim array list, a[j] is the corresponding denominator, j = i / (length / size).
  */
-template<typename DTYPE>
-inline void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size,
-		DTYPE *y) {
-	assert(length % size == 0);
+
+inline void cacu_cdxsize(float_t *x, int length, float_t *a, int size,
+		float_t *y) {
+	assert(length >= size && length % size == 0);
+	assert(length != 0 && size != 0);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_cdxsize_cuda(x, length, a, size, y);
@@ -96,8 +98,10 @@ inline void cacu_cdxsize(DTYPE *x, int length, DTYPE *a, int size,
  * math y[i] = (x[i] + a) / b:
  * x is a length dim array list, a is the corresponding denominator.
  */
-template<typename DTYPE>
-inline void cacu_sdxsize(DTYPE *x, const int length, const DTYPE a, const DTYPE b, DTYPE *y) {
+
+inline void cacu_sdxsize(float_t *x, const int length, const float_t a,
+		const float_t b, float_t *y) {
+	assert(length != 0);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sdxsize_cuda(x, length, a, b, y);
@@ -113,9 +117,11 @@ inline void cacu_sdxsize(DTYPE *x, const int length, const DTYPE a, const DTYPE 
  * y is a length dim array list, x is a size dim array list, x[j] is the corresponding scalar, j = i / (length / size).
  * a & b are corresponding scalars for x, y
  */
-template<typename DTYPE>
-inline void cacu_ssxpy(DTYPE *x, const DTYPE a, const int size, DTYPE *y,
-		const DTYPE b, const int length, DTYPE *z) {
+
+inline void cacu_ssxpy(float_t *x, const float_t a, const int size, float_t *y,
+		const float_t b, const int length, float_t *z) {
+	assert(length >= size && length % size == 0);
+	assert(length != 0 && size != 0);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_ssxpy_cuda(x, a, size, y, b, length, z);
@@ -129,14 +135,14 @@ inline void cacu_ssxpy(DTYPE *x, const DTYPE a, const int size, DTYPE *y,
  * @cacu_sqr
  * math y[i] = x[i]^2 :
  */
-template<typename DTYPE>
-inline void cacu_sqr(DTYPE *x, int length, DTYPE *y) {
+
+inline void cacu_sqr(float_t *x, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_sqr_cuda(x, length, y);
 #endif
 #else
-	cacu_sqr_cpu(x,length,y);
+	cacu_sqr_cpu(x, length, y);
 #endif
 }
 
@@ -144,14 +150,14 @@ inline void cacu_sqr(DTYPE *x, int length, DTYPE *y) {
  * @cacu_root
  * math y[i] = sqrt(x[i]) :
  */
-template<typename DTYPE>
-inline void cacu_root(DTYPE *x, int length, DTYPE *y) {
+
+inline void cacu_root(float_t *x, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_root_cuda(x, length, y);
 #endif
 #else
-	cacu_root_cpu(x,length,y);
+	cacu_root_cpu(x, length, y);
 #endif
 }
 
@@ -159,15 +165,15 @@ inline void cacu_root(DTYPE *x, int length, DTYPE *y) {
  * @cacu_stdbychannel
  * math std[i] = sqrt(varience[i] + epsilon) :
  */
-template<typename DTYPE>
-inline void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std,
-		const DTYPE epsilon) {
+
+inline void cacu_stdbychannel(float_t *varience, int length, float_t *std,
+		const float_t epsilon) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_stdbychannel_cuda(varience, length, std, epsilon);
 #endif
 #else
-	cacu_stdbychannel_cpu(varience,length,std,epsilon);
+	cacu_stdbychannel_cpu(varience, length, std, epsilon);
 #endif
 }
 
@@ -181,10 +187,11 @@ inline void cacu_stdbychannel(DTYPE *varience, int length, DTYPE *std,
  * length: size of a feature map
  * d_rou: gradient of batch's variance
  */
-template<typename DTYPE>
-inline void cacu_bn_rou_grad(const DTYPE *x, const DTYPE *d_x,
-		const DTYPE *mean, const DTYPE *std, int num, int length, int channel,
-		DTYPE *d_rou) {
+
+inline void cacu_bn_rou_grad(const float_t *x, const float_t *d_x,
+		const float_t *mean, const float_t *std, int num, int length,
+		int channel, float_t *d_rou) {
+	assert(length != 1 && num * channel != 1);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_bn_rou_grad_cuda(x, d_x, mean, std, num, length, channel, d_rou);
@@ -205,16 +212,17 @@ inline void cacu_bn_rou_grad(const DTYPE *x, const DTYPE *d_x,
  * length: size of a feature map
  * d_mean: gradient of batch's mean
  */
-template<typename DTYPE>
-inline void cacu_bn_mu_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
-		const DTYPE *std, const DTYPE *d_rou, int num, int length, int channel,
-		DTYPE *d_mean) {
+
+inline void cacu_bn_mu_grad(const float_t *x, const float_t *d_x,
+		const float_t *mean, const float_t *std, const float_t *d_rou, int num,
+		int length, int channel, float_t *d_mean) {
+	assert(length != 1 && num * channel != 1);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_bn_mu_grad_cuda(x, d_x, mean, std, d_rou, num, length, channel, d_mean);
 #endif
 #else
-	cacu_bn_mu_grad_cpu(x, d_x, mean, std, d_rou, num, length ,channel, d_mean);
+	cacu_bn_mu_grad_cpu(x, d_x, mean, std, d_rou, num, length, channel, d_mean);
 #endif
 }
 
@@ -230,17 +238,19 @@ inline void cacu_bn_mu_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
  * length: size of a feature map
  * dx: gradient of x
  */
-template<typename DTYPE>
-inline void cacu_bn_dx_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
-		const DTYPE *std, const DTYPE *d_rou, const DTYPE *d_mean, int num,
-		int length, int channel, DTYPE *dx) {
+
+inline void cacu_bn_dx_grad(const float_t *x, const float_t *d_x,
+		const float_t *mean, const float_t *std, const float_t *d_rou,
+		const float_t *d_mean, int num, int length, int channel, float_t *dx) {
+	assert(length != 1 && num * channel != 1);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_bn_dx_grad_cuda(x, d_x, mean, std, d_rou, d_mean, num, length, channel,
 			dx);
 #endif
 #else
-	cacu_bn_dx_grad_cpu(x, d_x, mean, std, d_rou, d_mean, num, length, channel, dx);
+	cacu_bn_dx_grad_cpu(x, d_x, mean, std, d_rou, d_mean, num, length, channel,
+			dx);
 #endif
 }
 
@@ -252,9 +262,10 @@ inline void cacu_bn_dx_grad(const DTYPE *x, const DTYPE *d_x, const DTYPE *mean,
  * length: size of a feature map
  * d_gamma: gradient of gamma
  */
-template<typename DTYPE>
-inline void cacu_bn_gamma_grad(const DTYPE *_x, const DTYPE *d_y, int num,
-		int length, int channel, DTYPE *d_gamma) {
+
+inline void cacu_bn_gamma_grad(const float_t *_x, const float_t *d_y, int num,
+		int length, int channel, float_t *d_gamma) {
+	assert(length != 1 && num * channel != 1);
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_bn_gamma_grad_cuda(_x, d_y, num, length, channel, d_gamma);
@@ -269,8 +280,8 @@ inline void cacu_bn_gamma_grad(const DTYPE *_x, const DTYPE *d_y, int num,
  * math y[i] *= x[i] :
  * scale by element wise.
  */
-template<typename DTYPE>
-inline void cacu_ssx(DTYPE *x, int length, DTYPE *y) {
+
+inline void cacu_ssx(float_t *x, int length, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_ssx_cuda(x, length, y);
@@ -281,12 +292,28 @@ inline void cacu_ssx(DTYPE *x, int length, DTYPE *y) {
 }
 
 /**
+ * @cacu_invx
+ * math y[i] = 1 / x[i] :
+ * scale by element wise.
+ */
+
+inline void cacu_invx(float_t *x, int length, float_t *y) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_invx_cuda(x, length, y);
+#endif
+#else
+	cacu_invx_cpu(x, length, y);
+#endif
+}
+
+/**
  * @cacu_group_alloc
  * alloc data by group
  */
-template<typename DTYPE>
+
 inline void cacu_group_alloc(int num, int channel, int channel_length,
-		int group, DTYPE *y) {
+		int group, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_group_alloc_cuda(num, channel, channel_length, group, y);
@@ -300,9 +327,9 @@ inline void cacu_group_alloc(int num, int channel, int channel_length,
  * @cacu_group_combine
  * combine data by group
  */
-template<typename DTYPE>
+
 inline void cacu_group_combine(int num, int channel, int channel_length,
-		int group, DTYPE *y) {
+		int group, float_t *y) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 	cacu_group_combine_cuda(num, channel, channel_length, group, y);
@@ -313,6 +340,5 @@ inline void cacu_group_combine(int num, int channel, int channel_length,
 }
 
 }
-
 
 #endif

@@ -30,7 +30,6 @@
 
 #include <vector>
 
-//#include "layer_base.h"
 #include "layer.h"
 
 using namespace std;
@@ -43,28 +42,44 @@ public:
 
 	layer_block();
 
+	layer_block(blobs *&datas_);
+
 	~layer_block();
 
-	inline blob_base *& get_oblob() {
+	inline blob_base * get_oblob() {
+		assert(length() > 0);
 		return layers(length() - 1)->get_oblob();
 	}
 
-	template<class OPTYPE>
-	inline OPTYPE *&top_op(){
+	inline blob *oblob(){
+		return dynamic_cast<blob*>(get_oblob());
+	}
+
+	template<typename OPTYPE>
+	inline OPTYPE *top_op(){
+		assert(length() > 0);
 		layer *top_layer_=layers(length() - 1);
-		return top_layer_->get_op<OPTYPE>(top_layer_->op_count()-1,
-				top_layer_->get_out_op()->_TYPE());
+		OPTYPE* op = dynamic_cast<OPTYPE*>(top_layer_->get_out_op());
+		if(op == NULL)
+			LOG_FATAL("op type casting failed!");
+		return op;
 	}
 
-	inline layer *&layers(int i) const {
-		return (layer*&) _layers->at(i);
+	inline layer *layers(int i) {
+		assert(i >= 0);
+		layer* layer_ = dynamic_cast<layer*>(_layers->at(i));
+		if(layer_ == NULL)
+			LOG_FATAL("layer capture falled!");
+		return layer_;
 	}
 
-	inline layer_base*& pop_layer() const {
+	inline layer* pop_layer() const {
+		assert(length() > 0);
 		return _layers->at(length() - 1);
 	}
 
-	inline layer_base*& layer_bases(int i) const {
+	inline layer* layer_bases(int i) const {
+		assert(i >= 0);
 		return _layers->at(i);
 	}
 
@@ -76,20 +91,62 @@ public:
 
 	layer_block& operator <<(layer_block &layer_block_);
 
-	layer_block& operator <<(layer_base* const &layer_);
+	layer_block& operator <<(layer* const &layer_);
 
-	layer_block& operator <<(layer_base &layer_);
+	layer_block& operator <<(layer &layer_);
 
-	void load_weights(chars_t modelpath);
+	void load_weights(const chars_t& modelpath){
+		std::ifstream is(modelpath, ios::binary);
+		is.precision(std::numeric_limits<float_t>::digits10);
+		if (!is)
+			LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
+		for(unsigned int i =0 ; i < _layers->size(); ++i)
+		{
+			_layers->at(i)->load_weights(is);
+		}
+		is.close();
+		LOG_INFO("Initialize model by : %s", modelpath.c_str());
+	}
 
-	void save_weights(chars_t modelpath);
+
+	void load_weights_reverse(const chars_t& modelpath){
+		std::ifstream is(modelpath, ios::binary);
+		is.precision(std::numeric_limits<float_t>::digits10);
+		if (!is)
+			LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
+		for(unsigned int i = _layers->size() - 1 ; i >=0; --i)
+		{
+			_layers->at(i)->load_weights_reverse(is);
+		}
+		is.close();
+		LOG_INFO("Initialize model by : %s", modelpath.c_str());
+	}
+
+	void save_weights(const chars_t& modelpath){
+		std::ofstream os(modelpath, ios::binary);
+		os.precision(std::numeric_limits<float_t>::digits10);
+		if (!os)
+			LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
+		for(unsigned int i =0 ; i < _layers->size(); ++i)
+		{
+			_layers->at(i)->save_weights(os);
+		}
+		os.close();
+		LOG_INFO("The model is saved at : %s", modelpath.c_str());
+	}
 
 	void set_update_weight(bool isupdate_);
+
+	inline blobs * get_indatas(){
+		return _in_datas;
+	}
 
 
 private:
 
-	vector<layer_base*> *_layers;
+	vector<layer*> *_layers;
+
+	blobs *_in_datas;
 };
 
 }

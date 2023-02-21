@@ -31,12 +31,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "math_definition.h"
 
 #include "math_functions.h"
+#include "norm_functions.h"
 #include "activation_functions.h"
 #include "batch_functions.h"
 #include "pooling_functions.h"
 #include "loss_functions.h"
-#include "norm_functions.h"
 
+#include "cudnn/cudnn_functions.h"
 
 
 #endif

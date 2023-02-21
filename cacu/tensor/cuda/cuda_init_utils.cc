@@ -30,20 +30,21 @@
 
 #include "../../config.h"
 #include "../../math/blas/cublas_utils.h"
+#include "../../math/cudnn/cudnn_utils.h"
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 namespace cacu {
 
-cublasHandle_t handle = NULL;
+cublasHandle_t CUBLAS_HANDLE = NULL;
 
 void create_cublas_handle(){
-	CUBLAS_CHECK(cublasCreate_v2(&handle));
+	CUBLAS_CHECK(cublasCreate_v2(&CUBLAS_HANDLE));
 }
 
 void release_cublas_handle() {
-	CUBLAS_CHECK(cublasDestroy_v2(handle));
+	CUBLAS_CHECK(cublasDestroy_v2(CUBLAS_HANDLE));
 }
 
 void cuda_set_device(unsigned int device_id) {
@@ -76,7 +77,7 @@ void cuda_release() {
 }
 
 void cuda_free(void* data_) {
-	cudaFree(data_);
+	CUDA_CHECK(cudaFree(data_));
 }
 
 

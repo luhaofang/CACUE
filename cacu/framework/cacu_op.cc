@@ -29,11 +29,10 @@
 
 namespace cacu {
 
-cacu_op::cacu_op(op_name op_type_, phase_type phase_)
-{
+cacu_op::cacu_op(op_name op_type_, phase_type phase_) {
 	_op_type = op_type_;
 	blobs *s_datas_ = new blobs();
-	s_datas_->push_back(new blob(1,1,1,1,0,phase_,false));
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
 	_op = operator_factory::create_op(op_type_, s_datas_, NULL, NULL);
 	_in_ops = new vector<cacu_op*>();
 	_out_ops = new vector<cacu_op*>();
@@ -41,11 +40,10 @@ cacu_op::cacu_op(op_name op_type_, phase_type phase_)
 	_phase = phase_;
 }
 
-cacu_op::cacu_op(op_name op_type_, op_args *args_, phase_type phase_)
-{
+cacu_op::cacu_op(op_name op_type_, op_args *args_, phase_type phase_) {
 	_op_type = op_type_;
 	blobs *s_datas_ = new blobs();
-	s_datas_->push_back(new blob(1,1,1,1,0,phase_,false));
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
 	_op = operator_factory::create_op(op_type_, s_datas_, NULL, args_);
 	_in_ops = new vector<cacu_op*>();
 	_out_ops = new vector<cacu_op*>();
@@ -53,12 +51,68 @@ cacu_op::cacu_op(op_name op_type_, op_args *args_, phase_type phase_)
 	_phase = phase_;
 }
 
-cacu_op::cacu_op(op_name op_type_, data_args *args_, phase_type phase_)
-{
+cacu_op::cacu_op(op_name op_type_, data_args *args_, phase_type phase_) {
 	_op_type = op_type_;
 	blobs *s_datas_ = new blobs();
-	s_datas_->push_back(new blob(1,1,1,1,0,phase_,false));
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
 	_op = operator_factory::create_op(op_type_, s_datas_, args_, NULL);
+	_in_ops = new vector<cacu_op*>();
+	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
+}
+
+cacu_op::cacu_op(op_name op_type_, op_args *o_args_, data_args *args_,
+		phase_type phase_) {
+	_op_type = op_type_;
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
+	_op = operator_factory::create_op(op_type_, s_datas_, args_, o_args_);
+	_in_ops = new vector<cacu_op*>();
+	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
+}
+
+cacu_op::cacu_op(chars_t&& op_name_, phase_type phase_) {
+	_op_type = MACRO_FACTORY_OP::get_op_type(op_name_);
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
+	_op = operator_factory::create_op(_op_type, s_datas_, NULL, NULL);
+	_in_ops = new vector<cacu_op*>();
+	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
+}
+
+cacu_op::cacu_op(chars_t&& op_name_, op_args *args_, phase_type phase_) {
+	_op_type = MACRO_FACTORY_OP::get_op_type(op_name_);
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
+	_op = operator_factory::create_op(_op_type, s_datas_, NULL, args_);
+	_in_ops = new vector<cacu_op*>();
+	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
+}
+
+cacu_op::cacu_op(chars_t&& op_name_, data_args *args_, phase_type phase_) {
+	_op_type = MACRO_FACTORY_OP::get_op_type(op_name_);
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
+	_op = operator_factory::create_op(_op_type, s_datas_, args_, NULL);
+	_in_ops = new vector<cacu_op*>();
+	_out_ops = new vector<cacu_op*>();
+	_out_datas = _op->out_datas()->copy_create();
+	_phase = phase_;
+}
+
+cacu_op::cacu_op(chars_t&& op_name_, op_args *o_args_, data_args *args_,
+		phase_type phase_) {
+	_op_type = MACRO_FACTORY_OP::get_op_type(op_name_);
+	blobs *s_datas_ = new blobs();
+	s_datas_->push_back(new blob(1, 1, 1, 1, 0, phase_, false));
+	_op = operator_factory::create_op(_op_type, s_datas_, args_, o_args_);
 	_in_ops = new vector<cacu_op*>();
 	_out_ops = new vector<cacu_op*>();
 	_out_datas = _op->out_datas()->copy_create();
@@ -69,8 +123,7 @@ cacu_op::cacu_op(op_name op_type_, data_args *args_, phase_type phase_)
  * cacu_op don't maintain the input operator list.
  * don't need to release input cacu_op memory
  */
-cacu_op::~cacu_op()
-{
+cacu_op::~cacu_op() {
 	delete _in_ops;
 	_in_ops = NULL;
 	delete _out_ops;
@@ -81,15 +134,15 @@ cacu_op::~cacu_op()
 	_out_datas = NULL;
 }
 
-
 /**
  * default data blob is [0]
  */
-blobs *cacu_op::forward(blobs *&datas_)
-{
+blobs* cacu_op::forward(blobs *datas_) {
 	/*
 	 * fix op output blob body
 	 */
+	if (_phase != datas_->at(0)->phase())
+		LOG_FATAL("The phases from input blob and operator must be equal!");
 	blob_base *sblob_op = _op->in_datas()->at(0);
 	blob_base *sblob_ = datas_->at(0);
 	if (!sblob_->body()->check_body(sblob_op->body())) {
@@ -98,26 +151,27 @@ blobs *cacu_op::forward(blobs *&datas_)
 	}
 	//reset the data's values
 	_op->LOOP_INIT_DATA_();
+
 	//if op alloc the output space, resize out data
-	if(_op->is_alloc_output()){
+	if (_op->is_alloc_output()) {
 		_out_datas->resize(_op->out_data<blob>()->body());
 		_out_datas->_RESET_DATA();
 	}
 	//if op don't need to alloc output space, just confirm the output size;
-	else{
+	else {
 		_out_datas = datas_;
 	}
 	//need reverse propagate, here to storage the input data
 	_op->op(datas_, _out_datas);
+	//datas_->at(0)->blob_size();
 	_in_datas = datas_;
 	return _out_datas;
 }
 
-void cacu_op::backward()
-{
-	if(_phase == train)
+void cacu_op::backward() {
+	if (_phase == train) {
 		_op->grad(_in_datas, _out_datas);
+	}
 }
-
 
 }

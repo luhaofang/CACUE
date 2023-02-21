@@ -28,8 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BATCH_FUNCTIONS_CUDA_H_
 #define BATCH_FUNCTIONS_CUDA_H_
 
-#include "../../config.h"
-
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
@@ -155,6 +153,14 @@ extern "C" void cacu_bn_gamma_grad_cuda(const float_t *_x,const float_t *d_y, in
  * scale by element wise.
  */
 extern "C" void cacu_ssx_cuda(const float_t *x, int length, float_t *y);
+
+/**
+ * @cacu_ssx_cuda
+ * math y[i] *= x[i] :
+ * scale by element wise.
+ */
+extern "C" void cacu_invx_cuda(const float_t *x, int length, float_t *y);
+
 
 /**
  * @cacu_group_alloc

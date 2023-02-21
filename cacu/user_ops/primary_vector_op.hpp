@@ -78,9 +78,9 @@ public:
 				_args->output_channel());
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_) override {
+	void op(blobs *&s_blobs_,blobs *&o_blobs_) override {
 
-		blob *bias_multiplier = (blob*) _bias_multiplier;
+//		blob *bias_multiplier = _bias_multiplier;
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -97,8 +97,8 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs_->at(0);
-		blob *s_blob_ = (blob*)s_blobs_->at(0);
+		blob *o_blob_ = o_blobs_->asblob(0);
+		blob *s_blob_ = s_blobs_->asblob(0);
 
 		cacu_sgemm(TRANS, NOTRANS, _w->s_data(),_w->num(), _w->length(),s_blob_->s_data(),s_blob_->num(), 1 ,o_blob_->s_data(),0);
 		//bias added
@@ -111,9 +111,9 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
+	void grad(blobs *&s_blobs_,blobs *&o_blobs_) override {
 
-		blob *bias_multiplier = (blob*) _bias_multiplier;
+		blob *bias_multiplier = _bias_multiplier;
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -135,8 +135,8 @@ public:
 			s_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs_->at(0);
-		blob *s_blob_ = (blob*)s_blobs_->at(0);
+		blob *o_blob_ = o_blobs_->asblob(0);
+		blob *s_blob_ = s_blobs_->asblob(0);
 
 		//gradient propagation
 		cacu_sgemm(NOTRANS,NOTRANS,_w->s_data(),_w->length(),_w->num(), o_blob_->s_diff(), o_blob_->num(), 1 ,s_blob_->s_diff(), 0);

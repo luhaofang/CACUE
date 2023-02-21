@@ -31,7 +31,13 @@ namespace cacu {
 
 layer_block::layer_block() {
 
-	_layers = new vector<layer_base*>();
+	_layers = new vector<layer*>();
+	_in_datas = NULL;
+}
+
+layer_block::layer_block(blobs *&datas_){
+	_layers = new vector<layer*>();
+	_in_datas = datas_;
 }
 
 layer_block::~layer_block() {
@@ -42,8 +48,11 @@ layer_block::~layer_block() {
 		_layers->at(i)= NULL;
 	}
 	*/
-	delete _layers;
+	//delete _layers;
 	_layers = NULL;
+	//make sure layer block DO NOT maintain data blob
+	if(_in_datas != NULL)
+		_in_datas = NULL;
 }
 
 layer_block& layer_block::operator <<(layer_block* const &layer_block_) {
@@ -58,54 +67,26 @@ layer_block& layer_block::operator <<(layer_block &layer_block_) {
 	return *this;
 }
 
-layer_block& layer_block::operator <<(layer_base* const &layer_) {
+layer_block& layer_block::operator <<(layer* const &layer_) {
 
 	_layers->push_back(layer_);
 	return *this;
 }
 
-layer_block& layer_block::operator <<(layer_base &layer_) {
+layer_block& layer_block::operator <<(layer &layer_) {
 
 	_layers->push_back(&layer_);
 	return *this;
 }
 
-void layer_block::load_weights(chars_t modelpath)
-{
-	std::ifstream is(modelpath, ios::binary);
-	is.precision(std::numeric_limits<float_t>::digits10);
-	if (!is)
-		LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
-	for(int i =0 ; i < _layers->size(); ++i)
-	{
-		_layers->at(i)->load_weights(is);
-	}
-	is.close();
-	LOG_INFO("Initialize model by : %s", modelpath.c_str());
-}
-
-void layer_block::save_weights(chars_t modelpath)
-{
-	std::ofstream os(modelpath, ios::binary);
-	os.precision(std::numeric_limits<float_t>::digits10);
-	if (!os)
-		LOG_FATAL("model file %s cannot be opened!", modelpath.c_str());
-	for(int i =0 ; i < _layers->size(); ++i)
-	{
-		_layers->at(i)->save_weights(os);
-	}
-	os.close();
-	LOG_INFO("The model is saved at : %s", modelpath.c_str());
-}
-
 void layer_block::set_update_weight(bool isupdate_)
 {
 	for (unsigned int i = 0; i < _layers->size(); ++i) {
-		for (unsigned int j = 0; j < _layers->at(i)->op_count(); ++j){
-			_layers->at(i)->op(j)->set_is_update_weight(isupdate_);
-			if(_layers->at(i)->op(j)->_TYPE()==CACU_BATCH_NORMALIZE)
+		for (int j = 0; j < _layers->at(i)->op_count(); ++j){
+			_layers->at(i)->get_op_base(j)->set_is_update_weight(isupdate_);
+			if(_layers->at(i)->get_op_base(j)->_TYPE()==CACU_BATCH_NORMALIZE)
 			{
-				((batch_normalize_op *)_layers->at(i)->op(j))->set_is_use_global_stats(isupdate_==false);
+				dynamic_cast<batch_normalize_op*>(_layers->at(i)->get_op_base(j))->set_is_use_global_stats(isupdate_==false);
 			}
 		}
 	}

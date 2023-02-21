@@ -32,6 +32,8 @@
 
 #include "layer_base.h"
 
+using namespace std;
+
 namespace cacu {
 
 class cacu_op {
@@ -47,6 +49,16 @@ public:
 
 	cacu_op(op_name op_type_, data_args *args_, phase_type phase);
 
+	cacu_op(op_name op_type_, op_args *o_args_, data_args *args_, phase_type phase);
+
+	cacu_op(chars_t&& op_name_, phase_type phase);
+
+	cacu_op(chars_t&& op_name_, op_args *args_, phase_type phase);
+
+	cacu_op(chars_t&& op_name_, data_args *args_, phase_type phase);
+
+	cacu_op(chars_t&& op_name_, op_args *o_args_, data_args *args_, phase_type phase);
+
 	~cacu_op();
 
 	int caculate_data_space() {
@@ -54,23 +66,28 @@ public:
 	}
 
 	template<typename OPTYPE>
-	inline OPTYPE *&get_op() const {
+	inline OPTYPE *get_op() const {
 		if(_op_type == _op->_TYPE())
-			return (OPTYPE*&)_op;
+			return dynamic_cast<OPTYPE*>(_op);
 		else{
-			LOG_FATAL("Shot! You are using a wrong type operator casting!");
+			LOG_FATAL("Use a wrong type operator casting as %s!",
+					MACRO_FACTORY_OP::get_cname(typeid(OPTYPE).name()).c_str());
 		}
 	}
 
-	inline weight *&get_param(int i) const {
+	inline weight *get_param(int i) const {
 		CHECK_LT_OP(i,_op->weights_size(),"parameter index is out of range %d vs %d!", i, _op->weights_size());
 		return _op->get_weight(i);
+	}
+
+	inline vector<weight* > *get_weights() const {
+		return _op->get_weights();
 	}
 
 	/**
 	 * default data blob is [0]
 	 */
-	blobs *forward(blobs *&datas_);
+	blobs* forward(blobs *datas_);
 
 	void backward();
 
@@ -84,11 +101,11 @@ public:
 		_out_ops->push_back(op_);
 	}
 
-	inline blobs *&out_datas() {
+	inline blobs *out_datas() {
 		return _out_datas;
 	}
 
-	inline blobs *&in_datas() {
+	inline blobs *in_datas() {
 		return _in_datas;
 	}
 

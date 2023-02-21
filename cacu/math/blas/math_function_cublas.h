@@ -38,27 +38,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cacu{
 
-//extern cublasHandle_t handle;
+//extern cublasHandle_t CUBLAS_HANDLE;
 
 inline void cacu_saxpy_cublas(float *x, const float a, float *y, const int length) {
-	CUBLAS_CHECK(cublasSaxpy_v2(handle, length, &a, x, 1, y, 1));
+	CUBLAS_CHECK(cublasSaxpy_v2(CUBLAS_HANDLE, length, &a, x, 1, y, 1));
 }
 
 inline void cacu_saxpby_cublas(float *x, const float a, float *y, const float b, const int length)
 {
-	CUBLAS_CHECK(cublasSscal_v2(handle, length, &b, y, 1));
-	CUBLAS_CHECK(cublasSaxpy_v2(handle, length, &a, x, 1, y, 1));
+	CUBLAS_CHECK(cublasSscal_v2(CUBLAS_HANDLE, length, &b, y, 1));
+	CUBLAS_CHECK(cublasSaxpy_v2(CUBLAS_HANDLE, length, &a, x, 1, y, 1));
 }
 
 inline void cacu_scalex_cublas(float *x, const float a, const int length)
 {
-	CUBLAS_CHECK(cublasSscal_v2(handle, length, &a, x, 1));
+	CUBLAS_CHECK(cublasSscal_v2(CUBLAS_HANDLE, length, &a, x, 1));
 }
 
 inline void cacu_sgemv_cublas(cublasOperation_t trans,float *x, const int x_height,float *y, const int x_width,const float alpha, float *z ,const float beta)
 {
 	int m = x_height,n = x_width;
-	CUBLAS_CHECK(cublasSgemv_v2(handle, trans, m, n, &alpha, x, m, y, 1, &beta, z, 1));
+	CUBLAS_CHECK(cublasSgemv_v2(CUBLAS_HANDLE, trans, m, n, &alpha, x, m, y, 1, &beta, z, 1));
 }
 
 inline void cacu_sgemm_cublas(cublasOperation_t transx, cublasOperation_t transy, float *x, const int x_height, const int x_width,float *y, const int y_width, const float alpha, float *z,const float beta)
@@ -66,11 +66,11 @@ inline void cacu_sgemm_cublas(cublasOperation_t transx, cublasOperation_t transy
 	int m = x_height,n = y_width,k = x_width;
 	int lda = (transx == CUBLAS_OP_N) ? m : k;
 	int ldb = (transy == CUBLAS_OP_N) ? k : n;
-	CUBLAS_CHECK(cublasSgemm_v2(handle, transx, transy, m, n, k, &alpha, x, lda, y, ldb, &beta, z, m));
+	CUBLAS_CHECK(cublasSgemm_v2(CUBLAS_HANDLE, transx, transy, m, n, k, &alpha, x, lda, y, ldb, &beta, z, m));
 }
 
 inline void cacu_copy_cublas(const float *x, int length, float *y){
-	CUBLAS_CHECK(cublasScopy_v2(handle, length, x, 1, y, 1));
+	CUBLAS_CHECK(cublasScopy_v2(CUBLAS_HANDLE, length, x, 1, y, 1));
 }
 
 

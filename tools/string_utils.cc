@@ -32,7 +32,7 @@ using namespace std;
 namespace cacu {
 
 //string split
-vector<string> split(string str, string pattern) {
+vector<string> split(const string& str, const string& pattern) {
 	vector<string> ret;
 	if (pattern.empty())
 		return ret;

@@ -31,6 +31,7 @@
 
 #include <vector>
 #include <stdarg.h>
+#include "../definition.h"
 
 using namespace std;
 
@@ -46,6 +47,14 @@ public:
 	args_base(DTYPE arg1, ...);
 
 	~args_base(){};
+
+	inline void echo()
+	{
+		cout << "args: (" ;
+		for(unsigned int i = 0 ; i < this->size(); ++i)
+			cout << this->at(i) << ",";
+		cout << ")" << endl;
+	}
 
 private:
 

@@ -49,19 +49,19 @@ public:
 		return _epsilon;
 	}
 
-	inline void set_beta(float_t beta_) {
-		_beta = beta_;
+	inline void set_delta(float_t delta_) {
+		_delta = delta_;
 	}
 
-	inline float_t beta() const {
-		return _beta;
+	inline float_t delta() const {
+		return _delta;
 	}
 
 	inline void echo() {
 
 	}
 
-	void load_param(chars_t config_);
+	void load_param(const chars_t& config_);
 
 protected:
 
@@ -74,11 +74,11 @@ protected:
 private:
 
 
-	blobs* _history_r;
+	blobs* _history;
 
 	float_t _epsilon = 1E-8;
 
-	float_t _beta = 0.999;
+	float_t _delta = 0.99;
 
 };
 }

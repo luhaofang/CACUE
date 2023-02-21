@@ -180,10 +180,10 @@ void test_net() {
 
 		//cacu_print(yblob_->s_data(), 100);
 
-		xghead->copy_blob(xblob_);
+		xghead->copy_blob(yblob_);
 		xgnet->forward_propagate();
 
-		yghead->copy_blob(yblob_);
+		yghead->copy_blob(xblob_);
 		ygnet->forward_propagate();
 
 		timer->end();
@@ -191,10 +191,10 @@ void test_net() {
 		ostringstream oss;
 		oss.str("");
 		oss << root_path << "test_result/" << file_x;
-		imageio_utils::imwrite_gpu(((blob*)xgenerator->get_oblob()),oss.str().c_str());
+		imageio_utils::imwrite(((blob*)xgenerator->get_oblob()),oss.str().c_str());
 		oss.str("");
 		oss << root_path << "test_result/" << file_y;
-		imageio_utils::imwrite_gpu(((blob*)ygenerator->get_oblob()),oss.str().c_str());
+		imageio_utils::imwrite(((blob*)ygenerator->get_oblob()),oss.str().c_str());
 
 	}
 

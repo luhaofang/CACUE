@@ -32,7 +32,6 @@
 #include <vector>
 #include <math.h>
 
-//#include "../definition.h"
 #include "rect.h"
 #include "detection_definition.h"
 

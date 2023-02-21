@@ -75,6 +75,13 @@ inline void cuda_copy2dev(DTYPE *d_data_, DTYPE* s_values, dsize_t length) {
 }
 
 template<typename DTYPE>
+inline void cuda_copy(DTYPE *d_data_, DTYPE* s_values, dsize_t length) {
+	CUDA_CHECK(
+			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),
+					length * sizeof(DTYPE), cudaMemcpyHostToHost));
+}
+
+template<typename DTYPE>
 inline void cuda_copy2host(DTYPE *d_data_, DTYPE* s_values, dsize_t length) {
 	CUDA_CHECK(
 			cudaMemcpy((void* ) (d_data_), (void* ) (s_values),

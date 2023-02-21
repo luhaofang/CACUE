@@ -25,9 +25,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <thrust/sort.h>
-#include <thrust/execution_policy.h>
-
 #include "../../config.h"
 #include "pooling_functions_cuda.h"
 
@@ -103,7 +100,7 @@ extern "C" void cacu_max_pooling_cuda(const float_t *x, const int kernel_size,
 
 	_k_CACU_MAX_POOLING_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
 			input_w, input_h, output_w, output_h, channel, y, index);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 /*
@@ -205,7 +202,7 @@ extern "C" void cacu_max_pooling_grad_cuda(const float_t *x,
 
 	_k_CACU_MAX_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size,
 			stride, input_w, input_h, output_w, output_h, channel, y, index);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 /*
@@ -264,7 +261,7 @@ extern "C" void cacu_average_pooling_cuda(const float_t *x,
 
 	_k_CACU_AVERAGE_POOLING_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size,
 			stride, input_w, input_h, output_w, output_h, channel, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 /*
@@ -367,7 +364,7 @@ extern "C" void cacu_average_pooling_grad_cuda(const float_t *x,
 	_k_CACU_AVERAGE_POOLING_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x,
 			kernel_size, stride, input_w, input_h, output_w, output_h, channel,
 			pad_w, pad_h, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_IMG2COL_PAD_CUDA(const float_t *x, const int kernel_w, const int kernel_h,
@@ -418,7 +415,7 @@ extern "C" void cacu_img2col_pad_cuda(const float_t *x, const int kernel_w, cons
 		const int pad_w, const int pad_h, float_t *y) {
 	_k_CACU_IMG2COL_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_w, kernel_h, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 
@@ -474,7 +471,7 @@ extern "C" void cacu_img2col_pad_dilated_cuda(const float_t *x, const int kernel
 		const int pad_w, const int pad_h, const int d_size, float_t *y) {
 	_k_CACU_IMG2COL_PAD_DILATED_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, d_size, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_COL2IMG_PAD_CUDA(const float_t *x, const int kernel_w, const int kernel_h,
@@ -571,7 +568,7 @@ extern "C" void cacu_col2img_pad_cuda(const float_t *x, const int kernel_w, cons
 	//cout << kernel_w << "," << kernel_h << "," << stride << "," << input_w << "," << input_h << "," << output_w << "," << output_h << endl;
 	_k_CACU_COL2IMG_PAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_w, kernel_h, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_COL2IMG_PAD_DILATED_CUDA(const float_t *x, const int kernel_size,
@@ -666,7 +663,7 @@ extern "C" void cacu_col2img_pad_dilated_cuda(const float_t *x, const int kernel
 		const int pad_w, const int pad_h, const int d_size, float_t *y) {
 	_k_CACU_COL2IMG_PAD_DILATED_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, kernel_size, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, d_size, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_COL2IMG_PAD_1x1_CUDA(const float_t *x,
@@ -734,7 +731,7 @@ extern "C" void cacu_col2img_pad_1x1_cuda(const float_t *x,
 
 	_k_CACU_COL2IMG_PAD_1x1_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, stride,
 			input_w, input_h, channel, output_w, output_h, pad_w, pad_h, y);
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 }

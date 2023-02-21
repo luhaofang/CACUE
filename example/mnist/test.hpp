@@ -53,9 +53,10 @@ void test_net()
 #endif
 
 	network *net = create_lenet(batch_size,test);
+	net->set_is_use_bias(false);
 
-	string datapath = "/home/luhaofang/git/caffe/data/mnist/";
-	string meanfile = datapath + "mean.binproto";
+	string datapath = "/Users/seallhf/Documents/datasets/mnist/";
+	string meanfile = "/Users/seallhf/Documents/datasets/mnist/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -69,7 +70,7 @@ void test_net()
 
 	blob *output_data = net->output_blob();
 
-	net->load_weights(datapath + "lenet.model");
+	net->load_weights("/Users/seallhf/Documents/datasets/mnist/lenet.model");
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
@@ -100,7 +101,7 @@ void test_net()
 			}
 		}
 		allcount += batch_size;
-		batch_size = urandint(10, 100);
+		batch_size = 100;//urandint(10, 100);
 		//LOG_DEBUG("batch_size: %d", batch_size);
 		timer->end();
 

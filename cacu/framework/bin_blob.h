@@ -33,9 +33,6 @@
 
 #include "blob_base.h"
 
-#include "../math/math.h"
-//#include "../definition.h"
-
 #include "../tensor/tensor.h"
 
 using namespace std;
@@ -51,11 +48,19 @@ public:
 
 	~bin_blob();
 
+	void _RELEASE_BIN_BLOB()
+	{
+		_REC_ -= 1;
+		if(_REC_ < 0){
+			delete this;
+		}
+	}
+
 	/**
 	 * return the piece probe in blob data
 	 */
 	inline int* p_data(dsize_t n) const {
-		//CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
+		CHECK_LT_OP(n, num(), "Index out of range %d vs %d!", n, num() - 1);
 		return (int*) _s_data + n * length();
 	}
 
@@ -63,7 +68,7 @@ public:
 	 * return the piece probe in blob diff
 	 */
 	inline float_t* p_diff(dsize_t n) const {
-		//CHECK_LT_OP(n, _num, "Index out of range %d vs %d!", n, _num - 1);
+		CHECK_LT_OP(n, num(), "Index out of range %d vs %d!", n, num() - 1);
 		return (float_t*) _s_diff + n * length();
 	}
 
@@ -71,16 +76,16 @@ public:
 	/**
 	 * return the piece probe in blob data
 	 */
-	inline int* p_data_cpu(dsize_t n) const {
-		//CHECK_LT_OP(n ,_num, "Index out of range %d vs %d!",n ,_num - 1);
-		return _tdata->pdata_cpu() + n * length();
+	inline int* p_data_cpu(dsize_t n, bool sync = true) const {
+		CHECK_LT_OP(n ,num(), "Index out of range %d vs %d!",n ,num() - 1);
+		return _tdata->pdata_cpu(sync) + n * length();
 	}
 
 	/**
 	 * return the source probe in blob data
 	 */
-	inline int* s_data_cpu() const {
-		return _tdata->pdata_cpu();
+	inline int* s_data_cpu(bool sync = true) const {
+		return _tdata->pdata_cpu(sync);
 	}
 
 #endif
@@ -118,7 +123,7 @@ public:
 	/**
 	 * copy dest blob data to local blob
 	 */
-	void copy_blob(bin_blob* blob_);
+	void copy_blob(const bin_blob* blob_);
 
 	bin_blob* copy_create(phase_type phase_, int value_) const;
 
@@ -153,14 +158,14 @@ public:
 	inline void _RESET_DATA() {
 		if(_variable){
 			_tdata->refresh();
-			if (train == _phase)
+			if (_tdiff != NULL && train == _phase)
 				_tdiff->refresh();
 		}
 	}
 
 	inline void _RESET_DIFF() {
 		if(_variable){
-			if (train == _phase)
+			if (_tdiff != NULL && train == _phase)
 				_tdiff->refresh();
 		}
 	}
@@ -175,7 +180,7 @@ public:
 
 		if(_IS_MOTIFIED())
 			return;
-		if (_tdata != NULL) {
+		if(_tdata != NULL){
 			_tdata->resize(count(), 0);
 			_s_data = _tdata->pdata();
 		}
@@ -184,6 +189,8 @@ public:
 			_s_diff = _tdiff->pdata();
 		}
 	}
+
+	void flip();
 
 private:
 

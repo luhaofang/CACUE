@@ -49,27 +49,27 @@ public:
 		return _epsilon;
 	}
 
-	inline void set_alpha(float_t alpha_) {
-		_alpha = alpha_;
+	inline void set_beta2(float_t beta_) {
+		_beta2 = beta_;
 	}
 
-	inline float_t alpha() const {
-		return _alpha;
+	inline float_t beta2() const {
+		return _beta2;
 	}
 
-	inline void set_beta(float_t beta_) {
-		_beta = beta_;
+	inline void set_beta1(float_t beta_) {
+		_beta1 = beta_;
 	}
 
-	inline float_t beta() const {
-		return _beta;
+	inline float_t beta1() const {
+		return _beta1;
 	}
 
 	inline void echo() {
 
 	}
 
-	void load_param(chars_t config_);
+	void load_param(const chars_t& config_);
 
 protected:
 
@@ -82,15 +82,15 @@ protected:
 private:
 
 
-	blobs* _history_s;
+	blobs* _history_m;
 
-	blobs* _history_r;
+	blobs* _history_v;
 
 	float_t _epsilon = 1E-8;
 
-	float_t _alpha = 0.9;
+	float_t _beta1 = 0.9;
 
-	float_t _beta = 0.999;
+	float_t _beta2 = 0.999;
 
 };
 }

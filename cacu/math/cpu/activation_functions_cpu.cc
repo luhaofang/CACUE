@@ -27,7 +27,8 @@
 
 #include "activation_functions_cpu.h"
 
-#include "../../config.h"
+#include <algorithm>
+#include <cmath>
 
 namespace cacu {
 
@@ -73,8 +74,7 @@ void cacu_leaky_relu_cpu(float_t *x, const float_t a, const int length) {
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		if (x[i] < 0)
-			x[i] *= a;
+		x[i] = x[i] * a * (x[i] <= 0) + x[i] * (x[i] > 0);
 	}
 }
 
@@ -90,8 +90,7 @@ void cacu_leaky_relu_grad_cpu(float_t *x, float_t *g, const float_t a,
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		if (x[i] <= 0)
-			g[i] *= a;
+		g[i] = g[i] * a * (x[i] <= 0) + g[i] * (x[i] > 0);
 	}
 }
 
@@ -167,7 +166,6 @@ void cacu_softmax_cpu(float_t *x, const int num, const int channel,
 	}
 }
 
-
 /**
  * @cacu_elu
  * math y[i] = x[i] = (max(x[i], float_t(0))
@@ -181,7 +179,7 @@ void cacu_elu_cpu(float_t *x, const int length, const float_t alpha, float_t *y)
 #endif
 	for (i = 0; i < length; ++i) {
 		y[i] = (max(x[i], float_t(0))
-				        + alpha * (exp(min(x[i], float_t(0))) - float_t(1)));
+				        + alpha * (expf(min(x[i], float_t(0))) - float_t(1)));
 	}
 }
 
@@ -215,7 +213,7 @@ void cacu_exp_cpu(float_t *x, const int length, float_t *y) {
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		y[i] = exp(x[i]);
+		y[i] = expf(x[i]);
 	}
 }
 
@@ -230,7 +228,7 @@ void cacu_tanh_cpu(float_t *x, const int length, float_t *y) {
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		y[i] = tanh(x[i]);
+		y[i] = tanhf(x[i]);
 	}
 }
 
@@ -260,7 +258,7 @@ void cacu_htanh_cpu(float_t *x, const int length, float_t *y) {
 #pragma omp parallel for default(shared) private(i)
 #endif
 	for (i = 0; i < length; ++i) {
-		y[i] = x[i] > 0 ? tanh(x[i]) : 0;
+		y[i] = x[i] > 0 ? tanhf(x[i]) : 0;
 	}
 }
 
@@ -312,7 +310,7 @@ void cacu_sigmoid_grad_cpu(float_t *x, float_t *g, const int length,
 }
 
 float_t sigmoid(float_t data) {
-	return float_t(1) / (float_t(1) + exp(-data));
+	return float_t(1) / (float_t(1) + expf(-data));
 }
 
 float_t tanh(float_t data) {

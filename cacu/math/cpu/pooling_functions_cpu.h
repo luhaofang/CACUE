@@ -28,8 +28,6 @@
 #ifndef POOLING_FUNCTIONS_CPU_H_
 #define POOLING_FUNCTIONS_CPU_H_
 
-#include <algorithm>
-//#include "../../config.h"
 #include "../../definition.h"
 
 namespace cacu {

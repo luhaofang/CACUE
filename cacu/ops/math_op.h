@@ -36,12 +36,13 @@ namespace cacu {
 
 		math_op(blobs *&data, op_name op_name_) :
 			operator_base(data, op_name_) {
-			_INIT_OP();
+			_BASE_TYPE = MATH_BASE;
+
 		}
 
 		math_op(blobs *&data, op_args *&_args, op_name op_name_) :
 			operator_base(data, _args, op_name_) {
-			_INIT_OP();
+			_BASE_TYPE = MATH_BASE;
 		}
 
 
@@ -76,27 +77,12 @@ namespace cacu {
 		}
 
 		void echo() override {
-
-			if (_FUNC == MASK_LT) {
-				blob *o_blob_ = (blob*)o_blobs->at(0);
-				LOG_INFO("Dimension loss: %f", o_blob_->s_diff()[0]);
-			}
-			else if (_FUNC == MASK_GT){
-				blob *o_blob_ = (blob*)o_blobs->at(0);
-				LOG_INFO("Spasity loss: %f", o_blob_->s_diff()[0]);
-			}
-			else {
-				LOG_INFO("create math op:");
-				LOG_INFO(
-					"channel: %d, input_dim: (%d,%d), output_channel: %d, output_dim: (%d,%d)",
-					s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
-					o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
-			}
+			LOG_INFO("math op: in(%d, %d, %d), out(%d, %d, %d)",
+				s_blobs->at(0)->channel(), s_blobs->at(0)->width(), s_blobs->at(0)->height(),
+				o_blobs->at(0)->channel(), o_blobs->at(0)->width(), o_blobs->at(0)->height());
 		}
 
 	private:
-
-		math_op_name _FUNC = MASK_GT;
 
 	};
 

@@ -28,8 +28,6 @@
 #ifndef ACTIVATION_FUNCTIONS_H_
 #define ACTIVATION_FUNCTIONS_H_
 
-#include "math_definition.h"
-//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/activation_functions_cuda.h"
@@ -56,7 +54,7 @@ inline void cacu_relu(float_t *x, int length) {
 
 /**
  * @cacu_relu_grad
- * math if(x[i]<0)?g[i] = g[i]:g[i] = 0;
+ * math if(x[i]>0)?g[i] = g[i]:g[i] = 0;
  * gradient for activation use relu functions.
  */
 inline void cacu_relu_grad(float_t *x, float_t *g, int length) {
@@ -73,7 +71,7 @@ inline void cacu_relu_grad(float_t *x, float_t *g, int length) {
 
 /**
  * @cacu_leaky_relu
- * math if(x[i]<0)?x[i] = x[i]:x[i] *= a;
+ * math if(x[i]>0)?x[i] = x[i]:x[i] *= a;
  * for activation use leaky_relu functions.
  */
 inline void cacu_leaky_relu(float_t *x, float_t a, int length) {
@@ -89,7 +87,7 @@ inline void cacu_leaky_relu(float_t *x, float_t a, int length) {
 
 /**
  * @cacu_leaky_relu_grad
- * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
+ * math if(x[i]>0)?g[i] = g[i]:g[i] *= a;
  * gradient for activation use leaky_relu functions.
  */
 inline void cacu_leaky_relu_grad(float_t *x, float_t *g, float_t a,
@@ -106,7 +104,7 @@ inline void cacu_leaky_relu_grad(float_t *x, float_t *g, float_t a,
 
 /**
  * @cacu_leaky_relu
- * math if(x[i]<0)?x[i] = x[i]:x[i] *= a;
+ * math if(x[i]>0)?x[i] = x[i]:x[i] *= a;
  * for activation use leaky_relu functions.
  */
 inline void cacu_prelu(float_t *x, const float_t *slopes, const int num,
@@ -123,7 +121,7 @@ inline void cacu_prelu(float_t *x, const float_t *slopes, const int num,
 
 /**
  * @cacu_leaky_relu_grad
- * math if(x[i]<0)?g[i] = g[i]:g[i] *= a;
+ * math if(x[i]>0)?g[i] = g[i]:g[i] *= a;
  * gradient for activation use leaky_relu functions.
  */
 inline void cacu_prelu_grad(float_t *x, float_t *g, const float_t *slopes,

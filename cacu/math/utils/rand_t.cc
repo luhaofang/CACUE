@@ -31,14 +31,26 @@ void set_rand_seed() {
 	srand((unsigned int) time(NULL));
 }
 
-float_t gaussrand(float_t std) {
-	float_t u = ((float_t) rand() / (RAND_MAX)) * 2 - 1;
-	float_t v = ((float_t) rand() / (RAND_MAX)) * 2 - 1;
-	float_t r = u * u + v * v;
-	if (r == 0 || r > 1)
-		return gaussrand(std);
-	float_t c = sqrt(-2 * log(r) / r);
-	return u * c * std;
+float_t gaussrand(float_t std, float_t m) {
+	static float_t V1, V2, S;
+	static int phase = 0;
+	float_t X;
+	if ( phase == 0 ) {
+		do {
+			float_t U1 = (float_t)rand() / RAND_MAX;
+			float_t U2 = (float_t)rand() / RAND_MAX;
+
+			V1 = 2 * U1 - 1;
+			V2 = 2 * U2 - 1;
+			S = V1 * V1 + V2 * V2;
+		} while(S >= 1 || S == 0);
+
+		X = V1 * sqrt(-2 * log(S) / S);
+	} else
+		X = V2 * sqrt(-2 * log(S) / S);
+
+	phase = 1 - phase;
+	return X * std + m;
 }
 
 float_t urand(float_t min, float_t max) {
@@ -46,6 +58,23 @@ float_t urand(float_t min, float_t max) {
 	float_t pRandomValue = ((float_t) rand() / (float_t) RAND_MAX);
 	pRandomValue = pRandomValue * (max - min) + min;
 	return pRandomValue;
+}
+
+float_t urand_clip(float_t min, float_t max, float_t abs_, float_t p_) {
+	assert(p_ < 1);
+	assert(p_ > 0);
+	bool p = urand(0, 1) <= p_;
+	float_t c = p ? urand(min, -abs_) : urand(abs_, max);
+	return c;
+}
+
+float_t spherical_unrand(float_t std, float_t m, float_t min, float_t max){
+	assert(min < max);
+	float_t c = gaussrand(std, m);
+	while(c <= min || c >= max){
+		c = gaussrand(std, m);
+	}
+	return c;
 }
 
 unsigned int urandint(unsigned int min, unsigned int max) {
@@ -57,6 +86,9 @@ unsigned int urandint(unsigned int min, unsigned int max) {
 }
 
 unsigned int randint(int max) {
+	assert(max >= 0);
+	if(max == 0)
+		return 0;
 	return (unsigned int) (rand() % max);
 }
 

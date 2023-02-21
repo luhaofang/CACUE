@@ -31,7 +31,6 @@
 #include "args_base.h"
 #include "data_args.h"
 #include "op_args.h"
-//#include "../ops/operator_base.h"
 
 #include "../factory/operator_factory.h"
 
@@ -56,10 +55,11 @@ public:
 	}
 
 	virtual ~layer_base() {
-		delete _args;
-		_args = NULL;
 		delete _ops;
 		_ops = NULL;
+
+		_args = NULL;
+		out_blob = NULL;
 	}
 
 
@@ -67,15 +67,16 @@ public:
 		return _ops->size();
 	}
 
-	inline operator_base* op(dsize_t i) {
+	inline operator_base* get_op_base(dsize_t i) {
 		return _ops->at(i);
 	}
 
 	inline void operate() {
 		for (unsigned i = 0; i < _ops->size(); ++i) {
+			//LOG_DEBUG("op %d: %d",_ops->at(i)->get_optype(), i);
 			_ops->at(i)->infer();
+			//LOG_DEBUG("%d", i);
 			//cacu_print(_ops->at(i)->out_data<blob>()->s_data(),100);
-			//LOG_DEBUG("op: %d", i);
 		}
 	}
 
@@ -90,6 +91,14 @@ public:
 	inline void load_weights(std::ifstream &is)
 	{
 		for(int i = 0 ; i < _ops->size(); ++i)
+		{
+			_ops->at(i)->load(is);
+		}
+	}
+
+	inline void load_weights_reverse(std::ifstream &is)
+	{
+		for(int i = _ops->size() - 1 ; i >= 0; --i)
 		{
 			_ops->at(i)->load(is);
 		}

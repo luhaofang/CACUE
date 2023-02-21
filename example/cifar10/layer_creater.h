@@ -74,6 +74,10 @@ layer_block* fc_layer_nodropout(blob_base* data, int output_channel,
 
 layer_block* loss_layer(blob_base* data, blob_base* label, int output_channel);
 
+layer_block* focal_loss_layer(blob_base* data, blob_base* label, int output_channel);
+
+layer_block* loss_lm_layer(blob_base* data, blob_base* label, int output_channel);
+
 layer_block* predict_layer(blob_base* data, int output_channel);
 
 

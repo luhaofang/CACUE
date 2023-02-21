@@ -28,8 +28,6 @@
 #ifndef POOLING_FUNCTIONS_H_
 #define POOLING_FUNCTIONS_H_
 
-#include "math_definition.h"
-//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/pooling_functions_cuda.h"

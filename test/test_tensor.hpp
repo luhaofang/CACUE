@@ -26,10 +26,10 @@ TEST_CASE("tensor")
 		vec_t a(1,3);
 		t.copy2data(&a[0]);
 		cacu_print(t.pdata(),1);
-		LOG_DEBUG("p initial: %f",t.pdata());
+		LOG_DEBUG("p initial: %f",t.pdata()[0]);
 
 		t.resize(3, 1);
-		LOG_DEBUG("p resize: %f",t.pdata());
+		LOG_DEBUG("p resize: %f",t.pdata()[0]);
 		LOG_DEBUG("tensor length:%d", t.length());
 		a.resize(3,2);
 		cacu_print_cpu(&a[0],3);

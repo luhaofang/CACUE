@@ -43,7 +43,7 @@
 
 namespace cacu {
 
-extern cublasHandle_t handle;
+extern cublasHandle_t CUBLAS_HANDLE;
 
 //cublas log utilities
 #define CUBLAS_LOG(level, status, log) \

@@ -40,6 +40,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace cacu;
 using namespace cacu_tools;
 
+void weight_clip(weight *&w_){
+	if(w_->length() == 1)
+		return;
+	vec_t temp(w_->length());
+	vec_t wtemp(w_->count());
+	float wm = 0, ws = 0;
+	cacu_sumbysize(BYWIDTH, w_->s_data(), w_->count(), (float_t)1, &wm, (float_t)0, w_->count());
+	wm = wm / w_->count();
+	cacu_sdxsize(w_->s_data(), w_->count(), (float_t)-1 * wm, (float_t)1, &wtemp[0]);
+	cacu_sqr(&wtemp[0], w_->count(), &wtemp[0]);
+	cacu_sumbysize(BYWIDTH, &wtemp[0], w_->count(), (float_t)1, &ws, (float_t)0, w_->count());
+	ws = sqrtf(ws / (w_->count()));
+
+	int count = 0;
+
+	for(int i = 0; i < w_->num(); ++i){
+		float m = 0, s = 0;
+		cacu_sumbysize(BYWIDTH, w_->p_data(i), w_->length(), (float_t)1, &m, (float_t)0, w_->length());
+		m = m / w_->length();
+		cacu_sdxsize(w_->p_data(i), w_->length(), (float_t)-1 * m, (float_t)1, &temp[0]);
+		cacu_sqr(&temp[0], w_->length(), &temp[0]);
+		cacu_sumbysize(BYWIDTH, &temp[0], w_->length(), (float_t)1, &s, (float_t)0, w_->length());
+		s = sqrtf(s / (w_->length()));
+		LOG_DEBUG("[%.8f, %.8f, %.8f, %.8f]", m, s, wm, ws);
+		if(s < ws / w_->length()){
+			count += 1;
+//			cacu_set_value(w_->p_data(i), 0, w_->length());
+//			LOG_DEBUG("delete: %d", i);
+		}
+	}
+	LOG_DEBUG("%d", count);
+	w_->blob_size();
+	//cacu_print(w_->s_data(), w_->count());
+
+}
+
 void test_net()
 {
 	int batch_size = 100;
@@ -48,14 +84,26 @@ void test_net()
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(2);
+	cuda_set_device(0);
 #endif
 #endif
 
+	string datapath = "/home/seallhf/4T/dataset/cifar/";
+
+
+//	network *net = create_cifar_3convs_net(batch_size,test);
 	network *net = create_cifar_quick_net(batch_size,test);
+//	net->set_is_use_bias(true);
+	net->load_weights(datapath + "cifar10_quick_test.model");
 
-	string datapath = "/Users/seallhf/Documents/datasets/cifar10/";
-	string meanfile = "/Users/seallhf/Documents/datasets/cifar10/mean.binproto";
+//	blobs *inputs = new blobs();
+//	inputs->push_back(new blob(1, 3, 32, 32, 0, test));
+//	network *net = phrase_network("/Users/seallhf/Documents/datasets/cifar10/cifar10_quick_test_pruned.ch", inputs);
+//	net->set_is_use_bias(false);
+////	net->load_weights("/Users/seallhf/Documents/datasets/cifar10/cifar10_quick_test_pruned_wg.model");
+//	net->load_weights(datapath + "cifar10_quick_test_pruned.model");
+
+	string meanfile = datapath + "mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -69,7 +117,17 @@ void test_net()
 
 	blob *output_data = net->output_blob();
 
-	net->load_weights("/Users/seallhf/Documents/datasets/cifar10/cifar10_quick_test.model");
+//	net->weights_pre_proc(weight_clip);
+//	cacu_print(net->get_op<convolution_op>(0)->get_weight(0)->s_data(), 3*32*5*5);
+
+//	vector<convolution_op*> convs = net->get_ops<convolution_op>();
+//	vector<inner_product_op*> ips = net->get_ops<inner_product_op>();
+//
+//	for(int i = 0; i < convs.size(); ++i)
+//		convs[i]->set_is_norm_weights(false, 1);
+//
+//	for(int i = 0; i < ips.size(); ++i)
+//		ips[i]->set_is_norm_weights(false, 1);
 
 	unsigned int max_index;
 	cacu::float_t count = 0;
@@ -106,14 +164,15 @@ void test_net()
 		timer->end();
 
 		if (i % 1 == 0) {
-
 			LOG_INFO("iter_%d, %ld ms/iter", i, timer->get_time_span() / 1000);
 		}
 		if (step_index == kCIFARBatchSize)
 			break;
 	}
+//	imageio_utils::imwrite(input_data, (datapath + "test.jpg").c_str());
+//	imageio_utils::imwrite_channel(net->get_op(0)->out_data<blob>(), (datapath + "cifar10_quick_test.jpg").c_str());
 
-	LOG_INFO("precious: %f,%f", count / allcount,count);
+	LOG_INFO("accuracy: %f,%f", count / allcount,count);
 	delete net;
 	delete timer;
 #if __USE_DEVICE__ == ON

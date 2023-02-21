@@ -70,7 +70,7 @@ public:
 		return;
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_) override {
+	void op(blobs *&s_blobs_,blobs *&o_blobs_) override {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 
@@ -91,9 +91,9 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs_->at(0);
-		blob *s_blob_ = (blob*)s_blobs_->at(0);
-		blob *rand_vect_ = (blob*)_rand_vect;
+		blob *o_blob_ = o_blobs_->asblob(0);
+//		blob *s_blob_ = s_blobs_->asblob(0);
+		blob *rand_vect_ = _rand_vect;
 
 		if(train == _phase)
 		{
@@ -106,7 +106,7 @@ public:
 #endif
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
+	void grad(blobs *&s_blobs_,blobs *&o_blobs_) override {
 
 		float_t scale_ = 1.0 / (1 - _ratio);
 #if __USEMBEDDING__ == ON
@@ -124,9 +124,9 @@ public:
 			}
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs_->at(0);
-		blob *s_blob_ = (blob*)s_blobs_->at(0);
-		blob *rand_vect_ = (blob*)_rand_vect;
+		blob *o_blob_ = o_blobs_->asblob(0);
+		blob *s_blob_ = s_blobs_->asblob(0);
+		blob *rand_vect_ = _rand_vect;
 
 		if(train == _phase)
 		{

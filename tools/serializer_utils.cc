@@ -32,7 +32,7 @@ using namespace cacu;
 
 namespace cacu_tools {
 
-void serializer::blob_serialize(blob *data, chars_t output, phase_type phase_) {
+void serializer::blob_serialize(blob *data, const chars_t& output, phase_type phase_) {
 	std::ofstream os(output, ios::binary);
 	os.precision(std::numeric_limits<cacu::float_t>::digits10);
 #if __USE_DEVICE__ == ON

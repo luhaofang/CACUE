@@ -47,7 +47,7 @@ namespace cacu_tools {
 
 	public:
 
-		static void blob_serialize(blob *data, chars_t output, phase_type phase_);
+		static void blob_serialize(blob *data, const chars_t& output, phase_type phase_);
 
 	};
 

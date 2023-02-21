@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <time.h>
 
-using namespace mycnn;
+using namespace cacu;
 
 
 layer_block* vgg_conv_relu(blob_base* data, int output_channel, int kernel_size, int stride = 1, int pad = 0, op_name activation_op = CACU_RELU)
@@ -68,7 +68,7 @@ layer_block* vgg_fc(blob_base* data, int output_channel, int kernel_size = 0, in
 	{
 		layer_block *lb = new layer_block();
 		clock_t start = clock();
-		layer *l = new layer(new data_args(output_channel,0,0,0,0));
+		layer *l = new layer(new data_args(output_channel,0,0,0,data->length()));
 		l->op(CACU_INNERPRODUCT, data)->op(activation_op)->op(CACU_DROPOUT, new op_args(0.5));
 		clock_t end = clock();
 		*lb << l;

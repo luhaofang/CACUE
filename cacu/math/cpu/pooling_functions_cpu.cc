@@ -27,6 +27,7 @@
 
 #include "pooling_functions_cpu.h"
 
+#include <algorithm>
 #include "../../config.h"
 
 namespace cacu {
@@ -48,7 +49,7 @@ void cacu_max_pooling_cpu(const float_t *x, const int kernel_size,
 	int in_start, out_start;
 	int i, j, c, ki, kj;
 #if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,outset,xd,xp)
+#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,outset,xd)
 #endif
 	for (i = 0; i < output_h; ++i)
 		for (j = 0; j < output_w; ++j) {
@@ -91,10 +92,13 @@ void cacu_max_pooling_grad_cpu(const float_t *x, const int kernel_size,
 	int cin_length = input_w * input_h;
 
 	int i, j, c;
+	int count = cin_length * channel;
 
 #if __OPENMP__ == ON
 #pragma omp parallel for default(shared) private(i,j,c,_index, sd_out)
 #endif
+	for(i = 0; i < count; ++i)
+		y[i] = 0.0;
 	for (i = 0; i < output_h; ++i)
 		for (j = 0; j < output_w; ++j) {
 			sd_out = (i * output_w + j);
@@ -122,7 +126,7 @@ void cacu_average_pooling_cpu(const float_t *x, const int kernel_size,
 	int i, j, c, ki, kj;
 
 #if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,count,xp,yp)
+#pragma omp parallel for default(shared) private(i,j,c,ki,kj,in_start, out_start,count,yp)
 #endif
 	for (c = 0; c < channel; ++c) {
 		yp = y + c * block_size;
@@ -164,12 +168,17 @@ void cacu_average_pooling_grad_cpu(const float_t *x, const int kernel_size,
 
 	int cin_length = input_w * input_h;
 	int cout_length = output_w * output_h;
+	int count = cin_length * channel;
+	float_t k_size = (kernel_size * kernel_size);
 
 	int i, j, c, ki, kj;
 
 #if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(i,j,c,ki,kj,diff_data,sd_out_cp,sn_out_cp,param_w,param_h)
+#pragma omp parallel for default(shared) private(i,j,c,ki,kj,diff_data,sn_out_cp,param_w,param_h)
 #endif
+
+	for(i = 0; i < count; ++i)
+		y[i] = 0.0;
 	for (i = 0; i < output_h; ++i)
 		for (j = 0; j < output_w; ++j) {
 			sd_out = (i * output_w + j);
@@ -178,7 +187,7 @@ void cacu_average_pooling_grad_cpu(const float_t *x, const int kernel_size,
 				//mean
 				if (pad_w == 0 && pad_h == 0) {
 					diff_data = x[sd_out + c * cout_length]
-							/ (float_t) (kernel_size * kernel_size);
+							/ k_size;
 					for (ki = 0; ki < kernel_size; ++ki)
 						for (kj = 0; kj < kernel_size; ++kj) {
 							sn_out_cp = y + sn_out + (ki * input_w + kj)
@@ -218,7 +227,7 @@ void cacu_img2col_pad_cpu(const float_t *x, const int kernel_w, const int kernel
 	int in_w, in_h, out_w, out_h;
 
 #if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
+#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,out_start)
 #endif
 	for (i = 0; i < output_h; ++i)
 		for (j = 0; j < output_w; ++j) {
@@ -258,7 +267,7 @@ void cacu_img2col_pad_dilated_cpu(const float_t *x, const int kernel_size,
 
 
 #if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,xp,out_start,in_start)
+#pragma omp parallel for default(shared) private(i,j,c,ki,kj,yp,out_start)
 #endif
 	for (i = 0; i < output_h; ++i)
 		for (j = 0; j < output_w; ++j) {
@@ -296,24 +305,26 @@ void cacu_col2img_pad_cpu(const float_t *x, const int kernel_w, const int kernel
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, float_t *y) {
-	int sd_out, sn_out;
+	int sd_out;
 
-	int block_size = kernel_w * kernel_h * channel;
 	int k_size = kernel_w * kernel_h;
 	int cout_length = output_w * output_h;
 	int cin_length = input_w * input_h;
+	int count = channel * cin_length;
 	float_t *yp;
 
 	int row, col, c, ki, kj;
 	int in_h, in_w, out_h, out_w;
 
 #if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
+#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,sd_out)
 #endif
+	//initial gradient data
+	for(int i = 0; i < count; ++i)
+		y[i] = 0.0;
 	//for output_dim's location
 	for (row = 0; row < output_h; ++row) {
 		for (col = 0; col < output_w; ++col) {
-
 			out_h = row * stride;
 			out_w = col * stride;
 			sd_out = (row * output_w + col);
@@ -325,9 +336,8 @@ void cacu_col2img_pad_cpu(const float_t *x, const int kernel_w, const int kernel
 						in_w = out_w + kj;
 						if (in_w >= pad_w && in_w < input_w + pad_w
 								&& in_h >= pad_h && in_h < input_h + pad_h)
-							yp[(in_h - pad_h) * input_w + in_w - pad_w] += x[(ki
-									* kernel_w + kj + c * k_size)
-									* cout_length + sd_out];
+							yp[(in_h - pad_h) * input_w + in_w - pad_w] += x[(ki * kernel_w + kj + c * k_size) * cout_length + sd_out];
+							//yp[(in_h - pad_h) * input_w + in_w - pad_w] += x[sd_out * block_size + (ki * kernel_w + kj + c * k_size)];
 					}
 			}
 		}
@@ -345,9 +355,9 @@ void cacu_col2img_pad_dilated_cpu(const float_t *x, const int kernel_size,
 		const int stride, const int input_w, const int input_h,
 		const int channel, const int output_w, const int output_h,
 		const int pad_w, const int pad_h, const int d_size, float_t *y) {
-	int sd_out, sn_out;
+	int sd_out;
 
-	int block_size = kernel_size * kernel_size * channel;
+	//int block_size = kernel_size * kernel_size * channel;
 	int k_size = kernel_size * kernel_size;
 	int cout_length = output_w * output_h;
 	int cin_length = input_w * input_h;
@@ -357,10 +367,14 @@ void cacu_col2img_pad_dilated_cpu(const float_t *x, const int kernel_size,
 	int in_h, in_w, out_h, out_w;
 	int input_w_ = input_w + 2 * pad_w;
 	int input_h_ = input_h + 2 * pad_h;
+	int count = channel * cin_length;
 
 #if __OPENMP__ == ON
-#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,xp,sd_out,sn_out)
+#pragma omp parallel for default(shared) private(row,col,c,ki,kj,yp,sd_out)
 #endif
+	//initial gradient data
+	for(int i = 0; i < count; ++i)
+		y[i] = 0.0;
 	//for output_dim's location
 	for (row = 0; row < output_h; ++row) {
 		for (col = 0; col < output_w; ++col) {

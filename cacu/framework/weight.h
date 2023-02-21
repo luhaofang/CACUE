@@ -38,7 +38,10 @@ class weight: public blob {
 
 public:
 
-	weight(chars_t name, dsize_t num, dsize_t channel, dsize_t width,
+	weight(const chars_t &name, dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height, phase_type phase);
+
+	weight(chars_t &&name, dsize_t num, dsize_t channel, dsize_t width,
 			dsize_t height, phase_type phase);
 
 	~weight();
@@ -67,11 +70,25 @@ public:
 		_update = update_;
 	}
 
+	inline void set_variable(bool variable_) {
+		_variable = variable_;
+	}
+
 	inline bool update() const {
 		return _update;
 	}
 
-	void set_init_type(param_init_type type, float_t value);
+	inline bool variable() const {
+		return _variable;
+	}
+
+	inline vec_i *&upgrade_index() const {
+		return (vec_i *&) _upgrade_index;
+	}
+
+	inline vec_i *&update_index() const {
+		return (vec_i *&) _update_index;
+	}
 
 	/*
 	 * serializa blob data, output data to model file
@@ -88,6 +105,17 @@ public:
 	 */
 	void load(std::ifstream& is) override;
 
+#if __USE_CUDNN__ == ON
+	inline cudnnFilterDescriptor_t filter_desc() {
+		return _filter_desc;
+	}
+
+	inline void set_weight_desc(int num_, int channel_, int width_,
+			int height_) {
+		set_filter_4d_desc(_filter_desc, num_, channel_, width_, height_);
+	}
+#endif
+
 private:
 
 	chars_t _name;
@@ -98,9 +126,18 @@ private:
 
 	bool _update;
 
+	bool _variable;
+
+	vec_i *_upgrade_index;
+
+	vec_i *_update_index;
+
+#if __USE_CUDNN__ == ON
+	cudnnFilterDescriptor_t _filter_desc;
+#endif
+
 };
 
 }
-
 
 #endif

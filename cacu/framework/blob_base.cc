@@ -45,18 +45,19 @@ blob_base::blob_base(dsize_t num, dsize_t channel, dsize_t width, dsize_t height
 	_REC_ = 0;
 	//check the data dim
 	CHECK_LT_OP(_body->_length, _MAX_INT_,
-			"BLOB cell length is out of bounds: %ld vs d", _body->_length,
+			"BLOB cell length is out of bounds: %d vs %d", _body->_length,
 			_MAX_INT_);
 }
 
 blob_base::~blob_base() {
+
 	_s_data = NULL;
 	_s_diff = NULL;
 	delete _body;
 	delete _p_body;
 }
 
-void blob_base::_CHECK_SIZE_EQ(blob_base* blob_) {
+void blob_base::_CHECK_SIZE_EQ(const blob_base* blob_) {
 	CHECK_EQ_OP(channel(), blob_->channel(),
 			"_channel check does NOT match! ( %d vs %d )", channel(),
 			blob_->channel());
@@ -74,8 +75,7 @@ void blob_base::_REC() {
 		_REC_ += 1;
 	else
 		LOG_WARNING(
-				"blob address %X has rec for %d times, but the max rec for cacu is %d",
-				this, _REC_, __BLOBMAXREC__);
+				"blob has rec for %d times, but the max rec for cacu is %d", _REC_, __BLOBMAXREC__);
 }
 
 }

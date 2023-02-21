@@ -218,6 +218,11 @@ namespace cacu {
 
 }
 
+inline cudaError_t cuda_device_sync_status()
+{
+	return cudaDeviceSynchronize();
+}
+
 #endif
 #endif
 

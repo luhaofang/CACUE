@@ -30,7 +30,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../../definition.h"
 
-namespace mycnn{
+namespace cacu{
+
+
+void cacu_normalization_l1_cpu(float_t *x, const int length, const float_t epsilon);
+
+void cacu_normalization_l1_grad_cpu(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg);
+
+void cacu_normalization_l2_cpu(float_t *x, const int length, const float_t epsilon);
+
+void cacu_normalization_l2_grad_cpu(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg);
+
+void cacu_norm_l1_cpu(float_t *x, const int length, const float_t epsilon, float_t *norm);
+
+void cacu_norm_l2_cpu(float_t *x, const int length, const float_t epsilon, float_t *norm);
 
 
 };

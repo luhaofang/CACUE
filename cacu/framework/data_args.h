@@ -30,6 +30,8 @@
 
 #include "args_base.h"
 
+#include "../utils/log.h"
+
 using namespace std;
 
 namespace cacu {
@@ -40,6 +42,11 @@ public:
 
 	data_args(int _output_channel, int _kernel_size, int _stride, int _pad, int _channel) :
 			args_base<int>(_output_channel, _kernel_size, _stride, _pad, _channel, _ARGSEND) {
+
+	}
+
+	data_args() :
+				args_base<int>(_ARGSEND) {
 
 	}
 
@@ -65,6 +72,25 @@ public:
 
 	inline int channel() const {
 		return this->at(4);
+	}
+
+	inline void serialize(std::ostream &os) {
+		int size_ = this->size();
+		os.write((char*)(&size_), sizeof(int));
+		for(unsigned int i = 0; i < size(); ++i)
+			os.write((char*)(&(this->at(i))), sizeof(int));
+	}
+
+	inline void load(std::istream &is) {
+		if(size() != 0)
+			LOG_FATAL("Data args needs to be an empty container!");
+		int size = 0;
+		is.read(reinterpret_cast<char*>(&size), sizeof(int));
+		int d_size = 0;
+		for(unsigned int i = 0; i < size; ++i){
+			is.read(reinterpret_cast<char*>(&d_size), sizeof(int));
+			this->push_back(d_size);
+		}
 	}
 
 private:

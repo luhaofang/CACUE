@@ -36,14 +36,30 @@ public:
 
 	activate_base_op(blobs *&data, op_name type_) :
 			operator_base(data, type_) {
+		_BASE_TYPE = ACTIVATION_BASE;
+
+//#if __USE_CUDNN__ == ON
+//		create_cudnn_handle(_activation_handle);
+//		create_activation_desc(_activation_desc);
+//#endif
 	}
 
-	activate_base_op(blobs *&data, op_args *&_args, op_name type_) :
-			operator_base(data, _args, type_) {
+	activate_base_op(blobs *&data, op_args *&args_, op_name type_) :
+			operator_base(data, args_, type_) {
+		_BASE_TYPE = ACTIVATION_BASE;
+
+//#if __USE_CUDNN__ == ON
+//		create_cudnn_handle(_activation_handle);
+//		create_activation_desc(_activation_desc);
+//#endif
 	}
 
 	~activate_base_op() {
 
+//#if __USE_CUDNN__ == ON
+//		destroy_activation_descriptor(_activation_desc);
+//		release_cudnn_handle(_activation_handle);
+//#endif
 	}
 
 	void check() override {
@@ -63,6 +79,13 @@ public:
 	}
 
 protected:
+
+//#if __USE_CUDNN__ == ON
+//	cudnnHandle_t _activation_handle;
+//
+//	cudnnActivationDescriptor_t _activation_desc;
+//
+//#endif
 
 };
 }

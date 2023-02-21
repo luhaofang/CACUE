@@ -28,8 +28,6 @@
 #ifndef NORM_FUNCTIONS_H_
 #define NORM_FUNCTIONS_H_
 
-#include "math_definition.h"
-//#include "../config.h"
 #include "../definition.h"
 
 #include "cuda/norm_functions_cuda.h"
@@ -38,36 +36,103 @@
 namespace cacu {
 
 /**
- * @cacu_cross_entropy
- * math x[i] = max(0,x[i]) :
- * for loss use cross entropy functions.
+ * @cacu_norm_l1
+ * math x[i] = x[i] / sum(abs(x)) :
+ * for l1 norm functions.
  */
-inline void cacu_norm_l1(float_t *x, int num, int length,
-		const unsigned int *label_, float_t *loss_) {
+inline void cacu_l1_normalization(float_t *x, const int length, const float_t epsilon) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-
+	cacu_normalization_l1_cuda(x, length, epsilon);
 #endif
 #else
-
+	cacu_normalization_l1_cpu(x, length, epsilon);
 #endif
 }
 
 /**
- * @cacu_cross_entropy
- * math x[i] = max(0,x[i]) :
- * for loss use cross entropy functions.
+ * @cacu_norm_l1_grad
+ * math x[i] = x[i] / sum(abs(x)) :
+ * for l1 norm grad functions.
  */
-inline void cacu_norm_l2(float_t *x, int num, int length,
-		const unsigned int *label_, float_t *loss_) {
+inline void cacu_l1_normalization_grad(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-
+	cacu_normalization_l1_grad_cuda(x, length, epsilon, yg, xg);
 #endif
 #else
-
+	cacu_normalization_l1_grad_cpu(x, length, epsilon, yg, xg);
 #endif
 }
+
+/**
+ * @cacu_norm_l2
+ * math x[i] = x[i] / sqrt(sum((x*x))) :
+ * for l2 norm functions
+ */
+inline void cacu_l2_normalization(float_t *x, const int length,  const float_t epsilon) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_normalization_l2_cuda(x, length, epsilon);
+#endif
+#else
+	cacu_normalization_l2_cpu(x, length, epsilon);
+#endif
+}
+
+/**
+ * @cacu_norm_l2_ grad
+ * math x[i] = x[i] / sqrt(sum((x*x))) :
+ * for l2 norm grad functions
+ */
+inline void cacu_l2_normalization_grad(float_t *x, const int length,  const float_t epsilon, float_t *yg, float_t *xg) {
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	cacu_normalization_l2_grad_cuda(x, length, epsilon, yg, xg);
+#endif
+#else
+	cacu_normalization_l2_grad_cpu(x, length, epsilon, yg, xg);
+#endif
+}
+
+/*
+ * @cacu_norm
+ * math x[i] =
+ * compute the norm of the tenosr data.
+ * norm_l1, norm_l2
+ */
+inline void cacu_norm(float_t *x, const int length, const float_t epsilon, norm_type type, float_t* norm)
+{
+#if __USE_DEVICE__ == ON
+#if __PARALLELTYPE__ == __CUDA__
+	switch(type)
+	{
+		case norm_l1:
+			cacu_norm_l1_cuda(x, length, epsilon, norm);
+			break;
+		case norm_l2:
+			cacu_norm_l2_cuda(x, length, epsilon, norm);
+			break;
+		default:
+			break;
+	}
+#endif
+#else
+	switch(type)
+	{
+		case norm_l1:
+			cacu_norm_l1_cpu(x, length, epsilon, norm);
+			break;
+		case norm_l2:
+			cacu_norm_l2_cpu(x, length, epsilon, norm);
+			break;
+		default:
+			break;
+	}
+#endif
+}
+
+
 
 }
 

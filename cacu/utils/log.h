@@ -45,6 +45,15 @@ namespace cacu{
 		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level,  _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, ##__VA_ARGS__); \
 	} while (0)
 
+#define LOG_S(level, format,...) \
+	do{ 					   	 \
+	time_t now = time(NULL);	 \
+	struct tm _now_; 			 \
+	localtime_s(&_now_,&now);	 \
+		fprintf(stderr,"[%s][%02d:%02d:%02d] " format "\n", level,  _now_.tm_hour,_now_.tm_min,_now_.tm_sec, ##__VA_ARGS__); \
+	} while (0)
+
+
 #else
 #define LOG(level, format,...)   \
 	do{ 					   	 \
@@ -56,13 +65,22 @@ namespace cacu{
 		else						 \
 		fprintf(stderr,"[%s][%02d:%02d:%02d %s:%d] " format "\n", level,  _now_.tm_hour,_now_.tm_min,_now_.tm_sec, __FILE__, __LINE__, ##__VA_ARGS__); \
 		} while (0)
+
+#define LOG_S(level, format,...)   \
+	do{ 					   	   \
+		time_t now = time(NULL);   \
+		struct tm _now_; 		   \
+		localtime_r(&now,&_now_);  \
+		fprintf(stderr,"[%s][%02d:%02d:%02d] " format "\n", level,  _now_.tm_hour,_now_.tm_min,_now_.tm_sec, ##__VA_ARGS__); \
+	} while (0)
+
 #endif
 
 #define LOG_DEBUG(format,...) LOG("DEBUG",format,##__VA_ARGS__)
 #define LOG_WARNING(format,...) LOG("WARNING",format,##__VA_ARGS__)
 #define LOG_FATAL(format,...) {	LOG("FATAL",format,##__VA_ARGS__); exit(0);}
 #define LOG_CHECK(format,...) LOG("CHECK",format,##__VA_ARGS__)
-#define LOG_INFO(format,...)  LOG("INFO",format,##__VA_ARGS__)
+#define LOG_INFO(format,...)  LOG_S("INFO",format,##__VA_ARGS__)
 
 
 };

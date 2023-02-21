@@ -28,6 +28,8 @@
 #ifndef LOSS_BASE_OP_H_
 #define LOSS_BASE_OP_H_
 
+#include "../math/math_definition.h"
+
 namespace cacu {
 
 class loss_base_op: public operator_base {
@@ -36,10 +38,12 @@ public:
 
 	loss_base_op(blobs *&data, op_name type_) :
 		operator_base(data, type_) {
+		_BASE_TYPE = LOSS_BASE;
 	}
 
 	loss_base_op(blobs *&data, op_args *&args_, op_name type_) :
 		operator_base(data, args_, type_) {
+		_BASE_TYPE = LOSS_BASE;
 	}
 
 	~loss_base_op() {
@@ -65,9 +69,9 @@ public:
 			LOG_INFO("weighted loss : %f", _loss);
 	}
 
-	float_t normalizer() {
+	float_t normalizer() const {
 		blob_base* blob_ = s_blobs->at(0);
-		return ((float_t) (1) / blob_->num() * _loss_weight);
+		return (_loss_weight / (float_t)blob_->num());
 	}
 
 	inline float_t loss() {
@@ -79,31 +83,31 @@ public:
 		_loss_weight = weight_;
 	}
 
-	inline void set_direction(grad_direction_type direction_){
-		_direction = direction_;
-		switch(_direction)
-		{
-			case minimize:
-				_loss_direction = 1.0;
-				break;
-			case maximize:
-				_loss_direction = -1.0;
-				break;
-			default:
-				_loss_direction = 1.0;
-				break;
-		}
+	inline float_t loss_weight() const {
+		return _loss_weight;
 	}
+//
+//	inline void set_direction(grad_direction_type direction_){
+//		_direction = direction_;
+//		switch(_direction)
+//		{
+//			case minimize:
+//				_loss_direction = 1.0;
+//				break;
+//			case maximize:
+//				_loss_direction = -1.0;
+//				break;
+//			default:
+//				_loss_direction = 1.0;
+//				break;
+//		}
+//	}
 
 protected:
 
 	float_t _loss = 0.0;
 
 	float_t _loss_weight = 1.0;
-
-	float_t _loss_direction = 1.0;
-
-	grad_direction_type _direction = minimize;
 };
 }
 

@@ -43,7 +43,7 @@ namespace cacu {
  * length: the input data's size
  */
 template<typename DTYPE>
-void cacu_copy_cpu(DTYPE *x,const dsize_t length, DTYPE *y) {
+void cacu_copy_cpu(DTYPE *x, const dsize_t length, DTYPE *y) {
 	for (int i = 0; i < length; ++i) {
 		y[i] = x[i];
 	}

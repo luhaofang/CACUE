@@ -36,7 +36,215 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cacu{
 
+__global__ void _k_CACU_NORMALIZATION_L1_CUDA(float_t *x, const int length, const float_t epsilon) {
 
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	shared_data[tid] = 0;
+	for (int j = tid; j < length; j += THREADNUM) {
+		shared_data[tid] += abs(x[j]);
+	}
+	__syncthreads();
+
+	int acc_length = THREADNUM / 2;
+	while (acc_length > 0) {
+		if (tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+
+	shared_data[tid] = shared_data[0] + epsilon;
+
+	__syncthreads();
+
+	for (int i = tid; i < length; i += THREADNUM) {
+		x[i] /= shared_data[tid];
+	}
+}
+
+
+extern "C" void cacu_normalization_l1_cuda(float_t *x, const int length, const float_t epsilon) {
+
+	_k_CACU_NORMALIZATION_L1_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, length, epsilon);
+
+	CUDA_CHECK(cuda_device_sync_status());
+
+}
+
+__global__ void _k_CACU_NORMALIZATION_L1_GRAD_CUDA(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg) {
+
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	shared_data[tid] = 0;
+	for (int j = tid; j < length; j += THREADNUM) {
+		shared_data[tid] += abs(x[j]);
+	}
+	__syncthreads();
+
+	int acc_length = THREADNUM / 2;
+	while (acc_length > 0) {
+		if (tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+
+	shared_data[tid] = shared_data[0] + epsilon;
+
+	__syncthreads();
+
+	for (int i = tid; i < length; i += THREADNUM) {
+		xg[i] = (shared_data[tid] - x[i]) / powf(shared_data[tid], 2.0) * yg[i];
+	}
+}
+
+
+extern "C" void cacu_normalization_l1_grad_cuda(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg) {
+
+	_k_CACU_NORMALIZATION_L1_GRAD_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, length, epsilon, yg, xg);
+
+	CUDA_CHECK(cuda_device_sync_status());
+
+}
+
+
+__global__ void _k_CACU_NORMALIZATION_L2_CUDA(float_t *x, const int length, const float_t epsilon) {
+
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	shared_data[tid] = 0;
+	for (int j = tid; j < length; j += THREADNUM) {
+		shared_data[tid] += x[j]*x[j];
+	}
+	__syncthreads();
+
+	int acc_length = THREADNUM / 2;
+	while (acc_length > 0) {
+		if (tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+
+	shared_data[tid] = sqrtf(shared_data[0]) + epsilon;
+
+	__syncthreads();
+
+	for (int i = tid; i < length; i += THREADNUM) {
+		x[i] /= shared_data[tid];
+	}
+}
+
+extern "C" void cacu_normalization_l2_cuda(float_t *x, const int length, const float_t epsilon) {
+
+	_k_CACU_NORMALIZATION_L2_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, length, epsilon);
+
+	CUDA_CHECK(cuda_device_sync_status());
+}
+
+__global__ void _k_CACU_NORMALIZATION_L2_GRAD_CUDA(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg) {
+
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	shared_data[tid] = 0;
+	for (int j = tid; j < length; j += THREADNUM) {
+		shared_data[tid] += abs(x[j]);
+	}
+	__syncthreads();
+
+	int acc_length = THREADNUM / 2;
+	while (acc_length > 0) {
+		if (tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+
+	shared_data[tid] = shared_data[0] + epsilon;
+
+	__syncthreads();
+
+	for (int i = tid; i < length; i += THREADNUM) {
+		xg[i] = (powf(shared_data[tid], 2.0) - powf(x[i], 2.0)) / powf(shared_data[tid], 3.0) * yg[i];
+	}
+}
+
+
+extern "C" void cacu_normalization_l2_grad_cuda(float_t *x, const int length, const float_t epsilon, float_t *yg, float_t *xg) {
+
+	_k_CACU_NORMALIZATION_L2_GRAD_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, length, epsilon, yg, xg);
+
+	CUDA_CHECK(cuda_device_sync_status());
+
+}
+
+__global__ void _k_CACU_NORM_L1_CUDA(float_t *x, const int length, const float_t epsilon, float_t *norm) {
+
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	shared_data[tid] = 0;
+	for (int j = tid; j < length; j += THREADNUM) {
+		shared_data[tid] += abs(x[j]);
+	}
+	__syncthreads();
+
+	int acc_length = THREADNUM / 2;
+	while (acc_length > 0) {
+		if (tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+
+	if(tid == 0)
+		norm[0] = shared_data[0] + epsilon;
+}
+
+extern "C" void cacu_norm_l1_cuda(float_t *x, const int length, const float_t epsilon, float_t *norm){
+	_k_CACU_NORM_L1_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, length, epsilon, norm);
+	CUDA_CHECK(cuda_device_sync_status());
+}
+
+__global__ void _k_CACU_NORM_L2_CUDA(float_t *x, const int length, const float_t epsilon, float_t *norm) {
+
+	int tid = threadIdx.x;
+
+	extern __shared__ float_t shared_data[];
+
+	shared_data[tid] = 0;
+	for (int j = tid; j < length; j += THREADNUM) {
+		shared_data[tid] += x[j]*x[j];
+	}
+	__syncthreads();
+
+	int acc_length = THREADNUM / 2;
+	while (acc_length > 0) {
+		if (tid < acc_length)
+			shared_data[tid] += shared_data[tid + acc_length];
+		acc_length /= 2;
+		__syncthreads();
+	}
+
+	if(tid == 0)
+		norm[0] = sqrtf(shared_data[0]) + epsilon;
+
+}
+
+extern "C" void cacu_norm_l2_cuda(float_t *x, const int length, const float_t epsilon, float_t *norm){
+	_k_CACU_NORM_L2_CUDA<<<1, THREADNUM, THREADNUM * sizeof(float_t)>>>(x, length, epsilon, norm);
+	CUDA_CHECK(cuda_device_sync_status());
+}
 
 }
 

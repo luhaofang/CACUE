@@ -1,7 +1,6 @@
 /*
 Copyright (c) 2016, David lu
 All rights reserved.
-
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 * Redistributions of source code must retain the above copyright
@@ -12,7 +11,6 @@ documentation and/or other materials provided with the distribution.
 * Neither the name of the <organization> nor the
 names of its contributors may be used to endorse or promote products
 derived from this software without specific prior written permission.
-
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -45,8 +43,8 @@ layer_block* conv_block_cycleGAN_l(blob_base* data,int output_channel, int kerne
 	clock_t start = clock();
 	layer *l = new layer(new data_args(output_channel, kernel_size, stride, pad, data->channel()));
 	l->op(CACU_CONVOLUTION, data)->op(CACU_BATCH_NORMALIZE)->op(CACU_LEAKY_RELU, new op_args(0.2));
-	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian,0.02);
-	l->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(usebias);
+	l->get_op<sn_convolution_op>(0)->set_weight_init_type(gaussian,0.02);
+	l->get_op<sn_convolution_op>(0)->set_is_use_bias(usebias);
 	l->get_op<batch_normalize_op>(1,CACU_BATCH_NORMALIZE)->set_scale_init_type(gaussian, 1, 0.02);
 	l->get_op<batch_normalize_op>(1,CACU_BATCH_NORMALIZE)->set_is_use_global_stats(false);
 	clock_t end = clock();
@@ -198,8 +196,8 @@ layer_block* create_discriminator_cycleGan(int batch_size, int dim, phase_type p
 
 	layer *conv1 = new layer(new data_args(dim, 4, 2, 1, blob_->channel()));
 	conv1->op(CACU_CONVOLUTION,blob_)->op(CACU_LEAKY_RELU, new op_args(0.2));
-	conv1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian, 0.02);
-	conv1->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
+	conv1->get_op<sn_convolution_op>(0)->set_weight_init_type(gaussian, 0.02);
+	conv1->get_op<sn_convolution_op>(0)->set_is_use_bias(false);
 
 	*discriminator << conv1;
 
@@ -211,8 +209,8 @@ layer_block* create_discriminator_cycleGan(int batch_size, int dim, phase_type p
 
 	layer *conv = new layer(new data_args(1, 4, 1, 1, discriminator->get_oblob()->channel()));
 	conv->op(CACU_CONVOLUTION,discriminator->get_oblob());//->op(CACU_SIGMOID);
-	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_weight_init_type(gaussian, 0.02);
-	conv->get_op<convolution_op>(0, CACU_CONVOLUTION)->set_is_use_bias(false);
+	conv->get_op<sn_convolution_op>(0)->set_weight_init_type(gaussian, 0.02);
+	conv->get_op<sn_convolution_op>(0)->set_is_use_bias(false);
 
 	*discriminator << conv;
 

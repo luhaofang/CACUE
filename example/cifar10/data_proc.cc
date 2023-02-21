@@ -88,9 +88,9 @@ void readdata(string filename, vector<vec_t> &data_blob,
 		vec_t datas(kCIFARImageNBytes);
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kCIFARDataSize; j++) {
-			datas[j] = ((cacu::float_t) ((unsigned char)(buffer[j]))) / 255.0;
-			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])))/ 255.0;
-			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize])))/ 255.0;
+			datas[j] = ((cacu::float_t) ((unsigned char)(buffer[j])) - 127.5) / 127.5;
+			datas[j + kCIFARDataSize] = ((cacu::float_t) ((unsigned char)(buffer[j + kCIFARDataSize])) - 127.5)/ 127.5;
+			datas[j + kCIFARDataSize * 2] = ((cacu::float_t) ((unsigned char)(buffer[j + 2 * kCIFARDataSize])) - 127.5)/ 127.5;
 		}
 		data_blob.push_back(datas);
 	}
@@ -130,7 +130,14 @@ void load_data_bymean(string filepath, string meanfile, vector<vec_t> &data_blob
 		ostringstream oss;
 		oss << filepath << "data_batch_" << i << ".bin";
 		readdata((oss.str()), data_blob , mean , labels);
+//		readdata((oss.str()), data_blob , labels);
 	}
+
+//	for(int n = 0; n < data_blob.size(); ++n){
+//		cacu_sdxsize(&(data_blob[n][0]), 32*32, -102.9801, 1, &(data_blob[n][0]));
+//		cacu_sdxsize(&(data_blob[n][32*32]), 32*32, -115.9465, 1, &(data_blob[n][32*32]));
+//		cacu_sdxsize(&(data_blob[n][32*32*2]), 32*32, -122.7717, 1, &(data_blob[n][32*32*2]));
+//	}
 }
 
 void load_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
@@ -154,7 +161,13 @@ void load_test_data_bymean(string filepath, string meanfile, vector<vec_t> &data
 		ostringstream oss;
 		oss << filepath << "test_batch.bin";
 		readdata((oss.str()), data_blob , mean, labels);
+//		readdata((oss.str()), data_blob, labels);
 	}
+//	for(int n = 0; n < data_blob.size(); ++n){
+//		cacu_sdxsize(&(data_blob[n][0]), 32*32, -102.9801, 1, &(data_blob[n][0]));
+//		cacu_sdxsize(&(data_blob[n][32*32]), 32*32, -115.9465, 1, &(data_blob[n][32*32]));
+//		cacu_sdxsize(&(data_blob[n][32*32*2]), 32*32, -122.7717, 1, &(data_blob[n][32*32*2]));
+//	}
 }
 
 void load_test_data(string filepath, vector<vec_t> &data_blob, vector<vec_i> &labels)
@@ -202,6 +215,36 @@ void make_mean(chars_t filepath, chars_t meanfile)
 	vec_t mean = compute_mean(filepath,5);
 	//LOG_DEBUG("%d", mean.size());
 	imageio_utils::save_mean_file(&mean[0],meanfile,mean.size());
+}
+
+void output_224x224(chars_t filename, int file_id, chars_t outpath, int w, int h){
+	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
+	if(!data_file)
+		LOG_FATAL("file %s cannot be opened!",filename.c_str());
+	ostringstream oss;
+
+	cv::Mat src = cv::Mat(cv::Size(32, 32), CV_8UC3, cv::Scalar(0));
+	cv::Mat dst = cv::Mat(cv::Size(h, w), CV_8UC3, cv::Scalar(0));;
+	char label_char;
+	char buffer[kCIFARImageNBytes];
+	for (int i = 0; i < kCIFARBatchSize; ++i) {
+
+		data_file.read(&label_char, 1);
+		data_file.read(buffer, kCIFARImageNBytes);
+		for (int j = 0; j < kCIFARDataSize; ++j)
+		{
+			//setdata = ;
+			src.at<cv::Vec3b>(j / 32, j % 32)[2] = ((unsigned char) (buffer[j]));
+			src.at<cv::Vec3b>(j / 32, j % 32)[1] = ((unsigned char) (buffer[j + kCIFARDataSize]));
+			src.at<cv::Vec3b>(j / 32, j % 32)[0] = ((unsigned char) (buffer[j + 2 * kCIFARDataSize]));
+		}
+		cv::resize(src, dst, cv::Size(h, w), cv::INTER_LINEAR);
+		oss << outpath << (unsigned int)((label_char)) << "/" << file_id <<  "_" << i << ".bmp";
+		cv::imwrite(oss.str(), dst);
+		oss.str("");
+	}
+	src.release();
+	dst.release();
 }
 
 

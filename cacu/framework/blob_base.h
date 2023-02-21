@@ -35,6 +35,7 @@
 
 #include "blob_definition.h"
 #include "blob_body.h"
+#include "../math/cudnn/cudnn_functions.h"
 
 using namespace std;
 
@@ -89,17 +90,16 @@ public:
 		_data_num = num;
 	}
 
-	inline blob_body *body()
-	{
+	inline blob_body *body() {
 		return _body;
 	}
 
-	inline void copy_body(blob_body *body_)
-	{
+	inline void copy_body(const blob_body *body_) {
 		_body->copy_from(body_);
 	}
 
-	virtual void resize(dsize_t num, dsize_t channel, dsize_t width, dsize_t height) = 0;
+	virtual void resize(dsize_t num, dsize_t channel, dsize_t width,
+			dsize_t height) = 0;
 
 	virtual dsize_t calculate_size() = 0;
 
@@ -112,14 +112,15 @@ public:
 	virtual void load(std::ifstream& is) = 0;
 
 	inline dsize_t index(dsize_t n, dsize_t c, dsize_t h, dsize_t w) const {
-		return n * _body->_cube_length + c * _body->_channel_length + h * _body->_width + w;
+		return n * _body->_cube_length + c * _body->_channel_length
+				+ h * _body->_width + w;
 	}
 
 	inline dsize_t index0(dsize_t h, dsize_t w) const {
 		return h * _body->_width + w;
 	}
 
-	void _CHECK_SIZE_EQ(blob_base* blob_);
+	void _CHECK_SIZE_EQ(const blob_base* blob_);
 
 	inline blob_type _TYPE() const {
 		return _blob_type;
@@ -133,16 +134,15 @@ public:
 	 *
 	 * whether does the blob can be RESET in _RESET_DATA && _RESET_DIFF
 	 */
-	inline void set_variable(bool type_)
-	{
+	inline void set_variable(bool type_) {
 		_variable = type_;
 	}
 
 	void _REC();
 
 	/*
-	* compare the current data size with previous data size
-	*/
+	 * compare the current data size with previous data size
+	 */
 	inline bool _IS_MOTIFIED() {
 		return _body->check_body(_p_body);
 	}
@@ -152,18 +152,19 @@ public:
 	}
 
 	inline void _NEED_MOTIFY() {
-		_p_body->set_body(0,0,0,0);
+		_p_body->set_body(0, 0, 0, 0);
 	}
 
-	void blob_size()
-	{
-		switch(_blob_type){
+	void blob_size() {
+		switch (_blob_type) {
 
 		case __blob__:
-			LOG_INFO("blob size: (%d, %d, %d, %d)", _body->_num, _body->_channel, _body->_width, _body->_height);
+			LOG_INFO("blob size: (%d, %d, %d, %d)", _body->_num,
+					_body->_channel, _body->_width, _body->_height);
 			break;
 		case __bin_blob__:
-			LOG_INFO("bin blob size: (%d, %d, %d, %d)", _body->_num, _body->_channel, _body->_width, _body->_height);
+			LOG_INFO("bin blob size: (%d, %d, %d, %d)", _body->_num,
+					_body->_channel, _body->_width, _body->_height);
 			break;
 		default:
 			break;
@@ -179,6 +180,7 @@ protected:
 
 	bool _variable = true;
 
+	int _REC_;
 
 	void *_s_data;
 
@@ -188,12 +190,9 @@ private:
 
 	blob_type _blob_type;
 
-	unsigned _REC_;
-
 	blob_body *_p_body;
 
 };
 }
-
 
 #endif

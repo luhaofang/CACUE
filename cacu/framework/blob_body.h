@@ -34,14 +34,15 @@ class blob_body
 {
 	public:
 
-	blob_body(dsize_t num, dsize_t channel, dsize_t width, dsize_t height){
-		_num = num;
-		_channel = channel;
-		_width = width;
-		_height = height;
-		_channel_length = width * height;
-		_cube_length = channel * width * height;
-		_length = _num * _cube_length;
+	blob_body(dsize_t num, dsize_t channel, dsize_t width, dsize_t height) {
+		_length = num * channel * width * height;
+		_num = _length == 0 ? 0 : num;
+		_channel = _length == 0 ? 0 : channel;
+		_width = _length == 0 ? 0 : width;
+		_height = _length == 0 ? 0 : height;
+		_channel_length = _length == 0 ? 0 : width * height;
+		_cube_length = _length == 0 ? 0 : channel * width * height;
+
 	}
 
 	~blob_body(){}
@@ -54,8 +55,7 @@ class blob_body
 	dsize_t _length;
 	dsize_t _channel_length;
 
-	inline bool check_body(blob_body *body_)
-	{
+	inline bool check_body(const blob_body *body_) {
 		if(body_->_num != _num)
 			return false;
 		if(body_->_channel != _channel)
@@ -67,26 +67,43 @@ class blob_body
 		return true;
 	}
 
-	inline void copy_from(blob_body *body_)
-	{
+	inline void copy_from(const blob_body *body_) {
 		_num = body_->_num;
 		_channel = body_->_channel;
 		_width = body_->_width;
 		_height = body_->_height;
-		_channel_length = _width * _height;
-		_cube_length = _channel * _width * _height;
-		_length = _num * _cube_length;
+		_length = _num * _channel * _width * _height;
+		_channel_length = _length == _width * _height;
+		_cube_length = _length == _channel * _width * _height;
+
 	}
 
-	inline void set_body(dsize_t num_, dsize_t channel_, dsize_t width_, dsize_t height_)
-	{
-		_num = num_;
-		_channel = channel_;
-		_width = width_;
-		_height = height_;
-		_channel_length = _width * _height;
-		_cube_length = _channel * _width * _height;
-		_length = _num * _cube_length;
+	inline void set_body(dsize_t num_, dsize_t channel_, dsize_t width_, dsize_t height_) {
+		_length = num_ * channel_ * width_ * height_;
+		_num = _length == 0 ? 0 : num_;
+		_channel = _length == 0 ? 0 : channel_;
+		_width = _length == 0 ? 0 : width_;
+		_height = _length == 0 ? 0 : height_;
+		_channel_length = _length == 0 ? 0 : _width * _height;
+		_cube_length = _length == 0 ? 0 : _channel * _width * _height;
+	}
+
+	inline void serialize(std::ostream &os) {
+		os.write((char*)(&_num), sizeof(_num));
+		os.write((char*)(&_channel), sizeof(_channel));
+		os.write((char*)(&_width), sizeof(_width));
+		os.write((char*)(&_height), sizeof(_height));
+	}
+
+	inline void load(std::istream &is) {
+		is.read(reinterpret_cast<char*>(&_num), sizeof(dsize_t));
+		is.read(reinterpret_cast<char*>(&_channel), sizeof(dsize_t));
+		is.read(reinterpret_cast<char*>(&_width), sizeof(dsize_t));
+		is.read(reinterpret_cast<char*>(&_height), sizeof(dsize_t));
+		_length = _num * _channel * _width * _height;
+		_channel_length = _length == 0 ? 0 : _width * _height;
+		_cube_length = _length == 0 ? 0 : _channel * _width * _height;
+
 	}
 
 };

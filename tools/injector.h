@@ -62,7 +62,7 @@ public:
 			(*_neural_count)[index_] = 1;
 	}
 
-	void s_data_serializa(string output_path)
+	void s_data_serializa(const string& output_path)
 	{
 		std::ofstream os(output_path, ios::binary);
 		os.precision(std::numeric_limits<cacu::float_t>::digits10);
@@ -83,7 +83,7 @@ public:
 		os.close();
 	}
 
-	void p_data_serializa(string output_path, int start, int length)
+	void p_data_serializa(const string& output_path, int start, int length)
 	{
 		std::ofstream os(output_path, ios::binary);
 		os.precision(std::numeric_limits<cacu::float_t>::digits10);
@@ -104,7 +104,7 @@ public:
 		os.close();
 	}
 
-	void s_diff_serializa(string output_path)
+	void s_diff_serializa(const string& output_path)
 	{
 		std::ofstream os(output_path, ios::binary);
 		os.precision(std::numeric_limits<cacu::float_t>::digits10);
@@ -146,7 +146,7 @@ public:
 		}
 	}
 
-	void serializa(string output_path)
+	void serializa(const string& output_path)
 	{
 		std::ofstream os(output_path, ios::binary);
 		os.precision(std::numeric_limits<cacu::float_t>::digits10);

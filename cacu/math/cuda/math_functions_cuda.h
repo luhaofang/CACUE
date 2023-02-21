@@ -28,30 +28,49 @@
 #ifndef MATH_FUNCTIONS_CUDA_H_
 #define MATH_FUNCTIONS_CUDA_H_
 
-#include "../../config.h"
+#include "../../definition.h"
+#include "../math_definition.h"
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 
 namespace cacu{
 
-extern "C" void cacu_saxpy_atomic_cuda(float *x, const float a, float *y, const int length);
+extern "C" void cacu_saxpy_atomic_cuda(float_t *x, const float_t a, float_t *y, const int length);
 
 /**
  * @cacu_isaxdb_cuda
  * y[index] = x[index]*a + b
  */
-extern "C" void cacu_isaxb_cuda(float *x, const int channel, const int width, const int height, const float a ,int *index_,const float b, float *y);
+extern "C" void cacu_isaxb_cuda(float_t *x, const int channel, const int width, const int height, const float_t a ,int *index_,const float_t b, float_t *y);
 
-extern "C" void cacu_argmax_cuda(float *x, const int length, unsigned int *index_);
+extern "C" void cacu_argmax_cuda(float_t *x, const int length, unsigned int *index_);
 
-extern "C" void cacu_transpose_cuda(float *mtx, const int m, const int n, const int length);
+extern "C" void cacu_transpose_cuda(float_t *mtx, const int m, const int n, const int clength);
 
-extern "C" void cacu_clip_vec_cuda(float *data, const float threshold, const int length);
+extern "C" void cacu_clip_vec_cuda(float_t *data, const float_t l_t, const float_t r_t, const int length);
 
-extern "C" void cacu_abs_cuda(float *x, const int length, float *y);
+extern "C" void cacu_abs_cuda(float_t *x, const int length, float_t *y);
 
-extern "C" void cacu_abs_grad_cuda(float *x, float *diff, const int length);
+extern "C" void cacu_abs_grad_cuda(float_t *x, float_t *diff, const int length);
+
+extern "C" void cacu_pow_cuda(float_t *x, const int length, const float_t pow, float_t *y);
+
+extern "C" void cacu_powt_cuda(float_t *x, const int length, const float_t *pow, float_t *y);
+
+extern "C" void cacu_ln_cuda(float_t *x, const int length, float_t *y);
+
+extern "C" void cacu_flip_cuda(int *x, const int length);
+
+extern "C" void rand_vector_cuda(float_t *vector_, const int length, const float_t ratio_);
+
+extern "C" void cacu_acos_cuda(float_t *x, const int length, float_t *y);
+
+extern "C" void cacu_cos_cuda(float_t *x, const int length, float_t *y);
+
+extern "C" void cacu_floor_cuda(float_t *x, const int length, float_t *y);
+
+extern "C" void cacu_rotate_cuda(float_t *mtx, const int m, const int n, const int clength, rotate_code rotate);
 
 }
 

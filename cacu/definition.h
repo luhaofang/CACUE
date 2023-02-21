@@ -40,6 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <limits.h>
 
+#include <typeinfo>
+
 using namespace std;
 
 namespace cacu{
@@ -86,7 +88,12 @@ typedef vector<int> vec_i;
 typedef vector<float_t*> vec_f;
 
 /*
+ * For cpu merge sum size
  */
+#define SSIZE 256
+
+//NOT A FEATURE
+#define NAF -31352
 
 #ifndef ON
 #define ON 1
@@ -95,6 +102,8 @@ typedef vector<float_t*> vec_f;
 #ifndef OFF
 #define OFF	0
 #endif
+
+
 
 }
 

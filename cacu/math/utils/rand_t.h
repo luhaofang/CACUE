@@ -34,9 +34,15 @@ namespace cacu {
 
 void set_rand_seed();
 
-float_t gaussrand(float_t std);
+float_t gaussrand(float_t std, float_t m = 0);
 
 float_t urand(float_t min, float_t max);
+
+float_t urand_clip(float_t min, float_t max, float_t abs_, float_t p_);
+
+float_t spherical_unrand(float_t std, float_t m, float_t min, float_t max);
+
+float_t spherical_unrand_abs(float_t std, float_t m, float_t min, float_t max);
 
 unsigned int urandint(unsigned int min, unsigned int max);
 

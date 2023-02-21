@@ -30,6 +30,44 @@
 
 namespace cacu {
 
+model::model()
+{
+	_cacu_ops = new map<chars_t, cacu_op*>();
+
+	_params = new vector<weight *>();
+}
+
+model::~model(){
+	map<chars_t, cacu_op*>::iterator iter = _cacu_ops->begin();
+	while(iter != _cacu_ops->end())
+	{
+		delete iter->second;
+		iter->second = NULL;
+		_cacu_ops->erase(iter);
+		iter++;
+	}
+	delete _cacu_ops;
+	_cacu_ops = NULL;
+
+	delete _params;
+	_params = NULL;
+}
+
+void model::nn(chars_t op_name_, cacu_op *&op_)
+{
+	int nRet = _cacu_ops->count(op_name_);
+	if(nRet > 0){
+		LOG_WARNING("op [\'%s\'] is already defined!",op_name_.c_str());
+		return;
+	}
+	this->_cacu_ops->insert(pair<chars_t, cacu_op*&>(op_name_, op_));
+	for(int i = 0; i < op_->get_weights()->size(); ++i)
+	{
+		_params->push_back(op_->get_param(i));
+	}
+}
+
+
 
 
 

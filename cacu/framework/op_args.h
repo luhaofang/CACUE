@@ -30,7 +30,7 @@
 
 #include <vector>
 
-#include "../definition.h"
+#include "../utils/log.h"
 #include "../utils/check_utils.h"
 
 using namespace std;
@@ -40,6 +40,10 @@ namespace cacu {
 class op_args : public vector<float_t>{
 
 public:
+
+	op_args() : vector<float_t>(){
+
+	}
 
 	op_args(float_t args_) : vector<float_t>(){
 		this->push_back(args_);
@@ -65,6 +69,26 @@ public:
 
 	~op_args() {
 
+	}
+
+	inline void serialize(std::ostream &os) {
+
+		int size_ = this->size();
+		os.write((char*)(&size_), sizeof(int));
+		for(unsigned int i = 0; i < size(); ++i)
+			os.write((char*)(&(this->at(i))), sizeof(float_t));
+	}
+
+	inline void load(std::istream &is) {
+		if(size() != 0)
+			LOG_FATAL("Op args needs to be an empty container!");
+		int size = 0;
+		is.read(reinterpret_cast<char*>(&size), sizeof(int));
+		float_t d_size = 0;
+		for(unsigned int i = 0; i < size; ++i){
+			is.read(reinterpret_cast<char*>(&d_size), sizeof(float_t));
+			this->push_back(d_size);
+		}
 	}
 
 };

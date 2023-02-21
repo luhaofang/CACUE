@@ -28,9 +28,6 @@
 #ifndef ACTIVITION_FUNCTIONS_CPU_H_
 #define ACTIVITION_FUNCTIONS_CPU_H_
 
-#include <algorithm>
-#include <cmath>
-//#include "../../config.h"
 #include "../../definition.h"
 
 namespace cacu {

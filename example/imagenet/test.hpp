@@ -148,7 +148,7 @@ void test_net()
 			break;
 	}
 
-	LOG_INFO("precious: %f,%f", count / ALLIMAGE, count);
+	LOG_INFO("precision: %f,%f", count / ALLIMAGE, count);
 
 	//injector->o_blob_serializa("/home/seal/4T/cacue/imagenet/relu.txt");
 

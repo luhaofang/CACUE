@@ -50,7 +50,7 @@ void train_net()
 {
 	int batch_size = 100;
 
-	int max_iter = 5000;
+	int max_iter = 6000;
 
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
@@ -62,18 +62,22 @@ void train_net()
 	set_rand_seed();
 
 	network *net = create_lenet(batch_size,train);
+	net->set_is_use_bias(false);
+//	net->load_weights("/Users/seallhf/Documents/datasets/mnist/lenet.model");
 
 	sgd_solver *sgd = new sgd_solver(net);
-	sgd->set_lr(0.01f);
+	sgd->set_lr(0.001f);
 	sgd->set_momentum(0.9f);
-	sgd->set_weight_decay(0.0005f);
+	sgd->set_regularize(regularize_type::L2);
+	sgd->set_weight_decay(0.00025f);
+	sgd->set_train_stage(STD_STAGE);
+	sgd->set_positive_regularize(true);
 
-	string datapath = "/home/luhaofang/git/caffe/data/mnist/";
-
-	std::ofstream logger(datapath + "loss.txt", ios::binary);
+	std::ofstream logger("/Users/seallhf/Documents/datasets/mnist/loss.txt", ios::binary);
 	logger.precision(std::numeric_limits<cacu::float_t>::digits10);
 
-	string meanfile = datapath + "mean.binproto";
+	string datapath = "/Users/seallhf/Documents/datasets/mnist/";
+	string meanfile = "/Users/seallhf/Documents/datasets/mnist/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -101,11 +105,11 @@ void train_net()
 		}
 		
 		sgd->train_iter(i);
-		//cacu_print(net->get_op<inner_product_op>(net->op_count() - 2, CACU_INNERPRODUCT)->out_data<blob>()->s_data(), 10);
+//		cacu_print(net->get_op<inner_product_op>(net->op_count() - 2, CACU_INNERPRODUCT)->out_data<blob>()->s_data(), 10);
 
 		timer->end();
 
-		if(i % 10 == 0){
+		if(i % 1 == 0){
 
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, sgd->lr(), timer->get_time_span() / 1000);
 			net->get_op<softmax_with_loss_op>(net->op_count() - 1, CACU_SOFTMAX_LOSS)->echo();
@@ -114,12 +118,12 @@ void train_net()
 			logger.flush();
 		}
 
-		if(i % 4000 == 0)
+		if(i % 5000 == 0)
 			sgd->set_lr_iter(0.1f);
 
 	}
 	LOG_INFO("optimization is done!");
-	net->save_weights(datapath + "lenet.model");
+	net->save_weights("/Users/seallhf/Documents/datasets/mnist/lenet.model");
 
 	vector<vec_t>().swap(full_data);
 	vector<vec_i>().swap(full_label);

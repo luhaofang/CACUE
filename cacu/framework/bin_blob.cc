@@ -26,6 +26,7 @@
  */
 
 #include "bin_blob.h"
+#include "../math/math_functions.h"
 
 namespace cacu {
 
@@ -43,26 +44,42 @@ blob_base(num, channel, width, height, phase, __bin_blob__) {
 
 bin_blob::~bin_blob(){
 	delete _tdata;
+	_tdata = NULL;
 	if (train == _phase) {
 		delete _tdiff;
+		_tdiff = NULL;
 	}
 }
 
 void bin_blob::copy2data(vec_i &data_, dsize_t i) {
-	CHECK_EQ_OP(data_.size(), length(), "blob size must be equal! %d vs %d",
-				data_.size(), length());
+	CHECK_EQ_OP((int)data_.size(), length(), "blob size must be equal! %d vs %d",
+			(int)data_.size(), length());
 	_tdata->copy2data(i*length(), length(), &data_[0]);
 }
 
+bin_blob* bin_blob::copy_create(phase_type phase_, int value_) const {
+	return new bin_blob(num(), channel(), width(), height(), value_, phase_);
+}
+
+/**
+ * copy dest blob data to local blob
+ */
+void bin_blob::copy_blob(const bin_blob* blob_)
+{
+	CHECK_EQ_OP(blob_->count(), count(), "blob size must be equal! %d vs %d",
+			blob_->count(), count());
+	_tdata->copy(blob_->s_data());
+}
+
 void bin_blob::copy2data(vec_i &data_) {
-	CHECK_EQ_OP(data_.size(), count(), "blob size must be equal! %d vs %d",
-				data_.size(), count());
+	CHECK_EQ_OP((int)data_.size(), count(), "blob size must be equal! %d vs %d",
+			(int)data_.size(), count());
 	_tdata->copy2data(&data_[0]);
 }
 
 void bin_blob::copy2diff(vec_t &data_, dsize_t i) {
-	CHECK_EQ_OP(data_.size(), length(), "blob size must be equal! %d vs %d",
-				data_.size(), length());
+	CHECK_EQ_OP((int)data_.size(), length(), "blob size must be equal! %d vs %d",
+			(int)data_.size(), length());
 	_tdiff->copy2data(i*length(), length(), &data_[0]);
 }
 
@@ -70,9 +87,13 @@ void bin_blob::copy2diff(vec_t &data_, dsize_t i) {
  * copy data into blob's diff, if blob is established in gpu, io op is needed
  */
 void bin_blob::copy2diff(vec_t &data_) {
-	CHECK_EQ_OP(data_.size(), count(), "blob size must be equal! %d vs %d",
-				data_.size(), count());
+	CHECK_EQ_OP((int)data_.size(), count(), "blob size must be equal! %d vs %d",
+			(int)data_.size(), count());
 	_tdiff->copy2data(&data_[0]);
+}
+
+void bin_blob::flip(){
+	cacu_flip(_tdata->pdata(), count());
 }
 
 

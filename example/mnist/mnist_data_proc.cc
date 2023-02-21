@@ -41,7 +41,7 @@ unsigned int swap_endian(unsigned int val) {
 
 
 void readdata_mnist(chars_t filename, vector<vec_t> &data_blob) {
-	char label_char;
+//	char label_char;
 	unsigned int data_size_;
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
 	if (!data_file)
@@ -71,7 +71,7 @@ void readdata_mnist(chars_t filename, vector<vec_t> &data_blob) {
 }
 
 void readdata_mnist(chars_t filename, vector<vec_t> &data_blob,vec_t &mean) {
-	char label_char;
+//	char label_char;
 	
 	std::ifstream data_file(filename, std::ios::in | std::ios::binary);
 	if (!data_file)
@@ -181,9 +181,11 @@ void readdata_mnist(string filename, string labelname, vector<vec_t> &data_blob,
 		snp = &datas[0];
 		for (unsigned int j = 0; j < kMNISTDataSize; j++) {
 			datas[j] = ((cacu::float_t) ((unsigned char) (buffer[j])) - mean[j]);
+			//cout << "(" << datas[j] << "," << (cacu::float_t) ((unsigned char) (buffer[j])) << "," << mean[j] << ")," ;
 		}
 		data_blob.push_back(datas);
 	}
+	//cout << endl;
 }
 
 void load_data_bymean_mnist(string filepath, string meanfile, vector<vec_t> &data_blob, vector<vec_i> &labels)

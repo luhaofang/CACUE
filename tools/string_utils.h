@@ -38,7 +38,7 @@ using namespace std;
 namespace cacu {
 
 //string split
-vector<string> split(string str, string pattern);
+vector<string> split(const string& str, const string& pattern);
 
 #ifdef _WIN32
 std::wstring StringToWString(const chars_t &str);

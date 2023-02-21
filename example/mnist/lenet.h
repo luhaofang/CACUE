@@ -64,7 +64,7 @@ network* create_lenet(int batch_size, phase_type phase_)
 	layer *pool2 = new layer(new data_args(50, 2, 2, 0, 50));
 	pool2->op(CACU_MAX_POOLING, conv2->get_oblob());
 
-	layer *fc1 = new layer(new data_args(500, 0, 0, 0, 50));
+	layer *fc1 = new layer(new data_args(500, 0, 0, 0, pool2->get_oblob()->length()));
 	fc1->op(CACU_INNERPRODUCT, pool2->get_oblob())->op(CACU_RELU);
 	fc1->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_weight_init_type(xavier);
 	fc1->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_bias_init_type(constant);
@@ -76,7 +76,6 @@ network* create_lenet(int batch_size, phase_type phase_)
 		loss_->op(CACU_INNERPRODUCT, fc1->get_oblob())->op(CACU_SOFTMAX_LOSS, label_);
 		loss_->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_weight_init_type(xavier);
 		loss_->get_op<inner_product_op>(0, CACU_INNERPRODUCT)->set_bias_init_type(constant);
-		loss_->get_op<softmax_with_loss_op>(1, CACU_SOFTMAX_LOSS)->set_loss_weight(0.01);
 		LOG_INFO("loss");
 		*net << loss_;
 	}

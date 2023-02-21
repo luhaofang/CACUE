@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "blob_definition.h"
+#include "graphic_definition.h"
 
 #include "blob_body.h"
 #include "blob_base.h"
@@ -41,6 +42,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "layer.h"
 #include "layer_block.h"
 #include "network.h"
+
+#include "initialize_functions.h"
+#include "initializer_base.h"
+#include "gaussian_initializer.h"
+#include "msra_initializer.h"
+#include "xavier_initializer.h"
+#include "uniform_initializer.h"
+
 
 #include "args_base.h"
 

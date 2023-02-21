@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if __CBLASTYPE__ == __OPENBLAS__
 
-#include <cblas.h>
+#include "../../../3rdparty/include/openblas/cblas.h"
 
 namespace cacu{
 

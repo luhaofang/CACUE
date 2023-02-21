@@ -27,7 +27,8 @@
 
 #include "loss_functions_cpu.h"
 
-#include "../../config.h"
+#include <algorithm>
+#include <cmath>
 
 namespace cacu {
 
@@ -36,25 +37,47 @@ void cacu_cross_entropy_multi_cpu(float_t *x, const int num, const int channel, 
 		const int *label_, float_t *loss_){
 
 	float *xp;
-	int *lp;
-	int n;
 
 	int c_length = width * height;
 	int length = channel * c_length;
-	int index;
+	int index, n, h, w;
 
 	#if __OPENMP__ == ON
 	#pragma omp parallel for default(shared) private(n,xp)
 	#endif
-		for (int n = 0; n < num; ++n) {
-			for (int h= 0; h< height;++h)
-				for(int w = 0; w < width; ++w)
-				{
-					index = h * width + w;
-					xp = x + n * length + index;
-					loss_[0] -= (label_[index + n * c_length] >= 0) ? log(max(xp[label_[index + n * c_length]*c_length], float_t(_MIN_FLT_))) : 0;
-				}
-		}
+	for (n = 0; n < num; ++n) {
+		for (h= 0; h< height;++h)
+			for(w = 0; w < width; ++w)
+			{
+				index = h * width + w;
+				xp = x + n * length + index;
+				loss_[0] -= (label_[index + n * c_length] >= 0) ? logf(max(xp[label_[index + n * c_length]*c_length], float_t(_MIN_FLT_))) : 0;
+			}
+	}
+
+}
+
+
+void cacu_cross_entropy_multi_grad_cpu(float_t *x, const int num, const int channel, const int width, const int height, const int *label_, float_t *xg){
+
+	float *xp;
+
+	int c_length = width * height;
+	int length = channel * c_length;
+	int index, n, h, w;
+
+	#if __OPENMP__ == ON
+	#pragma omp parallel for default(shared) private(n,xp)
+	#endif
+	for (n = 0; n < num; ++n) {
+		for (h= 0; h< height;++h)
+			for(w = 0; w < width; ++w) {
+				index = h * width + w;
+				xp = x + n * length + index;
+				xg[n * length + index + label_[index + n * c_length] * c_length] =
+						float_t(-1.0) / max(xp[label_[index + n * c_length]*c_length], float_t(_MIN_FLT_));
+			}
+	}
 
 }
 

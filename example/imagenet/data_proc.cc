@@ -61,18 +61,18 @@ void readdata(const char* filename, cacu::float_t *data_,cacu::float_t *mean_) {
 #else
 	imageio_utils::imread(data_,filename,KIMAGESIZE);
 #endif
-	cacu_saxpy(mean_,(cacu::float_t)(-1),data_,KIMAGESIZE);
+	//cacu_saxpy(mean_,(cacu::float_t)(-1),data_,KIMAGESIZE);
 }
 
 void clipreaddata(const char* filename, cacu::float_t *data_,cacu::float_t *mean_) {
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	imageio_utils::clip_imread_gpu(data_, filename, 224, 224);
+	imageio_utils::clip_imread_gpu(data_, filename, 224, 224, false);
 #endif
 #else
-	imageio_utils::clip_imread(data_, filename, 224, 224);
+	imageio_utils::clip_imread(data_, filename, 224, 224, false);
 #endif
-	cacu_saxpy(mean_,(cacu::float_t)(-1),data_,KIMAGESIZE);
+	//cacu_saxpy(mean_,(cacu::float_t)(-1),data_,KIMAGESIZE);
 }
 
 vec_t compute_mean(chars_t &filepath, chars_t &filelist)

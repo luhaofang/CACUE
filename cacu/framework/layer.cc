@@ -39,8 +39,10 @@ layer::layer() :
 
 }
 
-layer* layer::op(op_name op_) {
+layer::~layer(){
+}
 
+layer* layer::op(op_name op_) {
 	blobs *blobs_ = cacu_allocator::create_blobs();
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
@@ -63,12 +65,13 @@ layer* layer::op(op_name op_, blob_base *blob_) {
 	return this;
 }
 
-layer* layer::op(op_name op_, blob_base *blob_, data_args *&args_) {
-	if (args_ != NULL)
+layer* layer::op(op_name op_, blob_base *blob_, data_args *args_) {
+	if (_args != NULL && args_ != NULL)
 		LOG_FATAL("layer data arguments is already defined, if your want a new data arguments, please setup a new layer!");
 	if (blob_ == NULL)
 		LOG_FATAL("input data is NULL!");
-	_args = args_;
+	if (_args == NULL)
+		_args = args_;
 	blobs *blobs_ = cacu_allocator::create_blobs();
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
@@ -79,18 +82,34 @@ layer* layer::op(op_name op_, blob_base *blob_, data_args *&args_) {
 	return this;
 }
 
-layer* layer::op(op_name op_, blobs *blobs_) {
+layer* layer::op(op_name op_, blob_base *blob_, op_args *o_args_, data_args *args_) {
+	if (_args != NULL && args_ != NULL)
+		LOG_FATAL("layer data arguments is already defined, if your want a new data arguments, please setup a new layer!");
+	if (blob_ == NULL)
+		LOG_FATAL("input data is NULL!");
+	if (_args == NULL)
+		_args = args_;
+	blobs *blobs_ = cacu_allocator::create_blobs();
+	if (out_blob != NULL)
+		blobs_->push_back(out_blob);
+	blobs_->push_back(blob_);
+	add_op(operator_factory::create_op(op_, blobs_, _args, o_args_));
+	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
+	return this;
+}
 
+layer* layer::op(op_name op_, blobs *blobs_) {
 	if (blobs_ == NULL)
 		LOG_FATAL("input data is NULL!");
 	if (out_blob != NULL)
 	{
 		vector<blob_base*> blob_data;
-		for(int i = 0 ; i < blobs_->size(); ++i)
+		for(unsigned int i = 0 ; i < blobs_->size(); ++i)
 			blob_data.push_back(blobs_->at(i));
 		blobs_->clear();
 		blobs_->push_back(out_blob);
-		for(int i = 0 ; i < blob_data.size(); ++i)
+		for(unsigned int i = 0 ; i < blob_data.size(); ++i)
 			blobs_->push_back(blob_data[i]);
 	}
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
@@ -99,20 +118,21 @@ layer* layer::op(op_name op_, blobs *blobs_) {
 	return this;
 }
 
-layer* layer::op(op_name op_, blobs *blobs_, data_args *&args_) {
-	if (args_ != NULL)
+layer* layer::op(op_name op_, blobs *blobs_, data_args *args_) {
+	if (_args != NULL && args_ != NULL)
 		LOG_FATAL("layer data arguments is already defined, if your want a new data arguments, please setup a new layer!");
 	if (blobs_ == NULL)
 		LOG_FATAL("input data is NULL!");
-	_args = args_;
+	if (_args == NULL)
+		_args = args_;
 	if (out_blob != NULL)
 	{
 		vector<blob_base*> blob_data;
-		for(int i = 0 ; i < blobs_->size(); ++i)
+		for(unsigned int i = 0 ; i < blobs_->size(); ++i)
 			blob_data.push_back(blobs_->at(i));
 		blobs_->clear();
 		blobs_->push_back(out_blob);
-		for(int i = 0 ; i < blob_data.size(); ++i)
+		for(unsigned int i = 0 ; i < blob_data.size(); ++i)
 			blobs_->push_back(blob_data[i]);
 	}
 	add_op(operator_factory::create_op(op_, blobs_, _args, NULL));
@@ -124,7 +144,6 @@ layer* layer::op(op_name op_, blobs *blobs_, data_args *&args_) {
 layer* layer::op(op_name op_, blob_base *blob_, op_args *args_) {
 	if (blob_ == NULL)
 		LOG_FATAL("input data is NULL!");
-	_args = NULL;
 	blobs *blobs_ = cacu_allocator::create_blobs();
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
@@ -136,7 +155,6 @@ layer* layer::op(op_name op_, blob_base *blob_, op_args *args_) {
 }
 
 layer* layer::op(op_name op_, op_args *args_) {
-	_args = NULL;
 	blobs *blobs_ = cacu_allocator::create_blobs();
 	if (out_blob != NULL)
 		blobs_->push_back(out_blob);
@@ -149,18 +167,41 @@ layer* layer::op(op_name op_, op_args *args_) {
 layer* layer::op(op_name op_, blobs *blobs_, op_args *args_) {
 	if (blobs_ == NULL)
 		LOG_FATAL("input data is NULL!");
-	_args = NULL;
+
 	if (out_blob != NULL)
 	{
 		vector<blob_base*> blob_data;
-		for(int i = 0 ; i < blobs_->size(); ++i)
+		for(unsigned int i = 0 ; i < blobs_->size(); ++i)
 			blob_data.push_back(blobs_->at(i));
 		blobs_->clear();
 		blobs_->push_back(out_blob);
-		for(int i = 0 ; i < blob_data.size(); ++i)
+		for(unsigned int i = 0 ; i < blob_data.size(); ++i)
 			blobs_->push_back(blob_data[i]);
 	}
 	add_op(operator_factory::create_op(op_, blobs_, _args, args_));
+	out_blob = _ops->back()->out_data<blob_base>();
+	_ops->back()->echo();
+	return this;
+}
+
+layer* layer::op(op_name op_, blobs *blobs_, op_args *o_args_, data_args *args_) {
+	if (_args != NULL && args_ != NULL)
+		LOG_FATAL("layer data arguments is already defined, if your want a new data arguments, please setup a new layer!");
+	if (blobs_ == NULL)
+		LOG_FATAL("input data is NULL!");
+	if (_args == NULL)
+		_args = args_;
+	if (out_blob != NULL)
+	{
+		vector<blob_base*> blob_data;
+		for(unsigned int i = 0 ; i < blobs_->size(); ++i)
+			blob_data.push_back(blobs_->at(i));
+		blobs_->clear();
+		blobs_->push_back(out_blob);
+		for(unsigned int i = 0 ; i < blob_data.size(); ++i)
+			blobs_->push_back(blob_data[i]);
+	}
+	add_op(operator_factory::create_op(op_, blobs_, args_, o_args_));
 	out_blob = _ops->back()->out_data<blob_base>();
 	_ops->back()->echo();
 	return this;

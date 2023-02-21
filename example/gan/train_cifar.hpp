@@ -44,17 +44,17 @@ using namespace cacu;
 void train_net() {
 	int batch_size = 256;
 
-	int max_iter = 200000;
+	int max_iter = 40000;
 
 	int test_iter = 100;
 	int train_test_iter = 100;
 
-	string root_path = "/User/seallhf/git/caffe/data/cifar10/";
+	string root_path = "/home/seallhf/4T/dataset/cifar/";
 
 	//set gpu device if training by gpu
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
-	cuda_set_device(2);
+	cuda_set_device(0);
 #endif
 #endif
 	//set random seed
@@ -92,8 +92,10 @@ void train_net() {
 	network *gnet = new network(gin_blobs);
 	network *dnet = new network(din_blobs);
 
-	layer_block *generator = create_generator_32(random_z_,train);
-	layer_block *discriminator = create_discriminator_32(blob_, label_, train);
+	layer_block *generator = create_generator_32_new(random_z_,train);
+//	generator->load_weights("/home/seallhf/4T/dataset/cifar/models/generator_40000.model");
+	layer_block *discriminator = create_discriminator_32_new(blob_, label_, train);
+//	discriminator->load_weights("/home/seallhf/4T/dataset/cifar/models/discriminator_40000.model");
 
 	*gnet << generator;
 	*dnet << discriminator;
@@ -101,8 +103,8 @@ void train_net() {
 	adam_solver *gsgd = new adam_solver(gnet);
 	gsgd->set_regularize(cacu::regularize_type::L2);
 //	gsgd->load_param("/home/haofang/experiment/generative/g_solver.txt");
-	gsgd->set_alpha(0.5);
-	gsgd->set_beta(0.999);
+	gsgd->set_beta1(0.5);
+	gsgd->set_beta2(0.999);
 	gsgd->set_lr(0.0001);
 	gsgd->set_weight_decay(0.01);
 
@@ -110,13 +112,13 @@ void train_net() {
 	adam_solver *dsgd = new adam_solver(dnet);
 	dsgd->set_regularize(cacu::regularize_type::L2);
 //  dsgd->load_param("/home/haofang/experiment/generative/d_solver.txt");
-	dsgd->set_alpha(0.5);
-	dsgd->set_beta(0.999);
+	dsgd->set_beta1(0.5);
+	dsgd->set_beta2(0.999);
 	dsgd->set_lr(0.0001);
 	dsgd->set_weight_decay(0.01);
 
-	string datapath = root_path;//"/Users/seallhf/Documents/datasets/cifar10/";
-	string meanfile = root_path + "mean.binproto";
+	string datapath = "/home/seallhf/4T/dataset/cifar/";
+	string meanfile = "/home/seallhf/4T/dataset/cifar/mean.binproto";
 
 	vector<vec_t> full_data;
 	vector<vec_i> full_label;
@@ -152,7 +154,8 @@ void train_net() {
 
 	cacu::float_t dloss1 = 0,dloss2 = 0,gloss = 0;
 
-	sigmoid_with_loss_op* loss_op = dnet->get_op<sigmoid_with_loss_op>(dnet->op_count() - 1, CACU_SIGMOID_LOSS);
+//	sigmoid_with_loss_op* loss_op = dnet->get_op<sigmoid_with_loss_op>(dnet->op_count() - 1, CACU_SIGMOID_LOSS);
+	hinge_loss_op *loss_op = dnet->get_ops<hinge_loss_op>()[0];
 	//random_shuffle(full_data.begin(), full_data.end());
 	for (int i = 1; i <= max_iter; ++i) {
 
@@ -168,10 +171,7 @@ void train_net() {
 		//train discriminator by true image
 		label_->set_data(1);
 		//loss_op->set_loss_weight(0.5);
-		//dsgd->train_iter(i);
-		discriminator->top_op<sigmoid_with_loss_op>()->set_loss_weight(0.5);
-		dnet->forward_propagate();
-		dnet->back_propagate();
+		dsgd->train_iter(i);
 		dloss1 = loss_op->loss();
 
 		//generate the fake image
@@ -179,13 +179,13 @@ void train_net() {
 		gnet->set_phase(train);
 		gnet->forward_propagate();
 		cacu_copy(gnet->output_blob()->s_data(), gnet->output_blob()->count(), blob_->s_data());
-		cacu_print(blob_->s_data(),10);
+		//cacu_print(blob_->s_data(),10);
 
 		//train discriminator by fake label
 		label_->set_data(0);
 		dsgd->train_iter(i);
-		dloss1 += loss_op->loss();
-		//dloss1 /= 2;
+		dloss2 = loss_op->loss();
+
 		//train generator by zero label
 		//input_label->copy2data(label);
 		/*
@@ -199,54 +199,44 @@ void train_net() {
 
 		dsgd->net()->back_propagate();
 		//*/
-		random_z_->set_init_type(uniform,1);
-		discriminator->top_op<sigmoid_with_loss_op>()->set_loss_weight(1);
-		gnet->set_phase(train);
-		gnet->forward_propagate();
-		cacu_copy(gnet->output_blob()->s_data(), gnet->output_blob()->count(), blob_->s_data());
-		label_->set_data(0);
-		dnet->forward_propagate();
-		dloss2 = loss_op->loss();
-		dnet->back_propagate();
 		cacu_copy(blob_->s_diff(), blob_->count(), gnet->output_blob()->s_diff());
-		dnet->_RESET_WEIGHT_DIFF();
-		cacu_print(blob_->s_diff(),10);
+		//cacu_print(blob_->s_diff(),10);
 
 		gnet->set_phase(train);
 		gsgd->update_direction(maximize);
-		gsgd->net()->back_propagate();
-		cacu_print(gnet->get_op(0)->get_weight(0)->s_diff(),10);
+		gsgd->net()->backward_propagate();
 		gsgd->updates(i);
 
-
+		//cacu_print(gnet->get_op(0)->get_weight(0)->s_diff(),10);
 		//*/
 		timer->end();
-
 
 		if (i % 1 == 0) {
 			
 			LOG_INFO("iter_%d, lr: %f, %ld ms/iter", i, dsgd->lr(), timer->get_time_span() / 1000);
-			LOG_INFO("discriminator loss : %f", (dloss1 + dloss2));
+			LOG_INFO("discriminator loss : %f", (dloss1 + dloss2) / 2);
 			LOG_INFO("generator loss : %f", dloss2);
 			//LOG_INFO("generator loss : %f", gloss);
 		}
 		logger << dloss2 << endl;
 		logger.flush();
 
-		precious_logger << dloss1 + dloss2 << endl;
+		precious_logger << (dloss1 + dloss2) / 2<< endl;
 		precious_logger.flush();
 
 
 
-		if (i % 50000 == 0){
+		if (i % 45000 == 0){
 			dsgd->set_lr_iter(0.1);
 			gsgd->set_lr_iter(0.1);
 		}
 
 		if (i % 100 == 0) {
 			ostringstream oss;
+			random_z_->set_init_type(uniform,1);
+			gnet->predict();
 
-			oss << root_path << "generative/" << "test_" << i << ".jpg";
+			oss << root_path << "generative_sn/" << "test_gpu_" << i << ".jpg";
 			imageio_utils::imwrite(((blob*)generator->get_oblob()),oss.str().c_str());
 		}
 		if (i % 10000 == 0) {
@@ -261,9 +251,9 @@ void train_net() {
 		}
 	}
 
-	ostringstream oss;
-	oss << root_path << "models/" << "generator.model";
-	generator->save_weights(oss.str());
+//	ostringstream oss;
+//	oss << root_path << "models/" << "generator.model";
+//	generator->save_weights(oss.str());
 	logger.close();
 	precious_logger.close();
 	precious_train_logger.close();

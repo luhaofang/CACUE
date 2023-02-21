@@ -28,8 +28,6 @@
 #ifndef POOLING_FUNCTIONS_CUDA_H_
 #define POOLING_FUNCTIONS_CUDA_H_
 
-#include "../../config.h"
-
 #if __USE_DEVICE__ == ON
 #if __PARALLELTYPE__ == __CUDA__
 

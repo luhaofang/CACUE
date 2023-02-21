@@ -132,7 +132,7 @@ public:
 				_args->stride());
 	}
 
-	void op(blobs *s_blobs_,blobs *o_blobs_) override {
+	void op(blobs *&s_blobs_,blobs *&o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -154,10 +154,10 @@ public:
 			o_blob_->_sync(i);
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs_->at(0);
-		blob *s_blob_ = (blob*)s_blobs_->at(0);
-		blob *col_data_ = (blob*)_col_data;
-		blob *bias_multiplier = (blob*) _bias_multiplier;
+		blob *o_blob_ = o_blobs_->asblob(0);
+		blob *s_blob_ = s_blobs_->asblob(0);
+		blob *col_data_ = _col_data;
+		blob *bias_multiplier = _bias_multiplier;
 
 		col_offset = o_blob_->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
@@ -181,7 +181,7 @@ public:
 
 	}
 
-	void grad(blobs *s_blobs_,blobs *o_blobs_) override {
+	void grad(blobs *&s_blobs_,blobs *&o_blobs_) override {
 
 #if __USEMBEDDING__ == ON
 		em_blob *o_blob_ = (em_blob*) o_blobs->at(0);
@@ -215,10 +215,10 @@ public:
 						s_blob_->width() * s_blob_->height());
 		}
 #else
-		blob *o_blob_ = (blob*)o_blobs_->at(0);
-		blob *s_blob_ = (blob*)s_blobs_->at(0);
-		blob *col_data_ = (blob*)_col_data;
-		blob *bias_multiplier = (blob*) _bias_multiplier;
+		blob *o_blob_ = o_blobs_->asblob(0);
+		blob *s_blob_ = s_blobs_->asblob(0);
+		blob *col_data_ = _col_data;
+		blob *bias_multiplier = _bias_multiplier;
 
 		col_offset = o_blob_->channel() / _group * _col_data->channel_length();
 		w_offset = _w->count() / _group / _group;
@@ -298,7 +298,7 @@ protected:
 
 	weight *_bias = NULL;
 
-	blob_base *_col_data = NULL;
+	blob *_col_data = NULL;
 
 	blob *_bias_multiplier = NULL;
 

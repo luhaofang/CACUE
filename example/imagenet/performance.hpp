@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void test_net()
 {
-	int batch_size = 1;
+	int batch_size = 2;
 
 	int ALLIMAGE = 1;
 
@@ -54,14 +54,14 @@ void test_net()
 	cuda_set_device(0);
 #endif
 
-	network *net = create_mnasnet(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
+	network *net = create_vgg_16_net(batch_size,test);//create_vgg_16_net(batch_size,test);//create_res50net(batch_size,test);//create_cifar_test_net(batch_size,test);
 	//network *net = create_vgg_16_net(batch_size, test);
 	//network *net = create_mobilenet(batch_size,test);
 	//net->load_weights("/home/seal/4T/cacue/imagenet/res50net_120000.model");//vggnet_40000.model");
-	//net->load_weights("/home/seal/4T/cacue/imagenet/final_model/mobilenet.model");
+//	net->load_weights("./mobile_net_test.model");
 	//net->check();
 	//op_injector *injector = new op_injector(net->get_op(29));
-
+	//net->save_weights("./mobile_net_test.model");
 	/**
 	 * read data for testing
 	 */
@@ -75,8 +75,8 @@ void test_net()
 
 	time_utils *timer = new time_utils();
 
-	for(int i = 0; i < 100; ++i){
-		input_data->set_init_type(gaussian,0.1);
+	for(int i = 0; i < 1; ++i){
+		input_data->set_init_type(constant,0.1);
 		timer->start();
 		net->predict();
 		timer->end();

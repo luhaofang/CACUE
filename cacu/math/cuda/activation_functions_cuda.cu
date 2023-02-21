@@ -56,7 +56,7 @@ extern "C" void cacu_relu_cuda(float_t *x, int length) {
 
 	_k_CACU_RELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -81,7 +81,7 @@ extern "C" void cacu_relu_grad_cuda(float_t *x, float_t *g, int length) {
 
 	_k_CACU_RELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -106,7 +106,7 @@ extern "C" void cacu_leaky_relu_cuda(float_t *x, float_t a, int length) {
 
 	_k_CACU_LEAKY_RELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, a, length);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -133,7 +133,7 @@ extern "C" void cacu_leaky_relu_grad_cuda(float_t *x, float_t *g, float_t a,
 
 	_k_CACU_LEAKY_RELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, a, length);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -164,7 +164,7 @@ extern "C" void cacu_prelu_cuda(float_t *x, const float_t *slopes,
 	_k_CACU_PRELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, slopes, num, channel,
 			c_length);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -198,7 +198,7 @@ extern "C" void cacu_prelu_grad_cuda(float_t *x, float_t *g,
 	_k_CACU_PRELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, slopes, g_slopes,
 			num, channel, c_length);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -272,7 +272,7 @@ extern "C" void cacu_softmax_cuda(float_t *x, const int num, const int channel,
 	_k_CACU_SOFTMAX_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, num, channel, width,
 			height, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -286,7 +286,7 @@ __global__ void _k_CACU_ELU_CUDA(float_t *x, const int length, const float_t alp
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
 		y[i] = (max(x[i], float_t(0))
-		        + alpha * (exp(min(x[i], float_t(0))) - float_t(1)));
+		        + alpha * (expf(min(x[i], float_t(0))) - float_t(1)));
 	}
 }
 
@@ -297,7 +297,7 @@ extern "C" void cacu_elu_cuda(float_t *x, const int length, const float_t alpha,
 
 	_k_CACU_ELU_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, alpha, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -323,7 +323,7 @@ extern "C" void cacu_elu_grad_cuda(float_t *x, float_t *g, const int length, con
 
 	_k_CACU_ELU_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, alpha, y, grad);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 
 }
 
@@ -337,7 +337,7 @@ __global__ void _k_CACU_EXP_CUDA(float_t *x, int length, float_t *y) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = std::exp(x[i]);
+		y[i] = expf(x[i]);
 	}
 
 }
@@ -348,7 +348,7 @@ __global__ void _k_CACU_EXP_CUDA(float_t *x, int length, float_t *y) {
 extern "C" void cacu_exp_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_EXP_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_TANH_CUDA(float_t *x, int length, float_t *y) {
@@ -360,7 +360,7 @@ __global__ void _k_CACU_TANH_CUDA(float_t *x, int length, float_t *y) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = std::tanh(x[i]);
+		y[i] = tanhf(x[i]);
 	}
 
 }
@@ -371,7 +371,7 @@ __global__ void _k_CACU_TANH_CUDA(float_t *x, int length, float_t *y) {
 extern "C" void cacu_tanh_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_TANH_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_TANH_GRAD_CUDA(float_t *x, float_t *g, int length,
@@ -395,7 +395,7 @@ extern "C" void cacu_tanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
 	_k_CACU_TANH_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_HTANH_CUDA(float_t *x, int length, float_t *y) {
@@ -407,7 +407,7 @@ __global__ void _k_CACU_HTANH_CUDA(float_t *x, int length, float_t *y) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = x[i] > 0 ? std::tanh(x[i]) : 0;
+		y[i] = x[i] > 0 ? tanhf(x[i]) : 0;
 	}
 
 }
@@ -418,7 +418,7 @@ __global__ void _k_CACU_HTANH_CUDA(float_t *x, int length, float_t *y) {
 extern "C" void cacu_htanh_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_HTANH_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_HTANH_GRAD_CUDA(float_t *x, float_t *g, int length,
@@ -442,7 +442,7 @@ extern "C" void cacu_htanh_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
 	_k_CACU_HTANH_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_SIGMOID_CUDA(float_t *x, int length, float_t *y) {
@@ -454,7 +454,7 @@ __global__ void _k_CACU_SIGMOID_CUDA(float_t *x, int length, float_t *y) {
 
 	for (int i = threadid; i < length; i += BLOCKNUM * THREADNUM) {
 
-		y[i] = float_t(1) / (float_t(1) + exp(-x[i]));
+		y[i] = float_t(1) / (float_t(1) + expf(-x[i]));
 	}
 
 }
@@ -465,7 +465,7 @@ __global__ void _k_CACU_SIGMOID_CUDA(float_t *x, int length, float_t *y) {
 extern "C" void cacu_sigmoid_cuda(float_t *x, int length, float_t *y) {
 	_k_CACU_SIGMOID_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, length, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 __global__ void _k_CACU_SIGMOID_GRAD_CUDA(float_t *x, float_t *g, int length,
@@ -489,7 +489,7 @@ extern "C" void cacu_sigmoid_grad_cuda(float_t *x, float_t *g, int length,
 		float_t *y) {
 	_k_CACU_SIGMOID_GRAD_CUDA<<<BLOCKNUM, THREADNUM, 0>>>(x, g, length, y);
 
-	CUDA_CHECK(cudaThreadSynchronize());
+	CUDA_CHECK(cuda_device_sync_status());
 }
 
 }

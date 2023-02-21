@@ -40,22 +40,24 @@ public:
 
 	~model();
 
-	int caculate_data_space() {
-		return 0;
+
+	void nn(chars_t op_name_, cacu_op *&op_);
+
+	inline cacu_op *& get_op(chars_t op_name_){
+		return _cacu_ops->at(op_name_);
 	}
 
-	cacu_op* operator <<(cacu_op *&op_);
+	inline vector<weight*> *get_params() const {
+		return this->_params;
+	}
 
-	cacu_op* operator >>(cacu_op *&op_);
-
-	cacu_op* operator <<(blob_base *&data_);
 
 
 private:
 
-	op_name _op_type;
+	map<chars_t, cacu_op*> *_cacu_ops = NULL;
 
-	vector<cacu_op*> *_cacu_ops = NULL;
+	vector<weight*> *_params = NULL;
 
 };
 
